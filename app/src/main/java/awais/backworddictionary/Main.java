@@ -1,5 +1,6 @@
 package awais.backworddictionary;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -20,6 +21,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.MenuItemImpl;
 import android.support.v7.widget.Toolbar;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -33,12 +35,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.google.android.gms.ads.MobileAds;
-import com.keiferstone.nonet.BannerView;
 import com.keiferstone.nonet.ConnectionStatus;
 import com.keiferstone.nonet.Monitor;
 import com.keiferstone.nonet.NoNet;
@@ -61,6 +61,7 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
     ViewPager viewPager;
     DictionariesAdapter adapter;
     private Toolbar mToolbar;
+    private int numInMenu = 2;
 
     public static SharedPreferences sharedPreferences;
 
@@ -70,7 +71,6 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // TODO: CHECK NETWORK
         viewPager = findViewById(R.id.viewpager);
         final Drawable diffApiViewPagerColor = viewPager.getBackground();
         final ImageView noInternet = findViewById(R.id.noInternet);
@@ -108,7 +108,7 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
 
         sharedPreferences = getSharedPreferences("settings", MODE_PRIVATE);
         mWindowManager = getWindowManager();
-        mSearchView = new MaterialSearchView(this);
+        mSearchView = new MaterialSearchView(this, numInMenu);
         TabLayout tabLayout = findViewById(R.id.tabs);
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -191,7 +191,7 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
         try {mWindowManager.removeViewImmediate(mSearchView);} catch (Exception ignored) {}
         try {mWindowManager.removeView(mSearchView);} catch (Exception ignored) {}
 
-        mSearchView = new MaterialSearchView(this);
+        mSearchView = new MaterialSearchView(this, numInMenu);
         mSearchViewAdded = false;
         mSearchView.setOnSearchListener(this);
         mSearchView.setSearchResultsListener(this);
@@ -216,9 +216,16 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
         return super.isFinishing();
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
+
+        // TODO: CHECK IF RIPPLE IS OUT OF MENU ITEM BOUNDS
+        int actionView = 0;
+        for (int x=0; x<menu.size(); x++)
+            if (((MenuItemImpl) menu.getItem(x)).requiresActionButton()) actionView++;
+        numInMenu = actionView+1;
 
         menu.findItem(R.id.mSearch).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override

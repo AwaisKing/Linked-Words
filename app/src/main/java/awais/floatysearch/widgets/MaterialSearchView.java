@@ -40,7 +40,6 @@ import awais.floatysearch.onSearchListener;
 import awais.floatysearch.onSimpleSearchActionsListener;
 import awais.floatysearch.utils.Util;
 
-
 @SuppressWarnings("unused")
 public class MaterialSearchView extends FrameLayout implements View.OnClickListener, onSearchActionsListener, onSimpleSearchActionsListener {
     private final EditText mSearchEditText;
@@ -56,19 +55,17 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     private final FrameLayout progressBarLayout;
     private onSimpleSearchActionsListener searchListener;
     private final TextView noResultsFoundText;
+    private int numInMenu;
 
-//    public void setHintText(String hint) {
-//        mSearchEditText.setHint(hint);
-//    }
-
+    public void setHintText(String hint) {
+        mSearchEditText.setHint(hint);
+    }
     public CardView getCardLayout() {
         return cardLayout;
     }
-
     public ListView getListview() {
         return mFrameLayout;
     }
-
     public View getLineDivider() {
         return lineDivider;
     }
@@ -108,12 +105,13 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
         this.searchListener.error(localizedMessage);
     }
 
-    public MaterialSearchView(final Context context) {
+    public MaterialSearchView(final Context context, int number) {
         super(context, null, -1);
 
         final LayoutInflater factory = LayoutInflater.from(context);
         factory.inflate(R.layout.toolbar_searchview, this);
 
+        numInMenu = number;
         mContext = context;
         cardLayout = findViewById(R.id.card_search);
         mFrameLayout = findViewById(R.id.material_search_container);
@@ -167,17 +165,6 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
                 return false;
             }
         });
-
-//        mSearchEditText.setOnClickListener(new OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                try {
-//                    ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
-//                            .toggleSoftInput(InputMethodManager.SHOW_FORCED,
-//                            InputMethodManager.HIDE_IMPLICIT_ONLY);
-//                } catch (Exception e) { Log.e("AWAISKING_APP", "", e); }
-//            }
-//        });
 
         findViewById(R.id.image_search_back).setOnClickListener(this);
         mClearSearch.setOnClickListener(this);
@@ -245,7 +232,7 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
 //        mOnSearchListener.searchViewOpened();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             final Animator animator = ViewAnimationUtils.createCircularReveal(cardLayout,
-                    cardLayout.getWidth() - Util.dpToPx(getContext(), 56*2),
+                    cardLayout.getWidth() - Util.dpToPx(getContext(), 56*numInMenu),
                     Util.dpToPx(getContext(), 23), 0,
                     (float) Math.hypot(cardLayout.getWidth(), cardLayout.getHeight()));
             animator.addListener(new Animator.AnimatorListener() {
@@ -300,7 +287,7 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
 //        } catch (Exception e) { Log.e("AWAISKING_APP", "", e); }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             final Animator animatorHide = ViewAnimationUtils.createCircularReveal(cardLayout,
-                    cardLayout.getWidth() - Util.dpToPx(getContext(), 56),
+                    cardLayout.getWidth() - Util.dpToPx(getContext(), 56*numInMenu),
                     Util.dpToPx(getContext(), 23),
                     (float) Math.hypot(cardLayout.getWidth(), cardLayout.getHeight()), 0);
             animatorHide.addListener(new Animator.AnimatorListener() {

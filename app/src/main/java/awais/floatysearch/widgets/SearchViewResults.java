@@ -25,7 +25,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-@SuppressWarnings({"WeakerAccess", "unused"})
 public class SearchViewResults implements AdapterView.OnItemClickListener, AbsListView.OnScrollListener {
     private static final int TRIGGER_SEARCH = 1;
     private static final long SEARCH_TRIGGER_DELAY_IN_MS = 400;
@@ -38,7 +37,7 @@ public class SearchViewResults implements AdapterView.OnItemClickListener, AbsLi
     private final ArrayAdapter<SearchResultItem> mAdapter;
     private onSearchActionsListener mListener;
 
-    public SearchViewResults(Context context, String searchQuery) {
+    SearchViewResults(Context context, String searchQuery) {
         sequence = searchQuery;
         ArrayList<SearchResultItem> searchList = new ArrayList<>();
         mAdapter = new ArrayAdapter<>(context,android.R.layout.simple_list_item_1, searchList);
@@ -56,14 +55,14 @@ public class SearchViewResults implements AdapterView.OnItemClickListener, AbsLi
         });
     }
 
-    public void setListView(ListView listView) {
+    void setListView(ListView listView) {
         listView.setOnItemClickListener(this);
         listView.setOnScrollListener(this);
         listView.setAdapter(mAdapter);
         updateSequence();
     }
 
-    public void updateSequence(String s) {
+    void updateSequence(String s) {
         sequence = s;
         updateSequence();
     }
@@ -112,13 +111,14 @@ public class SearchViewResults implements AdapterView.OnItemClickListener, AbsLi
         }
     }
 
-    private ArrayList<String> findItem(String query, int page) {
+    @SuppressWarnings("unused")
+    public ArrayList<String> findItem(String query, int page) {
         ArrayList<String> result = new ArrayList<>();
         result.add(query);
         return result;
     }
 
-    public void setSearchProvidersListener(onSearchActionsListener listener) {
+    void setSearchProvidersListener(onSearchActionsListener listener) {
         this.mListener = listener;
     }
 

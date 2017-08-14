@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.net.Uri;
 import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsIntent;
-import android.support.customtabs.CustomTabsSession;
 
 public class CustomTabActivityHelper implements ServiceConnection.ServiceConnectionCallback {
     private CustomTabsClient mClient;

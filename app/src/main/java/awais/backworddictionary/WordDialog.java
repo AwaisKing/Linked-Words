@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.widget.DialogTitle;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
@@ -26,15 +25,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
 import awais.backworddictionary.customweb.WebViewFallback;
-
 
 class WordDialog extends Dialog implements android.view.View.OnClickListener {
     private final WordItem wordItem;
