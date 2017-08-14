@@ -234,6 +234,16 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
         });
         if(searchActive) mSearchView.display();
 
+        menu.findItem(R.id.mRefresh).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                onCancelSearch();
+                if (!getTitle().equals(getResources().getString(R.string.app_name)))
+                    onSearch(getTitle().toString(), true);
+                return true;
+            }
+        });
+
         return true;
 
     }
@@ -315,8 +325,6 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
         }
     }
 
-
-    // TODO: ADD REFRESH FUNCTIONALITY
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         MenuDialog bottomSheetDialogFragment = new MenuDialog();
@@ -417,9 +425,12 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
                 stringBuilder.append("OkHttp3 [Apache License 2.0]\n");
                 stringBuilder.append("GSON [Apache License 2.0]\n");
                 stringBuilder.append("material-searchview [Apache License 2.0]\n");
-                stringBuilder.append("Chrome Custom Tabs [Apache License 2.0]\n\n");
+                stringBuilder.append("Chrome Custom Tabs [Apache License 2.0]\n");
+                stringBuilder.append("NoNet [Apache License 2.0]\n");
+                stringBuilder.append("SmoothRefreshLayout [MIT]\n\n");
                 stringBuilder.append("License:\n");
-                stringBuilder.append("Apache License 2.0");
+                stringBuilder.append("Apache License 2.0\n");
+                stringBuilder.append("MIT");
 
                 stringBuilder.setSpan(new StyleSpan(Typeface.BOLD), 0, 9, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 stringBuilder.setSpan(new RelativeSizeSpan(1.1f), 0, 9, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -450,18 +461,27 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
                 stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 128,153, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 154,194, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 195,234, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                stringBuilder.setSpan(new StyleSpan(Typeface.BOLD), 235, 243, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                stringBuilder.setSpan(new RelativeSizeSpan(1.1f), 235, 243, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                stringBuilder.setSpan(new ForegroundColorSpan(0xFF212121), 235, 243, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 245,263, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 235,261, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 262,287, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new StyleSpan(Typeface.BOLD), 289, 297, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new RelativeSizeSpan(1.1f), 289, 297, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new ForegroundColorSpan(0xFF212121), 289, 297, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 298,317, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 stringBuilder.setSpan(new ClickableSpan() {
                     @Override
                     public void onClick(View view) {
                         customTabsIntent.setToolbarColor(Color.parseColor("#cb2533"));
                         CustomTabActivityHelper.openCustomTab(Main.this, customTabsIntent.build(),
                                 Uri.parse("https://www.apache.org/licenses/LICENSE-2.0"), new WebViewFallback());
-                    }},245,263, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
+                    }},298,317, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 317,320, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new ClickableSpan() {
+                    @Override
+                    public void onClick(View view) {
+                        customTabsIntent.setToolbarColor(Color.parseColor("#333333"));
+                        CustomTabActivityHelper.openCustomTab(Main.this, customTabsIntent.build(),
+                                Uri.parse("https://en.wikipedia.org/wiki/MIT_License"), new WebViewFallback());
+                    }},317,320, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 bottomSheetDialogFragment.setTitle(item.getTitle() + " & Credits");
                 bottomSheetDialogFragment.setMessage(stringBuilder);
                 break;
