@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:paddingRight="?attr/dialogPreferredPadding"
+        android:paddingLeft="?attr/dialogPreferredPadding" android:paddingTop="10dp"
+        android:paddingBottom="6dp">
+        <TextView android:id="@android:id/title" android:layout_height="wrap_content"
+            android:layout_width="match_parent" style="@style/TextAppearance.AppCompat.Headline"
+            android:ellipsize="end" android:singleLine="true" />
+    </LinearLayout>
+
+    <android.support.v4.widget.NestedScrollView android:id="@+id/scrollView"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:clipToPadding="false">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+            android:orientation="vertical">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:id="@android:id/message" style="@style/TextAppearance.AppCompat.Subhead"
+                android:paddingLeft="?attr/dialogPreferredPadding"
+                android:paddingRight="?attr/dialogPreferredPadding"
+                android:paddingStart="?attr/dialogPreferredPadding"
+                android:paddingEnd="?attr/dialogPreferredPadding"
+                android:paddingBottom="?attr/dialogPreferredPadding"
+                android:visibility="gone"/>
+            <WebView android:id="@+id/webViewAbout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"/>
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+</LinearLayout>

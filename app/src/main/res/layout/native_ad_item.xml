@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/ad_card_view"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:elevation="0dp"
+    app:elevation="0dp" ads:layout_goneMarginBottom="2dp" ads:layout_goneMarginTop="2dp"
+    android:layout_marginTop="5dp" android:layout_marginBottom="5dp" ads:cardCornerRadius="0dp"
+    ads:cardElevation="1.5dp" android:orientation="vertical">
+</android.support.v7.widget.CardView>

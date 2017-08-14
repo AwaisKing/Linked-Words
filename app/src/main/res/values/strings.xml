@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Linked Words</string>
+
+    <string name="copy">Copy</string>
+    <string name="speak">Speak</string>
+    <string name="google">Google</string>
+    <string name="wikipedia">Wikipedia</string>
+    <string name="urban_dictionary">Urban Dictionary</string>
+
+    <string name="reverse_related">Reverse/Related</string>
+    <string name="sound_like">Sounds Like</string>
+
+    <string name="refresh">Refresh</string>
+    <string name="search">Search</string>
+    <string name="examples">Examples</string>
+    <string name="help">Help</string>
+    <string name="licenses">Licenses</string>
+    <string name="about">About</string>
+
+    <string name="cancel">Cancel</string>
+    <string name="no_results_found">No Results Found</string>
+    <string name="paste">Paste</string>
+</resources>

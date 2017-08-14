@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.AlertDialogLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:gravity="start|top" android:orientation="vertical" >
+
+    <LinearLayout android:id="@+id/topPanel" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:orientation="horizontal"
+        android:paddingTop="10dp" android:paddingLeft="?attr/dialogPreferredPadding"
+        android:paddingRight="?attr/dialogPreferredPadding" >
+
+        <android.support.v7.widget.DialogTitle android:id="@+id/alertTitle"
+            style="?android:attr/windowTitleStyle" android:layout_height="wrap_content"
+            android:ellipsize="end" android:singleLine="true" android:layout_width="0dp"
+            android:layout_weight="1" />
+
+            <Button android:id="@+id/btnCopy" style="?attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/copy"/>
+            <Button android:id="@+id/btnSpeak" style="?attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/speak"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout android:id="@+id/customPanel" android:layout_width="match_parent"
+        android:layout_height="0dp" android:orientation="vertical"
+        android:layout_weight="1">
+
+        <ListView android:id="@+id/lvDefs" android:layout_width="match_parent"
+            android:layout_height="match_parent" android:cacheColorHint="@color/divider"
+            android:fadingEdgeLength="1dp" android:fadingEdge="vertical"
+            android:requiresFadingEdge="vertical" android:overScrollMode="ifContentScrolls" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:orientation="vertical" style="?attr/buttonBarStyle">
+
+        <android.support.v7.widget.ButtonBarLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:gravity="bottom"
+            android:orientation="horizontal" android:paddingLeft="8dp" android:paddingRight="8dp"
+            android:paddingTop="4dp">
+            <Button
+                android:id="@+id/btnGoogle"
+                style="?attr/buttonBarNeutralButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/google"/>
+            <Button
+                android:id="@+id/btnWiki"
+                style="?attr/buttonBarNeutralButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/wikipedia"/>
+            <Button
+                android:id="@+id/btnUrban"
+                style="?attr/buttonBarNeutralButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/urban_dictionary"/>
+        </android.support.v7.widget.ButtonBarLayout>
+        <android.support.v7.widget.ButtonBarLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:orientation="horizontal"
+            android:gravity="bottom" android:paddingLeft="8dp" android:paddingRight="8dp"
+            android:paddingBottom="4dp">
+            <Button
+                android:id="@+id/btnReverse"
+                style="?attr/buttonBarPositiveButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/reverse_related"/>
+            <Button
+                android:id="@+id/btnSoundsLike"
+                style="?attr/buttonBarPositiveButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sound_like"/>
+        </android.support.v7.widget.ButtonBarLayout>
+
+    </LinearLayout>
+
+</android.support.v7.widget.AlertDialogLayout>
