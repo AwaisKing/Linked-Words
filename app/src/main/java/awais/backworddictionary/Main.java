@@ -1,17 +1,18 @@
 package awais.backworddictionary;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.provider.Settings;
-import android.support.annotation.RequiresApi;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -32,13 +33,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
 import com.google.android.gms.ads.MobileAds;
-import com.rafakob.nsdhelper.NsdHelper;
-import com.rafakob.nsdhelper.NsdListener;
-import com.rafakob.nsdhelper.NsdService;
-import com.rafakob.nsdhelper.NsdType;
+import com.keiferstone.nonet.BannerView;
+import com.keiferstone.nonet.ConnectionStatus;
+import com.keiferstone.nonet.Monitor;
+import com.keiferstone.nonet.NoNet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,112 +60,61 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
     private WindowManager mWindowManager;
     ViewPager viewPager;
     DictionariesAdapter adapter;
-    private NsdHelper nsdHelper;
     private Toolbar mToolbar;
+
+    public static SharedPreferences sharedPreferences;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // TODO: CHECK NETWORK
+        viewPager = findViewById(R.id.viewpager);
+        final Drawable diffApiViewPagerColor = viewPager.getBackground();
+        final ImageView noInternet = findViewById(R.id.noInternet);
+        NoNet.monitor(this).configure(NoNet.configure().endpoint("https://api.datamuse.com/words").build())
+                .poll()
+                .callback(new Monitor.Callback() {
+                    @Override
+                    public void onConnectionEvent(int connectionStatus) {
+                        if (connectionStatus != ConnectionStatus.CONNECTED) {
+                            if (adapter != null && adapter.getItem(viewPager.getCurrentItem()).adapter != null
+                                    && adapter.getItem(viewPager.getCurrentItem()).adapter.getItemCount() < 1) {
+                                noInternet.setVisibility(View.VISIBLE);
+                                viewPager.setBackgroundColor(getResources().getColor(R.color.noInternet));
+                            }
+                        } else {
+                            noInternet.setVisibility(View.GONE);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+                                viewPager.setBackground(diffApiViewPagerColor);
+                            else {
+                                if (diffApiViewPagerColor.getClass() == ColorDrawable.class)
+                                    viewPager.setBackgroundColor(((ColorDrawable) diffApiViewPagerColor).getColor());
+                            }
+                        }
+                    }
+                })
+                .snackbar(Snackbar.make(viewPager, "Not connected to internet.", -2)
+                        .setAction("Settings", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                            }
+                        }));
         MobileAds.initialize(this, "ca-app-pub-6411761147229517~1317441366");
 
+
+        sharedPreferences = getSharedPreferences("settings", MODE_PRIVATE);
         mWindowManager = getWindowManager();
         mSearchView = new MaterialSearchView(this);
-//        mSearchView.setHintText("Search");
-
         TabLayout tabLayout = findViewById(R.id.tabs);
-        viewPager = findViewById(R.id.viewpager);
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
-        if (Build.VERSION.SDK_INT >= 21)
-            findViewById(R.id.shadow).setVisibility(View.GONE);
-        else
-            findViewById(R.id.shadow).setVisibility(View.VISIBLE);
-
-//        checkDrawOverlayPermission();
-
-        // TODO: SNACKS
-        final Snackbar snackbar = Snackbar.make(viewPager, "Not connected to internet.",
-                Snackbar.LENGTH_INDEFINITE).setAction("Settings",
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {startActivity(new Intent(Settings.ACTION_WIRELESS_SETTINGS));}});
-//        snackbar.setCallback(new Snackbar.Callback() {
-//            @Override
-//            public void onShown(Snackbar sb) {
-//                Log.d("AWAISKING_APP", "[os]shown: " + sb.isShown());
-//            }
-//
-//            @Override
-//            public void onDismissed(Snackbar sb, @DismissEvent int event) {
-//                Log.d("AWAISKING_APP", "[od]shown: " + sb.isShown());
-//                if (event == Snackbar.Callback.DISMISS_EVENT_MANUAL) sb.dismiss();
-//            }
-//        });
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-//            merlin = new Merlin.Builder().withEndpoint(Endpoint.from("http://www.datamuse.com/api/"))
-//                    .withResponseCodeValidator(new ResponseCodeValidator() {
-//                        @Override
-//                        public boolean isResponseCodeValid(int responseCode) {return responseCode == 200;
-//                        }
-//                    })
-//                    .withConnectableCallbacks().withDisconnectableCallbacks()
-//                    .withBindableCallbacks().build(this);
-//        else
-//            merlin = new Merlin.Builder().withConnectableCallbacks().withDisconnectableCallbacks()
-//                    .withBindableCallbacks().build(this);
-        nsdHelper = new NsdHelper(this, new NsdListener() {
-            @Override
-            public void onNsdRegistered(NsdService nsdService) {}
-            @Override
-            public void onNsdDiscoveryFinished() {}
-
-            @Override
-            public void onNsdServiceFound(NsdService nsdService) {
-                snackbar.dismiss();
-            }
-
-            @Override
-            public void onNsdServiceResolved(NsdService nsdService) {
-                snackbar.dismiss();
-            }
-
-            @Override
-            public void onNsdServiceLost(NsdService nsdService) {
-                snackbar.show();
-            }
-
-            @Override
-            public void onNsdError(String s, int i, String s1) {
-                snackbar.show();
-            }
-        });
-        nsdHelper.registerService("WordService", NsdType.HTTP);
-
-//        merlin.registerConnectable(new Connectable() {
-//            @Override
-//            public void onConnect() {
-//                snackbar.dismiss();
-//            }
-//        });
-//        merlin.registerDisconnectable(new Disconnectable() {
-//            @Override
-//            public void onDisconnect() {
-//                snackbar.show();
-//            }
-//        });
-//        merlin.registerBindable(new Bindable() {
-//            @Override
-//            public void onBind(NetworkStatus networkStatus) {
-//                if (networkStatus.isAvailable())
-//                    snackbar.dismiss();
-//                else snackbar.show();
-//            }
-//        });
-//        merlin.bind();
+        if (Build.VERSION.SDK_INT >= 21) findViewById(R.id.shadow).setVisibility(View.GONE);
+        else findViewById(R.id.shadow).setVisibility(View.VISIBLE);
 
         adapter = new DictionariesAdapter(getSupportFragmentManager());
         adapter.addFrag(new DictionaryFragment(), "Reverse");
@@ -223,23 +175,19 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
                     if (!isFinishing()) {
                         mWindowManager.addView(mSearchView, MaterialSearchView.getSearchViewLayoutParams(Main.this));
                         mSearchViewAdded = true;
-//                        mToolbar.removeCallbacks(this);
                     }
             }
         });
-
-//        WordItem wordItem = new WordItem("lel", null, -1,
-//                new String[]{"awtawt","234432","gddg","jgj","fgjfgj","fdgs","bxcgcb","hgkk","cxcxwt","sdghfgh"});
-//        WordDialog wordDialog = new WordDialog(this, wordItem, null);
-//        wordDialog.show();
-
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        if (mSearchView != null) onCancelSearch();
+        if (mSearchView != null) {
+            onCancelSearch();
+            mSearchView.hide();
+        }
         try {mWindowManager.removeViewImmediate(mSearchView);} catch (Exception ignored) {}
         try {mWindowManager.removeView(mSearchView);} catch (Exception ignored) {}
 
@@ -255,7 +203,6 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
                     if (!isFinishing()) {
                         mWindowManager.addView(mSearchView, MaterialSearchView.getSearchViewLayoutParams(Main.this));
                         mSearchViewAdded = true;
-//                        mToolbar.removeCallbacks(this);
                     }
             }
         });
@@ -263,7 +210,6 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
 
     @Override
     public boolean isFinishing() {
-        nsdHelper.unregisterService();
         try {mWindowManager.removeViewImmediate(mSearchView);} catch (Exception ignored) {}
         try {mWindowManager.removeView(mSearchView);} catch (Exception ignored) {}
         mSearchViewAdded = false;
@@ -293,12 +239,14 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
     }
 
     private void openKeyboard(){
-        new Handler().postDelayed(new Runnable() {
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             public void run() {
                 mSearchView.getSearchView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
                         SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 0, 0, 0));
                 mSearchView.getSearchView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
                         SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0));
+                handler.removeCallbacks(this);
             }
         }, 200);
     }
@@ -321,22 +269,6 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
         }
     }
 
-    public final static int REQUEST_CODE = 2423;
-
-
-//    @TargetApi(Build.VERSION_CODES.M)
-//    public void checkDrawOverlayPermission() {
-//        if (!Settings.canDrawOverlays(this))
-//            startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-//                    Uri.parse("package:" + getPackageName())), REQUEST_CODE);
-//    }
-//
-//    @TargetApi(Build.VERSION_CODES.M)
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode,  Intent data) {
-//        if (requestCode == REQUEST_CODE) if (!Settings.canDrawOverlays(this)); //finish();
-//    }
-
     @Override
     public void onItemClicked(SearchResultItem word) {
         try {
@@ -357,18 +289,6 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
                 handler.removeCallbacks(this);
             }
         }, 200);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        nsdHelper.startDiscovery(NsdType.HTTP);
-    }
-
-    @Override
-    protected void onPause() {
-        nsdHelper.stopDiscovery();
-        super.onPause();
     }
 
     class DictionariesAdapter extends FragmentPagerAdapter {
@@ -395,7 +315,8 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
         }
     }
 
-///////////////////////////////////////// TODO: END
+
+    // TODO: ADD REFRESH FUNCTIONALITY
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         MenuDialog bottomSheetDialogFragment = new MenuDialog();

@@ -44,6 +44,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     style="?attr/selectableItemBackgroundBorderless"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/search"
                     android:padding="12dp"
                     app:srcCompat="@drawable/abc_ic_ab_back_material"
@@ -57,6 +58,7 @@
                     android:background="#fff"
                     android:gravity="center_vertical"
                     android:imeOptions="actionSearch"
+                    android:inputType="text"
                     android:hint="@string/search"
                     android:focusable="true"
                     android:focusableInTouchMode="true"
@@ -72,6 +74,7 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     style="?attr/selectableItemBackgroundBorderless"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:focusable="true"
                     android:visibility="invisible"
@@ -118,7 +121,7 @@
                     android:layout_gravity="center"
                     android:text="@string/no_results_found"
                     android:textColor="#0cc4ac" />
-                <!-- TODO FIX//TextView does not support text selection. Selection cancelled -->
+                <!-- XXX FIXED!!//TextView does not support text selection. Selection cancelled -->
             </FrameLayout>
         </RelativeLayout>
     </android.support.v7.widget.CardView>

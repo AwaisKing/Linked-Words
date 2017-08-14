@@ -13,16 +13,22 @@ import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.ads.NativeExpressAdView;
 
+import java.lang.reflect.Array;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
@@ -30,12 +36,18 @@ import awais.backworddictionary.customweb.WebViewFallback;
 
 public class DictionaryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Context mContext;
-    private final List<Object> wordList;
+    private List<Object> wordList;
     private WordItem currentWord;
     private final TextToSpeech tts;
+//    private WordsFilter mFilter;
 
     private static final int wordType = 0;
     private static final int adType = 1;
+
+//    @Override
+//    public Filter getFilter() {
+//        return mFilter;
+//    }
 
     class DictHolder extends RecyclerView.ViewHolder {
         final TextView word;
@@ -51,7 +63,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             cardView = view.findViewById(R.id.card_view);
         }
     }
-    class NativeAdViewHolder extends RecyclerView.ViewHolder {
+    static class NativeAdViewHolder extends RecyclerView.ViewHolder {
         NativeAdViewHolder(View view) {
             super(view);
         }
@@ -86,7 +98,6 @@ public class DictionaryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         int viewType = getItemViewType(position);
@@ -236,4 +247,75 @@ public class DictionaryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public int getItemCount() {
         return wordList.size();
     }
+
+    void updateList(List<Object> list){
+        wordList = list;
+        notifyDataSetChanged();
+    }
+
+//    public class WordsFilter extends Filter {
+//        private DictionaryAdapter mAdapter;
+//        private List<Object> newList;
+//
+//        private WordsFilter(DictionaryAdapter mAdapter, List<Object> wordList) {
+//            super();
+//            this.mAdapter = mAdapter;
+//            this.newList = wordList;
+//            Log.d("AWAISKING_APP", "adapter: " + wordList.size() + " - " + filteredList.size());
+//        }
+//
+//        @Override
+//        protected FilterResults performFiltering(CharSequence constraint) {
+//            filteredList.clear();
+//            FilterResults results = new FilterResults();
+//            if (constraint.length() == 0) filteredList.addAll(newList);
+//            else {
+//                String filterPattern = constraint.toString().toLowerCase().trim();
+//                Log.d("AWAISKING_APP", "filter: " + newList + " -- " + newList.size());
+//                for (Object mWord : newList) {
+//                    Log.d("AWAISKING_APP", "word: " + mWord);
+//
+//                    if (mWord.getClass() == WordItem.class) {
+//                        WordItem wordItem = (WordItem) mWord;
+//                        boolean showWords = Main.sharedPreferences.getBoolean("filterWord", false);
+//                        boolean showDefs = Main.sharedPreferences.getBoolean("filterDefn", false);
+//
+//
+//                        if (showWords && showDefs) {
+//                            if (wordItem.getWord().toLowerCase().startsWith(filterPattern)) {
+//                                filteredList.add(wordItem);
+//                                continue;
+//                            }
+//                            for (String def : wordItem.getDefs())
+//                                if (def.startsWith(filterPattern)) {
+//                                    filteredList.add(wordItem);
+//                                    break;
+//                                }
+//                        } else if (showWords) {
+//                            if (wordItem.getWord().toLowerCase().startsWith(filterPattern))
+//                                filteredList.add(wordItem);
+//                        } else if (showDefs) {
+//                            if (wordItem.getDefs() != null)
+//                                for (String def : wordItem.getDefs())
+//                                    if (def.startsWith(filterPattern))
+//                                        filteredList.add(wordItem);
+//                        } else {
+//                            Toast.makeText(mContext, "Select a filter first.", Toast.LENGTH_SHORT).show();
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+////            Log.d("AWAISKING_APP", "performFiltering1 -- " + filteredList + " - " + results.values);
+//            results.values = filteredList;
+//            results.count = filteredList.size();
+////            Log.d("AWAISKING_APP", "performFiltering2 -- " + filteredList + " - " + results.values);
+//            return results;
+//        }
+//
+//        @Override
+//        protected void publishResults(CharSequence constraint, FilterResults results) {
+//            this.mAdapter.notifyDataSetChanged();
+//        }
+//    }
 }

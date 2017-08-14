@@ -87,10 +87,7 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
             progressBarLayout.setVisibility(VISIBLE);
             mProgressBar.setVisibility(VISIBLE);
             noResultsFoundText.setVisibility(GONE);
-        }
-        else {
-            progressBarLayout.setVisibility(GONE);
-        }
+        } else progressBarLayout.setVisibility(GONE);
 
     }
 
@@ -134,20 +131,20 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
         mClearSearch.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP);
         backArrowImg.setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP);
 
-        mSearchEditText.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        mSearchEditText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_SEARCH | EditorInfo.IME_FLAG_NO_FULLSCREEN
-                /*| EditorInfo.TYPE_TEXT_FLAG_NO_SUGGESTIONS*/);
-
+        mSearchEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        mSearchEditText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_SEARCH
+                | EditorInfo.IME_FLAG_NO_FULLSCREEN);
 
         mSearchEditText.setTextIsSelectable(true);
         mSearchEditText.setFocusable(true);
         mSearchEditText.setFocusableInTouchMode(true);
         mSearchEditText.setCursorVisible(true);
 
-        // TODO: FIX KEY EVENTS
         mSearchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void afterTextChanged(Editable s) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -157,9 +154,6 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
                 }
                 toggleClearSearchButton(s);
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
         });
         mSearchEditText.setOnKeyListener(new OnKeyListener() {
             @Override

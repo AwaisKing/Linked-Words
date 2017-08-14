@@ -33,5 +33,6 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.0'
     implementation 'com.android.support:customtabs:26.0.1'
 
-    implementation 'com.github.rafakob:NsdHelper:0.1.4'
+    implementation 'com.keiferstone:nonet:2.0.4'
+    implementation 'com.github.dkzwm:SmoothRefreshLayout:1.4.0'
 }

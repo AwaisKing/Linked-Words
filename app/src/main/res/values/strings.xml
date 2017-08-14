@@ -20,4 +20,8 @@
     <string name="cancel">Cancel</string>
     <string name="no_results_found">No Results Found</string>
     <string name="paste">Paste</string>
+    <string name="no_connection">Not connected to internet.\nPlease connect to WiFi or Data connection.</string>
+    <string name="data_setttings">Data Setttings</string>
+    <string name="wifi_setttings">WiFi Setttings</string>
+    <string name="filter_settings">Filter Settings</string>
 </resources>

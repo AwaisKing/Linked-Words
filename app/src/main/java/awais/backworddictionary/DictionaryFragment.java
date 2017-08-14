@@ -3,20 +3,26 @@ package awais.backworddictionary;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Looper;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.CardView;
+import android.support.v4.text.TextUtilsCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -26,27 +32,33 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.NativeExpressAdView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.keiferstone.nonet.ConnectionStatus;
+import com.keiferstone.nonet.Monitor;
+import com.keiferstone.nonet.NoNet;
 
-import java.lang.annotation.Native;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
+import me.dkzwm.smoothrefreshlayout.SmoothRefreshLayout;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 public class DictionaryFragment extends Fragment implements FragmentCallback {
     private List<Object> wordList;
-    private DictionaryAdapter adapter;
     private RecyclerView recyclerView;
     private ProgressBar progressWords;
     private FragmentCallback fragmentCallback;
     private TextToSpeech tts;
-    public String title;
+    private SmoothRefreshLayout refreshLayout;
     private Activity activity;
+    private EditText filterSearchEditor;
+    private boolean[] filterCheck = {true, true, true};
+    public DictionaryAdapter adapter;
+    public String title;
 
     public DictionaryFragment() {
         super();
@@ -79,10 +91,66 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
         try {tts.shutdown();} catch (Exception ignore){}
     }
 
+    void filter(String text){
+        List<Object> newList = new ArrayList<>();
+        newList.add(wordList.get(0));
+        if (text != null && (TextUtils.isEmpty(text) || text.equals(""))) newList = wordList;
+        else {
+            String filterPattern = text != null ? text.toLowerCase() : "";
+
+            Log.d("AWAISKING_APP", "filter: " + wordList.size() + " -- " + newList.size());
+
+            for (Object mWord : wordList) {
+                if (mWord.getClass() == WordItem.class) {
+                    WordItem wordItem = (WordItem) mWord;
+                    boolean showWords = Main.sharedPreferences.getBoolean("filterWord", false);
+                    boolean showDefs = Main.sharedPreferences.getBoolean("filterDefn", false);
+                    boolean contains = Main.sharedPreferences.getBoolean("filterContain", true);
+
+                    if (showWords && showDefs) {
+                        if (contains ? wordItem.getWord().toLowerCase().contains(filterPattern) :
+                                wordItem.getWord().toLowerCase().startsWith(filterPattern)) {
+                            newList.add(wordItem);
+                            continue;
+                        }
+                        // TODO check for defintion search bugs  --- seems to be ok
+                        if (wordItem.getDefs() != null) {
+                            for (String def : wordItem.getDefs()) {
+                                if (contains ? def.split("\t")[1].trim().toLowerCase().contains(filterPattern)
+                                        : def.split("\t")[1].trim().toLowerCase().startsWith(filterPattern)) {
+                                    Log.d("AWAISKING_APP", "" + def);
+                                    newList.add(wordItem);
+                                    break;
+                                }
+                            }
+                        }
+                    } else if (showWords) {
+                        if (contains ? wordItem.getWord().toLowerCase().contains(filterPattern) :
+                                wordItem.getWord().toLowerCase().startsWith(filterPattern))
+                            newList.add(wordItem);
+
+                    } else if (showDefs) {
+                        // TODO check for defintion search bugs  --- seems to be ok
+                        if (wordItem.getDefs() != null)
+                            for (String def : wordItem.getDefs())
+                                if (contains ? def.split("\t")[1].trim().contains(filterPattern)
+                                        : def.split("\t")[1].trim().toLowerCase().startsWith(filterPattern))
+                                    newList.add(wordItem);
+                    } else {
+                        Toast.makeText(activity, "Select a filter first.", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                }
+            }
+        }
+
+        adapter.updateList(newList);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View magicRootView = inflater.inflate(R.layout.dictionary_view, container, false);
+        final View magicRootView = inflater.inflate(R.layout.dictionary_view, container, false);
 
         fragmentCallback = this;
 
@@ -98,7 +166,102 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
 
         recyclerView.setAdapter(adapter);
 
+        refreshLayout = magicRootView.findViewById(R.id.smoothRefreshLayout);
+        refreshLayout.setHeaderView(new SearchHeader(activity));
+        refreshLayout.setEnablePinContentView(true);
+        refreshLayout.setEnablePinRefreshViewWhileLoading(true);
+        refreshLayout.setNestedScrollingEnabled(true);
+        refreshLayout.setOverScrollDistanceRatio(1f);
+        refreshLayout.setClickable(true);
+
+        recyclerView.setOnFlingListener(new RecyclerView.OnFlingListener() {
+            @Override
+            public boolean onFling(int velocityX, int velocityY) {
+                if (velocityY > 5000)
+                    refreshLayout.refreshComplete(true);
+                if (adapter.getItemCount() > 150 && velocityY < -5000)
+                    refreshLayout.autoRefresh(true, true);
+                return false;
+            }
+        });
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (recyclerView.computeVerticalScrollOffset() <= 0 && dy < -110)
+                    refreshLayout.refreshComplete(true, 0);
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
+
+        filterSearchEditor = refreshLayout.findViewById(R.id.swipeSearch);
+        filterSearchEditor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openKeyboard();
+            }
+        });
+
+        filterSearchEditor.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//                adapter.getFilter().filter(charSequence);
+                if (wordList.size() > 2)
+                    filter(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        ImageView filterSearchButton = refreshLayout.findViewById(R.id.filterSettings);
+        filterSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                filterCheck[0] = Main.sharedPreferences.getBoolean("filterWord", false);
+                filterCheck[1] = Main.sharedPreferences.getBoolean("filterDefn", false);
+                filterCheck[2] = Main.sharedPreferences.getBoolean("filterContain", true);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                builder.setTitle("Select The Difficulty Level");
+                builder.setMultiChoiceItems(new String[]{"Words", "Definitions", "Contains"}, filterCheck,
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                                filterCheck[i] = b;
+                                if (i == 0)
+                                    Main.sharedPreferences.edit().putBoolean("filterWord", b).apply();
+                                else if (i == 1)
+                                    Main.sharedPreferences.edit().putBoolean("filterDefn", b).apply();
+                                else if (i == 2)
+                                    Main.sharedPreferences.edit().putBoolean("filterContain", b).apply();
+                            }
+                        });
+                builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (wordList.size() > 2)
+                            filter(filterSearchEditor.getText().toString());
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.create().show();
+            }
+        });
+
         return magicRootView;
+    }
+
+
+    private void openKeyboard(){
+        try {
+            ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
+                    .showSoftInput(filterSearchEditor, InputMethodManager.SHOW_IMPLICIT);
+        } catch (Exception e) { Log.e("AWAISKING_APP", "", e); }
     }
 
     @SuppressWarnings("unused")
@@ -215,8 +378,19 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
                     @Override
                     public void run() {
                         try {
-                            Toast.makeText(activity, "Error occurred: " + e.getStackTrace()[1].toString(), Toast.LENGTH_LONG).show();
-                        } catch (Exception ignored) {}
+                            NoNet.check(activity).configure(NoNet.configure().endpoint("https://api.datamuse.com/words").build())
+                                    .callback(new Monitor.Callback() {
+                                        @Override
+                                        public void onConnectionEvent(int connectionStatus) {
+                                            if (connectionStatus != ConnectionStatus.CONNECTED)
+                                                Toast.makeText(activity, "Not connected to internet.\nPlease connect to network.", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }).start();
+                        } catch (Exception e1) {
+                            Toast.makeText(activity, "Error occurred" +
+                                    (e1.getStackTrace() != null ? ": " + e1.getStackTrace()[1].toString()
+                                    : ""), Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
                 Log.e("AWAISKING_APP", "", e);
