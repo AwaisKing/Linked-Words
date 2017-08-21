@@ -5,5 +5,5 @@ public interface onSearchActionsListener {
     void showProgress(boolean show);
     void listEmpty();
     void onScroll();
-    void error(String localizedMessage);
+//    void error(String localizedMessage);
 }

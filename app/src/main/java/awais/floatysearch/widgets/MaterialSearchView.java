@@ -42,19 +42,20 @@ import awais.floatysearch.utils.Util;
 
 @SuppressWarnings("unused")
 public class MaterialSearchView extends FrameLayout implements View.OnClickListener, onSearchActionsListener, onSimpleSearchActionsListener {
-    private final EditText mSearchEditText;
-    private final ImageView mClearSearch;
-    private final ProgressBar mProgressBar;
+    private EditText mSearchEditText;
+    private ImageView mClearSearch;
+    private ProgressBar mProgressBar;
     private onSearchListener mOnSearchListener;
-    private final View lineDivider;
-    private final CardView cardLayout;
-    private final RelativeLayout searchLayout;
-    private final ListView mFrameLayout;
-    private final Context mContext;
+    private View lineDivider;
+    private CardView cardLayout;
+    private RelativeLayout searchLayout;
+    private ListView mFrameLayout;
+    private Context mContext;
     private SearchViewResults searchViewResults;
-    private final FrameLayout progressBarLayout;
+    private FrameLayout progressBarLayout;
     private onSimpleSearchActionsListener searchListener;
-    private final TextView noResultsFoundText;
+    private TextView noResultsFoundText;
+    private Animation fade_out, fade_in;
     private int numInMenu;
 
     public void setHintText(String hint) {
@@ -70,8 +71,10 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
         return lineDivider;
     }
 
-    final Animation fade_in;
-    final Animation fade_out;
+    public MaterialSearchView(Context context) {
+        super(context, null, -1);
+        mContext = context;
+    }
 
     @Override
     public void onItemClicked(SearchResultItem item) {

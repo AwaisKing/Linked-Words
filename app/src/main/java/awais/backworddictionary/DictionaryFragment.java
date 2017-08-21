@@ -55,6 +55,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
     private SmoothRefreshLayout refreshLayout;
     private Activity activity;
     private EditText filterSearchEditor;
+    private ImageView filterSearchButton;
     private boolean[] filterCheck = {true, true, true};
     public DictionaryAdapter adapter;
     public String title;
@@ -193,6 +194,8 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
         });
 
         filterSearchEditor = refreshLayout.findViewById(R.id.swipeSearch);
+        filterSearchButton = refreshLayout.findViewById(R.id.filterSettings);
+
         filterSearchEditor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -206,49 +209,60 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//                adapter.getFilter().filter(charSequence);
                 if (wordList.size() > 2)
                     filter(charSequence.toString());
             }
 
+            @SuppressLint("PrivateResource")
             @Override
             public void afterTextChanged(Editable editable) {
-
+                if (editable.length() > 0) {
+                    filterSearchButton.setImageResource(R.drawable.abc_ic_clear_material);
+                    filterSearchButton.setTag("clear");
+                } else {
+                    filterSearchButton.setImageResource(R.drawable.ic_settings);
+                    filterSearchButton.setTag("filter");
+                }
             }
         });
-
-        ImageView filterSearchButton = refreshLayout.findViewById(R.id.filterSettings);
         filterSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                filterCheck[0] = Main.sharedPreferences.getBoolean("filterWord", false);
-                filterCheck[1] = Main.sharedPreferences.getBoolean("filterDefn", false);
-                filterCheck[2] = Main.sharedPreferences.getBoolean("filterContain", true);
+                if (filterSearchButton.getTag() != null &&
+                        !TextUtils.isEmpty((CharSequence) filterSearchButton.getTag())
+                        && filterSearchButton.getTag().equals("filter")) {
+                    filterCheck[0] = Main.sharedPreferences.getBoolean("filterWord", false);
+                    filterCheck[1] = Main.sharedPreferences.getBoolean("filterDefn", false);
+                    filterCheck[2] = Main.sharedPreferences.getBoolean("filterContain", true);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                builder.setTitle("Select The Difficulty Level");
-                builder.setMultiChoiceItems(new String[]{"Words", "Definitions", "Contains"}, filterCheck,
-                        new DialogInterface.OnMultiChoiceClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
-                                filterCheck[i] = b;
-                                if (i == 0)
-                                    Main.sharedPreferences.edit().putBoolean("filterWord", b).apply();
-                                else if (i == 1)
-                                    Main.sharedPreferences.edit().putBoolean("filterDefn", b).apply();
-                                else if (i == 2)
-                                    Main.sharedPreferences.edit().putBoolean("filterContain", b).apply();
-                            }
-                        });
-                builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (wordList.size() > 2)
-                            filter(filterSearchEditor.getText().toString());
-                        dialogInterface.dismiss();
-                    }
-                });
-                builder.create().show();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                    builder.setTitle("Select The Difficulty Level");
+                    builder.setMultiChoiceItems(new String[]{"Words", "Definitions", "Contains"}, filterCheck,
+                            new DialogInterface.OnMultiChoiceClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                                    filterCheck[i] = b;
+                                    if (i == 0)
+                                        Main.sharedPreferences.edit().putBoolean("filterWord", b).apply();
+                                    else if (i == 1)
+                                        Main.sharedPreferences.edit().putBoolean("filterDefn", b).apply();
+                                    else if (i == 2)
+                                        Main.sharedPreferences.edit().putBoolean("filterContain", b).apply();
+                                }
+                            });
+                    builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (wordList.size() > 2)
+                                filter(filterSearchEditor.getText().toString());
+                            dialogInterface.dismiss();
+                        }
+                    });
+                    builder.create().show();
+                } else {
+                    filterSearchEditor.setText("");
+                    filterSearchButton.setTag("filter");
+                }
             }
         });
 
