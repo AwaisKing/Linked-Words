@@ -1,6 +1,5 @@
 package awais.backworddictionary;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
@@ -13,22 +12,16 @@ import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.ads.NativeExpressAdView;
 
-import java.lang.reflect.Array;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
@@ -39,15 +32,9 @@ public class DictionaryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private List<Object> wordList;
     private WordItem currentWord;
     private final TextToSpeech tts;
-//    private WordsFilter mFilter;
 
     private static final int wordType = 0;
     private static final int adType = 1;
-
-//    @Override
-//    public Filter getFilter() {
-//        return mFilter;
-//    }
 
     class DictHolder extends RecyclerView.ViewHolder {
         final TextView word;
@@ -127,29 +114,15 @@ public class DictionaryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 else
                     tagsBuilder.append("syllables: ").append(wordItem.getNumSyllables());
                 menuItemHolder.subtext.setText(tagsBuilder.toString().replaceAll(",\nsyllables", "\nsyllables"));
-                menuItemHolder.overflow.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        showPopupMenu(menuItemHolder.overflow);
-                    }
+                menuItemHolder.overflow.setOnClickListener(view -> showPopupMenu(menuItemHolder.overflow));
+                menuItemHolder.cardView.setOnLongClickListener(view -> {
+                    showPopupMenu(menuItemHolder.overflow);
+                    return true;
                 });
-                menuItemHolder.cardView.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-                        showPopupMenu(menuItemHolder.overflow);
-                        return true;
-                    }
-                });
-                menuItemHolder.cardView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        WordDialog cdd = new WordDialog((Activity) mContext, wordItem, tts);
-                        cdd.show();
-                        if (cdd.getWindow()!= null) {
-                            cdd.getWindow().setLayout(ViewGroup.LayoutParams.FILL_PARENT,
-                                    ViewGroup.LayoutParams.WRAP_CONTENT);
-                        }
-                    }
+                menuItemHolder.cardView.setOnClickListener(view -> {
+                    WordDialog cdd = new WordDialog((Activity) mContext, wordItem, tts);
+                    cdd.show();
+                    if (cdd.getWindow()!= null) cdd.getWindow().setLayout(-1, -2);
                 });
                 break;
             case adType:
@@ -185,12 +158,13 @@ public class DictionaryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 case R.id.action_copy:
                     try {
                         android.content.ClipboardManager clipboard = (android.content.ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-                        clipboard.setPrimaryClip(android.content.ClipData.newPlainText("word", currentWord.getWord()));
+                        if (clipboard != null)
+                            clipboard.setPrimaryClip(android.content.ClipData.newPlainText("word", currentWord.getWord()));
                     } catch (Exception e) {
                         try {
                             //noinspection deprecation
                             android.text.ClipboardManager clipboard = (android.text.ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-                            clipboard.setText(currentWord.getWord());
+                            if (clipboard != null) clipboard.setText(currentWord.getWord());
                         } catch (Exception ignored){}
                     }
                     return true;
@@ -252,70 +226,4 @@ public class DictionaryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         wordList = list;
         notifyDataSetChanged();
     }
-
-//    public class WordsFilter extends Filter {
-//        private DictionaryAdapter mAdapter;
-//        private List<Object> newList;
-//
-//        private WordsFilter(DictionaryAdapter mAdapter, List<Object> wordList) {
-//            super();
-//            this.mAdapter = mAdapter;
-//            this.newList = wordList;
-//            Log.d("AWAISKING_APP", "adapter: " + wordList.size() + " - " + filteredList.size());
-//        }
-//
-//        @Override
-//        protected FilterResults performFiltering(CharSequence constraint) {
-//            filteredList.clear();
-//            FilterResults results = new FilterResults();
-//            if (constraint.length() == 0) filteredList.addAll(newList);
-//            else {
-//                String filterPattern = constraint.toString().toLowerCase().trim();
-//                Log.d("AWAISKING_APP", "filter: " + newList + " -- " + newList.size());
-//                for (Object mWord : newList) {
-//                    Log.d("AWAISKING_APP", "word: " + mWord);
-//
-//                    if (mWord.getClass() == WordItem.class) {
-//                        WordItem wordItem = (WordItem) mWord;
-//                        boolean showWords = Main.sharedPreferences.getBoolean("filterWord", false);
-//                        boolean showDefs = Main.sharedPreferences.getBoolean("filterDefn", false);
-//
-//
-//                        if (showWords && showDefs) {
-//                            if (wordItem.getWord().toLowerCase().startsWith(filterPattern)) {
-//                                filteredList.add(wordItem);
-//                                continue;
-//                            }
-//                            for (String def : wordItem.getDefs())
-//                                if (def.startsWith(filterPattern)) {
-//                                    filteredList.add(wordItem);
-//                                    break;
-//                                }
-//                        } else if (showWords) {
-//                            if (wordItem.getWord().toLowerCase().startsWith(filterPattern))
-//                                filteredList.add(wordItem);
-//                        } else if (showDefs) {
-//                            if (wordItem.getDefs() != null)
-//                                for (String def : wordItem.getDefs())
-//                                    if (def.startsWith(filterPattern))
-//                                        filteredList.add(wordItem);
-//                        } else {
-//                            Toast.makeText(mContext, "Select a filter first.", Toast.LENGTH_SHORT).show();
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-////            Log.d("AWAISKING_APP", "performFiltering1 -- " + filteredList + " - " + results.values);
-//            results.values = filteredList;
-//            results.count = filteredList.size();
-////            Log.d("AWAISKING_APP", "performFiltering2 -- " + filteredList + " - " + results.values);
-//            return results;
-//        }
-//
-//        @Override
-//        protected void publishResults(CharSequence constraint, FilterResults results) {
-//            this.mAdapter.notifyDataSetChanged();
-//        }
-//    }
 }

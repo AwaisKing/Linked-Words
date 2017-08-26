@@ -9,8 +9,9 @@ android {
         applicationId "awais.backworddictionary"
         minSdkVersion 14		// TODO: test if 14 works, otherwise change back to 15
         targetSdkVersion 26
-        versionCode 3
-        versionName "3.0"
+        versionCode 4
+        versionName "4.0"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -18,9 +19,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
 }
 
 dependencies {
+    implementation 'com.android.support:multidex:1.0.2'
     implementation 'com.android.support:appcompat-v7:26.0.1'
     implementation 'com.android.support:design:26.0.1'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
@@ -34,5 +40,5 @@ dependencies {
     implementation 'com.android.support:customtabs:26.0.1'
 
     implementation 'com.keiferstone:nonet:2.0.4'
-    implementation 'com.github.dkzwm:SmoothRefreshLayout:1.4.0'
+    implementation 'com.lapism:searchview:4.0'
 }

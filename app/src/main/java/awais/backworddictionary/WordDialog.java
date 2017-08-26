@@ -20,14 +20,15 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
 import awais.backworddictionary.customweb.WebViewFallback;
 
@@ -74,25 +75,23 @@ class WordDialog extends Dialog implements android.view.View.OnClickListener {
         lvDefs.setAdapter(new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1,
                 android.R.id.text1, defsStyled));
 
-        lvDefs.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                SpannableStringBuilder wordItem = (SpannableStringBuilder) adapterView.getItemAtPosition(i);
-                if (wordItem != null && !wordItem.toString().isEmpty() && wordItem.toString().contains("\t")) {
-                    String item = wordItem.toString().replaceAll("^(.*)\\t", "");
-                    try {
-                        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+        lvDefs.setOnItemClickListener((adapterView, view, i, l) -> {
+            SpannableStringBuilder wordItem = (SpannableStringBuilder) adapterView.getItemAtPosition(i);
+            if (wordItem != null && !wordItem.toString().isEmpty() && wordItem.toString().contains("\t")) {
+                String item = wordItem.toString().replaceAll("^(.*)\\t", "");
+                try {
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+                    if (clipboard != null)
                         clipboard.setPrimaryClip(android.content.ClipData.newPlainText("word", item));
+                    Toast.makeText(activity, "Copied to clipboard.", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    try {
+                        //noinspection deprecation
+                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+                        if (clipboard != null) clipboard.setText(item);
                         Toast.makeText(activity, "Copied to clipboard.", Toast.LENGTH_SHORT).show();
-                    } catch (Exception e) {
-                        try {
-                            //noinspection deprecation
-                            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
-                            clipboard.setText(item);
-                            Toast.makeText(activity, "Copied to clipboard.", Toast.LENGTH_SHORT).show();
-                        } catch (Exception ignored){
-                            Toast.makeText(activity, "Error copying to clipboard!", Toast.LENGTH_SHORT).show();
-                        }
+                    } catch (Exception ignored){
+                        Toast.makeText(activity, "Error copying to clipboard!", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -123,13 +122,14 @@ class WordDialog extends Dialog implements android.view.View.OnClickListener {
             case R.id.btnCopy:
                 try {
                     android.content.ClipboardManager clipboard = (android.content.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
-                    clipboard.setPrimaryClip(android.content.ClipData.newPlainText("word", wordItem.getWord()));
+                    if (clipboard != null)
+                        clipboard.setPrimaryClip(android.content.ClipData.newPlainText("word", wordItem.getWord()));
                     Toast.makeText(activity, "Copied to clipboard.", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     try {
                         //noinspection deprecation
                         android.text.ClipboardManager clipboard = (android.text.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
-                        clipboard.setText(wordItem.getWord());
+                        if (clipboard != null) clipboard.setText(wordItem.getWord());
                         Toast.makeText(activity, "Copied to clipboard.", Toast.LENGTH_SHORT).show();
                     } catch (Exception ignored){
                         Toast.makeText(activity, "Error copying to clipboard!", Toast.LENGTH_SHORT).show();
@@ -184,7 +184,7 @@ class WordDialog extends Dialog implements android.view.View.OnClickListener {
                 if (activity.getClass() == Main.class) {
                     ((Main)activity).adapter.getItem(0).title = wordItem.getWord();
                     ((Main)activity).viewPager.setCurrentItem(0, true);
-                    ((Main)activity).onSearch(wordItem.getWord(), true);
+                    ((Main)activity).onSearch(wordItem.getWord());
                 }
                 break;
 
@@ -193,7 +193,7 @@ class WordDialog extends Dialog implements android.view.View.OnClickListener {
                     try {
                         ((Main)activity).adapter.getItem(1).title = wordItem.getWord();
                         ((Main)activity).viewPager.setCurrentItem(1, true);
-                        ((Main)activity).onSearch(wordItem.getWord(), true);
+                        ((Main)activity).onSearch(wordItem.getWord());
                     } catch (Exception e) {
                         Log.e("AWAISKING_APP", "", e);
                     }

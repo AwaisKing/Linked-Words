@@ -3,28 +3,26 @@ package awais.backworddictionary;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.customtabs.CustomTabsIntent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.MenuItemImpl;
-import android.support.v7.widget.Toolbar;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.style.BulletSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
@@ -33,38 +31,36 @@ import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.google.android.gms.ads.MobileAds;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.keiferstone.nonet.ConnectionStatus;
-import com.keiferstone.nonet.Monitor;
 import com.keiferstone.nonet.NoNet;
+import com.lapism.searchview.SearchAdapter;
+import com.lapism.searchview.SearchItem;
+import com.lapism.searchview.SearchView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
 import awais.backworddictionary.customweb.WebViewFallback;
-import awais.floatysearch.SearchResultItem;
-import awais.floatysearch.onSearchListener;
-import awais.floatysearch.onSimpleSearchActionsListener;
-import awais.floatysearch.widgets.MaterialSearchView;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
-
-public class Main extends AppCompatActivity implements onSimpleSearchActionsListener, onSearchListener {
-    private boolean mSearchViewAdded = false, searchActive = false;
-    private MaterialSearchView mSearchView;
-    private WindowManager mWindowManager;
+public class Main extends AppCompatActivity {
     ViewPager viewPager;
     DictionariesAdapter adapter;
-    private Toolbar mToolbar;
-    private int numInMenu = 2;
+    SearchView mSearchView;
+    SearchAdapter searchAdapter;
+    List<SearchItem> suggestionsList;
+    FloatingActionButton fabFilter;
 
     public static SharedPreferences sharedPreferences;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,13 +68,11 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
         setContentView(R.layout.activity_main);
 
         viewPager = findViewById(R.id.viewpager);
-        final Drawable diffApiViewPagerColor = viewPager.getBackground();
         final ImageView noInternet = findViewById(R.id.noInternet);
-        NoNet.monitor(this).configure(NoNet.configure().endpoint("https://api.datamuse.com/words").build())
-                .poll()
-                .callback(new Monitor.Callback() {
-                    @Override
-                    public void onConnectionEvent(int connectionStatus) {
+        try {
+            NoNet.monitor(this).configure(NoNet.configure().endpoint("https://api.datamuse.com/words").build())
+                    .poll()
+                    .callback(connectionStatus -> {
                         if (connectionStatus != ConnectionStatus.CONNECTED) {
                             if (adapter != null && adapter.getItem(viewPager.getCurrentItem()).adapter != null
                                     && adapter.getItem(viewPager.getCurrentItem()).adapter.getItemCount() < 1) {
@@ -88,224 +82,55 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
                         } else {
                             noInternet.setVisibility(View.GONE);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-                                viewPager.setBackground(diffApiViewPagerColor);
-                            else {
-                                if (diffApiViewPagerColor.getClass() == ColorDrawable.class)
-                                    viewPager.setBackgroundColor(((ColorDrawable) diffApiViewPagerColor).getColor());
-                            }
+                                viewPager.setBackground(null);
+                            else viewPager.setBackgroundDrawable(null);
                         }
-                    }
-                })
-                .snackbar(Snackbar.make(viewPager, "Not connected to internet.", -2)
-                        .setAction("Settings", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
-                            }
-                        }));
+                    })
+                    .snackbar(Snackbar.make(viewPager, "Not connected to internet.", -2)
+                            .setAction("Settings", view -> startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS))));
+        } catch (Exception ignored) {}
         MobileAds.initialize(this, "ca-app-pub-6411761147229517~1317441366");
 
-
         sharedPreferences = getSharedPreferences("settings", MODE_PRIVATE);
-        mWindowManager = getWindowManager();
-        mSearchView = new MaterialSearchView(this, numInMenu);
-        TabLayout tabLayout = findViewById(R.id.tabs);
-        mToolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
+        setSupportActionBar(findViewById(R.id.toolbar));
 
-        if (Build.VERSION.SDK_INT >= 21) findViewById(R.id.shadow).setVisibility(View.GONE);
-        else findViewById(R.id.shadow).setVisibility(View.VISIBLE);
+        setupLayout();
+        setSearchView();
 
-        adapter = new DictionariesAdapter(getSupportFragmentManager());
-        adapter.addFrag(new DictionaryFragment(), "Reverse");
-        adapter.addFrag(new DictionaryFragment(), "Sounds Like");
-        adapter.addFrag(new DictionaryFragment(), "Spelled Like");
-
-        viewPager.setAdapter(adapter);
-        viewPager.setOffscreenPageLimit(5);
-        tabLayout.setupWithViewPager(viewPager);
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            int prevTab = 0;
-
-            @Override
-            public void onTabSelected(final TabLayout.Tab tab) {
-                setTitle(R.string.app_name);
-
-                if (adapter != null) {
-                    final DictionaryFragment currentItem = adapter.getItem(tab.getPosition());
-                    final DictionaryFragment prevItem = adapter.getItem(prevTab);
-
-                    if (currentItem != null) {
-                        if (currentItem.title != null && (!currentItem.title.equals("")||!currentItem.title.isEmpty()))
-                            setTitle(currentItem.title);
-                        else {
-                            if (prevItem.title != null && !prevItem.title.isEmpty()) {
-                                new Handler().post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            currentItem.startWords(tab.getPosition(), prevItem.title);
-                                            currentItem.title = prevItem.title;
-                                        } catch (Exception e) {
-                                            Log.e("AWAISKING_APP", "" , e);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                prevTab = tab.getPosition();
-            }
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
-        });
-
-        mSearchView.setOnSearchListener(this);
-        mSearchView.setSearchResultsListener(this);
-
-        if (mToolbar != null) mToolbar.post(new Runnable() {
-            @Override
-            public void run() {
-                if (!mSearchViewAdded && mWindowManager != null && mSearchView != null)
-                    if (!isFinishing()) {
-                        mWindowManager.addView(mSearchView, MaterialSearchView.getSearchViewLayoutParams(Main.this));
-                        mSearchViewAdded = true;
-                    }
-            }
-        });
+        fabFilter = findViewById(R.id.filterButton);
+        fabFilter.bringToFront();
+        fabFilter.setOnClickListener(view ->
+                adapter.getItem(viewPager.getCurrentItem()).isOpen(true, fabFilter));
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
 
-        if (mSearchView != null) {
-            onCancelSearch();
-            mSearchView.hide();
-        }
-        try {mWindowManager.removeViewImmediate(mSearchView);} catch (Exception ignored) {}
-        try {mWindowManager.removeView(mSearchView);} catch (Exception ignored) {}
-
-        mSearchView = new MaterialSearchView(this, numInMenu);
-        mSearchViewAdded = false;
-        mSearchView.setOnSearchListener(this);
-        mSearchView.setSearchResultsListener(this);
-
-        if (mToolbar != null) mToolbar.post(new Runnable() {
-            @Override
-            public void run() {
-                if (!mSearchViewAdded && mWindowManager != null && mSearchView != null)
-                    if (!isFinishing()) {
-                        mWindowManager.addView(mSearchView, MaterialSearchView.getSearchViewLayoutParams(Main.this));
-                        mSearchViewAdded = true;
-                    }
-            }
-        });
-    }
-
-    @Override
-    public boolean isFinishing() {
-        try {mWindowManager.removeViewImmediate(mSearchView);} catch (Exception ignored) {}
-        try {mWindowManager.removeView(mSearchView);} catch (Exception ignored) {}
-        mSearchViewAdded = false;
-        return super.isFinishing();
-    }
-
-    @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
 
-        // TODO: CHECK IF RIPPLE IS OUT OF MENU ITEM BOUNDS
-        int actionView = 0;
-        for (int x=0; x<menu.size(); x++)
-            if (((MenuItemImpl) menu.getItem(x)).requiresActionButton()) actionView++;
-        numInMenu = actionView+1;
-
-        menu.findItem(R.id.mSearch).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                mSearchView.display();
-                openKeyboard();
-                if (!getTitle().equals(getString(R.string.app_name))) {
-                    mSearchView.setSearchQuery(getTitle().toString());
-                    mSearchView.selectAll();
-                }
-                return true;
-            }
+        menu.findItem(R.id.mRefresh).setOnMenuItemClickListener(item -> {
+            mSearchView.close(true);
+            if (!getTitle().equals(getResources().getString(R.string.app_name)))
+                onSearch(getTitle().toString());
+            return true;
         });
-        if(searchActive) mSearchView.display();
 
-        menu.findItem(R.id.mRefresh).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                onCancelSearch();
-                if (!getTitle().equals(getResources().getString(R.string.app_name)))
-                    onSearch(getTitle().toString(), true);
-                return true;
-            }
+        menu.findItem(R.id.mSearch).setOnMenuItemClickListener(item -> {
+            mSearchView.open(true, item);
+            return true;
         });
 
         return true;
 
     }
 
-    private void openKeyboard(){
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                mSearchView.getSearchView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
-                        SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 0, 0, 0));
-                mSearchView.getSearchView().dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
-                        SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0));
-                handler.removeCallbacks(this);
-            }
-        }, 200);
-    }
-
-    @Override
-    public void onScroll() {}
-    @Override
-    public void error(String localizedMessage) {}
-
-    @Override
-    public void onSearch(String word, boolean isEnter) {
-        DictionaryFragment item = adapter.getItem(viewPager.getCurrentItem());
-        if (isEnter) {
-            try {
-                item.startWords(viewPager.getCurrentItem(), word);
-                onCancelSearch();
-            } catch (Exception e) {
-                Log.e("AWAISKING_APP", "" , e);
-            }
-        }
-    }
-
-    @Override
-    public void onItemClicked(SearchResultItem word) {
+    public void onSearch(String word) {
         try {
-            adapter.getItem(viewPager.getCurrentItem()).startWords(viewPager.getCurrentItem(), word.getWord());
-            onCancelSearch();
+            adapter.getItem(viewPager.getCurrentItem()).startWords(viewPager.getCurrentItem(), word);
+            mSearchView.close(true);
         } catch (Exception e) {
             Log.e("AWAISKING_APP", "" , e);
         }
-    }
-    @Override
-    public void onCancelSearch() {
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                searchActive = false;
-                mSearchView.hide();
-                handler.removeCallbacks(this);
-            }
-        }, 200);
     }
 
     class DictionariesAdapter extends FragmentPagerAdapter {
@@ -431,13 +256,12 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
                 stringBuilder.append("Libraries:\n");
                 stringBuilder.append("OkHttp3 [Apache License 2.0]\n");
                 stringBuilder.append("GSON [Apache License 2.0]\n");
-                stringBuilder.append("material-searchview [Apache License 2.0]\n");
+                stringBuilder.append("SearchView [Apache License 2.0]\n");
                 stringBuilder.append("Chrome Custom Tabs [Apache License 2.0]\n");
                 stringBuilder.append("NoNet [Apache License 2.0]\n");
-                stringBuilder.append("SmoothRefreshLayout [MIT]\n\n");
+                stringBuilder.append("LollipopContactsRecyclerViewFastScroller [Apache License 2.0]\n\n");
                 stringBuilder.append("License:\n");
-                stringBuilder.append("Apache License 2.0\n");
-                stringBuilder.append("MIT");
+                stringBuilder.append("Apache License 2.0");
 
                 stringBuilder.setSpan(new StyleSpan(Typeface.BOLD), 0, 9, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 stringBuilder.setSpan(new RelativeSizeSpan(1.1f), 0, 9, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -466,29 +290,22 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
                 stringBuilder.setSpan(new ForegroundColorSpan(0xFF212121), 88, 98, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 99,127, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 128,153, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 154,194, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 195,234, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 235,261, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 262,287, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                stringBuilder.setSpan(new StyleSpan(Typeface.BOLD), 289, 297, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                stringBuilder.setSpan(new RelativeSizeSpan(1.1f), 289, 297, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                stringBuilder.setSpan(new ForegroundColorSpan(0xFF212121), 289, 297, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 298,317, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 154,185, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 186,225, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 226,252, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 253,314, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new StyleSpan(Typeface.BOLD), 316, 324, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new RelativeSizeSpan(1.1f), 316, 324, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new ForegroundColorSpan(0xFF212121), 316, 324, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 325,343, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 stringBuilder.setSpan(new ClickableSpan() {
                     @Override
                     public void onClick(View view) {
                         customTabsIntent.setToolbarColor(Color.parseColor("#cb2533"));
                         CustomTabActivityHelper.openCustomTab(Main.this, customTabsIntent.build(),
                                 Uri.parse("https://www.apache.org/licenses/LICENSE-2.0"), new WebViewFallback());
-                    }},298,317, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                stringBuilder.setSpan(new BulletSpan(26, 0xFF212121), 317,320, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                stringBuilder.setSpan(new ClickableSpan() {
-                    @Override
-                    public void onClick(View view) {
-                        customTabsIntent.setToolbarColor(Color.parseColor("#333333"));
-                        CustomTabActivityHelper.openCustomTab(Main.this, customTabsIntent.build(),
-                                Uri.parse("https://en.wikipedia.org/wiki/MIT_License"), new WebViewFallback());
-                    }},317,320, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }},325,343, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                
                 bottomSheetDialogFragment.setTitle(item.getTitle() + " & Credits");
                 bottomSheetDialogFragment.setMessage(stringBuilder);
                 break;
@@ -503,5 +320,139 @@ public class Main extends AppCompatActivity implements onSimpleSearchActionsList
         bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
 
         return super.onOptionsItemSelected(item);
+    }
+
+    void setupLayout() {
+        adapter = new DictionariesAdapter(getSupportFragmentManager());
+        adapter.addFrag(new DictionaryFragment(), "Reverse");
+        adapter.addFrag(new DictionaryFragment(), "Sounds Like");
+        adapter.addFrag(new DictionaryFragment(), "Spelled Like");
+        viewPager.setAdapter(adapter);
+        viewPager.setOffscreenPageLimit(5);
+
+        TabLayout tabLayout = findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            int prevTab = 0;
+
+            @Override
+            public void onTabSelected(final TabLayout.Tab tab) {
+                setTitle(R.string.app_name);
+
+                if (adapter != null) {
+                    final DictionaryFragment currentItem = adapter.getItem(tab.getPosition());
+                    final DictionaryFragment prevItem = adapter.getItem(prevTab);
+
+                    if (currentItem != null) {
+                        if (currentItem.title != null && (!currentItem.title.equals("")||!currentItem.title.isEmpty()))
+                            setTitle(currentItem.title);
+                        else {
+                            if (prevItem.title != null && !prevItem.title.isEmpty()) {
+                                new Handler().post(() -> {
+                                    try {
+                                        currentItem.startWords(tab.getPosition(), prevItem.title);
+                                        currentItem.title = prevItem.title;
+                                    } catch (Exception e) {
+                                        Log.e("AWAISKING_APP", "" , e);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                prevTab = tab.getPosition();
+            }
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
+        });
+    }
+
+    @SuppressLint("PrivateResource")
+    protected void setSearchView() {
+        mSearchView = findViewById(R.id.searchView);
+        mSearchView.bringToFront();
+        if (mSearchView != null) {
+            suggestionsList = new ArrayList<>();
+
+            mSearchView.setVersion(SearchView.VERSION_MENU_ITEM);
+            mSearchView.setVersionMargins(SearchView.VERSION_MARGINS_MENU_ITEM);
+            mSearchView.setHint(R.string.search);
+            mSearchView.setVoice(false);
+            mSearchView.setTheme(SearchView.THEME_LIGHT);
+            mSearchView.setShadowColor(ContextCompat.getColor(this, R.color.search_shadow_layout));
+
+            searchAdapter = new SearchAdapter(this, suggestionsList);
+            searchAdapter.setHasStableIds(true);
+            searchAdapter.addOnItemClickListener((view, position) ->
+                    onSearch(suggestionsList.get(position).get_text().toString()));
+            mSearchView.setAdapter(searchAdapter);
+
+            mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    onSearch(query);
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    Log.d("AWAISKING_APP", "" + newText);
+                    if (newText != null && !TextUtils.isEmpty(newText))
+                        new SearchTask().execute(newText);
+                    return false;
+                }
+            });
+        }
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private class SearchTask extends AsyncTask<String, Void, ArrayList<WordItem>> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mSearchView.showProgress();
+        }
+
+        @Override
+        protected ArrayList<WordItem> doInBackground(String... params) {
+            String query = params[0].replace("&", "%26").replace("@","%40").replace("#","%23");
+            ArrayList<WordItem> arrayList = new ArrayList<>();
+
+            Response response = null;
+            try {
+                response = new OkHttpClient().newCall(new Request.Builder()
+                        .url("https://api.datamuse.com/sug?s=" + query).build()).execute();
+                if (response.code() == 200)
+                    arrayList = new Gson().fromJson(response.body().string(),
+                            new TypeToken<List<WordItem>>(){}.getType());
+            } catch (Exception e) {
+                Log.e("AWAISKING_APP", "", e);
+            } finally {
+                if (response != null) response.close();
+            }
+            return arrayList;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<WordItem> result) {
+            super.onPostExecute(result);
+            if (!isCancelled()) {
+                if (mSearchView.isShowingProgress()) mSearchView.hideProgress();
+                if (!result.isEmpty()) {
+                    if (suggestionsList != null) suggestionsList.clear();
+                    else suggestionsList = new ArrayList<>();
+                    for (WordItem item : result) suggestionsList.add(new SearchItem(item.getWord()));
+                    searchAdapter.setData(suggestionsList);
+                    searchAdapter.notifyDataSetChanged();
+                    Log.i("AWAISKING_APP", "getItemCount: " + searchAdapter.getItemCount());
+                    mSearchView.showSuggestions();
+                }
+
+            }
+        }
     }
 }

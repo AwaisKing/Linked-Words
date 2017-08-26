@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="wrap_content"
+    android:layout_height="match_parent">
+
+    <ImageView android:id="@+id/fastscroller_handle" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:paddingStart="4dp" android:paddingEnd="4dp"
+        android:src="@drawable/scroller_handle" android:contentDescription="@null"
+        android:layout_marginEnd="4dp" android:layout_marginRight="4dp" />
+
+</merge>
