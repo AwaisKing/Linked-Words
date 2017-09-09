@@ -19,22 +19,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.ads.NativeExpressAdView;
-
 import java.net.URL;
 import java.util.List;
 
+import awais.backworddictionary.custom.WordDialog;
+import awais.backworddictionary.custom.WordItem;
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
-import awais.backworddictionary.customweb.WebViewFallback;
 
-public class DictionaryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.DictHolder> {
     private final Context mContext;
-    private List<Object> wordList;
+    private List<WordItem> wordList;
     private WordItem currentWord;
     private final TextToSpeech tts;
-
-    private static final int wordType = 0;
-    private static final int adType = 1;
 
     class DictHolder extends RecyclerView.ViewHolder {
         final TextView word;
@@ -50,13 +46,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             cardView = view.findViewById(R.id.card_view);
         }
     }
-    static class NativeAdViewHolder extends RecyclerView.ViewHolder {
-        NativeAdViewHolder(View view) {
-            super(view);
-        }
-    }
-
-    DictionaryAdapter(Context mContext, List<Object> wordList, TextToSpeech tts) {
+    DictionaryAdapter(Context mContext, List<WordItem> wordList, TextToSpeech tts) {
         this.mContext = mContext;
         this.wordList = wordList;
         this.tts = tts;
@@ -68,85 +58,51 @@ public class DictionaryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     @Override
-    public int getItemViewType(int position) {
-        return (position % 66 == 0) ? adType : wordType;
+    public DictHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+        return new DictHolder(LayoutInflater.from(viewGroup.getContext())
+                .inflate(R.layout.word_item, viewGroup, false));
     }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        switch (viewType) {
-            case adType:
-                View nativeAdView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.native_ad_item, viewGroup, false);
-                return new NativeAdViewHolder(nativeAdView);
-            case wordType:
-            default:
-                View itemView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.word_item, viewGroup, false);
-                return new DictHolder(itemView);
+    public void onBindViewHolder(DictHolder holder, int position) {
+        final WordItem wordItem = wordList.get(position);
+
+        holder.word.setText(wordItem.getWord());
+        holder.overflow.setTag(position);
+
+        String[] tags = wordItem.getTags();
+        StringBuilder tagsBuilder = new StringBuilder();
+        if (tags != null && tags.length > 0) {
+            tagsBuilder.insert(0, "tags:");
+            for (String tag : tags) {
+                if (tag.equals("syn")) tagsBuilder.insert(5, " [synonym]");
+                if (tag.equals("prop")) tagsBuilder.insert(5, " [proper]");
+                if (tag.equals("n")) tagsBuilder.append(" noun,");
+                if (tag.equals("adj")) tagsBuilder.append(" adjective,");
+                if (tag.equals("v")) tagsBuilder.append(" verb,");
+                if (tag.equals("adv")) tagsBuilder.append(" adverb,");
+            }
         }
-    }
-
-    @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
-        int viewType = getItemViewType(position);
-        switch (viewType) {
-            case wordType:
-                final DictHolder menuItemHolder = (DictHolder) holder;
-                final WordItem wordItem = (WordItem) wordList.get(position);
-
-                menuItemHolder.word.setText(wordItem.getWord());
-                menuItemHolder.overflow.setTag(position);
-
-                String[] tags = wordItem.getTags();
-                StringBuilder tagsBuilder = new StringBuilder();
-                if (tags != null && tags.length > 0) {
-                    tagsBuilder.insert(0, "tags:");
-                    for (String tag : tags) {
-                        if (tag.equals("syn")) tagsBuilder.insert(5, " [synonym]");
-                        if (tag.equals("prop")) tagsBuilder.insert(5, " [proper]");
-                        if (tag.equals("n")) tagsBuilder.append(" noun,");
-                        if (tag.equals("adj")) tagsBuilder.append(" adjective,");
-                        if (tag.equals("v")) tagsBuilder.append(" verb,");
-                        if (tag.equals("adv")) tagsBuilder.append(" adverb,");
-                    }
-                }
-                if ((tags != null && tags.length > 0) && wordItem.getNumSyllables() > 0)
-                    tagsBuilder.append("\nsyllables: ").append(wordItem.getNumSyllables());
-                else
-                    tagsBuilder.append("syllables: ").append(wordItem.getNumSyllables());
-                menuItemHolder.subtext.setText(tagsBuilder.toString().replaceAll(",\nsyllables", "\nsyllables"));
-                menuItemHolder.overflow.setOnClickListener(view -> showPopupMenu(menuItemHolder.overflow));
-                menuItemHolder.cardView.setOnLongClickListener(view -> {
-                    showPopupMenu(menuItemHolder.overflow);
-                    return true;
-                });
-                menuItemHolder.cardView.setOnClickListener(view -> {
-                    WordDialog cdd = new WordDialog((Activity) mContext, wordItem, tts);
-                    cdd.show();
-                    if (cdd.getWindow()!= null) cdd.getWindow().setLayout(-1, -2);
-                });
-                break;
-            case adType:
-                if (wordList.get(position).getClass() != WordItem.class) {
-                    NativeAdViewHolder nativeAdViewHolder = (NativeAdViewHolder) holder;
-                    NativeExpressAdView adView = (NativeExpressAdView) wordList.get(position);
-
-                    ViewGroup adCardView = (ViewGroup) nativeAdViewHolder.itemView;
-                    if (adCardView.getChildCount() > 0) adCardView.removeAllViews();
-                    if (adView.getParent() != null)
-                        ((ViewGroup)adView.getParent()).removeView(adView);
-                    adCardView.addView(adView);
-                }
-        }
+        if ((tags != null && tags.length > 0) && wordItem.getNumSyllables() > 0)
+            tagsBuilder.append("\nsyllables: ").append(wordItem.getNumSyllables());
+        else
+            tagsBuilder.append("syllables: ").append(wordItem.getNumSyllables());
+        holder.subtext.setText(tagsBuilder.toString().replaceAll(",\nsyllables", "\nsyllables"));
+        holder.overflow.setOnClickListener(view -> showPopupMenu(holder.overflow));
+        holder.cardView.setOnLongClickListener(view -> {
+            showPopupMenu(holder.overflow);
+            return true;
+        });
+        holder.cardView.setOnClickListener(view ->
+                new WordDialog((Activity) mContext, wordItem, tts).show());
     }
 
     private void showPopupMenu(View view) {
-        if (wordList.get((Integer) view.getTag()).getClass() == WordItem.class) {
-            currentWord = (WordItem) wordList.get((Integer) view.getTag());
-            PopupMenu popup = new PopupMenu(mContext, view);
-            popup.getMenuInflater().inflate(R.menu.menu_word, popup.getMenu());
-            popup.setOnMenuItemClickListener(new WordContextItemListener());
-            popup.show();
-        }
+        currentWord = wordList.get((Integer) view.getTag());
+        PopupMenu popup = new PopupMenu(mContext, view);
+        popup.getMenuInflater().inflate(R.menu.menu_word, popup.getMenu());
+        popup.setOnMenuItemClickListener(new WordContextItemListener());
+        popup.show();
     }
 
     class WordContextItemListener implements PopupMenu.OnMenuItemClickListener {
@@ -182,8 +138,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     } catch (Exception e) {
                         customTabsIntent.setToolbarColor(Color.parseColor("#4888f2"));
                         CustomTabActivityHelper.openCustomTab(
-                                (Activity) mContext, customTabsIntent.build(), Uri.parse("https://google.com/search?q=" + wordRawGoogle),
-                                new WebViewFallback());
+                                (Activity) mContext, customTabsIntent.build(), Uri.parse("https://google.com/search?q=" + wordRawGoogle));
                     }
 
                     return true;
@@ -200,15 +155,13 @@ public class DictionaryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     else {
                         customTabsIntent.setToolbarColor(Color.parseColor("#333333"));
                         CustomTabActivityHelper.openCustomTab(
-                                (Activity) mContext, customTabsIntent.build(), Uri.parse("https://en.wikipedia.org/wiki/" + wordRawWiki),
-                                new WebViewFallback());
+                                (Activity) mContext, customTabsIntent.build(), Uri.parse("https://en.wikipedia.org/wiki/" + wordRawWiki));
                     }
                     return true;
                 case R.id.action_urban:
                     customTabsIntent.setToolbarColor(Color.parseColor("#3b496b"));
                     CustomTabActivityHelper.openCustomTab(
-                            (Activity) mContext, customTabsIntent.build(), Uri.parse("http://www.urbandictionary.com/define.php?term=" + currentWord.getWord()),
-                            new WebViewFallback());
+                            (Activity) mContext, customTabsIntent.build(), Uri.parse("http://www.urbandictionary.com/define.php?term=" + currentWord.getWord()));
 
                     return true;
                 default:
@@ -222,7 +175,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return wordList.size();
     }
 
-    void updateList(List<Object> list){
+    void updateList(List<WordItem> list){
         wordList = list;
         notifyDataSetChanged();
     }

@@ -11,6 +11,15 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="WordDialog" parent="Theme.AppCompat.Light.DialogWhenLarge">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@drawable/dialog_back</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
 </resources>

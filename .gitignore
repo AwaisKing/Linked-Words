@@ -45,3 +45,5 @@ captures/
 .externalNativeBuild
 
 .DS_Store
+.idea/dictionaries/AWAiS.xml
+.idea/inspectionProfiles/Project_Default.xml

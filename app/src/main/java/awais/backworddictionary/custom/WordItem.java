@@ -1,27 +1,27 @@
-package awais.backworddictionary;
+package awais.backworddictionary.custom;
 
-class WordItem {
+public class WordItem {
     private final String word;
     private final int numSyllables;
     private final String[] defs;
     private final String[] tags;
 
-    WordItem(String word, String[] tags, int numSyllables, String[] defs) {
+    public WordItem(String word, String[] tags, int numSyllables, String[] defs) {
         this.word = word;
         this.tags = tags;
         this.numSyllables = numSyllables;
         this.defs = defs;
     }
-    String getWord() {
+    public String getWord() {
         return word;
     }
-    String[] getTags() {
+    public String[] getTags() {
         return tags;
     }
-    int getNumSyllables() {
+    public int getNumSyllables() {
         return numSyllables;
     }
-    String[] getDefs() {
+    public String[] getDefs() {
         return defs;
     }
 }

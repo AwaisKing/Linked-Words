@@ -1,4 +1,4 @@
-package awais.backworddictionary;
+package awais.backworddictionary.custom;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -12,6 +12,8 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import awais.backworddictionary.R;
+
 public class MenuDialog extends BottomSheetDialogFragment {
     private CharSequence title = "";
     private Object message;
@@ -19,6 +21,7 @@ public class MenuDialog extends BottomSheetDialogFragment {
     public void setTitle(CharSequence title) {
         this.title = title;
     }
+
     public void setMessage(Object message) {
         this.message = message;
     }

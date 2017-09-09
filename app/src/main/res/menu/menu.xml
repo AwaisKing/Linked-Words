@@ -3,21 +3,26 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:id="@+id/mSearch" android:title="@string/search" android:icon="@drawable/ic_search"
-        app:showAsAction="collapseActionView|always" android:orderInCategory="1"
-        android:actionViewClass="com.lapism.searchview.SearchView" />
+        app:showAsAction="collapseActionView|always" android:orderInCategory="1" />
+        <!--TODO: CHECK IN API 21 or lower -->
+        <!--android:actionViewClass="com.lapism.searchview.SearchView" />-->
+        <!--app:actionViewClass="android.support.v7.widget.SearchView" />-->
 
     <item android:title="@string/refresh" android:id="@+id/mRefresh" android:icon="@drawable/ic_refresh"
-        app:showAsAction="ifRoom" android:orderInCategory="2"/>
+        app:showAsAction="always" android:orderInCategory="2"/>
 
-    <item android:title="@string/examples" android:id="@+id/mExamples" android:icon="@drawable/ic_examples"
+    <item android:title="@string/settings" android:id="@+id/mSettings" android:icon="@drawable/ic_settings_menu"
         app:showAsAction="ifRoom" android:orderInCategory="3"/>
 
-    <item android:title="@string/help" android:id="@+id/mHelp" android:icon="@drawable/ic_help"
+    <item android:title="@string/examples" android:id="@+id/mExamples" android:icon="@drawable/ic_examples"
         app:showAsAction="ifRoom" android:orderInCategory="4"/>
 
-    <item android:title="@string/licenses" android:id="@+id/mLicenses" android:icon="@drawable/ic_licenses"
+    <item android:title="@string/help" android:id="@+id/mHelp" android:icon="@drawable/ic_help"
         app:showAsAction="ifRoom" android:orderInCategory="5"/>
 
-    <item android:title="@string/about" android:id="@+id/mAbout" android:icon="@drawable/ic_about"
+    <item android:title="@string/licenses" android:id="@+id/mLicenses" android:icon="@drawable/ic_licenses"
         app:showAsAction="ifRoom" android:orderInCategory="6"/>
+
+    <item android:title="@string/about" android:id="@+id/mAbout" android:icon="@drawable/ic_about"
+        app:showAsAction="ifRoom" android:orderInCategory="7"/>
 </menu>

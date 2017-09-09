@@ -1,4 +1,4 @@
-package awais.backworddictionary;
+package awais.backworddictionary.custom;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -29,27 +29,38 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import awais.backworddictionary.Main;
+import awais.backworddictionary.R;
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
-import awais.backworddictionary.customweb.WebViewFallback;
 
-class WordDialog extends Dialog implements android.view.View.OnClickListener {
+public class WordDialog extends Dialog implements android.view.View.OnClickListener {
     private final WordItem wordItem;
     private final TextToSpeech tts;
     private final Activity activity;
 
-    WordDialog(Activity act, WordItem wordItem, TextToSpeech tts) {
-        super(act);
+    public WordDialog(Activity act, WordItem wordItem, TextToSpeech tts) {
+        super(act, R.style.WordDialog);
         this.activity = act;
         this.wordItem = wordItem;
         this.tts = tts;
     }
 
     @Override
+    public void show() {
+        super.show();
+        if (getWindow() != null) getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setCancelable(true);
+        setCanceledOnTouchOutside(true);
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        if (getWindow() != null) getWindow().setLayout(ViewGroup.LayoutParams.FILL_PARENT,
+        if (getWindow() != null) getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
 
         setContentView(R.layout.word_dialog);
@@ -151,8 +162,7 @@ class WordDialog extends Dialog implements android.view.View.OnClickListener {
                     activity.startActivity(intent1);
                 } catch (Exception e) {
                     customTabsIntent.setToolbarColor(Color.parseColor("#4888f2"));
-                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://google.com/search?q=" + wordRawGoogle),
-                            new WebViewFallback());
+                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://google.com/search?q=" + wordRawGoogle));
                 }
                 break;
 
@@ -168,16 +178,14 @@ class WordDialog extends Dialog implements android.view.View.OnClickListener {
                 if (resInfo1 != null && resInfo1.size() > 0) activity.startActivity(intent1);
                 else {
                     customTabsIntent.setToolbarColor(Color.parseColor("#333333"));
-                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://en.wikipedia.org/wiki/" + wordRawWiki),
-                            new WebViewFallback());
+                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://en.wikipedia.org/wiki/" + wordRawWiki));
                 }
                 break;
 
             case R.id.btnUrban:
                 customTabsIntent.setToolbarColor(Color.parseColor("#3b496b"));
                 CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(),
-                        Uri.parse("http://www.urbandictionary.com/define.php?term=" + wordItem.getWord()),
-                        new WebViewFallback());
+                        Uri.parse("http://www.urbandictionary.com/define.php?term=" + wordItem.getWord()));
                 break;
 
             case R.id.btnReverse:

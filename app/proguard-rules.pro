@@ -26,3 +26,5 @@
 
 -dontwarn io.reactivex.**
 -dontwarn okio.**
+-optimizationpasses 2
+-allowaccessmodification

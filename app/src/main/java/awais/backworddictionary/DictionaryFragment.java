@@ -30,26 +30,27 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.NativeExpressAdView;
+import com.google.android.gms.ads.AdView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.keiferstone.nonet.ConnectionStatus;
 import com.keiferstone.nonet.NoNet;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import awais.backworddictionary.custom.RecyclerViewFastScroller;
+import awais.backworddictionary.custom.WordItem;
+import awais.backworddictionary.interfaces.FilterCheck;
+import awais.backworddictionary.interfaces.FragmentCallback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 public class DictionaryFragment extends Fragment implements FragmentCallback, FilterCheck {
-    private List<Object> wordList;
+    private List<WordItem> wordList;
     private RecyclerView recyclerView;
     private ProgressBar progressWords;
     private FragmentCallback fragmentCallback;
@@ -59,17 +60,13 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     private EditText filterSearchEditor;
     private ImageView filterSearchButton;
     private FrameLayout filterView;
-    FloatingActionButton fab;
+    private FloatingActionButton fab;
 
-    private boolean[] filterCheck = {true, true, true};
+    private final boolean[] filterCheck = {true, true, true};
     public DictionaryAdapter adapter;
     public String title;
 
-    FilterCheck filterChecker;
-
-    public DictionaryFragment() {
-        super();
-    }
+    private FilterCheck filterChecker;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -95,59 +92,61 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         try {tts.shutdown();} catch (Exception ignore){}
     }
 
-    void filter(String text) {
-        List<Object> newList = new ArrayList<>();
-        newList.add(wordList.get(0));
+    private void filter(String text) {
+        List<WordItem> newList = new ArrayList<>();
+
         if (text != null && (TextUtils.isEmpty(text) || text.equals(""))) newList = wordList;
         else {
             String filterPattern = text != null ? text.toLowerCase() : "";
 
-            Log.d("AWAISKING_APP", "filter: " + wordList.size() + " -- " + newList.size());
+            for (WordItem mWord : wordList) {
+                boolean showWords = Main.sharedPreferences.getBoolean("filterWord", false);
+                boolean showDefs = Main.sharedPreferences.getBoolean("filterDefinition", false);
+                boolean contains = Main.sharedPreferences.getBoolean("filterContain", true);
 
-            for (Object mWord : wordList) {
-                if (mWord.getClass() == WordItem.class) {
-                    WordItem wordItem = (WordItem) mWord;
-                    boolean showWords = Main.sharedPreferences.getBoolean("filterWord", false);
-                    boolean showDefs = Main.sharedPreferences.getBoolean("filterDefn", false);
-                    boolean contains = Main.sharedPreferences.getBoolean("filterContain", true);
-
-                    if (showWords && showDefs) {
-                        if (contains ? wordItem.getWord().toLowerCase().contains(filterPattern) :
-                                wordItem.getWord().toLowerCase().startsWith(filterPattern)) {
-                            newList.add(wordItem);
-                            continue;
-                        }
-                        // TODO check for defintion search bugs  --- seems to be ok
-                        if (wordItem.getDefs() != null) {
-                            for (String def : wordItem.getDefs()) {
-                                if (contains ? def.split("\t")[1].trim().toLowerCase().contains(filterPattern)
-                                        : def.split("\t")[1].trim().toLowerCase().startsWith(filterPattern)) {
-                                    Log.d("AWAISKING_APP", "" + def);
-                                    newList.add(wordItem);
-                                    break;
-                                }
+                if (showWords && showDefs) {
+                    if (contains ? mWord.getWord().toLowerCase().contains(filterPattern) :
+                            mWord.getWord().toLowerCase().startsWith(filterPattern)) {
+                        newList.add(mWord);
+                        continue;
+                    }
+                    // TODO check for definition search bugs  --- seems to be ok
+                    if (mWord.getDefs() != null) {
+                        for (String def : mWord.getDefs()) {
+                            if (contains ? def.split("\t")[1].trim().toLowerCase().contains(filterPattern)
+                                    : def.split("\t")[1].trim().toLowerCase().startsWith(filterPattern)) {
+                                newList.add(mWord);
+                                break;
                             }
                         }
-                    } else if (showWords) {
-                        if (contains ? wordItem.getWord().toLowerCase().contains(filterPattern) :
-                                wordItem.getWord().toLowerCase().startsWith(filterPattern))
-                            newList.add(wordItem);
-
-                    } else if (showDefs) {
-                        // TODO check for defintion search bugs  --- seems to be ok
-                        if (wordItem.getDefs() != null)
-                            for (String def : wordItem.getDefs())
-                                if (contains ? def.split("\t")[1].trim().contains(filterPattern)
-                                        : def.split("\t")[1].trim().toLowerCase().startsWith(filterPattern))
-                                    newList.add(wordItem);
-                    } else {
-                        Toast.makeText(activity, "Select a filter first.", Toast.LENGTH_SHORT).show();
-                        break;
                     }
+                }
+
+                else if (showWords) {
+                    if (contains ? mWord.getWord().toLowerCase().contains(filterPattern) :
+                            mWord.getWord().toLowerCase().startsWith(filterPattern))
+                        newList.add(mWord);
+
+                }
+
+                else if (showDefs) {
+                    // TODO check for definition search bugs  --- seems to be ok
+                    if (mWord.getDefs() != null)
+                        for (String def : mWord.getDefs())
+                            if (contains ? def.split("\t")[1].trim().contains(filterPattern)
+                                    : def.split("\t")[1].trim().toLowerCase().startsWith(filterPattern)) {
+                                newList.add(mWord);
+                                break;
+                            }
+                }
+
+                else {
+                    Toast.makeText(activity, "Select a filter first.", Toast.LENGTH_SHORT).show();
+                    return;
                 }
             }
         }
-
+        Log.d("AWAISKING_APP", "filter: " + wordList.size() + " -- " + newList.size());
         adapter.updateList(newList);
     }
 
@@ -155,6 +154,10 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View magicRootView = inflater.inflate(R.layout.dictionary_view, container, false);
+
+        AdView adView = magicRootView.findViewById(R.id.adView);
+        adView.loadAd(new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .addTestDevice("15B23251F9EEC3767E3D5D9C84E46264").build());
 
         fragmentCallback = this;
 
@@ -182,14 +185,13 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
             }
         });
         fastScroller.setRecyclerView(recyclerView);
-        fastScroller.setViewsToUse(R.layout.fast_scroller, R.id.fastscroller_handle);
         recyclerView.setAdapter(adapter);
 
         filterChecker = this;
 
         filterView = magicRootView.findViewById(R.id.filterView);
         ImageView filterBackButton = magicRootView.findViewById(R.id.filterBack);
-        filterBackButton.setOnClickListener(view -> isOpen(false, fab));
+        filterBackButton.setOnClickListener(view -> filterChecker.isOpen(false, fab, 0));
         filterSearchEditor = magicRootView.findViewById(R.id.swipeSearch);
         filterSearchButton = magicRootView.findViewById(R.id.filterSettings);
         filterSearchEditor.setOnClickListener(view -> openKeyboard());
@@ -220,7 +222,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                     !TextUtils.isEmpty((CharSequence) filterSearchButton.getTag())
                     && filterSearchButton.getTag().equals("filter")) {
                 filterCheck[0] = Main.sharedPreferences.getBoolean("filterWord", false);
-                filterCheck[1] = Main.sharedPreferences.getBoolean("filterDefn", false);
+                filterCheck[1] = Main.sharedPreferences.getBoolean("filterDefinition", false);
                 filterCheck[2] = Main.sharedPreferences.getBoolean("filterContain", true);
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
@@ -231,7 +233,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                             if (i == 0)
                                 Main.sharedPreferences.edit().putBoolean("filterWord", b).apply();
                             else if (i == 1)
-                                Main.sharedPreferences.edit().putBoolean("filterDefn", b).apply();
+                                Main.sharedPreferences.edit().putBoolean("filterDefinition", b).apply();
                             else if (i == 2)
                                 Main.sharedPreferences.edit().putBoolean("filterContain", b).apply();
                         });
@@ -281,41 +283,8 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     }
 
     @Override
-    public void done(ArrayList<Object> items, final String word) {
+    public void done(ArrayList<WordItem> items, final String word) {
         wordList = items;
-
-        if (wordList.size() > 70) {
-            for (int i = 0; i <= wordList.size(); i += 66)
-                wordList.add(i, new NativeExpressAdView(activity));
-
-            recyclerView.post(new Runnable() {
-                @Override
-                public void run() {
-                    for (int i = 0; i <= wordList.size(); i += 66) {
-                        if (wordList.get(i).getClass() == NativeExpressAdView.class) {
-                            final NativeExpressAdView adView = (NativeExpressAdView) wordList.get(i);
-                            adView.setAdUnitId("ca-app-pub-6411761147229517/6314261957");
-                            AdSize adSize = new AdSize(AdSize.FULL_WIDTH, 133);
-                            adView.setAdSize(adSize);
-                            adView.setAdListener(new AdListener() {
-                                @Override
-                                public void onAdLoaded() {
-                                    super.onAdLoaded();
-                                    adView.setVisibility(View.VISIBLE);
-                                }
-
-                                @Override
-                                public void onAdFailedToLoad(int errorCode) {
-                                    adView.setVisibility(View.GONE);
-                                }
-                            });
-                            adView.loadAd(new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).addTestDevice("0917FA1DDAD4C1B9A1B8A66FA56661A8").build());
-                        }
-                    }
-                }
-            });
-        }
-
         adapter = new DictionaryAdapter(activity, wordList, tts);
         adapter.notifyDataSetChanged();
         recyclerView.setAdapter(adapter);
@@ -325,13 +294,13 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     }
 
     @Override
-    public void isOpen(boolean opened, FloatingActionButton fab) {
+    public void isOpen(boolean opened, FloatingActionButton fab, int method) {
         this.fab = fab;
         if (opened) {
-            filterView.setVisibility(View.VISIBLE);
+            if (method == 0) filterView.setVisibility(View.VISIBLE);
             hideFAB();
         } else {
-            filterView.setVisibility(View.GONE);
+            if (method == 0) filterView.setVisibility(View.GONE);
             showFAB();
         }
     }
@@ -377,15 +346,15 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     }
 
     @SuppressLint("StaticFieldLeak")
-    public class WordsAsync extends AsyncTask<String, Void, ArrayList<Object>> {
-        ArrayList<Object> wordItemsList = new ArrayList<>();
+    public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
+        ArrayList<WordItem> wordItemsList = new ArrayList<>();
         String word, method;
-        OkHttpClient client = new OkHttpClient();
-        Request.Builder builder = new Request.Builder();
+        final OkHttpClient client = new OkHttpClient();
+        final Request.Builder builder = new Request.Builder();
         Response response = null;
 
         @Override
-        protected ArrayList<Object> doInBackground(String... params) {
+        protected ArrayList<WordItem> doInBackground(String... params) {
             word = params[0];
             method = params[1];
 
@@ -405,31 +374,33 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
             String query = word.replaceAll("\\s", "+").replaceAll(" ", "+").replace("#","%23")
                     .replace("@","%40").replace("&", "%26");
 
-            builder.url("https://api.datamuse.com/words?md=pds&max=400&" + method + "=" + query);
+            int wordsCount = Main.sharedPreferences.getInt("maxWords", 400);
+
+            builder.url("https://api.datamuse.com/words?md=pds&max=" + wordsCount + "&" + method + "=" + query);
 
             try {
                 if (response != null) response.close();
             } catch (Exception ignored){}
             try {
                 response = client.newCall(builder.build()).execute();
-                if (response.code() == 200) {
-                    Type type = new TypeToken<List<WordItem>>(){}.getType();
-                    wordItemsList = new Gson().fromJson(response.body().string(), type);
-                }
+                if (response.code() == 200)
+                    wordItemsList = new Gson().fromJson(response.body().string(),
+                            new TypeToken<List<WordItem>>(){}.getType());
             } catch (final Exception e) {
-                activity.runOnUiThread(() -> {
-                    try {
-                        NoNet.check(activity).configure(NoNet.configure().endpoint("https://api.datamuse.com/words").build())
-                                .callback(connectionStatus -> {
-                                    if (connectionStatus != ConnectionStatus.CONNECTED)
-                                        Toast.makeText(activity, "Not connected to internet.\nPlease connect to network.", Toast.LENGTH_SHORT).show();
-                                }).start();
-                    } catch (Exception e1) {
-                        Toast.makeText(activity, "Error occurred" +
-                                (e1.getStackTrace() != null ? ": " + e1.getStackTrace()[1].toString()
-                                : ""), Toast.LENGTH_LONG).show();
-                    }
-                });
+                if (activity != null)
+                    activity.runOnUiThread(() -> {
+                        try {
+                            NoNet.check(activity).configure(NoNet.configure().endpoint("https://api.datamuse.com/words").build())
+                                    .callback(connectionStatus -> {
+                                        if (connectionStatus != ConnectionStatus.CONNECTED)
+                                            Toast.makeText(activity, "Not connected to internet.\nPlease connect to network.", Toast.LENGTH_SHORT).show();
+                                    }).start();
+                        } catch (Exception e1) {
+                            Toast.makeText(activity, "Error occurred" +
+                                    (e1.getStackTrace() != null ? ": " + e1.getStackTrace()[1].toString()
+                                            : ""), Toast.LENGTH_LONG).show();
+                        }
+                    });
                 Log.e("AWAISKING_APP", "", e);
             } finally {
                 if (response != null) response.close();
@@ -439,7 +410,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         }
 
         @Override
-        protected void onPostExecute(ArrayList<Object> wordItems) {
+        protected void onPostExecute(ArrayList<WordItem> wordItems) {
             if (wordItems != null) if (fragmentCallback!=null) fragmentCallback.done(wordItems, word);
             if (activity != null)
                 activity.runOnUiThread(() -> {

@@ -1,9 +1,7 @@
-package awais.backworddictionary;
+package awais.backworddictionary.custom;
 
-import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.annotation.IdRes;
-import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,13 +12,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import awais.backworddictionary.R;
+
 public class RecyclerViewFastScroller extends LinearLayout {
     private static final int SNAP_RANGE = 8;
     private View handle;
     private RecyclerView recyclerView;
     private int height;
     private boolean isInitialized = false;
-    private ObjectAnimator currentAnimator = null;
 
     private final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
         @Override
@@ -44,37 +43,33 @@ public class RecyclerViewFastScroller extends LinearLayout {
         init();
     }
 
-    protected void init() {
+    private void init() {
         if (isInitialized) return;
         isInitialized = true;
         setOrientation(HORIZONTAL);
         setClipChildren(false);
     }
 
-    public void setViewsToUse(@LayoutRes int layoutResId, @IdRes int handleResId) {
-        LayoutInflater.from(getContext()).inflate(layoutResId, this, true);
-        handle = findViewById(handleResId);
+    private void setViewsToUse() {
+        LayoutInflater.from(getContext()).inflate(R.layout.fast_scroller, this, true);
+        handle = findViewById(R.id.fastscroller_handle);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         height = h;
+        if (isInEditMode()) return;
         updateHandlePosition();
     }
 
-    @Override
-    public boolean performClick() {
-        return super.performClick();
-    }
-
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         final int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 if (event.getX() < handle.getX()-ViewCompat.getPaddingStart(handle)) return false;
-                if (currentAnimator != null) currentAnimator.cancel();
                 handle.setSelected(true);
             case MotionEvent.ACTION_MOVE:
                 final float y = event.getY();
@@ -96,6 +91,7 @@ public class RecyclerViewFastScroller extends LinearLayout {
             this.recyclerView = recyclerView;
             if (this.recyclerView == null) return;
             recyclerView.addOnScrollListener(onScrollListener);
+            setViewsToUse();
         }
     }
 
