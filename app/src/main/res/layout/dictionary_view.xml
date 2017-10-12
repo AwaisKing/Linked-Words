@@ -54,5 +54,5 @@
         android:layout_height="@android:dimen/thumbnail_height" android:layout_centerInParent="true"
         android:padding="@dimen/toolbarSize" android:visibility="gone" android:layout_above="@+id/adView" />
 
-    <com.google.android.gms.ads.AdView android:id="@+id/adView" android:layout_alignParentBottom="true" xmlns:ads="http://schemas.android.com/apk/res-auto" ads:adUnitId="ca-app-pub-6411761147229517/6314261957" android:layout_width="match_parent" android:layout_height="wrap_content" ads:adSize="SMART_BANNER" />
+    <com.google.android.gms.ads.AdView android:id="@+id/adView" android:layout_alignParentBottom="true" xmlns:ads="http://schemas.android.com/apk/res-auto" ads:adUnitId="ca-app-pub-6411761147229517/1609681212" android:layout_width="match_parent" android:layout_height="wrap_content" ads:adSize="SMART_BANNER" />
 </RelativeLayout>

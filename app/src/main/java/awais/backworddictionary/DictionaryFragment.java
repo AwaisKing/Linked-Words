@@ -156,8 +156,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         final View magicRootView = inflater.inflate(R.layout.dictionary_view, container, false);
 
         AdView adView = magicRootView.findViewById(R.id.adView);
-        adView.loadAd(new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .addTestDevice("15B23251F9EEC3767E3D5D9C84E46264").build());
+        adView.loadAd(new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build());
 
         fragmentCallback = this;
 
