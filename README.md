@@ -26,6 +26,18 @@ also you can select if the filter either `contains` the text or `starts` with th
 
 ---
 
+Screnshots
+-
+[![Screenshot 1](https://i.imgur.com/R4MzZmUm.png)](https://i.imgur.com/R4MzZmU.png)
+[![Screenshot 2](https://i.imgur.com/BfJ8xrNm.png)](https://i.imgur.com/BfJ8xrN.png)
+[![Screenshot 3](https://i.imgur.com/oXGLCDsm.png)](https://i.imgur.com/oXGLCDs.png)
+[![Screenshot 4](https://i.imgur.com/NgcnC8Hm.png)](https://i.imgur.com/NgcnC8H.png)
+[![Screenshot 5](https://i.imgur.com/p5OIftXm.png)](https://i.imgur.com/p5OIftX.png)
+[![Screenshot 6](https://i.imgur.com/tN2Mv3Fm.png)](https://i.imgur.com/tN2Mv3F.png)
+[![Screenshot 7](https://i.imgur.com/nzjg6gYm.png)](https://i.imgur.com/nzjg6gY.png)
+
+---
+
 Credits to:
 -
 #### App Icon:
