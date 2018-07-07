@@ -46,12 +46,12 @@ Credits to:
   + [Datamuse Words Database API](https://www.datamuse.com/api/)
 
 #### Libraries:
-  + [OkHttp3 *-* \[square/okhttp\]](https://github.com/square/okhttp) *-* \[Apache License 2.0\]
-  + [GSON *-* \[google/gson\]](https://github.com/google/gson) *-* \[Apache License 2.0\]
-  + [SearchView *-* \[lapism/SearchView\]](https://github.com/lapism/SearchView) *-* \[Apache License 2.0\]
-  + [Chrome Custom Tabs *-* \[GoogleChrome/custom-tabs-client\]](https://github.com/GoogleChrome/custom-tabs-client) *-* \[Apache License 2.0\]
-  + [NoNet *-* \[keiferstone/nonet\]](https://github.com/keiferstone/nonet) *-* \[Apache License 2.0\]
-  + [LollipopContactsRecyclerViewFastScroller *-* \[AndroidDeveloperLB/LollipopContactsRecyclerViewFastScroller\]](https://github.com/AndroidDeveloperLB/LollipopContactsRecyclerViewFastScroller) *-* \[Apache License 2.0\]
+  + [OkHttp3 *-* [square/okhttp]](https://github.com/square/okhttp) *-* [Apache License 2.0]
+  + [GSON *-* [google/gson]](https://github.com/google/gson) *-* [Apache License 2.0]
+  + [SearchView *-* [lapism/SearchView]](https://github.com/lapism/SearchView) *-* [Apache License 2.0]
+  + [Chrome Custom Tabs *-* [GoogleChrome/custom-tabs-client]](https://github.com/GoogleChrome/custom-tabs-client) *-* [Apache License 2.0]
+  + [NoNet *-* [keiferstone/nonet]](https://github.com/keiferstone/nonet) *-* [Apache License 2.0]
+  + ~[LollipopContactsRecyclerViewFastScroller *-* [AndroidDeveloperLB/LollipopContactsRecyclerViewFastScroller]](https://github.com/AndroidDeveloperLB/LollipopContactsRecyclerViewFastScroller)~ --> [recycler-fast-scroll *-* [FutureMind/recycler-fast-scroll]](https://github.com/FutureMind/recycler-fast-scroll) *-* [Apache License 2.0]
 
 #### Licenses:
   + [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)

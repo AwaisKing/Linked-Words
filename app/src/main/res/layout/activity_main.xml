@@ -13,7 +13,7 @@
             android:layout_width="match_parent" android:layout_height="?attr/actionBarSize"
             app:popupTheme="@style/AppTheme.PopupOverlay" android:background="?attr/colorPrimary"
             android:elevation="0dp" app:elevation="0dp"/>
-        <android.support.design.widget.TabLayout android:id="@+id/tabs" app:tabMode="scrollable"
+        <android.support.design.widget.TabLayout android:id="@+id/tabs" app:tabMode="fixed"
             app:tabIndicatorColor="@color/cards_and_dialogs_color" app:tabGravity="fill"
             app:tabIndicatorHeight="4dp" android:layout_height="?attr/actionBarSize"
             android:layout_width="match_parent" android:elevation="0dp" app:elevation="0dp"
@@ -25,7 +25,7 @@
         android:focusable="false" android:focusedByDefault="false"
         android:longClickable="false" android:contextClickable="false"
         android:soundEffectsEnabled="false" android:background="@drawable/elevation_api"
-        android:id="@+id/shadow" app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:id="@+id/shadow" app:layout_behavior="@string/scroll_behavior" />
 
     <com.lapism.searchview.SearchView android:id="@+id/searchView" android:layout_width="match_parent"
         android:layout_height="match_parent" app:layout_behavior="@string/search_behavior2">
@@ -33,19 +33,19 @@
 
     <android.support.v4.view.ViewPager android:id="@+id/viewpager"
         android:layout_width="match_parent" android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior" />
 
-    <android.support.design.widget.FloatingActionButton android:layout_marginEnd="@dimen/default_banner_text_size"
-        android:layout_marginRight="@dimen/default_banner_text_size" android:layout_width="wrap_content"
+    <android.support.design.widget.FloatingActionButton android:layout_marginEnd="15sp"
+        android:layout_marginRight="15sp" android:layout_width="wrap_content"
         android:layout_height="wrap_content" app:layout_anchor="@id/appbarlayout"
         app:layout_anchorGravity="bottom|right|end" android:id="@+id/filterButton"
-        app:behavior_autoHide="false" app:fabSize="normal" app:srcCompat="@drawable/ic_search"
-        app:layout_behavior="@string/bottom_sheet_behavior"
-        android:scaleType="center" />
+        app:behavior_autoHide="false" app:fabSize="mini" app:srcCompat="@drawable/ic_search"
+        app:layout_behavior="@string/bottom_sheet_behavior" android:scaleType="center"
+        android:layout_marginTop="@dimen/fabMargin"/>
 
     <ImageView android:id="@+id/noInternet" android:layout_width="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"
         android:layout_height="match_parent" tools:srcCompat="@drawable/no_internet"
         android:src="@drawable/no_internet" android:contentDescription="@null"
-        android:padding="@dimen/toolbarSize" android:visibility="gone" android:layout_margin="@dimen/default_banner_text_size"/>
+        android:padding="@dimen/toolbarSize" android:visibility="gone" android:layout_margin="15sp"/>
 </android.support.design.widget.CoordinatorLayout>

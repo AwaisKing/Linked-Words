@@ -12,7 +12,7 @@ import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
 
 public class SettingsDialog extends Dialog {
-    private final int maxWords = Main.sharedPreferences.getInt("maxWords", 400);
+    private final int maxWords = Main.sharedPreferences.getInt("maxWords", 80);
 
     public SettingsDialog(Activity act) {
         super(act, R.style.WordDialog);

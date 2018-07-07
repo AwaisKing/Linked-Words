@@ -16,9 +16,9 @@
                 android:layout_height="match_parent">
                 <ImageView android:id="@+id/filterBack" android:layout_height="match_parent"
                     android:layout_width="48dp" style="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true" android:focusable="true" android:padding="@dimen/default_banner_elevation"
+                    android:clickable="true" android:focusable="true" android:padding="6dp"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
-                    app:srcCompat="@drawable/back_arrow" android:contentDescription="@string/filter_settings"/>
+                    app:srcCompat="@drawable/ic_back" android:contentDescription="@string/filter_settings"/>
 
                 <EditText android:id="@+id/swipeSearch" android:background="@android:color/white"
                     android:hint="@string/search" android:layout_width="0dp" android:layout_weight="1"
@@ -30,7 +30,7 @@
 
                 <ImageView android:id="@+id/filterSettings" android:layout_height="match_parent"
                     android:layout_width="48dp" style="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true" android:focusable="true" android:padding="@dimen/default_banner_elevation"
+                    android:clickable="true" android:focusable="true" android:padding="6dp"
                     android:foreground="?attr/selectableItemBackgroundBorderless"
                     app:srcCompat="@drawable/ic_settings" android:contentDescription="@string/filter_settings"/>
             </LinearLayout>
@@ -42,13 +42,14 @@
         android:paddingTop="@dimen/filter_spacing" android:clipToPadding="false"
         android:layout_width="match_parent" android:layout_height="match_parent"
         android:layout_below="@id/filterView" android:scrollbars="none"
-        android:layout_above="@+id/adView"/>
-    <awais.backworddictionary.custom.RecyclerViewFastScroller
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        android:layout_above="@+id/adView" />
+    <com.futuremind.recyclerviewfastscroll.FastScroller
         android:id="@+id/fastscroller" android:layout_below="@id/filterView"
         android:layout_width="wrap_content" android:layout_height="match_parent"
         android:layout_alignBottom="@id/recycler_view" android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true" android:layout_alignTop="@id/recycler_view"
-        android:layout_above="@+id/adView"/>
+        android:layout_above="@+id/adView" android:orientation="vertical" />
 
     <ProgressBar android:id="@+id/progressWords" android:layout_width="@android:dimen/thumbnail_height"
         android:layout_height="@android:dimen/thumbnail_height" android:layout_centerInParent="true"

@@ -21,16 +21,19 @@ import awais.backworddictionary.R;
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
 
 public class MenuCaller {
-    private static final SpannableStringBuilder examplesBuilder = new SpannableStringBuilder();
-    private static final SpannableStringBuilder helpBuilder = new SpannableStringBuilder();
-    private static final SpannableStringBuilder licensesBuilder = new SpannableStringBuilder();
-    private final MenuDialog bottomSheetDialogFragment = new MenuDialog();
-    private static final CustomTabsIntent.Builder customTabsIntent = new CustomTabsIntent.Builder();
     private final AppCompatActivity activity;
+    private MenuDialog bottomSheetDialogFragment;
+    private static SpannableStringBuilder examplesBuilder, helpBuilder, licensesBuilder;
+    private static CustomTabsIntent.Builder customTabsIntent;
 
     public MenuCaller(AppCompatActivity act) {
-        new Menuer().execute(act);
         activity = act;
+        bottomSheetDialogFragment = new MenuDialog();
+        helpBuilder = new SpannableStringBuilder();
+        examplesBuilder = new SpannableStringBuilder();
+        licensesBuilder = new SpannableStringBuilder();
+        customTabsIntent = new CustomTabsIntent.Builder();
+        new Menuer().execute(act);
     }
 
     public void show(MenuItem item) {

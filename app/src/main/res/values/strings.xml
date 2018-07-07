@@ -26,4 +26,6 @@
     <!--<string name="wifi_setttings">WiFi Setttings</string>-->
     <string name="filter_settings">Filter Settings</string>
     <string name="max_words">Max Words</string>
+
+    <string name="scroll_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
 </resources>

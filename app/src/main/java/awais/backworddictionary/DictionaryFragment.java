@@ -1,19 +1,17 @@
 package awais.backworddictionary;
 
 import android.animation.Animator;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -30,24 +28,18 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.futuremind.recyclerviewfastscroll.FastScroller;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.keiferstone.nonet.ConnectionStatus;
-import com.keiferstone.nonet.NoNet;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import awais.backworddictionary.custom.RecyclerViewFastScroller;
+import awais.backworddictionary.asyncs.WordsAsync;
 import awais.backworddictionary.custom.WordItem;
 import awais.backworddictionary.interfaces.FilterCheck;
 import awais.backworddictionary.interfaces.FragmentCallback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class DictionaryFragment extends Fragment implements FragmentCallback, FilterCheck {
     private List<WordItem> wordList;
@@ -121,15 +113,11 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                         }
                     }
                 }
-
                 else if (showWords) {
                     if (contains ? mWord.getWord().toLowerCase().contains(filterPattern) :
                             mWord.getWord().toLowerCase().startsWith(filterPattern))
                         newList.add(mWord);
-
-                }
-
-                else if (showDefs) {
+                } else if (showDefs) {
                     // TODO check for definition search bugs  --- seems to be ok
                     if (mWord.getDefs() != null)
                         for (String def : mWord.getDefs())
@@ -152,7 +140,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,@Nullable Bundle savedInstanceState) {
         final View magicRootView = inflater.inflate(R.layout.dictionary_view, container, false);
 
         AdView adView = magicRootView.findViewById(R.id.adView);
@@ -166,25 +154,13 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         adapter = new DictionaryAdapter(getContext(), wordList, tts);
         adapter.setHasStableIds(true);
 
-        RecyclerViewFastScroller fastScroller = magicRootView.findViewById(R.id.fastscroller);
         recyclerView = magicRootView.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false) {
-            @Override
-            public void onLayoutChildren(final RecyclerView.Recycler recycler, final RecyclerView.State state) {
-                super.onLayoutChildren(recycler, state);
-                final int firstVisibleItemPosition = findFirstVisibleItemPosition();
-                if (firstVisibleItemPosition != 0) {
-                    if (firstVisibleItemPosition == -1) fastScroller.setVisibility(View.GONE);
-                    return;
-                }
-                final int lastVisibleItemPosition = findLastVisibleItemPosition();
-                int itemsShown = lastVisibleItemPosition - firstVisibleItemPosition + 1;
-                fastScroller.setVisibility(wordList.size() > itemsShown ? View.VISIBLE : View.GONE);
-            }
-        });
-        fastScroller.setRecyclerView(recyclerView);
+        FastScroller fastScroller = magicRootView.findViewById(R.id.fastscroller);
+        fastScroller.setHandleColor(getResources().getColor(R.color.colorAccent));
+        recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setAdapter(adapter);
+        fastScroller.setRecyclerView(recyclerView);
 
         filterChecker = this;
 
@@ -193,22 +169,19 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         filterBackButton.setOnClickListener(view -> filterChecker.isOpen(false, fab, 0));
         filterSearchEditor = magicRootView.findViewById(R.id.swipeSearch);
         filterSearchButton = magicRootView.findViewById(R.id.filterSettings);
+        filterSearchButton.setTag("filter");
         filterSearchEditor.setOnClickListener(view -> openKeyboard());
         filterSearchEditor.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (wordList.size() > 2)
-                    filter(charSequence.toString());
+                if (wordList.size() > 2) filter(charSequence.toString());
             }
-
-            @SuppressLint("PrivateResource")
             @Override
             public void afterTextChanged(Editable editable) {
                 if (editable.length() > 0) {
-                    filterSearchButton.setImageResource(R.drawable.abc_ic_clear_material);
+                    filterSearchButton.setImageResource(R.drawable.ic_clear);
                     filterSearchButton.setTag("clear");
                 } else {
                     filterSearchButton.setImageResource(R.drawable.ic_settings);
@@ -217,8 +190,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
             }
         });
         filterSearchButton.setOnClickListener(view -> {
-            if (filterSearchButton.getTag() != null &&
-                    !TextUtils.isEmpty((CharSequence) filterSearchButton.getTag())
+            if (filterSearchButton.getTag() != null && !TextUtils.isEmpty((CharSequence) filterSearchButton.getTag())
                     && filterSearchButton.getTag().equals("filter")) {
                 filterCheck[0] = Main.sharedPreferences.getBoolean("filterWord", false);
                 filterCheck[1] = Main.sharedPreferences.getBoolean("filterDefinition", false);
@@ -229,12 +201,13 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                 builder.setMultiChoiceItems(new String[]{"Words", "Definitions", "Contains"}, filterCheck,
                         (dialogInterface, i, b) -> {
                             filterCheck[i] = b;
-                            if (i == 0)
-                                Main.sharedPreferences.edit().putBoolean("filterWord", b).apply();
-                            else if (i == 1)
-                                Main.sharedPreferences.edit().putBoolean("filterDefinition", b).apply();
-                            else if (i == 2)
-                                Main.sharedPreferences.edit().putBoolean("filterContain", b).apply();
+                            String item = "";
+                            switch (i) {
+                                case 0: item = "filterWord"; break;
+                                case 1: item = "filterDefinition"; break;
+                                case 2: item = "filterContain"; break;
+                            }
+                            Main.sharedPreferences.edit().putBoolean(item, b).apply();
                         });
                 builder.setNeutralButton("OK", (dialogInterface, i) -> {
                     if (wordList.size() > 2)
@@ -251,28 +224,17 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         return magicRootView;
     }
 
-
     private void openKeyboard(){
         try {
-            InputMethodManager inputMethodManager = (InputMethodManager)
-                    getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             if (inputMethodManager != null)
                 inputMethodManager.showSoftInput(filterSearchEditor, 1);
         } catch (Exception e) { Log.e("AWAISKING_APP", "", e); }
     }
 
     public void startWords(int method, String word) {
-        switch (method) {
-            case 0:
-                new WordsAsync().execute(word, "ml");
-                break;
-            case 1:
-                new WordsAsync().execute(word, "sl");
-                break;
-            case 2:
-                new WordsAsync().execute(word, "sp");
-                break;
-        }
+        new WordsAsync(activity, fragmentCallback, word, method, progressWords, recyclerView)
+                .execute();
     }
 
     @Override
@@ -296,14 +258,17 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     public void isOpen(boolean opened, FloatingActionButton fab, int method) {
         this.fab = fab;
         if (opened) {
-            if (method == 0) filterView.setVisibility(View.VISIBLE);
+            if (method == 0 && filterView != null) filterView.setVisibility(View.VISIBLE);
+            if (method == 30 && filterView != null) filterView.setVisibility(View.GONE);
             hideFAB();
         } else {
-            if (method == 0) filterView.setVisibility(View.GONE);
+            if (method == 0 && filterView != null) filterView.setVisibility(View.GONE);
+            if (method == 30 && filterView != null) filterView.setVisibility(View.VISIBLE);
             showFAB();
         }
     }
     private void hideFAB() {
+        if (fab == null) return;
         fab.animate().cancel();
         fab.animate().scaleX(0f).scaleY(0f).alpha(0f).setDuration(200)
                 .setInterpolator(new FastOutLinearInInterpolator())
@@ -312,7 +277,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                         CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
                         p.setAnchorId(View.NO_ID);
                         fab.setLayoutParams(p);
-                        fab.setVisibility(View.GONE);
+                        fab.hide();
                     }
                     @Override public void onAnimationStart(Animator animation) {}
                     @Override public void onAnimationCancel(Animator animation) {}
@@ -320,107 +285,25 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                 });
     }
     private void showFAB() {
+        if (fab == null) return;
         fab.animate().cancel();
         fab.animate().scaleX(0f).scaleY(0f);
         CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
         p.setAnchorId(R.id.appbarlayout);
         fab.setLayoutParams(p);
-        fab.setVisibility(View.VISIBLE);
+        fab.show();
         fab.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(200).setInterpolator(new FastOutLinearInInterpolator())
                 .setListener(new Animator.AnimatorListener() {
-                    @Override public void onAnimationStart(Animator animation) {}
-
                     @Override public void onAnimationEnd(Animator animation) {
                         CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
                         p.setAnchorId(R.id.appbarlayout);
-                        p.anchorGravity = Gravity.END|Gravity.BOTTOM;
+                        p.anchorGravity = Gravity.END | Gravity.BOTTOM;
                         fab.setLayoutParams(p);
-                        fab.setVisibility(View.VISIBLE);
+                        fab.show();
                     }
-
+                    @Override public void onAnimationStart(Animator animation) {}
                     @Override public void onAnimationCancel(Animator animation) {}
-
                     @Override public void onAnimationRepeat(Animator animation) {}
                 });
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
-        ArrayList<WordItem> wordItemsList = new ArrayList<>();
-        String word, method;
-        final OkHttpClient client = new OkHttpClient();
-        final Request.Builder builder = new Request.Builder();
-        Response response = null;
-
-        @Override
-        protected ArrayList<WordItem> doInBackground(String... params) {
-            word = params[0];
-            method = params[1];
-
-            if (activity != null)
-                activity.runOnUiThread(() -> {
-                    progressWords.setVisibility(View.VISIBLE);
-                    recyclerView.setClickable(false);
-                    recyclerView.setEnabled(false);
-                    recyclerView.setFocusable(false);
-                    recyclerView.setLayoutFrozen(true);
-
-                });
-
-            if (wordItemsList == null) wordItemsList = new ArrayList<>();
-            else wordItemsList.clear();
-
-            String query = word.replaceAll("\\s", "+").replaceAll(" ", "+").replace("#","%23")
-                    .replace("@","%40").replace("&", "%26");
-
-            int wordsCount = Main.sharedPreferences.getInt("maxWords", 400);
-
-            builder.url("https://api.datamuse.com/words?md=pds&max=" + wordsCount + "&" + method + "=" + query);
-
-            try {
-                if (response != null) response.close();
-            } catch (Exception ignored){}
-            try {
-                response = client.newCall(builder.build()).execute();
-                if (response.code() == 200)
-                    wordItemsList = new Gson().fromJson(response.body().string(),
-                            new TypeToken<List<WordItem>>(){}.getType());
-            } catch (final Exception e) {
-                if (activity != null)
-                    activity.runOnUiThread(() -> {
-                        try {
-                            NoNet.check(activity).configure(NoNet.configure().endpoint("https://api.datamuse.com/words").build())
-                                    .callback(connectionStatus -> {
-                                        if (connectionStatus != ConnectionStatus.CONNECTED)
-                                            Toast.makeText(activity, "Not connected to internet.\nPlease connect to network.", Toast.LENGTH_SHORT).show();
-                                    }).start();
-                        } catch (Exception e1) {
-                            Toast.makeText(activity, "Error occurred" +
-                                    (e1.getStackTrace() != null ? ": " + e1.getStackTrace()[1].toString()
-                                            : ""), Toast.LENGTH_LONG).show();
-                        }
-                    });
-                Log.e("AWAISKING_APP", "", e);
-            } finally {
-                if (response != null) response.close();
-            }
-
-            return wordItemsList;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<WordItem> wordItems) {
-            if (wordItems != null) if (fragmentCallback!=null) fragmentCallback.done(wordItems, word);
-            if (activity != null)
-                activity.runOnUiThread(() -> {
-                    progressWords.setVisibility(View.GONE);
-                    recyclerView.setClickable(true);
-                    recyclerView.setEnabled(true);
-                    recyclerView.setFocusable(true);
-                    recyclerView.setLayoutFrozen(false);
-                });
-            super.onPostExecute(wordItems);
-        }
-
     }
 }

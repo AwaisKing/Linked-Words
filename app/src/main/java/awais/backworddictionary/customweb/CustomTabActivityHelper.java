@@ -92,8 +92,4 @@ public class CustomTabActivityHelper {
         }
         return false;
     }
-
-//    public static String[] getPackages() {
-//        return new String[]{"", STABLE_PACKAGE, BETA_PACKAGE, DEV_PACKAGE, LOCAL_PACKAGE};
-//    }
 }

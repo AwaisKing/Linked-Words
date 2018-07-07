@@ -8,6 +8,7 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.net.Uri;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.PopupMenu;
@@ -19,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.futuremind.recyclerviewfastscroll.SectionTitleProvider;
+
 import java.net.URL;
 import java.util.List;
 
@@ -26,9 +29,10 @@ import awais.backworddictionary.custom.WordDialog;
 import awais.backworddictionary.custom.WordItem;
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
 
-public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.DictHolder> {
+public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.DictHolder>
+        implements SectionTitleProvider {
     private final Context mContext;
-    private List<WordItem> wordList;
+    private static List<WordItem> wordList;
     private WordItem currentWord;
     private final TextToSpeech tts;
 
@@ -46,9 +50,10 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
             cardView = view.findViewById(R.id.card_view);
         }
     }
+
     DictionaryAdapter(Context mContext, List<WordItem> wordList, TextToSpeech tts) {
         this.mContext = mContext;
-        this.wordList = wordList;
+        DictionaryAdapter.wordList = wordList;
         this.tts = tts;
     }
 
@@ -58,13 +63,20 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
     }
 
     @Override
-    public DictHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public String getSectionTitle(int position) {
+        if (wordList.size() > 0)
+            return wordList.get(position).getWord().substring(0, 1).toUpperCase();
+        return "";
+    }
+
+    @NonNull @Override
+    public DictHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         return new DictHolder(LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.word_item, viewGroup, false));
     }
 
     @Override
-    public void onBindViewHolder(DictHolder holder, int position) {
+    public void onBindViewHolder(@NonNull DictHolder holder, int position) {
         final WordItem wordItem = wordList.get(position);
 
         holder.word.setText(wordItem.getWord());
@@ -175,7 +187,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
         return wordList.size();
     }
 
-    void updateList(List<WordItem> list){
+    public void updateList(List<WordItem> list){
         wordList = list;
         notifyDataSetChanged();
     }
