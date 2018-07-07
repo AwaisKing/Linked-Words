@@ -272,8 +272,6 @@ public class Main extends AppCompatActivity {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
                     if (handler != null) handler.removeCallbacks(textWatch);
-                    textWatch = null;
-                    handler = null;
                     onSearch(query);
                     return true;
                 }
