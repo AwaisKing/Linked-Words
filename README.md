@@ -1,6 +1,6 @@
 # Linked-Words
 ### A dictionary to search for words.
-[![Download from Play Store](https://i.imgur.com/w6kxUkP.png)](https://play.google.com/store/apps/details?id=awais.backworddictionary) **`[BETA TESTERS ONLY]`**
+[![Download from Play Store](https://i.imgur.com/w6kxUkP.png)](https://play.google.com/store/apps/details?id=awais.backworddictionary)
 
 ---
 
