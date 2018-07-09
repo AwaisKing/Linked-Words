@@ -45,7 +45,6 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     private List<WordItem> wordList;
     private RecyclerView recyclerView;
     private ProgressBar progressWords;
-    private FragmentCallback fragmentCallback;
     private TextToSpeech tts;
     private Activity activity;
 
@@ -64,16 +63,16 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         tts = new TextToSpeech(activity, initStatus -> {
-        if (initStatus == TextToSpeech.SUCCESS) {
-            if (tts.isLanguageAvailable(Locale.US) == TextToSpeech.LANG_AVAILABLE)
-                tts.setLanguage(Locale.US);
-            else if (tts.isLanguageAvailable(Locale.CANADA) == TextToSpeech.LANG_AVAILABLE)
-                tts.setLanguage(Locale.CANADA);
-            else if (tts.isLanguageAvailable(Locale.UK) == TextToSpeech.LANG_AVAILABLE)
-                tts.setLanguage(Locale.UK);
-            else if (tts.isLanguageAvailable(Locale.ENGLISH) == TextToSpeech.LANG_AVAILABLE)
-                tts.setLanguage(Locale.ENGLISH);
-        }
+            if (initStatus == TextToSpeech.SUCCESS) {
+                if (tts.isLanguageAvailable(Locale.US) == TextToSpeech.LANG_AVAILABLE)
+                    tts.setLanguage(Locale.US);
+                else if (tts.isLanguageAvailable(Locale.CANADA) == TextToSpeech.LANG_AVAILABLE)
+                    tts.setLanguage(Locale.CANADA);
+                else if (tts.isLanguageAvailable(Locale.UK) == TextToSpeech.LANG_AVAILABLE)
+                    tts.setLanguage(Locale.UK);
+                else if (tts.isLanguageAvailable(Locale.ENGLISH) == TextToSpeech.LANG_AVAILABLE)
+                    tts.setLanguage(Locale.ENGLISH);
+            }
         });
     }
 
@@ -84,59 +83,59 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         try {tts.shutdown();} catch (Exception ignore){}
     }
 
-    private void filter(String text) {
-        List<WordItem> newList = new ArrayList<>();
-
-        if (text != null && (TextUtils.isEmpty(text) || text.equals(""))) newList = wordList;
-        else {
-            String filterPattern = text != null ? text.toLowerCase() : "";
-
-            for (WordItem mWord : wordList) {
-                boolean showWords = Main.sharedPreferences.getBoolean("filterWord", false);
-                boolean showDefs = Main.sharedPreferences.getBoolean("filterDefinition", false);
-                boolean contains = Main.sharedPreferences.getBoolean("filterContain", true);
-
-                if (showWords && showDefs) {
-                    if (contains ? mWord.getWord().toLowerCase().contains(filterPattern) :
-                            mWord.getWord().toLowerCase().startsWith(filterPattern)) {
-                        newList.add(mWord);
-                        continue;
-                    }
-                    // TODO check for definition search bugs  --- seems to be ok
-                    if (mWord.getDefs() != null) {
-                        for (String def : mWord.getDefs()) {
-                            if (contains ? def.split("\t")[1].trim().toLowerCase().contains(filterPattern)
-                                    : def.split("\t")[1].trim().toLowerCase().startsWith(filterPattern)) {
-                                newList.add(mWord);
-                                break;
-                            }
-                        }
-                    }
-                }
-                else if (showWords) {
-                    if (contains ? mWord.getWord().toLowerCase().contains(filterPattern) :
-                            mWord.getWord().toLowerCase().startsWith(filterPattern))
-                        newList.add(mWord);
-                } else if (showDefs) {
-                    // TODO check for definition search bugs  --- seems to be ok
-                    if (mWord.getDefs() != null)
-                        for (String def : mWord.getDefs())
-                            if (contains ? def.split("\t")[1].trim().contains(filterPattern)
-                                    : def.split("\t")[1].trim().toLowerCase().startsWith(filterPattern)) {
-                                newList.add(mWord);
-                                break;
-                            }
-                }
-
-                else {
-                    Toast.makeText(activity, "Select a filter first.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-            }
-        }
-        Log.d("AWAISKING_APP", "filter: " + wordList.size() + " -- " + newList.size());
-        adapter.updateList(newList);
-    }
+//    private void filter(String text) {
+//        List<WordItem> newList = new ArrayList<>();
+//
+//        if (text != null && (TextUtils.isEmpty(text) || text.equals(""))) newList = wordList;
+//        else {
+//            String filterPattern = text != null ? text.toLowerCase() : "";
+//
+//            boolean showWords = Main.sharedPreferences.getBoolean("filterWord", false);
+//            boolean showDefs = Main.sharedPreferences.getBoolean("filterDefinition", false);
+//            boolean contains = Main.sharedPreferences.getBoolean("filterContain", true);
+//
+//            for (WordItem mWord : wordList) {
+//                if (showWords && showDefs) {
+//                    if (contains ? mWord.getWord().toLowerCase().contains(filterPattern) :
+//                            mWord.getWord().toLowerCase().startsWith(filterPattern)) {
+//                        newList.add(mWord);
+//                        continue;
+//                    }
+//                    // TODO check for definition search bugs  --- seems to be ok
+//                    if (mWord.getDefs() != null) {
+//                        for (String def : mWord.getDefs()) {
+//                            if (contains ? def.split("\t")[1].trim().toLowerCase().contains(filterPattern)
+//                                    : def.split("\t")[1].trim().toLowerCase().startsWith(filterPattern)) {
+//                                newList.add(mWord);
+//                                break;
+//                            }
+//                        }
+//                    }
+//                }
+//                else if (showWords) {
+//                    if (contains ? mWord.getWord().toLowerCase().contains(filterPattern) :
+//                            mWord.getWord().toLowerCase().startsWith(filterPattern))
+//                        newList.add(mWord);
+//                } else if (showDefs) {
+//                    // TODO check for definition search bugs  --- seems to be ok
+//                    if (mWord.getDefs() != null)
+//                        for (String def : mWord.getDefs())
+//                            if (contains ? def.split("\t")[1].trim().contains(filterPattern)
+//                                    : def.split("\t")[1].trim().toLowerCase().startsWith(filterPattern)) {
+//                                newList.add(mWord);
+//                                break;
+//                            }
+//                }
+//
+//                else {
+//                    Toast.makeText(activity, "Select a filter first.", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//            }
+//        }
+//        Log.d("AWAISKING_APP", "filter: " + wordList.size() + " -- " + newList.size());
+//        adapter.updateList(newList);
+//    }
 
     @Nullable
     @Override
@@ -145,8 +144,6 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
 
         AdView adView = magicRootView.findViewById(R.id.adView);
         adView.loadAd(new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build());
-
-        fragmentCallback = this;
 
         progressWords = magicRootView.findViewById(R.id.progressWords);
 
@@ -176,7 +173,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (wordList.size() > 2) filter(charSequence.toString());
+                if (wordList.size() > 2) adapter.getFilter().filter(charSequence);
             }
             @Override
             public void afterTextChanged(Editable editable) {
@@ -211,7 +208,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                         });
                 builder.setNeutralButton("OK", (dialogInterface, i) -> {
                     if (wordList.size() > 2)
-                        filter(filterSearchEditor.getText().toString());
+                        adapter.getFilter().filter(filterSearchEditor.getText());
                     dialogInterface.dismiss();
                 });
                 builder.create().show();
@@ -224,7 +221,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         return magicRootView;
     }
 
-    private void openKeyboard(){
+    private void openKeyboard() {
         try {
             InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             if (inputMethodManager != null)
@@ -233,8 +230,8 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     }
 
     public void startWords(int method, String word) {
-        new WordsAsync(activity, fragmentCallback, word, method, progressWords, recyclerView)
-                .execute();
+        if (word == null || word.isEmpty() || TextUtils.isEmpty(word)) return;
+        new WordsAsync(activity, this, word, method, progressWords, recyclerView).execute();
     }
 
     @Override
@@ -254,6 +251,13 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         activity.setTitle(title);
     }
 
+    public boolean isFilterOpen() {
+        return filterView != null && filterView.getVisibility() == View.VISIBLE;
+    }
+    public void hideFilter() {
+        if (fab != null) isOpen(false, fab, 0);
+    }
+
     @Override
     public void isOpen(boolean opened, FloatingActionButton fab, int method) {
         this.fab = fab;
@@ -267,6 +271,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
             showFAB();
         }
     }
+
     private void hideFAB() {
         if (fab == null) return;
         fab.animate().cancel();
@@ -284,6 +289,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                     @Override public void onAnimationRepeat(Animator animation) {}
                 });
     }
+
     private void showFAB() {
         if (fab == null) return;
         fab.animate().cancel();

@@ -9,6 +9,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
@@ -35,7 +36,10 @@ import com.lapism.searchview.SearchAdapter;
 import com.lapism.searchview.SearchItem;
 import com.lapism.searchview.SearchView;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import awais.backworddictionary.custom.MenuCaller;
@@ -73,31 +77,31 @@ public class Main extends AppCompatActivity {
         try {
             NoNet.monitor(this).configure(NoNet.configure().endpoint("https://api.datamuse.com/words").build())
                     .poll().callback(connectionStatus -> {
-                        if (connectionStatus != ConnectionStatus.CONNECTED) {
-                            if (adapter != null && adapter.getItem(viewPager.getCurrentItem()).adapter != null
-                                    && adapter.getItem(viewPager.getCurrentItem()).adapter.getItemCount() < 1) {
-                                noInternet.setVisibility(View.VISIBLE);
-                                viewPager.setBackgroundColor(getResources().getColor(R.color.noInternet));
-                                if (getSupportActionBar() != null)
-                                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.noInternetBar)));
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                                    getWindow().setStatusBarColor(getResources().getColor(R.color.noInternetStatusBar));
-                                findViewById(R.id.tabs).setBackgroundColor(getResources().getColor(R.color.noInternetBar));
-                                if (fabFilter != null)
-                                    fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.noInternetAccent)));
-                            }
-                        } else {
-                            noInternet.setVisibility(View.GONE);
-                            viewPager.setBackground(null);
-                            if (getSupportActionBar() != null)
-                                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                                getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
-                            findViewById(R.id.tabs).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                            if (fabFilter != null)
-                                fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                        }
-                    })
+                if (connectionStatus != ConnectionStatus.CONNECTED) {
+                    if (adapter != null && adapter.getItem(viewPager.getCurrentItem()).adapter != null
+                            && adapter.getItem(viewPager.getCurrentItem()).adapter.getItemCount() < 1) {
+                        noInternet.setVisibility(View.VISIBLE);
+                        viewPager.setBackgroundColor(getResources().getColor(R.color.noInternet));
+                        if (getSupportActionBar() != null)
+                            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.noInternetBar)));
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                            getWindow().setStatusBarColor(getResources().getColor(R.color.noInternetStatusBar));
+                        findViewById(R.id.tabs).setBackgroundColor(getResources().getColor(R.color.noInternetBar));
+                        if (fabFilter != null)
+                            fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.noInternetAccent)));
+                    }
+                } else {
+                    noInternet.setVisibility(View.GONE);
+                    viewPager.setBackground(null);
+                    if (getSupportActionBar() != null)
+                        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                        getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+                    findViewById(R.id.tabs).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                    if (fabFilter != null)
+                        fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                }
+            })
                     .snackbar(Snackbar.make(viewPager, "Not connected to internet.", -2)
                             .setAction("Settings", view -> startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS))));
         } catch (Exception ignored) {}
@@ -205,14 +209,13 @@ public class Main extends AppCompatActivity {
                             setTitle(currentItem.title);
                         else {
                             if (prevItem.title != null && !prevItem.title.isEmpty()) {
-                                new Handler().post(() -> {
-                                    try {
-                                        currentItem.startWords(tab.getPosition(), prevItem.title);
-                                        currentItem.title = prevItem.title;
-                                    } catch (Exception e) {
-                                        Log.e("AWAISKING_APP", "" , e);
-                                    }
-                                });
+                                try {
+                                    currentItem.adapter.updateList(new ArrayList<>());
+                                    currentItem.startWords(tab.getPosition(), prevItem.title);
+                                    currentItem.title = prevItem.title;
+                                } catch (Exception e) {
+                                    Log.e("AWAISKING_APP", "" , e);
+                                }
                             }
                         }
                         try {
@@ -237,6 +240,14 @@ public class Main extends AppCompatActivity {
             public void onTabUnselected(TabLayout.Tab tab) { prevTab = tab.getPosition(); }
             @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (adapter != null && viewPager != null && adapter.getItem(viewPager.getCurrentItem()).isFilterOpen())
+            adapter.getItem(viewPager.getCurrentItem()).hideFilter();
+        else
+            super.onBackPressed();
     }
 
     private void setSearchView() {
@@ -264,7 +275,7 @@ public class Main extends AppCompatActivity {
                 Handler handler = new Handler();
                 Runnable textWatch = () -> {
                     if (System.currentTimeMillis() > (last_text_edit + 200L)) {
-                        if (text != null && !TextUtils.isEmpty(text) && !text.equals(""))
+                        if (text != null && !text.isEmpty() && !TextUtils.isEmpty(text) && !text.equals(""))
                             new SearchTask().execute(text);
                     }
                 };
@@ -278,11 +289,11 @@ public class Main extends AppCompatActivity {
 
                 @Override
                 public boolean onQueryTextChange(String newText) {
+                    text = newText;
                     if (newText != null && !TextUtils.isEmpty(newText) && !newText.equals("")) {
                         last_text_edit = System.currentTimeMillis();
-                        try { handler.removeCallbacks(textWatch);} catch (Exception ignored) {}
+                        try { handler.removeCallbacks(textWatch); } catch (Exception ignored) {}
                         handler.postDelayed(textWatch, 800);
-                        text = newText;
                     }
                     return false;
                 }
@@ -291,7 +302,8 @@ public class Main extends AppCompatActivity {
             mSearchView.setOnOpenCloseListener(new SearchView.OnOpenCloseListener() {
                 @Override
                 public boolean onClose() {
-                    adapter.getItem(viewPager.getCurrentItem()).isOpen(false, fabFilter, 1);
+                    if (!adapter.getItem(viewPager.getCurrentItem()).isFilterOpen())
+                        adapter.getItem(viewPager.getCurrentItem()).isOpen(false, fabFilter, 1);
                     return false;
                 }
 
@@ -316,7 +328,12 @@ public class Main extends AppCompatActivity {
 
         @Override
         protected ArrayList<WordItem> doInBackground(String... params) {
-            String query = params[0].replace("&", "%26").replace("@","%40").replace("#","%23");
+            String query;
+            try {
+                query = URLEncoder.encode(params[0], "UTF-8");
+            } catch (Exception e) {
+                query = params[0].replace("&", "%26").replace("@","%40").replace("#","%23");
+            }
             ArrayList<WordItem> arrayList = new ArrayList<>();
 
             Response response = null;
@@ -327,8 +344,7 @@ public class Main extends AppCompatActivity {
                     client.cache().close();
                 }
 
-                Call call = client.newCall(new Request.Builder()
-                        .url("https://api.datamuse.com/sug?s=" + query).build());
+                Call call = client.newCall(new Request.Builder().url("https://api.datamuse.com/sug?s=" + query).build());
                 response = call.execute();
 
                 if (isCancelled()) {

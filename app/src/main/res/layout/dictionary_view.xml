@@ -35,7 +35,6 @@
                     app:srcCompat="@drawable/ic_settings" android:contentDescription="@string/filter_settings"/>
             </LinearLayout>
         </android.support.v7.widget.CardView>
-
     </FrameLayout>
 
     <android.support.v7.widget.RecyclerView android:id="@+id/recycler_view"
@@ -49,11 +48,12 @@
         android:layout_width="wrap_content" android:layout_height="match_parent"
         android:layout_alignBottom="@id/recycler_view" android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true" android:layout_alignTop="@id/recycler_view"
+        android:layout_marginTop="8dp" android:layout_marginBottom="8dp"
         android:layout_above="@+id/adView" android:orientation="vertical" />
 
-    <ProgressBar android:id="@+id/progressWords" android:layout_width="@android:dimen/thumbnail_height"
-        android:layout_height="@android:dimen/thumbnail_height" android:layout_centerInParent="true"
-        android:padding="@dimen/toolbarSize" android:visibility="gone" android:layout_above="@+id/adView" />
+    <ProgressBar android:id="@+id/progressWords" android:layout_width="match_parent"
+        android:layout_height="@dimen/toolbarSize" android:layout_centerInParent="true"
+        android:visibility="gone"/>
 
     <com.google.android.gms.ads.AdView android:id="@+id/adView" android:layout_alignParentBottom="true" xmlns:ads="http://schemas.android.com/apk/res-auto" ads:adUnitId="ca-app-pub-6411761147229517/1609681212" android:layout_width="match_parent" android:layout_height="wrap_content" ads:adSize="SMART_BANNER" />
 </RelativeLayout>

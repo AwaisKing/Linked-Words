@@ -17,12 +17,17 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.futuremind.recyclerviewfastscroll.SectionTitleProvider;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import awais.backworddictionary.custom.WordDialog;
@@ -30,11 +35,75 @@ import awais.backworddictionary.custom.WordItem;
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
 
 public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.DictHolder>
-        implements SectionTitleProvider {
+        implements SectionTitleProvider, Filterable {
     private final Context mContext;
     private static List<WordItem> wordList;
+    private static List<WordItem> filterList;
     private WordItem currentWord;
     private final TextToSpeech tts;
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence) {
+                FilterResults results = new FilterResults();
+                results.values = wordList;
+                if (charSequence.toString().isEmpty()) return results;
+
+                boolean showWords = Main.sharedPreferences.getBoolean("filterWord", false);
+                boolean showDefs = Main.sharedPreferences.getBoolean("filterDefinition", false);
+                boolean contains = Main.sharedPreferences.getBoolean("filterContain", true);
+
+                if (!showDefs && !showWords && mContext != null) {
+                    Toast.makeText(mContext, "Select a filter first.", Toast.LENGTH_SHORT).show();
+                    return results;
+                }
+                List<WordItem> filteredList = new ArrayList<>();
+                for (WordItem mWord : wordList) {
+                    String word = mWord.getWord().toLowerCase();
+                    if (showWords && showDefs) {
+                        if (contains ? word.contains(charSequence) : word.startsWith(String.valueOf(charSequence))) {
+                            filteredList.add(mWord);
+                            continue;
+                        }
+                        if (mWord.getDefs() != null) {
+                            for (String rawDef : mWord.getDefs()) {
+                                String def = rawDef.split("\t")[1].trim().toLowerCase();
+                                if (contains ? rawDef.contains(charSequence) : def.startsWith(String.valueOf(charSequence))) {
+                                    filteredList.add(mWord);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else if (showWords) {
+                        if (contains ? word.contains(charSequence) : word.startsWith(String.valueOf(charSequence)))
+                            filteredList.add(mWord);
+                    } else {
+                        if (mWord.getDefs() != null)
+                            for (String rawDef : mWord.getDefs()) {
+                                String def = rawDef.split("\t")[1].trim().toLowerCase();
+                                if (contains ? def.contains(charSequence) : def.startsWith(String.valueOf(charSequence))){
+                                    filteredList.add(mWord);
+                                    break;
+                                }
+                            }
+                    }
+                }
+                DictionaryAdapter.filterList = filteredList;
+                results.values = filteredList;
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                //noinspection unchecked
+                DictionaryAdapter.filterList = (List<WordItem>) filterResults.values;
+                notifyDataSetChanged();
+            }
+        };
+    }
 
     class DictHolder extends RecyclerView.ViewHolder {
         final TextView word;
@@ -54,6 +123,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
     DictionaryAdapter(Context mContext, List<WordItem> wordList, TextToSpeech tts) {
         this.mContext = mContext;
         DictionaryAdapter.wordList = wordList;
+        DictionaryAdapter.filterList = wordList;
         this.tts = tts;
     }
 
@@ -64,8 +134,8 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
 
     @Override
     public String getSectionTitle(int position) {
-        if (wordList.size() > 0)
-            return wordList.get(position).getWord().substring(0, 1).toUpperCase();
+        if (filterList.size() > 0)
+            return filterList.get(position).getWord().substring(0, 1).toUpperCase();
         return "";
     }
 
@@ -77,7 +147,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
 
     @Override
     public void onBindViewHolder(@NonNull DictHolder holder, int position) {
-        final WordItem wordItem = wordList.get(position);
+        final WordItem wordItem = filterList.get(position);
 
         holder.word.setText(wordItem.getWord());
         holder.overflow.setTag(position);
@@ -110,7 +180,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
     }
 
     private void showPopupMenu(View view) {
-        currentWord = wordList.get((Integer) view.getTag());
+        currentWord = filterList.get((Integer) view.getTag());
         PopupMenu popup = new PopupMenu(mContext, view);
         popup.getMenuInflater().inflate(R.menu.menu_word, popup.getMenu());
         popup.setOnMenuItemClickListener(new WordContextItemListener());
@@ -184,11 +254,11 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
 
     @Override
     public int getItemCount() {
-        return wordList.size();
+        return filterList.size();
     }
 
     public void updateList(List<WordItem> list){
-        wordList = list;
+        filterList = list;
         notifyDataSetChanged();
     }
 }
