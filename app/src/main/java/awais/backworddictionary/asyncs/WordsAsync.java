@@ -35,6 +35,7 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     private final AtomicReference<RecyclerView> recyclerView = new AtomicReference<>();
     private final AtomicReference<Activity> activity = new AtomicReference<>();
     private FragmentCallback fragmentCallback;
+    private isError1 = false, isError2 = false;
 
     public WordsAsync(Activity activity, FragmentCallback fragmentCallback, String word, int method,
                       ProgressBar progressWords, RecyclerView recyclerView) {
@@ -60,6 +61,8 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
 
     @Override
     protected ArrayList<WordItem> doInBackground(String... params) {
+        isError1 = false;
+        isError2 = false;
         activity.get().runOnUiThread(() -> {
             progressWords.get().setVisibility(View.VISIBLE);
             recyclerView.get().setClickable(false);
@@ -67,11 +70,12 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
             recyclerView.get().setFocusable(false);
             recyclerView.get().setLayoutFrozen(true);
         });
+
         Log.d("AWAISKING_APP", "step: " + 1);
         if (wordItemsList == null) wordItemsList = new ArrayList<>();
         else wordItemsList.clear();
-        Log.d("AWAISKING_APP", "step: " + 2);
 
+        Log.d("AWAISKING_APP", "step: " + 2);
         String query = word.replaceAll("\\s", "+").replaceAll(" ", "+").replace("#", "%23")
                 .replace("@", "%40").replace("&", "%26");
 
@@ -81,9 +85,7 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
         Log.d("AWAISKING_APP", "step: " + 4);
         builder.url("https://api.datamuse.com/words?md=pds&max=" + wordsCount + "&" + method + "=" + query);
 
-        try {
-            if (response != null) response.close();
-        } catch (Exception ignored) {}
+        try { if (response != null) response.close(); } catch (Exception ignored) {}
 
         try {
             Log.d("AWAISKING_APP", "step: " + 5);
@@ -91,23 +93,28 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
             Log.d("AWAISKING_APP", "step: " + 6);
             if (response.code() == 200)
                 wordItemsList = new Gson().fromJson(response.body().string(),
-                        new TypeToken<List<WordItem>>() {
-                        }.getType());
-        } catch (final Exception e) {
+                new TypeToken<List<WordItem>>() {}.getType());
+        } catch (Exception e) {
+            isError1 = true;
+            Log.e("AWAISKING_APP", "", e);
+        }
+
+        if (isError1)
             try {
                 activity.get().runOnUiThread(() -> NoNet.check(activity.get()).configure(NoNet.configure().endpoint("https://api.datamuse.com/words").build())
                         .callback(connectionStatus -> {
                             if (connectionStatus != ConnectionStatus.CONNECTED)
                                 Toast.makeText(activity.get(), "Not connected to internet.\nPlease connect to network.", Toast.LENGTH_SHORT).show();
                         }).start());
-            } catch (Exception e1) {
+            } catch (Exception ignored) { isError2 = true; }
+
+        if (isError2)
+            try {
                 activity.get().runOnUiThread(() -> Toast.makeText(activity.get(),
-                        "Error occurred" + (e1.getStackTrace() != null ? ": " + e1.getStackTrace()[1].toString() : ""), Toast.LENGTH_LONG).show());
-            }
-            Log.e("AWAISKING_APP", "", e);
-        } finally {
-            if (response != null) response.close();
-        }
+                    "Error occurred" + (e1.getStackTrace() != null ? ": " + e1.getStackTrace()[1].toString() : ""), Toast.LENGTH_LONG).show());
+            } catch (Exception ignored) {}
+
+        try { if (response != null) response.close(); } catch (Exception ignored) {}
 
         Log.d("AWAISKING_APP", "step: " + 7);
         return wordItemsList;
@@ -115,7 +122,7 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
 
     @Override
     protected void onPostExecute(ArrayList<WordItem> wordItems) {
-        if (wordItems != null) if (fragmentCallback != null) fragmentCallback.done(wordItems, word);
+        if (wordItems != null && fragmentCallback != null) fragmentCallback.done(wordItems, word);
         activity.get().runOnUiThread(() -> {
             progressWords.get().setVisibility(View.GONE);
             recyclerView.get().setClickable(true);
