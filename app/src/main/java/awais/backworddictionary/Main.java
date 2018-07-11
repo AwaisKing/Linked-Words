@@ -123,15 +123,17 @@ public class Main extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu, menu);
 
         menu.findItem(R.id.mRefresh).setOnMenuItemClickListener(item -> {
-            mSearchView.close(true);
+            if (mSearchView != null) mSearchView.close(true);
             if (!getTitle().equals(getResources().getString(R.string.app_name)))
                 onSearch(getTitle().toString());
             return true;
         });
 
         menu.findItem(R.id.mSearch).setOnMenuItemClickListener(item -> {
-            mSearchView.open(true, item);
-            mSearchView.bringToFront();
+            if (mSearchView != null) {
+                mSearchView.open(true, item);
+                mSearchView.bringToFront();
+            }
             return true;
         });
 
@@ -252,8 +254,8 @@ public class Main extends AppCompatActivity {
 
     private void setSearchView() {
         mSearchView = findViewById(R.id.searchView);
-        mSearchView.bringToFront();
         if (mSearchView != null) {
+            mSearchView.bringToFront();
             suggestionsList = new ArrayList<>();
 
             mSearchView.setVersion(SearchView.VERSION_MENU_ITEM);

@@ -83,60 +83,6 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         try {tts.shutdown();} catch (Exception ignore){}
     }
 
-//    private void filter(String text) {
-//        List<WordItem> newList = new ArrayList<>();
-//
-//        if (text != null && (TextUtils.isEmpty(text) || text.equals(""))) newList = wordList;
-//        else {
-//            String filterPattern = text != null ? text.toLowerCase() : "";
-//
-//            boolean showWords = Main.sharedPreferences.getBoolean("filterWord", false);
-//            boolean showDefs = Main.sharedPreferences.getBoolean("filterDefinition", false);
-//            boolean contains = Main.sharedPreferences.getBoolean("filterContain", true);
-//
-//            for (WordItem mWord : wordList) {
-//                if (showWords && showDefs) {
-//                    if (contains ? mWord.getWord().toLowerCase().contains(filterPattern) :
-//                            mWord.getWord().toLowerCase().startsWith(filterPattern)) {
-//                        newList.add(mWord);
-//                        continue;
-//                    }
-//                    // TODO check for definition search bugs  --- seems to be ok
-//                    if (mWord.getDefs() != null) {
-//                        for (String def : mWord.getDefs()) {
-//                            if (contains ? def.split("\t")[1].trim().toLowerCase().contains(filterPattern)
-//                                    : def.split("\t")[1].trim().toLowerCase().startsWith(filterPattern)) {
-//                                newList.add(mWord);
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
-//                else if (showWords) {
-//                    if (contains ? mWord.getWord().toLowerCase().contains(filterPattern) :
-//                            mWord.getWord().toLowerCase().startsWith(filterPattern))
-//                        newList.add(mWord);
-//                } else if (showDefs) {
-//                    // TODO check for definition search bugs  --- seems to be ok
-//                    if (mWord.getDefs() != null)
-//                        for (String def : mWord.getDefs())
-//                            if (contains ? def.split("\t")[1].trim().contains(filterPattern)
-//                                    : def.split("\t")[1].trim().toLowerCase().startsWith(filterPattern)) {
-//                                newList.add(mWord);
-//                                break;
-//                            }
-//                }
-//
-//                else {
-//                    Toast.makeText(activity, "Select a filter first.", Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
-//            }
-//        }
-//        Log.d("AWAISKING_APP", "filter: " + wordList.size() + " -- " + newList.size());
-//        adapter.updateList(newList);
-//    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,@Nullable Bundle savedInstanceState) {
