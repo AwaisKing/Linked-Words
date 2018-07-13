@@ -27,7 +27,6 @@ import com.futuremind.recyclerviewfastscroll.SectionTitleProvider;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import awais.backworddictionary.custom.WordDialog;
@@ -38,7 +37,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
         implements SectionTitleProvider, Filterable {
     private final Context mContext;
     private static List<WordItem> wordList;
-    private static List<WordItem> filterList;
+    private static List<?> filterList;
     private WordItem currentWord;
     private final TextToSpeech tts;
 
@@ -98,8 +97,8 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
 
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                //noinspection unchecked
-                DictionaryAdapter.filterList = (List<WordItem>) filterResults.values;
+                if (filterResults.values instanceof List)
+                    DictionaryAdapter.filterList = (List<?>) filterResults.values;
                 notifyDataSetChanged();
             }
         };
@@ -135,7 +134,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
     @Override
     public String getSectionTitle(int position) {
         if (filterList.size() > 0)
-            return filterList.get(position).getWord().substring(0, 1).toUpperCase();
+            return ((WordItem)filterList.get(position)).getWord().substring(0, 1).toUpperCase();
         return "";
     }
 
@@ -147,7 +146,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
 
     @Override
     public void onBindViewHolder(@NonNull DictHolder holder, int position) {
-        final WordItem wordItem = filterList.get(position);
+        final WordItem wordItem = (WordItem) filterList.get(position);
 
         holder.word.setText(wordItem.getWord());
         holder.overflow.setTag(position);
@@ -180,7 +179,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
     }
 
     private void showPopupMenu(View view) {
-        currentWord = filterList.get((Integer) view.getTag());
+        currentWord = (WordItem) filterList.get((Integer) view.getTag());
         PopupMenu popup = new PopupMenu(mContext, view);
         popup.getMenuInflater().inflate(R.menu.menu_word, popup.getMenu());
         popup.setOnMenuItemClickListener(new WordContextItemListener());
