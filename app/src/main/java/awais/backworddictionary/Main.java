@@ -113,6 +113,34 @@ public class Main extends AppCompatActivity {
 
         findViewById(R.id.shadow).bringToFront();
         fabFilter.bringToFront();
+
+        handleData();
+    }
+
+    private void handleData() {
+        if (getIntent() == null && getIntent().getExtras() == null) return;
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null && bundle.containsKey("query")) {
+            Handler handler;
+
+            if (getMainLooper() != null) handler = new Handler(getMainLooper());
+            else handler = new Handler();
+
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    onSearch(bundle.getString("query"));
+                    handler.removeCallbacks(this);
+                }
+            }, 400);
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleData();
     }
 
     @Override
@@ -271,8 +299,8 @@ public class Main extends AppCompatActivity {
             mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 String text = "";
                 long last_text_edit = System.currentTimeMillis();
-                Handler handler = new Handler();
-                Runnable textWatch = () -> {
+                final Handler handler = new Handler();
+                final Runnable textWatch = () -> {
                     if (System.currentTimeMillis() > (last_text_edit + 200L)) {
                         if (text != null && !text.isEmpty() && !TextUtils.isEmpty(text) && !text.equals(""))
                             new SearchTask().execute(text);
@@ -281,7 +309,7 @@ public class Main extends AppCompatActivity {
 
                 @Override
                 public boolean onQueryTextSubmit(String query) {
-                    if (handler != null) handler.removeCallbacks(textWatch);
+                    try { handler.removeCallbacks(textWatch); } catch (Exception ignored) {}
                     onSearch(query);
                     return true;
                 }
@@ -351,9 +379,11 @@ public class Main extends AppCompatActivity {
                     response.close();
                 }
 
-                if (response != null && response.code() == 200)
+                if (response != null && response.code() == 200) {
+                    //noinspection ConstantConditions
                     arrayList = new Gson().fromJson(response.body().string(),
                             new TypeToken<List<WordItem>>(){}.getType());
+                }
             } catch (Exception e) {
                 Log.e("AWAISKING_APP", "", e);
             } finally {

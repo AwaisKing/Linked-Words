@@ -22,7 +22,7 @@ import awais.backworddictionary.customweb.CustomTabActivityHelper;
 
 public class MenuCaller {
     private final AppCompatActivity activity;
-    private MenuDialog bottomSheetDialogFragment;
+    private final MenuDialog bottomSheetDialogFragment;
     private static SpannableStringBuilder examplesBuilder, helpBuilder, licensesBuilder;
     private static CustomTabsIntent.Builder customTabsIntent;
 

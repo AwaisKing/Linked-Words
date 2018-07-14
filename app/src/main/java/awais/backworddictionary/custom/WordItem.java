@@ -1,17 +1,12 @@
 package awais.backworddictionary.custom;
 
+@SuppressWarnings("unused")
 public class WordItem {
-    private final String word;
-    private final int numSyllables;
-    private final String[] defs;
-    private final String[] tags;
+    private String word;
+    private int numSyllables;
+    private String[] defs;
+    private String[] tags;
 
-    public WordItem(String word, String[] tags, int numSyllables, String[] defs) {
-        this.word = word;
-        this.tags = tags;
-        this.numSyllables = numSyllables;
-        this.defs = defs;
-    }
     public String getWord() {
         return word;
     }

@@ -2,7 +2,6 @@ package awais.backworddictionary.custom;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -16,8 +15,8 @@ import java.util.List;
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
 
-public class HuaweiFix {
-    private Context context;
+class HuaweiFix {
+    private final Context context;
     public HuaweiFix(Context context) {
         this.context = context;
     }
@@ -27,24 +26,21 @@ public class HuaweiFix {
         boolean skipMessage = Main.sharedPreferences.getBoolean(saveIfSkip, false);
         if (!skipMessage) {
             Intent intent = new Intent();
-            intent.setClassName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity");
+            intent.setClassName("com.huawei.systemmanager",
+                    "com.huawei.systemmanager.optimize.process.ProtectActivity");
             if (isCallable(intent)) {
                 final AppCompatCheckBox dontShowAgain = new AppCompatCheckBox(context);
                 String text = "Do not show again";
                 dontShowAgain.setText(text);
-                dontShowAgain.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                    Main.sharedPreferences.edit().putBoolean(saveIfSkip, isChecked).apply();
-                });
+                dontShowAgain.setOnCheckedChangeListener((buttonView, isChecked) ->
+                        Main.sharedPreferences.edit().putBoolean(saveIfSkip, isChecked).apply());
 
-                new AlertDialog.Builder(context)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setTitle("Huawei Protected Apps")
+                new AlertDialog.Builder(context).setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle("Huawei Protected Apps").setView(dontShowAgain)
                         .setMessage(String.format("%s requires to be enabled in 'Protected Apps' to function properly.%n",
                                 context.getResources().getString(R.string.app_name)))
-                        .setView(dontShowAgain)
                         .setPositiveButton("Protected Apps", (dialog, which) -> huaweiProtectedApps())
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .show();
+                        .setNegativeButton(android.R.string.cancel, null).show();
             } else Main.sharedPreferences.edit().putBoolean(saveIfSkip, true).apply();
         }
     }

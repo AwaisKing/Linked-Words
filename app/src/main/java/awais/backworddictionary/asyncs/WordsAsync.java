@@ -27,7 +27,8 @@ import okhttp3.Response;
 
 public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     private ArrayList<WordItem> wordItemsList = new ArrayList<>();
-    private String word, method;
+    private final String word;
+    private final String method;
     private final OkHttpClient client = new OkHttpClient();
     private final Request.Builder builder = new Request.Builder();
     private Response response = null;
@@ -36,7 +37,7 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     private final AtomicReference<ProgressBar> progressWords = new AtomicReference<>();
     private final AtomicReference<RecyclerView> recyclerView = new AtomicReference<>();
     private final AtomicReference<Activity> activity = new AtomicReference<>();
-    private FragmentCallback fragmentCallback;
+    private final FragmentCallback fragmentCallback;
 
     public WordsAsync(Activity activity, FragmentCallback fragmentCallback, String word, int method,
                       ProgressBar progressWords, RecyclerView recyclerView) {
@@ -97,6 +98,7 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
         try {
             response = client.newCall(builder.build()).execute();
             if (response.code() == 200)
+                //noinspection ConstantConditions
                 wordItemsList = new Gson().fromJson(response.body().string(),
                         new TypeToken<List<WordItem>>() {}.getType());
         } catch (Exception e) {

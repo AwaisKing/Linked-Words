@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.futuremind.recyclerviewfastscroll.FastScroller;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
@@ -89,6 +90,10 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
 
         AdView adView = magicRootView.findViewById(R.id.adView);
         adView.loadAd(new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build());
+        adView.setAdListener(new AdListener() {
+            public void onAdFailedToLoad(int var1) { adView.setVisibility(View.GONE); }
+            public void onAdLoaded() { adView.setVisibility(View.VISIBLE); }
+        });
 
         progressWords = magicRootView.findViewById(R.id.progressWords);
 
@@ -175,6 +180,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     }
 
     public void startWords(int method, String word) {
+        if (filterView != null && filterSearchEditor != null) filterSearchEditor.setText("");
         if (word == null || word.isEmpty() || TextUtils.isEmpty(word)) return;
         new WordsAsync(activity, this, word, method, progressWords, recyclerView).execute();
     }
@@ -199,6 +205,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     public boolean isFilterOpen() {
         return filterView != null && filterView.getVisibility() == View.VISIBLE;
     }
+
     public void hideFilter() {
         if (fab != null) isOpen(false, fab, 0);
     }
