@@ -26,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.ads.MobileAds;
 import com.keiferstone.nonet.ConnectionStatus;
@@ -399,8 +400,8 @@ public class Main extends AppCompatActivity {
                         findViewById(R.id.tabs).setBackgroundColor(getResources().getColor(R.color.noInternetBar));
                     if (fabFilter != null) {
                         fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.noInternetAccent)));
-                        if (fabFilter.getParent() != null && fabFilter.getParent() instanceof FrameLayout)
-                            ((FrameLayout) fabFilter.getParent()).setBackgroundColor(getResources().getColor(R.color.noInternetBar));
+                        if (fabFilter.getParent() != null && fabFilter.getParent() instanceof View)
+                            ((View) fabFilter.getParent()).setBackgroundColor(getResources().getColor(R.color.noInternetBar));
                     }
                 }
             } else {
@@ -414,8 +415,8 @@ public class Main extends AppCompatActivity {
                     findViewById(R.id.tabs).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                 if (fabFilter != null) {
                     fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                    if (fabFilter.getParent() != null && fabFilter.getParent() instanceof FrameLayout)
-                        ((FrameLayout) fabFilter.getParent()).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                    if (fabFilter.getParent() != null && fabFilter.getParent() instanceof View)
+                        ((View) fabFilter.getParent()).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                 }
             }
         });

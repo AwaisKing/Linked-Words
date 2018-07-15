@@ -27,16 +27,15 @@
                     app:popupTheme="@style/AppTheme.PopupOverlay" android:background="?attr/colorPrimary"
                     android:elevation="0dp" app:elevation="0dp" android:layout_marginRight="65dp" />
 
-                <FrameLayout android:layout_width="65dp" android:layout_height="match_parent"
+                <RelativeLayout android:layout_width="65dp" android:layout_height="match_parent"
                     android:layout_alignParentRight="true" android:layout_alignParentEnd="true"
-                    android:background="?attr/colorPrimary">
-                    <android.support.design.widget.FloatingActionButton android:layout_marginStart="@dimen/fabPadding"
-                        android:layout_marginLeft="@dimen/fabPadding" android:layout_marginTop="@dimen/fabPaddingTop"
-                        android:layout_marginBottom="@dimen/fabPaddingBottom"  android:tooltipText="Filter"
+                    android:background="?attr/colorPrimary" android:padding="@dimen/fabPadding">
+                    <android.support.design.widget.FloatingActionButton android:tooltipText="Filter"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:id="@+id/filterButton" app:fabSize="mini" app:srcCompat="@drawable/ic_filter"
-                        android:scaleType="center" android:elevation="1dp" app:elevation="1dp" />
-                </FrameLayout>
+                        android:scaleType="center" android:elevation="1dp" app:elevation="1dp"
+                        android:layout_centerInParent="true"/>
+                </RelativeLayout>
             </RelativeLayout>
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
