@@ -7,27 +7,24 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import com.futuremind.recyclerviewfastscroll.FastScroller;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -103,11 +100,10 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
 
         recyclerView = magicRootView.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
-        FastScroller fastScroller = magicRootView.findViewById(R.id.fastscroller);
-        fastScroller.setHandleColor(getResources().getColor(R.color.colorAccent));
-        recyclerView.setNestedScrollingEnabled(false);
+//        FastScroller fastScroller = magicRootView.findViewById(R.id.fastscroller);
+//        fastScroller.setHandleColor(getResources().getColor(R.color.colorAccent));
         recyclerView.setAdapter(adapter);
-        fastScroller.setRecyclerView(recyclerView);
+//        fastScroller.setRecyclerView(recyclerView);
 
         filterChecker = this;
 
@@ -227,13 +223,11 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     private void hideFAB() {
         if (fab == null) return;
         fab.animate().cancel();
+        fab.animate().scaleX(1f).scaleY(1f);
         fab.animate().scaleX(0f).scaleY(0f).alpha(0f).setDuration(200)
-                .setInterpolator(new FastOutLinearInInterpolator())
+                .setInterpolator(new LinearInterpolator())
                 .setListener(new Animator.AnimatorListener() {
                     @Override public void onAnimationEnd(Animator animation) {
-                        CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
-                        p.setAnchorId(View.NO_ID);
-                        fab.setLayoutParams(p);
                         fab.hide();
                     }
                     @Override public void onAnimationStart(Animator animation) {}
@@ -246,17 +240,9 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         if (fab == null) return;
         fab.animate().cancel();
         fab.animate().scaleX(0f).scaleY(0f);
-        CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
-        p.setAnchorId(R.id.appbarlayout);
-        fab.setLayoutParams(p);
-        fab.show();
-        fab.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(200).setInterpolator(new FastOutLinearInInterpolator())
+        fab.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(200).setInterpolator(new LinearInterpolator())
                 .setListener(new Animator.AnimatorListener() {
                     @Override public void onAnimationEnd(Animator animation) {
-                        CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
-                        p.setAnchorId(R.id.appbarlayout);
-                        p.anchorGravity = Gravity.END | Gravity.BOTTOM;
-                        fab.setLayoutParams(p);
                         fab.show();
                     }
                     @Override public void onAnimationStart(Animator animation) {}

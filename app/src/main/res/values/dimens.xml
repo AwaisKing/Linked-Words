@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <dimen name="toolbarSize">56dp</dimen>
-    <dimen name="fabMargin">100dp</dimen>
+
+    <dimen name="fabPadding">5dp</dimen>
+    <dimen name="fabPaddingTop">5dp</dimen>
+    <dimen name="fabPaddingBottom">0dp</dimen>
+
     <dimen name="design_fab_size_mini" tools:override="true">48dp</dimen>
 </resources>

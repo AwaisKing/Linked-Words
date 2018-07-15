@@ -23,8 +23,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.futuremind.recyclerviewfastscroll.SectionTitleProvider;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +32,10 @@ import awais.backworddictionary.custom.WordItem;
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
 
 public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.DictHolder>
-        implements SectionTitleProvider, Filterable {
+        implements Filterable {
     private final Context mContext;
-    private static List<WordItem> wordList;
-    private static List<?> filterList;
+    private final List<WordItem> wordList;
+    private List<?> filterList;
     private WordItem currentWord;
     private final TextToSpeech tts;
 
@@ -90,7 +88,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
                             }
                     }
                 }
-                DictionaryAdapter.filterList = filteredList;
+                filterList = filteredList;
                 results.values = filteredList;
                 return results;
             }
@@ -98,7 +96,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 if (filterResults.values instanceof List)
-                    DictionaryAdapter.filterList = (List<?>) filterResults.values;
+                    filterList = (List<?>) filterResults.values;
                 notifyDataSetChanged();
             }
         };
@@ -121,21 +119,14 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
 
     DictionaryAdapter(Context mContext, List<WordItem> wordList, TextToSpeech tts) {
         this.mContext = mContext;
-        DictionaryAdapter.wordList = wordList;
-        DictionaryAdapter.filterList = wordList;
+        this.wordList = wordList;
+        this.filterList = wordList;
         this.tts = tts;
     }
 
     @Override
     public long getItemId(int position) {
         return position;
-    }
-
-    @Override
-    public String getSectionTitle(int position) {
-        if (filterList.size() > 0)
-            return ((WordItem)filterList.get(position)).getWord().substring(0, 1).toUpperCase();
-        return "";
     }
 
     @NonNull @Override

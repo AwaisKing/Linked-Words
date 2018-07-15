@@ -15,6 +15,7 @@ import java.util.List;
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
 
+@SuppressWarnings("unused")
 class HuaweiFix {
     private final Context context;
     public HuaweiFix(Context context) {

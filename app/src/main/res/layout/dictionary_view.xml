@@ -40,16 +40,12 @@
     <android.support.v7.widget.RecyclerView android:id="@+id/recycler_view"
         android:paddingTop="@dimen/filter_spacing" android:clipToPadding="false"
         android:layout_width="match_parent" android:layout_height="match_parent"
-        android:layout_below="@id/filterView" android:scrollbars="none"
+        android:layout_below="@id/filterView" android:scrollbars="none" app:fastScrollEnabled="true"
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-        android:layout_above="@+id/adView" />
-    <com.futuremind.recyclerviewfastscroll.FastScroller
-        android:id="@+id/fastscroller" android:layout_below="@id/filterView"
-        android:layout_width="wrap_content" android:layout_height="match_parent"
-        android:layout_alignBottom="@id/recycler_view" android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true" android:layout_alignTop="@id/recycler_view"
-        android:layout_marginTop="8dp" android:layout_marginBottom="8dp"
-        android:layout_above="@+id/adView" android:orientation="vertical" />
+        android:layout_above="@+id/adView" app:fastScrollVerticalTrackDrawable="@drawable/slider_track"
+        app:fastScrollHorizontalTrackDrawable="@drawable/slider_track"
+        app:fastScrollHorizontalThumbDrawable="@drawable/slider_thumb"
+        app:fastScrollVerticalThumbDrawable="@drawable/slider_thumb" />
 
     <ProgressBar android:id="@+id/progressWords" android:layout_width="match_parent"
         android:layout_height="@dimen/toolbarSize" android:layout_centerInParent="true"

@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,100 +18,66 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.TooltipCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.google.android.gms.ads.MobileAds;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.keiferstone.nonet.ConnectionStatus;
+import com.keiferstone.nonet.Monitor;
 import com.keiferstone.nonet.NoNet;
 import com.lapism.searchview.SearchAdapter;
-import com.lapism.searchview.SearchItem;
 import com.lapism.searchview.SearchView;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import awais.backworddictionary.asyncs.SearchAsync;
 import awais.backworddictionary.custom.MenuCaller;
 import awais.backworddictionary.custom.SettingsDialog;
-import awais.backworddictionary.custom.WordItem;
-import okhttp3.Call;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class Main extends AppCompatActivity {
     public ViewPager viewPager;
     public DictionariesAdapter adapter;
     private SearchView mSearchView;
-    private SearchAdapter searchAdapter;
-    private List<SearchItem> suggestionsList;
+    public static SearchAdapter searchAdapter;
+//    private List<SearchItem> suggestionsList;
     private FloatingActionButton fabFilter;
     private MenuCaller menuCaller;
     private ImageView noInternet;
 
     public static SharedPreferences sharedPreferences;
 
-    @Override
+    @SuppressLint("ClickableViewAccessibility") @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         viewPager = findViewById(R.id.viewpager);
         noInternet = findViewById(R.id.noInternet);
-        menuCaller = new MenuCaller(this);
+        fabFilter = findViewById(R.id.filterButton);
 
+        menuCaller = new MenuCaller(this);
         sharedPreferences = getSharedPreferences("settings", MODE_PRIVATE);
         setSupportActionBar(findViewById(R.id.toolbar));
 
-        try {
-            NoNet.monitor(this).configure(NoNet.configure().endpoint("https://api.datamuse.com/words").build())
-                    .poll().callback(connectionStatus -> {
-                if (connectionStatus != ConnectionStatus.CONNECTED) {
-                    if (adapter != null && adapter.getItem(viewPager.getCurrentItem()).adapter != null
-                            && adapter.getItem(viewPager.getCurrentItem()).adapter.getItemCount() < 1) {
-                        noInternet.setVisibility(View.VISIBLE);
-                        viewPager.setBackgroundColor(getResources().getColor(R.color.noInternet));
-                        if (getSupportActionBar() != null)
-                            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.noInternetBar)));
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                            getWindow().setStatusBarColor(getResources().getColor(R.color.noInternetStatusBar));
-                        findViewById(R.id.tabs).setBackgroundColor(getResources().getColor(R.color.noInternetBar));
-                        if (fabFilter != null)
-                            fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.noInternetAccent)));
-                    }
-                } else {
-                    noInternet.setVisibility(View.GONE);
-                    viewPager.setBackground(null);
-                    if (getSupportActionBar() != null)
-                        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                        getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
-                    findViewById(R.id.tabs).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                    if (fabFilter != null)
-                        fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                }
-            })
-                    .snackbar(Snackbar.make(viewPager, "Not connected to internet.", -2)
-                            .setAction("Settings", view -> startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS))));
-        } catch (Exception ignored) {}
+        setupNoNet(false);
+
         MobileAds.initialize(this, "ca-app-pub-6411761147229517~1317441366");
 
         setupLayout();
         setSearchView();
 
-        fabFilter = findViewById(R.id.filterButton);
+        TooltipCompat.setTooltipText(fabFilter, "Filter");
         fabFilter.setOnClickListener(view ->
                 adapter.getItem(viewPager.getCurrentItem()).isOpen(true, fabFilter, 0));
 
-        findViewById(R.id.shadow).bringToFront();
-        fabFilter.bringToFront();
+        findViewById(R.id.shadow).setOnTouchListener((view, motionEvent) -> false);
 
         handleData();
     }
@@ -150,7 +115,7 @@ public class Main extends AppCompatActivity {
         menu.findItem(R.id.mRefresh).setOnMenuItemClickListener(item -> {
             if (mSearchView != null) mSearchView.close(true);
             if (!getTitle().equals(getResources().getString(R.string.app_name)))
-                onSearch(getTitle().toString());
+                onSearch(getTitle());
             return true;
         });
 
@@ -170,6 +135,9 @@ public class Main extends AppCompatActivity {
         return true;
     }
 
+    private void onSearch(CharSequence text) {
+        onSearch(text.toString());
+    }
     public void onSearch(String word) {
         try {
             if (adapter != null && viewPager != null)
@@ -273,15 +241,14 @@ public class Main extends AppCompatActivity {
     public void onBackPressed() {
         if (adapter != null && viewPager != null && adapter.getItem(viewPager.getCurrentItem()).isFilterOpen())
             adapter.getItem(viewPager.getCurrentItem()).hideFilter();
-        else
-            super.onBackPressed();
+        else super.onBackPressed();
     }
 
     private void setSearchView() {
         mSearchView = findViewById(R.id.searchView);
         if (mSearchView != null) {
             mSearchView.bringToFront();
-            suggestionsList = new ArrayList<>();
+//            suggestionsList = new ArrayList<>();
 
             mSearchView.setVersion(SearchView.VERSION_MENU_ITEM);
             mSearchView.setVersionMargins(SearchView.VERSION_MARGINS_MENU_ITEM);
@@ -290,10 +257,10 @@ public class Main extends AppCompatActivity {
             mSearchView.setTheme(SearchView.THEME_LIGHT);
             mSearchView.setShadowColor(ContextCompat.getColor(this, R.color.search_shadow_layout));
 
-            searchAdapter = new SearchAdapter(this, suggestionsList);
+            searchAdapter = new SearchAdapter(this);
             searchAdapter.setHasStableIds(true);
             searchAdapter.addOnItemClickListener((view, position) ->
-                    onSearch(suggestionsList.get(position).get_text().toString()));
+                    onSearch(searchAdapter.getSuggestionsList().get(position).get_text()));
             mSearchView.setAdapter(searchAdapter);
 
             mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -303,7 +270,7 @@ public class Main extends AppCompatActivity {
                 final Runnable textWatch = () -> {
                     if (System.currentTimeMillis() > (last_text_edit + 200L)) {
                         if (text != null && !text.isEmpty() && !TextUtils.isEmpty(text) && !text.equals(""))
-                            new SearchTask().execute(text);
+                            new SearchAsync(mSearchView).execute(text);
                     }
                 };
 
@@ -343,76 +310,82 @@ public class Main extends AppCompatActivity {
         }
     }
 
-    @SuppressLint("StaticFieldLeak")
-    private class SearchTask extends AsyncTask<String, Void, ArrayList<WordItem>> {
-        private final OkHttpClient client = new OkHttpClient();
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mSearchView.showProgress();
-        }
-
-        @Override
-        protected ArrayList<WordItem> doInBackground(String... params) {
-            String query;
-            try {
-                query = URLEncoder.encode(params[0], "UTF-8");
-            } catch (Exception e) {
-                query = params[0].replace("&", "%26").replace("@","%40").replace("#","%23");
-            }
-            ArrayList<WordItem> arrayList = new ArrayList<>();
-
-            Response response = null;
-            try {
-                if (isCancelled()) {
-                    client.dispatcher().cancelAll();
-                    client.connectionPool().evictAll();
-                    client.cache().close();
-                }
-
-                Call call = client.newCall(new Request.Builder().url("https://api.datamuse.com/sug?s=" + query).build());
-                response = call.execute();
-
-                if (isCancelled()) {
-                    call.cancel();
-                    response.close();
-                }
-
-                if (response != null && response.code() == 200) {
-                    //noinspection ConstantConditions
-                    arrayList = new Gson().fromJson(response.body().string(),
-                            new TypeToken<List<WordItem>>(){}.getType());
-                }
-            } catch (Exception e) {
-                Log.e("AWAISKING_APP", "", e);
-            } finally {
-                if (response != null) response.close();
-            }
-            return arrayList;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<WordItem> result) {
-            super.onPostExecute(result);
-            if (!isCancelled()) {
-                if (mSearchView.isShowingProgress()) mSearchView.hideProgress();
-                if (!result.isEmpty()) {
-                    if (suggestionsList != null) suggestionsList.clear();
-                    else suggestionsList = new ArrayList<>();
-                    for (WordItem item : result) suggestionsList.add(new SearchItem(item.getWord()));
-                    searchAdapter.setData(suggestionsList);
-                    searchAdapter.notifyDataSetChanged();
-                    mSearchView.showSuggestions();
-                }
-            }
-        }
-    }
+//    @SuppressLint("StaticFieldLeak")
+//    private class SearchTask extends AsyncTask<String, Void, ArrayList<WordItem>> {
+//        private final OkHttpClient client = new OkHttpClient();
+//
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//            mSearchView.showProgress();
+//        }
+//
+//        @Override
+//        protected ArrayList<WordItem> doInBackground(String... params) {
+//            String query;
+//            try {
+//                query = URLEncoder.encode(params[0], "UTF-8");
+//            } catch (Exception e) {
+//                query = params[0].replace("&", "%26").replace("@","%40").replace("#","%23");
+//            }
+//            ArrayList<WordItem> arrayList = new ArrayList<>();
+//
+//            Response response = null;
+//            try {
+//                if (isCancelled()) {
+//                    client.dispatcher().cancelAll();
+//                    client.connectionPool().evictAll();
+//                    client.cache().close();
+//                }
+//
+//                Call call = client.newCall(new Request.Builder().url("https://api.datamuse.com/sug?s=" + query).build());
+//                response = call.execute();
+//
+//                if (isCancelled()) {
+//                    call.cancel();
+//                    response.close();
+//                }
+//
+//                if (response != null && response.code() == 200) {
+//                    //noinspection ConstantConditions
+//                    arrayList = new Gson().fromJson(response.body().string(),
+//                            new TypeToken<List<WordItem>>(){}.getType());
+//                }
+//            } catch (Exception e) {
+//                Log.e("AWAISKING_APP", "", e);
+//            } finally {
+//                if (response != null) response.close();
+//            }
+//            return arrayList;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(ArrayList<WordItem> result) {
+//            super.onPostExecute(result);
+//            if (!isCancelled()) {
+//                if (mSearchView.isShowingProgress()) mSearchView.hideProgress();
+//                if (!result.isEmpty()) {
+//                    if (suggestionsList != null) suggestionsList.clear();
+//                    else suggestionsList = new ArrayList<>();
+//                    for (WordItem item : result) suggestionsList.add(new SearchItem(item.getWord()));
+//                    searchAdapter.setData(suggestionsList);
+//                    searchAdapter.notifyDataSetChanged();
+//                    mSearchView.showSuggestions();
+//                }
+//            }
+//        }
+//    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        NoNet.monitor(this).configure(NoNet.configure().endpoint("https://api.datamuse.com/words").build()).callback(connectionStatus -> {
+        setupNoNet(true);
+    }
+
+    private void setupNoNet(boolean isConfig) {
+        Monitor.Builder noNet = NoNet.monitor(this).configure(NoNet.configure().endpoint("https://api.datamuse.com/words").build());
+        if (!isConfig) noNet = noNet.poll();
+        noNet = noNet.callback(connectionStatus -> {
             if (connectionStatus != ConnectionStatus.CONNECTED) {
                 if (adapter != null && adapter.getItem(viewPager.getCurrentItem()).adapter != null
                         && adapter.getItem(viewPager.getCurrentItem()).adapter.getItemCount() < 1) {
@@ -424,8 +397,11 @@ public class Main extends AppCompatActivity {
                         getWindow().setStatusBarColor(getResources().getColor(R.color.noInternetStatusBar));
                     if(findViewById(R.id.tabs) != null)
                         findViewById(R.id.tabs).setBackgroundColor(getResources().getColor(R.color.noInternetBar));
-                    if (fabFilter != null)
+                    if (fabFilter != null) {
                         fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.noInternetAccent)));
+                        if (fabFilter.getParent() != null && fabFilter.getParent() instanceof FrameLayout)
+                            ((FrameLayout) fabFilter.getParent()).setBackgroundColor(getResources().getColor(R.color.noInternetBar));
+                    }
                 }
             } else {
                 if (noInternet != null) noInternet.setVisibility(View.GONE);
@@ -436,9 +412,17 @@ public class Main extends AppCompatActivity {
                     getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
                 if(findViewById(R.id.tabs) != null)
                     findViewById(R.id.tabs).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                if (fabFilter != null)
+                if (fabFilter != null) {
                     fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                    if (fabFilter.getParent() != null && fabFilter.getParent() instanceof FrameLayout)
+                        ((FrameLayout) fabFilter.getParent()).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                }
             }
         });
+
+        if (!isConfig)
+            noNet.snackbar(Snackbar.make(viewPager, "Not connected to internet.", -2)
+                    .setAction("Settings", view -> startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS))));
     }
+
 }
