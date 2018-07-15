@@ -26,13 +26,15 @@ also you can select if the filter either `contains` the text or `starts` with th
 
 Screenshots [Album: https://imgur.com/a/vfhMCzV]
 -
-[![Screenshot 1](https://i.imgur.com/c4d5I50m.png)](https://i.imgur.com/c4d5I50.png)
-[![Screenshot 2](https://i.imgur.com/97UexFXm.png)](https://i.imgur.com/97UexFX.png)
-[![Screenshot 3](https://i.imgur.com/OnXNAYTm.png)](https://i.imgur.com/OnXNAYT.png)
-[![Screenshot 4](https://i.imgur.com/gLMJcPrm.png)](https://i.imgur.com/gLMJcPr.png)
-[![Screenshot 5](https://i.imgur.com/z277HX0m.png)](https://i.imgur.com/z277HX0.png)
-[![Screenshot 6](https://i.imgur.com/Sy92wram.png)](https://i.imgur.com/Sy92wra.png)
-[![Screenshot 7](https://i.imgur.com/0voM0Cam.png)](https://i.imgur.com/0voM0Ca.png)
+<p align="center">
+    <a href=""><img src="https://i.imgur.com/c4d5I50m.png" alt="Screenshot " title="Screenshot "/></a>
+    <a href=""><img src="https://i.imgur.com/97UexFXm.png" alt="Screenshot " title="Screenshot "/></a>
+    <a href=""><img src="https://i.imgur.com/OnXNAYTm.png" alt="Screenshot " title="Screenshot "/></a>
+    <a href=""><img src="https://i.imgur.com/gLMJcPrm.png" alt="Screenshot " title="Screenshot "/></a>
+    <a href=""><img src="https://i.imgur.com/z277HX0m.png" alt="Screenshot " title="Screenshot "/></a>
+    <a href=""><img src="https://i.imgur.com/Sy92wram.png" alt="Screenshot " title="Screenshot "/></a>
+    <a href=""><img src="https://i.imgur.com/0voM0Cam.png" alt="Screenshot " title="Screenshot "/></a>
+</p>
 
 ---
 
