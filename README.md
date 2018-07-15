@@ -1,7 +1,6 @@
 # Linked-Words
 ### A dictionary to search for words.
-[![Download from Play Store](https://i.imgur.com/w6kxUkP.png)](https://play.google.com/store/apps/details?id=awais.backworddictionary)
-
+[![Download from Play Store](https://i.imgur.com/w6kxUkP.png)](https://play.google.com/store/apps/details?id=awais.backworddictionary) [![Download from XDA Labs](https://i.imgur.com/krO1zcR.png)](https://labs.xda-developers.com/store/app/awais.backworddictionary)
 ---
 
 This is a type of dictionary which searches for related words or similar words in [Datamuse](https://api.datamuse.com/) words database.
