@@ -2,6 +2,7 @@ package awais.backworddictionary.custom;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -16,13 +17,21 @@ import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
 
 @SuppressWarnings("unused")
-class HuaweiFix {
+public class HuaweiFix {
     private final Context context;
+
     public HuaweiFix(Context context) {
         this.context = context;
     }
 
-    public void ifHuaweiAlert() {
+    public void check() {
+        if("huawei".equalsIgnoreCase(android.os.Build.MANUFACTURER) &&
+                !Main.sharedPreferences.getBoolean("skipProtectedAppsMessage", false)) {
+            ifHuaweiAlert();
+        }
+    }
+
+    private void ifHuaweiAlert() {
         final String saveIfSkip = "skipProtectedAppsMessage";
         boolean skipMessage = Main.sharedPreferences.getBoolean(saveIfSkip, false);
         if (!skipMessage) {

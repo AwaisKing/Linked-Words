@@ -24,9 +24,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 import com.google.android.gms.ads.MobileAds;
 import com.keiferstone.nonet.ConnectionStatus;
@@ -47,7 +45,6 @@ public class Main extends AppCompatActivity {
     public DictionariesAdapter adapter;
     private SearchView mSearchView;
     public static SearchAdapter searchAdapter;
-//    private List<SearchItem> suggestionsList;
     private FloatingActionButton fabFilter;
     private MenuCaller menuCaller;
     private ImageView noInternet;
@@ -201,7 +198,7 @@ public class Main extends AppCompatActivity {
                     final DictionaryFragment prevItem = adapter.getItem(prevTab);
 
                     if (currentItem != null) {
-                        if (currentItem.title != null && (!currentItem.title.equals("")||!currentItem.title.isEmpty()))
+                        if (currentItem.title != null && (!currentItem.title.isEmpty()|| TextUtils.isEmpty(currentItem.title)))
                             setTitle(currentItem.title);
                         else {
                             if (prevItem.title != null && !prevItem.title.isEmpty()) {
@@ -311,72 +308,6 @@ public class Main extends AppCompatActivity {
         }
     }
 
-//    @SuppressLint("StaticFieldLeak")
-//    private class SearchTask extends AsyncTask<String, Void, ArrayList<WordItem>> {
-//        private final OkHttpClient client = new OkHttpClient();
-//
-//        @Override
-//        protected void onPreExecute() {
-//            super.onPreExecute();
-//            mSearchView.showProgress();
-//        }
-//
-//        @Override
-//        protected ArrayList<WordItem> doInBackground(String... params) {
-//            String query;
-//            try {
-//                query = URLEncoder.encode(params[0], "UTF-8");
-//            } catch (Exception e) {
-//                query = params[0].replace("&", "%26").replace("@","%40").replace("#","%23");
-//            }
-//            ArrayList<WordItem> arrayList = new ArrayList<>();
-//
-//            Response response = null;
-//            try {
-//                if (isCancelled()) {
-//                    client.dispatcher().cancelAll();
-//                    client.connectionPool().evictAll();
-//                    client.cache().close();
-//                }
-//
-//                Call call = client.newCall(new Request.Builder().url("https://api.datamuse.com/sug?s=" + query).build());
-//                response = call.execute();
-//
-//                if (isCancelled()) {
-//                    call.cancel();
-//                    response.close();
-//                }
-//
-//                if (response != null && response.code() == 200) {
-//                    //noinspection ConstantConditions
-//                    arrayList = new Gson().fromJson(response.body().string(),
-//                            new TypeToken<List<WordItem>>(){}.getType());
-//                }
-//            } catch (Exception e) {
-//                Log.e("AWAISKING_APP", "", e);
-//            } finally {
-//                if (response != null) response.close();
-//            }
-//            return arrayList;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(ArrayList<WordItem> result) {
-//            super.onPostExecute(result);
-//            if (!isCancelled()) {
-//                if (mSearchView.isShowingProgress()) mSearchView.hideProgress();
-//                if (!result.isEmpty()) {
-//                    if (suggestionsList != null) suggestionsList.clear();
-//                    else suggestionsList = new ArrayList<>();
-//                    for (WordItem item : result) suggestionsList.add(new SearchItem(item.getWord()));
-//                    searchAdapter.setData(suggestionsList);
-//                    searchAdapter.notifyDataSetChanged();
-//                    mSearchView.showSuggestions();
-//                }
-//            }
-//        }
-//    }
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -384,7 +315,7 @@ public class Main extends AppCompatActivity {
     }
 
     private void setupNoNet(boolean isConfig) {
-        Monitor.Builder noNet = NoNet.monitor(this).configure(NoNet.configure().endpoint("https://api.datamuse.com/words").build());
+        Monitor.Builder noNet = NoNet.monitor(this).configure(NoNet.configure().endpoint("http://api.datamuse.com/words").build());
         if (!isConfig) noNet = noNet.poll();
         noNet = noNet.callback(connectionStatus -> {
             if (connectionStatus != ConnectionStatus.CONNECTED) {

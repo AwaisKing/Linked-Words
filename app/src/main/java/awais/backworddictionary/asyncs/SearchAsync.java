@@ -57,7 +57,7 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
                 client.cache().close();
             }
 
-            Call call = client.newCall(new Request.Builder().url("https://api.datamuse.com/sug?s=" + query).build());
+            Call call = client.newCall(new Request.Builder().url("http://api.datamuse.com/sug?s=" + query).build());
             response = call.execute();
 
             if (isCancelled()) {
