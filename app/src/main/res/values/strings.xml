@@ -10,7 +10,7 @@
     <string name="reverse_related">Reverse/Related</string>
     <string name="sound_like">Sounds Like</string>
 
-    <string name="refresh">Refresh</string>
+    <string name="advance">Advanced</string>
     <string name="search">Search</string>
     <string name="examples">Examples</string>
     <string name="help">Help</string>
@@ -26,6 +26,14 @@
     <!--<string name="wifi_setttings">WiFi Setttings</string>-->
     <string name="filter_settings">Filter Settings</string>
     <string name="max_words">Max Words</string>
+
+    <string name="synonyms">Synonyms</string>
+    <string name="antonyms">Antonyms</string>
+    <string name="triggers">Triggers</string>
+    <string name="part_of">Part of</string>
+    <string name="comprises">Comprises</string>
+    <string name="homophones">Homophones</string>
+    <string name="rhymes">Rhymes</string>
 
     <string name="scroll_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
 </resources>

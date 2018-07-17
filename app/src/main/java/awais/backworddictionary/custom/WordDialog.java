@@ -39,7 +39,7 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
     private final Activity activity;
 
     public WordDialog(Activity act, WordItem wordItem, TextToSpeech tts) {
-        super(act, R.style.WordDialog);
+        super(act, R.style.Dialog);
         this.activity = act;
         this.wordItem = wordItem;
         this.tts = tts;
@@ -162,7 +162,7 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
                     activity.startActivity(intent1);
                 } catch (Exception e) {
                     customTabsIntent.setToolbarColor(Color.parseColor("#4888f2"));
-                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://google.com/search?q=" + wordRawGoogle));
+                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://google.com/search?q=".concat(wordRawGoogle)));
                 }
                 break;
 
@@ -173,19 +173,19 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
                 Intent intent1 = new Intent();
                 intent1.setAction(Intent.ACTION_VIEW);
                 intent1.setPackage("org.wikipedia");
-                intent1.setData(Uri.parse("https://en.wikipedia.org/wiki/" + wordRawWiki));
+                intent1.setData(Uri.parse("https://en.wikipedia.org/wiki/".concat(wordRawWiki)));
                 List<ResolveInfo> resInfo1 = activity.getPackageManager().queryIntentActivities(intent1, 0);
                 if (resInfo1 != null && resInfo1.size() > 0) activity.startActivity(intent1);
                 else {
                     customTabsIntent.setToolbarColor(Color.parseColor("#333333"));
-                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://en.wikipedia.org/wiki/" + wordRawWiki));
+                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://en.wikipedia.org/wiki/".concat(wordRawWiki)));
                 }
                 break;
 
             case R.id.btnUrban:
                 customTabsIntent.setToolbarColor(Color.parseColor("#3b496b"));
                 CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(),
-                        Uri.parse("http://www.urbandictionary.com/define.php?term=" + wordItem.getWord()));
+                        Uri.parse("http://www.urbandictionary.com/define.php?term=".concat(wordItem.getWord())));
                 break;
 
             case R.id.btnReverse:

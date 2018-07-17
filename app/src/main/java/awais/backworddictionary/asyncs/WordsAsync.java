@@ -2,10 +2,9 @@ package awais.backworddictionary.asyncs;
 
 import android.app.Activity;
 import android.os.AsyncTask;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -30,30 +29,30 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     private final Request.Builder builder = new Request.Builder();
     private Response response = null;
 
-    private final AtomicReference<ProgressBar> progressWords = new AtomicReference<>();
+    private final AtomicReference<SwipeRefreshLayout> refreshLayout = new AtomicReference<>();
     private final AtomicReference<RecyclerView> recyclerView = new AtomicReference<>();
     private final AtomicReference<Activity> activity = new AtomicReference<>();
     private final FragmentCallback fragmentCallback;
 
     public WordsAsync(Activity activity, FragmentCallback fragmentCallback, String word, int method,
-                      ProgressBar progressWords, RecyclerView recyclerView) {
+                      SwipeRefreshLayout refreshLayout, RecyclerView recyclerView) {
         this.activity.set(activity);
         this.fragmentCallback = fragmentCallback;
-        this.progressWords.set(progressWords);
+        this.refreshLayout.set(refreshLayout);
         this.recyclerView.set(recyclerView);
         this.word = word;
         switch (method) {
-            case 0:
-                this.method = "ml";
-                break;
-            case 1:
-                this.method = "sl";
-                break;
-            case 2:
-                this.method = "sp";
-                break;
-            default:
-                this.method = "ml";
+            case 0: this.method = "ml"; break;
+            case 1: this.method = "sl"; break;
+            case 2: this.method = "sp"; break;
+            case 3: this.method = "rel_syn"; break; // synonyms
+            case 4: this.method = "rel_ant"; break; // antonyms
+            case 5: this.method = "rel_trg"; break; // triggers
+            case 6: this.method = "rel_com"; break; // comprise
+            case 7: this.method = "rel_par"; break; // part of
+            case 8: this.method = "rel_rhy"; break; // rhymes
+            case 9: this.method = "rel_hom"; break; // homohphone
+            default: this.method = "ml";
         }
     }
 
@@ -61,7 +60,7 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     protected void onPreExecute() {
         super.onPreExecute();
         activity.get().runOnUiThread(() -> {
-            progressWords.get().setVisibility(View.VISIBLE);
+            refreshLayout.get().setRefreshing(true);
             recyclerView.get().setClickable(false);
             recyclerView.get().setEnabled(false);
             recyclerView.get().setFocusable(false);
@@ -85,7 +84,8 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
 
         int wordsCount = Main.sharedPreferences.getInt("maxWords", 80);
 
-        builder.url("http://api.datamuse.com/words?md=pds&max=" + wordsCount + "&" + method + "=" + query);
+        builder.url("https://api.datamuse.com/words?md=pds&max=".concat(String.valueOf(wordsCount))
+                .concat("&").concat(method).concat("=").concat(query));
 
         try { if (response != null) response.close(); } catch (Exception ignored) {}
 
@@ -108,7 +108,7 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     protected void onPostExecute(ArrayList<WordItem> wordItems) {
         if (wordItems != null) if (fragmentCallback != null) fragmentCallback.done(wordItems, word);
         activity.get().runOnUiThread(() -> {
-            progressWords.get().setVisibility(View.GONE);
+            refreshLayout.get().setRefreshing(false);
             recyclerView.get().setClickable(true);
             recyclerView.get().setEnabled(true);
             recyclerView.get().setFocusable(true);

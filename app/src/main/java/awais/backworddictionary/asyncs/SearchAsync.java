@@ -22,9 +22,10 @@ import okhttp3.Response;
 import static awais.backworddictionary.Main.searchAdapter;
 
 public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
-    private final OkHttpClient client = new OkHttpClient();
+    private static OkHttpClient client = new OkHttpClient();
     private final AtomicReference<SearchView> mSearchView = new AtomicReference<>();
     private ArrayList<SearchItem> suggestionsList;
+    private static Call call;
 
     public SearchAsync(SearchView mSearchView) {
         this.mSearchView.set(mSearchView);
@@ -51,30 +52,33 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
 
         Response response = null;
         try {
-            if (isCancelled()) {
-                client.dispatcher().cancelAll();
-                client.connectionPool().evictAll();
-                client.cache().close();
+            if (client != null) {
+                try {
+                    client.dispatcher().cancelAll();
+                    client.connectionPool().evictAll();
+                    client.cache().close();
+                } catch (Exception ignored) {}
             }
 
-            Call call = client.newCall(new Request.Builder().url("http://api.datamuse.com/sug?s=" + query).build());
+            if (call != null) try { call.cancel(); } catch (Exception ignored) {}
+
+            if (client == null) client = new OkHttpClient();
+            call = client.newCall(new Request.Builder()
+                    .url("http://api.datamuse.com/sug?s=".concat(query)).build());
             response = call.execute();
 
-            if (isCancelled()) {
-                call.cancel();
-                response.close();
-            }
+//            if (call != null) try { call.cancel(); } catch (Exception ignored) {}
 
             if (response != null && response.code() == 200) {
                 //noinspection ConstantConditions
                 arrayList = new Gson().fromJson(response.body().string(),
                         new TypeToken<List<WordItem>>(){}.getType());
+                try { call.cancel(); } catch (Exception ignored) {}
             }
         } catch (Exception e) {
             Log.e("AWAISKING_APP", "", e);
-        } finally {
-            if (response != null) response.close();
         }
+        if (response != null) try { response.close(); } catch (Exception ignored) {}
         return arrayList;
     }
 

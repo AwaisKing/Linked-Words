@@ -15,7 +15,7 @@
         android:fullBackupContent="@xml/backup_descriptor">
 
         <activity android:name=".Main" android:theme="@style/AppTheme" android:launchMode="singleTop"
-            android:configChanges="orientation|keyboardHidden">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
                 <action android:name="android.intent.action.MAIN" />

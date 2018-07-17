@@ -24,13 +24,13 @@ import awais.backworddictionary.customweb.CustomTabActivityHelper;
 
 public class MenuCaller {
     private final AppCompatActivity activity;
-    private final MenuDialog bottomSheetDialogFragment;
+    private final MenuDialog menuDialog;
     private static SpanBuilder examplesBuilder, helpBuilder, licensesBuilder;
     private static CustomTabsIntent.Builder customTabsIntent;
 
     public MenuCaller(AppCompatActivity act) {
         activity = act;
-        bottomSheetDialogFragment = new MenuDialog();
+        menuDialog = new MenuDialog();
         helpBuilder = new SpanBuilder();
         examplesBuilder = new SpanBuilder();
         licensesBuilder = new SpanBuilder();
@@ -39,16 +39,16 @@ public class MenuCaller {
     }
 
     public void show(MenuItem item) {
-        bottomSheetDialogFragment.setTitle(item.getTitle());
+        menuDialog.setTitle(item.getTitle());
         switch (item.getItemId()) {
-            case R.id.mExamples: bottomSheetDialogFragment.setMessage(examplesBuilder.build()); break;
-            case R.id.mHelp: bottomSheetDialogFragment.setMessage(helpBuilder.build()); break;
-            case R.id.mLicenses: bottomSheetDialogFragment.setMessage(licensesBuilder.build());
-                bottomSheetDialogFragment.setTitle(item.getTitle() + " & Credits");break;
-            case R.id.mAbout: bottomSheetDialogFragment.setMessage("aboutHere"); break;
+            case R.id.mExamples: menuDialog.setMessage(examplesBuilder.build()); break;
+            case R.id.mHelp: menuDialog.setMessage(helpBuilder.build()); break;
+            case R.id.mLicenses: menuDialog.setMessage(licensesBuilder.build());
+                menuDialog.setTitle(item.getTitle() + " & Credits");break;
+            case R.id.mAbout: menuDialog.setMessage("aboutHere"); break;
         }
-        bottomSheetDialogFragment.show(activity.getSupportFragmentManager(),
-                bottomSheetDialogFragment.getTag());
+        menuDialog.show(activity.getSupportFragmentManager(),
+                menuDialog.getTag());
     }
 
     private static class Menuer extends AsyncTask<Object, Void, Void> {
@@ -107,7 +107,7 @@ public class MenuCaller {
                 public void onClick(View view) {
                     customTabsIntent.setToolbarColor(Color.parseColor("#006fcc"));
                     CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(),
-                            Uri.parse("http://www.datamuse.com/api/"));
+                            Uri.parse("https://www.datamuse.com/api/"));
                 }});
             licensesBuilder.append("Libraries:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121));
             licensesBuilder.append("OkHttp3 [Apache License 2.0]\n", new BulletSpan(26, 0xFF212121));

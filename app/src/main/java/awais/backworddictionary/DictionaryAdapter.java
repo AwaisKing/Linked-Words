@@ -56,6 +56,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
                     Toast.makeText(mContext, "Select a filter first.", Toast.LENGTH_SHORT).show();
                     return results;
                 }
+
                 List<WordItem> filteredList = new ArrayList<>();
                 for (WordItem mWord : wordList) {
                     String word = mWord.getWord().toLowerCase();
@@ -210,7 +211,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
                     } catch (Exception e) {
                         customTabsIntent.setToolbarColor(Color.parseColor("#4888f2"));
                         CustomTabActivityHelper.openCustomTab(
-                                (Activity) mContext, customTabsIntent.build(), Uri.parse("https://google.com/search?q=" + wordRawGoogle));
+                                (Activity) mContext, customTabsIntent.build(), Uri.parse("https://google.com/search?q=".concat(wordRawGoogle)));
                     }
 
                     return true;
@@ -221,19 +222,19 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
                     Intent intent1 = new Intent();
                     intent1.setAction(Intent.ACTION_VIEW);
                     intent1.setPackage("org.wikipedia");
-                    intent1.setData(Uri.parse("https://en.wikipedia.org/wiki/" + wordRawWiki));
+                    intent1.setData(Uri.parse("https://en.wikipedia.org/wiki/".concat(wordRawWiki)));
                     List<ResolveInfo> resInfo1 = mContext.getPackageManager().queryIntentActivities(intent1, 0);
                     if (resInfo1 != null && resInfo1.size() > 0) mContext.startActivity(intent1);
                     else {
                         customTabsIntent.setToolbarColor(Color.parseColor("#333333"));
                         CustomTabActivityHelper.openCustomTab(
-                                (Activity) mContext, customTabsIntent.build(), Uri.parse("https://en.wikipedia.org/wiki/" + wordRawWiki));
+                                (Activity) mContext, customTabsIntent.build(), Uri.parse("https://en.wikipedia.org/wiki/".concat(wordRawWiki)));
                     }
                     return true;
                 case R.id.action_urban:
                     customTabsIntent.setToolbarColor(Color.parseColor("#3b496b"));
                     CustomTabActivityHelper.openCustomTab(
-                            (Activity) mContext, customTabsIntent.build(), Uri.parse("http://www.urbandictionary.com/define.php?term=" + currentWord.getWord()));
+                            (Activity) mContext, customTabsIntent.build(), Uri.parse("http://www.urbandictionary.com/define.php?term=".concat(currentWord.getWord())));
 
                     return true;
                 default:

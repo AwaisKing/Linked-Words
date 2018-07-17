@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -23,7 +24,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
@@ -32,6 +32,7 @@ import com.google.android.gms.ads.AdView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 
 import awais.backworddictionary.asyncs.WordsAsync;
 import awais.backworddictionary.custom.WordItem;
@@ -41,7 +42,6 @@ import awais.backworddictionary.interfaces.FragmentCallback;
 public class DictionaryFragment extends Fragment implements FragmentCallback, FilterCheck {
     private List<WordItem> wordList;
     private RecyclerView recyclerView;
-    private ProgressBar progressWords;
     private TextToSpeech tts;
     private Activity activity;
 
@@ -55,6 +55,14 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     public String title;
 
     private FilterCheck filterChecker;
+    private static FragmentCallback mainCallback;
+    private static final AtomicReference<SwipeRefreshLayout> refreshLayout = new AtomicReference<>();
+
+    public DictionaryFragment createNew(FragmentCallback callback, SwipeRefreshLayout refreshLayout) {
+        DictionaryFragment.mainCallback = callback;
+        DictionaryFragment.refreshLayout.set(refreshLayout);
+        return new DictionaryFragment();
+    }
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -92,18 +100,13 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
             public void onAdLoaded() { adView.setVisibility(View.VISIBLE); }
         });
 
-        progressWords = magicRootView.findViewById(R.id.progressWords);
-
         wordList = new ArrayList<>();
         adapter = new DictionaryAdapter(getContext(), wordList, tts);
         adapter.setHasStableIds(true);
 
         recyclerView = magicRootView.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
-//        FastScroller fastScroller = magicRootView.findViewById(R.id.fastscroller);
-//        fastScroller.setHandleColor(getResources().getColor(R.color.colorAccent));
         recyclerView.setAdapter(adapter);
-//        fastScroller.setRecyclerView(recyclerView);
 
         filterChecker = this;
 
@@ -115,14 +118,11 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         filterSearchButton.setTag("filter");
         filterSearchEditor.setOnClickListener(view -> openKeyboard());
         filterSearchEditor.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (wordList.size() > 2) adapter.getFilter().filter(charSequence);
+            @Override public void beforeTextChanged(CharSequence cs, int i, int i1, int i2) {}
+            @Override public void onTextChanged(CharSequence cs, int i, int i1, int i2) {
+                if (wordList.size() > 2) adapter.getFilter().filter(cs);
             }
-            @Override
-            public void afterTextChanged(Editable editable) {
+            @Override public void afterTextChanged(Editable editable) {
                 if (editable.length() > 0) {
                     filterSearchButton.setImageResource(R.drawable.ic_clear);
                     filterSearchButton.setTag("clear");
@@ -178,13 +178,20 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     public void startWords(int method, String word) {
         if (filterView != null && filterSearchEditor != null) filterSearchEditor.setText("");
         if (word == null || word.isEmpty() || TextUtils.isEmpty(word)) return;
-        new WordsAsync(activity, this, word, method, progressWords, recyclerView).execute();
+        new WordsAsync(getActivity(),this, word, method, refreshLayout.get(), recyclerView).execute();
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        activity = (Activity) context;
+        if (getActivity() != null) activity = getActivity();
+        else activity = (Activity) context;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        activity = getActivity();
     }
 
     @Override
@@ -196,6 +203,8 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
 
         title = word;
         activity.setTitle(title);
+
+        if (mainCallback != null) mainCallback.done(items, word);
     }
 
     public boolean isFilterOpen() {

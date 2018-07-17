@@ -3,6 +3,4 @@
     <dimen name="toolbarSize">48dp</dimen>
 
     <dimen name="fabPadding">3dp</dimen>
-    <dimen name="fabPaddingTop">0dp</dimen>
-    <dimen name="fabPaddingBottom">3dp</dimen>
 </resources>

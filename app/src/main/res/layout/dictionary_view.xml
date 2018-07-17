@@ -47,9 +47,5 @@
         app:fastScrollHorizontalThumbDrawable="@drawable/slider_thumb"
         app:fastScrollVerticalThumbDrawable="@drawable/slider_thumb" />
 
-    <ProgressBar android:id="@+id/progressWords" android:layout_width="match_parent"
-        android:layout_height="@dimen/toolbarSize" android:layout_centerInParent="true"
-        android:visibility="gone"/>
-
     <com.google.android.gms.ads.AdView android:id="@+id/adView" android:layout_alignParentBottom="true" xmlns:ads="http://schemas.android.com/apk/res-auto" ads:adUnitId="ca-app-pub-6411761147229517/1609681212" android:layout_width="match_parent" android:layout_height="wrap_content" ads:adSize="SMART_BANNER" />
 </RelativeLayout>

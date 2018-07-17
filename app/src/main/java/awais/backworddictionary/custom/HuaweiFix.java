@@ -2,7 +2,6 @@ package awais.backworddictionary.custom;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -64,7 +63,7 @@ public class HuaweiFix {
         try {
             String cmd = "am start -n com.huawei.systemmanager/.optimize.process.ProtectActivity";
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
-                cmd += " --user " + getUserSerial();
+                cmd = cmd.concat(" --user ".concat(getUserSerial()));
             Runtime.getRuntime().exec(cmd);
         } catch (Exception ignored) { }
     }

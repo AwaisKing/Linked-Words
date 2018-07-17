@@ -4,15 +4,12 @@
 
     <item android:id="@+id/mSearch" android:title="@string/search" android:icon="@drawable/ic_search"
         app:showAsAction="collapseActionView|always" android:orderInCategory="1" />
-        <!--TODO: CHECK IN API 21 or lower -->
-        <!--android:actionViewClass="com.lapism.searchview.SearchView" />-->
-        <!--app:actionViewClass="android.support.v7.widget.SearchView" />-->
 
-    <item android:title="@string/refresh" android:id="@+id/mRefresh" android:icon="@drawable/ic_refresh"
-        app:showAsAction="always" android:orderInCategory="2"/>
+    <item android:title="@string/advance" android:id="@+id/mAdvance" android:icon="@drawable/ic_tune"
+        app:showAsAction="ifRoom" android:orderInCategory="2" android:visible="false"/>
 
     <item android:title="@string/settings" android:id="@+id/mSettings" android:icon="@drawable/ic_settings_menu"
-        app:showAsAction="ifRoom" android:orderInCategory="3"/>
+        app:showAsAction="always" android:orderInCategory="3"/>
 
     <item android:title="@string/examples" android:id="@+id/mExamples" android:icon="@drawable/ic_examples"
         app:showAsAction="ifRoom" android:orderInCategory="4"/>

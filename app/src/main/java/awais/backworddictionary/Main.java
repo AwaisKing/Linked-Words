@@ -1,15 +1,14 @@
 package awais.backworddictionary;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -17,6 +16,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.TooltipCompat;
 import android.text.TextUtils;
@@ -28,7 +28,6 @@ import android.widget.ImageView;
 
 import com.google.android.gms.ads.MobileAds;
 import com.keiferstone.nonet.ConnectionStatus;
-import com.keiferstone.nonet.Monitor;
 import com.keiferstone.nonet.NoNet;
 import com.lapism.searchview.SearchAdapter;
 import com.lapism.searchview.SearchView;
@@ -37,10 +36,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import awais.backworddictionary.asyncs.SearchAsync;
+import awais.backworddictionary.custom.AdvancedDialog;
 import awais.backworddictionary.custom.MenuCaller;
 import awais.backworddictionary.custom.SettingsDialog;
+import awais.backworddictionary.interfaces.FragmentCallback;
 
-public class Main extends AppCompatActivity {
+public class Main extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener {
     public ViewPager viewPager;
     public DictionariesAdapter adapter;
     private SearchView mSearchView;
@@ -48,10 +49,12 @@ public class Main extends AppCompatActivity {
     private FloatingActionButton fabFilter;
     private MenuCaller menuCaller;
     private ImageView noInternet;
+    private AppBarLayout appBarLayout;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public static SharedPreferences sharedPreferences;
 
-    @SuppressLint("ClickableViewAccessibility") @Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -59,12 +62,16 @@ public class Main extends AppCompatActivity {
         viewPager = findViewById(R.id.viewpager);
         noInternet = findViewById(R.id.noInternet);
         fabFilter = findViewById(R.id.filterButton);
+        appBarLayout = findViewById(R.id.appbarLayout);
+        swipeRefreshLayout = findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setColorSchemeResources(R.color.progress1, R.color.progress2,
+                R.color.progress3, R.color.progress4);
 
         menuCaller = new MenuCaller(this);
         sharedPreferences = getSharedPreferences("settings", MODE_PRIVATE);
         setSupportActionBar(findViewById(R.id.toolbar));
 
-        setupNoNet(false);
+        setupNoNet();
 
         MobileAds.initialize(this, "ca-app-pub-6411761147229517~1317441366");
 
@@ -75,9 +82,16 @@ public class Main extends AppCompatActivity {
         fabFilter.setOnClickListener(view ->
                 adapter.getItem(viewPager.getCurrentItem()).isOpen(true, fabFilter, 0));
 
-        findViewById(R.id.shadow).setOnTouchListener((view, motionEvent) -> false);
-
         handleData();
+
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            swipeRefreshLayout.setRefreshing(true);
+            if (mSearchView != null) mSearchView.close(true);
+            if (!getTitle().equals(getResources().getString(R.string.app_name)))
+                onSearch(getTitle());
+            else
+                swipeRefreshLayout.setRefreshing(false);
+        });
     }
 
     private void handleData() {
@@ -110,10 +124,8 @@ public class Main extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
 
-        menu.findItem(R.id.mRefresh).setOnMenuItemClickListener(item -> {
-            if (mSearchView != null) mSearchView.close(true);
-            if (!getTitle().equals(getResources().getString(R.string.app_name)))
-                onSearch(getTitle());
+        menu.findItem(R.id.mAdvance).setOnMenuItemClickListener(item -> {
+            new AdvancedDialog(this).show();
             return true;
         });
 
@@ -144,6 +156,12 @@ public class Main extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("AWAISKING_APP", "" , e);
         }
+    }
+
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
+        if (!swipeRefreshLayout.isRefreshing())
+            swipeRefreshLayout.setEnabled(i == 0);
     }
 
     public class DictionariesAdapter extends FragmentPagerAdapter {
@@ -178,9 +196,10 @@ public class Main extends AppCompatActivity {
 
     private void setupLayout() {
         adapter = new DictionariesAdapter(getSupportFragmentManager());
-        adapter.addFrag(new DictionaryFragment(), "Reverse");
-        adapter.addFrag(new DictionaryFragment(), "Sounds Like");
-        adapter.addFrag(new DictionaryFragment(), "Spelled Like");
+        FragmentCallback fragmentCallback = (items, word) -> swipeRefreshLayout.setRefreshing(false);
+        adapter.addFrag(new DictionaryFragment().createNew(fragmentCallback, swipeRefreshLayout), "Reverse");
+        adapter.addFrag(new DictionaryFragment().createNew(fragmentCallback, swipeRefreshLayout), "Sounds Like");
+        adapter.addFrag(new DictionaryFragment().createNew(fragmentCallback, swipeRefreshLayout), "Spelled Like");
         viewPager.setOffscreenPageLimit(5);
 
         TabLayout tabLayout = findViewById(R.id.tabs);
@@ -308,16 +327,9 @@ public class Main extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        setupNoNet(true);
-    }
-
-    private void setupNoNet(boolean isConfig) {
-        Monitor.Builder noNet = NoNet.monitor(this).configure(NoNet.configure().endpoint("http://api.datamuse.com/words").build());
-        if (!isConfig) noNet = noNet.poll();
-        noNet = noNet.callback(connectionStatus -> {
+    private void setupNoNet() {
+        NoNet.monitor(this).configure(NoNet.configure().endpoint("http://api.datamuse.com/words")
+                .build()).poll().callback(connectionStatus -> {
             if (connectionStatus != ConnectionStatus.CONNECTED) {
                 if (adapter != null && adapter.getItem(viewPager.getCurrentItem()).adapter != null
                         && adapter.getItem(viewPager.getCurrentItem()).adapter.getItemCount() < 1) {
@@ -350,11 +362,19 @@ public class Main extends AppCompatActivity {
                         ((View) fabFilter.getParent()).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                 }
             }
-        });
-
-        if (!isConfig)
-            noNet.snackbar(Snackbar.make(viewPager, "Not connected to internet.", -2)
-                    .setAction("Settings", view -> startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS))));
+        }).snackbar(Snackbar.make(viewPager, "Not connected to internet.", -2)
+                .setAction("Settings", view -> startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS))));
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        appBarLayout.addOnOffsetChangedListener(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        appBarLayout.removeOnOffsetChangedListener(this);
+    }
 }
