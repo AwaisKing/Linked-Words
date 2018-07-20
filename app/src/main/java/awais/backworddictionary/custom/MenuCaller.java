@@ -83,13 +83,27 @@ public class MenuCaller {
             helpBuilder.append("find words which sound similar to given word\n\n", new BulletSpan(26, 0xFF212121));
             helpBuilder.append("Spelled Like:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
             helpBuilder.append("find words which are spelled like defined word with wildcards\n", new BulletSpan(26, 0xFF212121));
-            helpBuilder.append("[Wildcard Help]", new BulletSpan(26, 0xFF212121), new ClickableSpan() {
+            helpBuilder.append("[Wildcard Help]\n\n", new BulletSpan(26, 0xFF212121), new ClickableSpan() {
                 @Override
                 public void onClick(View view) {
                     customTabsIntent.setToolbarColor(Color.parseColor("#FFC400"));
                     CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(),
                             Uri.parse("https://www.onelook.com/?c=faq#patterns"));
                 }});
+            helpBuilder.append("Synonyms:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append("find synonyms of given word (similar to Reverse function, but more category specific)\n\n", new BulletSpan(26, 0xFF212121));
+            helpBuilder.append("Antonyms:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append("find antonyms of give word\n\n", new BulletSpan(26, 0xFF212121));
+            helpBuilder.append("Triggers:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append("find words which suit the given word or are associated with the word in paragraph or text\n\n", new BulletSpan(26, 0xFF212121));
+            helpBuilder.append("Part of:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append("find words which are part of or are meronyms of given word\n\n", new BulletSpan(26, 0xFF212121));
+            helpBuilder.append("Comprises:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append("find words which is/are part(s) or component(s) of given word\n\n", new BulletSpan(26, 0xFF212121));
+            helpBuilder.append("Rhymes:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append("find words which perfectly rhyme with given word\n\n", new BulletSpan(26, 0xFF212121));
+            helpBuilder.append("Homophones:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append("find words which sound exactly alike\n\n", new BulletSpan(26, 0xFF212121));
 
             // XXX LICENSES
             licensesBuilder = new SpanBuilder();

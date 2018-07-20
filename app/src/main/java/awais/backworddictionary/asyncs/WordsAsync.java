@@ -34,7 +34,7 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     private final AtomicReference<Activity> activity = new AtomicReference<>();
     private final FragmentCallback fragmentCallback;
 
-    public WordsAsync(Activity activity, FragmentCallback fragmentCallback, String word, int method,
+    public WordsAsync(Activity activity, FragmentCallback fragmentCallback, String word, String method,
                       SwipeRefreshLayout refreshLayout, RecyclerView recyclerView) {
         this.activity.set(activity);
         this.fragmentCallback = fragmentCallback;
@@ -42,16 +42,16 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
         this.recyclerView.set(recyclerView);
         this.word = word;
         switch (method) {
-            case 0: this.method = "ml"; break;
-            case 1: this.method = "sl"; break;
-            case 2: this.method = "sp"; break;
-            case 3: this.method = "rel_syn"; break; // synonyms
-            case 4: this.method = "rel_ant"; break; // antonyms
-            case 5: this.method = "rel_trg"; break; // triggers
-            case 6: this.method = "rel_com"; break; // comprise
-            case 7: this.method = "rel_par"; break; // part of
-            case 8: this.method = "rel_rhy"; break; // rhymes
-            case 9: this.method = "rel_hom"; break; // homohphone
+            case "Reverse": this.method = "ml"; break;
+            case "Sounds Like": this.method = "sl"; break;
+            case "Spelled Like": this.method = "sp"; break;
+            case "Synonyms": this.method = "rel_syn"; break;
+            case "Antonyms": this.method = "rel_ant"; break;
+            case "Triggers": this.method = "rel_trg"; break;
+            case "Part of": this.method = "rel_par"; break;
+            case "Comprises": this.method = "rel_com"; break;
+            case "Homophones": this.method = "rel_hom"; break;
+            case "Rhymes": this.method = "rel_rhy"; break;
             default: this.method = "ml";
         }
     }
@@ -95,9 +95,7 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
                 //noinspection ConstantConditions
                 wordItemsList = new Gson().fromJson(response.body().string(),
                         new TypeToken<List<WordItem>>() {}.getType());
-        } catch (Exception e) {
-            Log.e("AWAISKING_APP", "", e);
-        }
+        } catch (Exception e) { Log.e("AWAISKING_APP", "", e); }
 
         if (response != null) response.close();
 

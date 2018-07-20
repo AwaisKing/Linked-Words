@@ -35,8 +35,7 @@ public class MenuDialog extends BottomSheetDialogFragment {
         public void onSlide(@NonNull View bottomSheet, float slideOffset) {}
     };
 
-    @SuppressLint("RestrictedApi")
-    @Override
+    @Override @SuppressLint("RestrictedApi")
     public void setupDialog(Dialog dialog, int style) {
         super.setupDialog(dialog, style);
         View contentView = View.inflate(getContext(), R.layout.dialog_modal, null);

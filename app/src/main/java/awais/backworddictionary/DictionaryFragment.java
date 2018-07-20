@@ -3,11 +3,14 @@ package awais.backworddictionary;
 import android.animation.Animator;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -24,10 +27,12 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.firebase.perf.metrics.AddTrace;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +62,8 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     private FilterCheck filterChecker;
     private static FragmentCallback mainCallback;
     private static final AtomicReference<SwipeRefreshLayout> refreshLayout = new AtomicReference<>();
+    private ViewGroup.MarginLayoutParams tabParams;
+    private static int initialMargin = -1;
 
     public DictionaryFragment createNew(FragmentCallback callback, SwipeRefreshLayout refreshLayout) {
         DictionaryFragment.mainCallback = callback;
@@ -64,7 +71,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         return new DictionaryFragment();
     }
 
-    @Override
+    @Override @AddTrace(name = "onCreateDictFragmentTrace")
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         tts = new TextToSpeech(activity, initStatus -> {
@@ -175,26 +182,27 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         } catch (Exception e) { Log.e("AWAISKING_APP", "", e); }
     }
 
-    public void startWords(int method, String word) {
+    public void startWords(CharSequence method, String word) {
         if (filterView != null && filterSearchEditor != null) filterSearchEditor.setText("");
         if (word == null || word.isEmpty() || TextUtils.isEmpty(word)) return;
-        new WordsAsync(getActivity(),this, word, method, refreshLayout.get(), recyclerView).execute();
+        new WordsAsync(activity,this, word, String.valueOf(method),
+                refreshLayout.get(), recyclerView).execute();
     }
 
-    @Override
+    @Override @AddTrace(name = "onAttachTrace")
     public void onAttach(Context context) {
         super.onAttach(context);
         if (getActivity() != null) activity = getActivity();
         else activity = (Activity) context;
     }
 
-    @Override
+    @Override @AddTrace(name = "onActivityCreatedTrace")
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         activity = getActivity();
     }
 
-    @Override
+    @Override @AddTrace(name = "doneFragmentTrace")
     public void done(ArrayList<WordItem> items, final String word) {
         wordList = items;
         adapter = new DictionaryAdapter(activity, wordList, tts);
@@ -215,16 +223,45 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         if (fab != null) isOpen(false, fab, 0);
     }
 
-    @Override
+    @Override @AddTrace(name = "isOpenTrace")
     public void isOpen(boolean opened, FloatingActionButton fab, int method) {
         this.fab = fab;
+
+        TabLayout tabLayout = ((View)fab.getParent().getParent()).findViewById(R.id.tabs);
+        if (tabParams == null && tabLayout != null) {
+            tabParams = (ViewGroup.MarginLayoutParams) tabLayout.getLayoutParams();
+            if (initialMargin == -1) initialMargin = tabParams.rightMargin;
+            if (Build.VERSION.SDK_INT >= 17)
+                initialMargin = initialMargin < 0 ? tabParams.getMarginEnd() : initialMargin;
+        }
+
         if (opened) {
-            if (method == 0 && filterView != null) filterView.setVisibility(View.VISIBLE);
-            if (method == 30 && filterView != null) filterView.setVisibility(View.GONE);
+            if (method == 0 && filterView != null) {
+                filterView.setVisibility(View.VISIBLE);
+                ((View)fab.getParent()).setVisibility(View.GONE);
+            }
+            if (method == 30 && filterView != null) {
+                filterView.setVisibility(View.GONE);
+                ((View)fab.getParent()).setVisibility(View.VISIBLE);
+            }
+            if (tabParams != null) {
+                tabParams.setMargins(0, 0, 0, 0);
+                if (Build.VERSION.SDK_INT >= 17) tabParams.setMarginEnd(0);
+            }
             hideFAB();
         } else {
-            if (method == 0 && filterView != null) filterView.setVisibility(View.GONE);
-            if (method == 30 && filterView != null) filterView.setVisibility(View.VISIBLE);
+            if (method == 0 && filterView != null) {
+                filterView.setVisibility(View.GONE);
+                ((View)fab.getParent()).setVisibility(View.VISIBLE);
+            }
+            if (method == 30 && filterView != null) {
+                filterView.setVisibility(View.VISIBLE);
+                ((View)fab.getParent()).setVisibility(View.GONE);
+            }
+            if (tabParams != null) {
+                tabParams.setMargins(0, 0, initialMargin, 0);
+                if (Build.VERSION.SDK_INT >= 17) tabParams.setMarginEnd(initialMargin);
+            }
             showFAB();
         }
     }

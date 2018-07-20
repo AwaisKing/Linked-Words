@@ -6,10 +6,10 @@
         app:showAsAction="collapseActionView|always" android:orderInCategory="1" />
 
     <item android:title="@string/advance" android:id="@+id/mAdvance" android:icon="@drawable/ic_tune"
-        app:showAsAction="ifRoom" android:orderInCategory="2" android:visible="false"/>
+        app:showAsAction="always" android:orderInCategory="2"/>
 
     <item android:title="@string/settings" android:id="@+id/mSettings" android:icon="@drawable/ic_settings_menu"
-        app:showAsAction="always" android:orderInCategory="3"/>
+        app:showAsAction="ifRoom" android:orderInCategory="3"/>
 
     <item android:title="@string/examples" android:id="@+id/mExamples" android:icon="@drawable/ic_examples"
         app:showAsAction="ifRoom" android:orderInCategory="4"/>

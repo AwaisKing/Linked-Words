@@ -6,27 +6,26 @@
 
     <android.support.design.widget.AppBarLayout android:id="@+id/appbarLayout"
         android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay" app:elevation="0dp" android:elevation="0dp">
+        android:theme="@style/AppTheme.AppBarOverlay" android:stateListAnimator="@null">
         <android.support.v7.widget.Toolbar android:layout_width="match_parent"
-            android:layout_height="@dimen/toolbarSize" android:background="?attr/colorPrimary"
+            android:layout_height="@dimen/toolbarSize"
             app:layout_scrollFlags="scroll|enterAlways|snap"  android:id="@+id/toolbar"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
         <RelativeLayout android:layout_width="match_parent" android:layout_height="@dimen/toolbarSize"
             app:layout_collapseMode="pin" android:layout_gravity="bottom">
-            <android.support.design.widget.TabLayout android:id="@+id/tabs" android:layout_marginEnd="65dp"
+            <android.support.design.widget.TabLayout android:id="@+id/tabs" android:layout_marginEnd="@dimen/toolbarSize"
                 android:layout_width="match_parent" android:layout_height="@dimen/toolbarSize"
-                android:layout_gravity="bottom" app:tabMode="fixed" app:tabIndicatorHeight="4dp"
-                app:tabIndicatorColor="@color/cards_and_dialogs_color" app:tabGravity="fill"
-                app:popupTheme="@style/AppTheme.PopupOverlay" android:background="?attr/colorPrimary"
-                android:elevation="0dp" app:elevation="0dp" android:layout_marginRight="65dp" />
-            <RelativeLayout android:layout_width="65dp" android:layout_height="match_parent"
-                android:layout_alignParentRight="true" android:layout_alignParentEnd="true"
-                android:background="?attr/colorPrimary" android:padding="@dimen/fabPadding">
+                android:layout_gravity="bottom" app:tabMode="scrollable" app:tabIndicatorHeight="4dp"
+                app:tabIndicatorColor="@color/cards_and_dialogs_color" app:tabGravity="center"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                android:layout_marginRight="@dimen/toolbarSize" />
+            <RelativeLayout android:layout_width="@dimen/toolbarSize" android:layout_height="match_parent"
+                android:layout_alignParentRight="true" android:layout_alignParentEnd="true">
                 <android.support.design.widget.FloatingActionButton android:tooltipText="Filter"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:id="@+id/filterButton" app:fabSize="mini" app:srcCompat="@drawable/ic_filter"
-                    android:scaleType="center" android:elevation="1dp" app:elevation="1dp"
-                    app:useCompatPadding="true" android:layout_centerInParent="true"/>
+                    android:id="@+id/filterButton" app:fabSize="mini" app:useCompatPadding="true"
+                    app:srcCompat="@drawable/ic_filter" android:layout_centerInParent="true"
+                    android:scaleType="centerInside" android:layout_margin="@dimen/fabPadding" />
             </RelativeLayout>
         </RelativeLayout>
     </android.support.design.widget.AppBarLayout>

@@ -26,7 +26,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.ads.MobileAds;
+import com.google.firebase.perf.FirebasePerformance;
+import com.google.firebase.perf.metrics.AddTrace;
 import com.keiferstone.nonet.ConnectionStatus;
 import com.keiferstone.nonet.NoNet;
 import com.lapism.searchview.SearchAdapter;
@@ -40,8 +43,11 @@ import awais.backworddictionary.custom.AdvancedDialog;
 import awais.backworddictionary.custom.MenuCaller;
 import awais.backworddictionary.custom.SettingsDialog;
 import awais.backworddictionary.interfaces.FragmentCallback;
+import awais.backworddictionary.interfaces.FragmentLoader;
+import io.fabric.sdk.android.Fabric;
 
-public class Main extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener {
+public class Main extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener,
+        FragmentLoader {
     public ViewPager viewPager;
     public DictionariesAdapter adapter;
     private SearchView mSearchView;
@@ -51,12 +57,86 @@ public class Main extends AppCompatActivity implements AppBarLayout.OnOffsetChan
     private ImageView noInternet;
     private AppBarLayout appBarLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private String[] tabs = {"Reverse", "Sounds Like", "Spelled Like", "Synonyms", "Antonyms",
+            "Triggers", "Part of", "Comprises", "Homophones", "Rhymes"};
 
     public static SharedPreferences sharedPreferences;
 
     @Override
+    public void loadFragments(boolean main) {
+        if (!main) {
+            finish();
+            startActivity(new Intent(this, Main.class));
+            return;
+        }
+        String bools = Main.sharedPreferences.getString("tabs", "[true, true, true, true, false, false, false, false, false, false]");
+        TabLayout tabLayout = findViewById(R.id.tabs);
+        if (tabLayout != null) try { tabLayout.clearOnTabSelectedListeners(); } catch (Exception ignored) {}
+        adapter = new DictionariesAdapter(getSupportFragmentManager());
+        FragmentCallback fragmentCallback = (items, word) -> swipeRefreshLayout.setRefreshing(false);
+        bools = bools.substring(1, bools.length()-1);
+        String[] boolsArray = bools.split(", ");
+        for (int i=0; i<boolsArray.length; i++) {
+            if (boolsArray[i].equalsIgnoreCase("true"))
+                adapter.addFrag(new DictionaryFragment().createNew(fragmentCallback, swipeRefreshLayout), tabs[i]);
+        }
+        viewPager.setOffscreenPageLimit(5);
+        if (tabLayout == null) return;
+        tabLayout.setupWithViewPager(viewPager);
+        viewPager.setAdapter(adapter);
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            int prevTab = 0;
+
+            @Override
+            public void onTabSelected(final TabLayout.Tab tab) {
+                setTitle(R.string.app_name);
+
+                if (adapter != null) {
+                    final DictionaryFragment currentItem = adapter.getItem(tab.getPosition());
+                    final DictionaryFragment prevItem = adapter.getItem(prevTab);
+
+                    if (currentItem != null) {
+                        if (currentItem.title != null && (!currentItem.title.isEmpty()|| TextUtils.isEmpty(currentItem.title)))
+                            setTitle(currentItem.title);
+                        else {
+                            if (prevItem.title != null && !prevItem.title.isEmpty()) {
+                                try {
+                                    currentItem.adapter.updateList(new ArrayList<>());
+                                    currentItem.startWords(tab.getText(), prevItem.title);
+                                    currentItem.title = prevItem.title;
+                                } catch (Exception e) {
+                                    Log.e("AWAISKING_APP", "" , e);
+                                }
+                            }
+                        }
+                        try {
+                            if (currentItem.adapter != null && currentItem.adapter.getItemCount() > 0) {
+                                noInternet.setVisibility(View.GONE);
+                                viewPager.setBackground(null);
+                                if (getSupportActionBar() != null)
+                                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                                    getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+                                findViewById(R.id.tabs).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                                if (fabFilter != null)
+                                    fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+                            }
+                        } catch (Exception ignored) {}
+                        if (prevItem != null) prevItem.isOpen(true, fabFilter, 30);
+                        currentItem.isOpen(false, fabFilter, 0);
+                    }
+                }
+            }
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) { prevTab = tab.getPosition(); }
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
+        });
+    }
+
+    @Override @AddTrace(name = "onCreateTrace")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
 
         viewPager = findViewById(R.id.viewpager);
@@ -75,7 +155,7 @@ public class Main extends AppCompatActivity implements AppBarLayout.OnOffsetChan
 
         MobileAds.initialize(this, "ca-app-pub-6411761147229517~1317441366");
 
-        setupLayout();
+        loadFragments(true);
         setSearchView();
 
         TooltipCompat.setTooltipText(fabFilter, "Filter");
@@ -89,20 +169,34 @@ public class Main extends AppCompatActivity implements AppBarLayout.OnOffsetChan
             if (mSearchView != null) mSearchView.close(true);
             if (!getTitle().equals(getResources().getString(R.string.app_name)))
                 onSearch(getTitle());
-            else
-                swipeRefreshLayout.setRefreshing(false);
+            else swipeRefreshLayout.setRefreshing(false);
         });
     }
 
     private void handleData() {
-        if (getIntent() == null && getIntent().getExtras() == null) return;
+        if (getIntent() == null && (getIntent().getExtras() == null || getIntent().getAction() == null))
+            return;
+
+        Handler handler;
+        if (getMainLooper() != null) handler = new Handler(getMainLooper());
+        else handler = new Handler();
+
         Bundle bundle = getIntent().getExtras();
+        if (getIntent().getAction() != null && getIntent().getAction().equals(Intent.ACTION_SEND)
+                && getIntent().getType() != null && getIntent().getType().equals("text/plain")) {
+            if (bundle != null && bundle.containsKey(Intent.EXTRA_TEXT)) {
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        onSearch(bundle.getString(Intent.EXTRA_TEXT));
+                        handler.removeCallbacks(this);
+                    }
+                }, 400);
+            }
+            return;
+        }
+
         if (bundle != null && bundle.containsKey("query")) {
-            Handler handler;
-
-            if (getMainLooper() != null) handler = new Handler(getMainLooper());
-            else handler = new Handler();
-
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -113,7 +207,7 @@ public class Main extends AppCompatActivity implements AppBarLayout.OnOffsetChan
         }
     }
 
-    @Override
+    @Override @AddTrace(name = "onNewIntentTrace")
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
@@ -148,11 +242,14 @@ public class Main extends AppCompatActivity implements AppBarLayout.OnOffsetChan
     private void onSearch(CharSequence text) {
         onSearch(text.toString());
     }
+
     public void onSearch(String word) {
         try {
-            if (adapter != null && viewPager != null)
-                adapter.getItem(viewPager.getCurrentItem()).startWords(viewPager.getCurrentItem(), word);
-            if (mSearchView != null && mSearchView.isSearchOpen()) mSearchView.close(true);
+            if (adapter != null && viewPager != null) {
+                CharSequence method = adapter.getPageTitle(viewPager.getCurrentItem());
+                adapter.getItem(viewPager.getCurrentItem()).startWords(method, word);
+            }
+            if (mSearchView != null && mSearchView.isSearchOpen()) mSearchView.close(false);
         } catch (Exception e) {
             Log.e("AWAISKING_APP", "" , e);
         }
@@ -160,10 +257,10 @@ public class Main extends AppCompatActivity implements AppBarLayout.OnOffsetChan
 
     @Override
     public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
-        if (!swipeRefreshLayout.isRefreshing())
-            swipeRefreshLayout.setEnabled(i == 0);
+        if (!swipeRefreshLayout.isRefreshing()) swipeRefreshLayout.setEnabled(i == 0);
     }
 
+    @AddTrace(name = "DictionaryAdapterTrace")
     public class DictionariesAdapter extends FragmentPagerAdapter {
         private final List<DictionaryFragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
@@ -194,69 +291,10 @@ public class Main extends AppCompatActivity implements AppBarLayout.OnOffsetChan
         return super.onOptionsItemSelected(item);
     }
 
-    private void setupLayout() {
-        adapter = new DictionariesAdapter(getSupportFragmentManager());
-        FragmentCallback fragmentCallback = (items, word) -> swipeRefreshLayout.setRefreshing(false);
-        adapter.addFrag(new DictionaryFragment().createNew(fragmentCallback, swipeRefreshLayout), "Reverse");
-        adapter.addFrag(new DictionaryFragment().createNew(fragmentCallback, swipeRefreshLayout), "Sounds Like");
-        adapter.addFrag(new DictionaryFragment().createNew(fragmentCallback, swipeRefreshLayout), "Spelled Like");
-        viewPager.setOffscreenPageLimit(5);
-
-        TabLayout tabLayout = findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
-        viewPager.setAdapter(adapter);
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            int prevTab = 0;
-
-            @Override
-            public void onTabSelected(final TabLayout.Tab tab) {
-                setTitle(R.string.app_name);
-
-                if (adapter != null) {
-                    final DictionaryFragment currentItem = adapter.getItem(tab.getPosition());
-                    final DictionaryFragment prevItem = adapter.getItem(prevTab);
-
-                    if (currentItem != null) {
-                        if (currentItem.title != null && (!currentItem.title.isEmpty()|| TextUtils.isEmpty(currentItem.title)))
-                            setTitle(currentItem.title);
-                        else {
-                            if (prevItem.title != null && !prevItem.title.isEmpty()) {
-                                try {
-                                    currentItem.adapter.updateList(new ArrayList<>());
-                                    currentItem.startWords(tab.getPosition(), prevItem.title);
-                                    currentItem.title = prevItem.title;
-                                } catch (Exception e) {
-                                    Log.e("AWAISKING_APP", "" , e);
-                                }
-                            }
-                        }
-                        try {
-                            if (currentItem.adapter != null && currentItem.adapter.getItemCount() > 0) {
-                                noInternet.setVisibility(View.GONE);
-                                viewPager.setBackground(null);
-                                if (getSupportActionBar() != null)
-                                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                                    getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
-                                findViewById(R.id.tabs).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                                if (fabFilter != null)
-                                    fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                            }
-                        } catch (Exception ignored) {}
-                        if (prevItem != null) prevItem.isOpen(true, fabFilter, 30);
-                        currentItem.isOpen(false, fabFilter, 0);
-                    }
-                }
-            }
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) { prevTab = tab.getPosition(); }
-            @Override public void onTabReselected(TabLayout.Tab tab) {}
-        });
-    }
-
     @Override
     public void onBackPressed() {
-        if (adapter != null && viewPager != null && adapter.getItem(viewPager.getCurrentItem()).isFilterOpen())
+        if (adapter != null && viewPager != null && adapter.getCount() > 0 &&
+                adapter.getItem(viewPager.getCurrentItem()).isFilterOpen())
             adapter.getItem(viewPager.getCurrentItem()).hideFilter();
         else super.onBackPressed();
     }
@@ -265,7 +303,6 @@ public class Main extends AppCompatActivity implements AppBarLayout.OnOffsetChan
         mSearchView = findViewById(R.id.searchView);
         if (mSearchView != null) {
             mSearchView.bringToFront();
-//            suggestionsList = new ArrayList<>();
 
             mSearchView.setVersion(SearchView.VERSION_MENU_ITEM);
             mSearchView.setVersionMargins(SearchView.VERSION_MARGINS_MENU_ITEM);
@@ -331,7 +368,7 @@ public class Main extends AppCompatActivity implements AppBarLayout.OnOffsetChan
         NoNet.monitor(this).configure(NoNet.configure().endpoint("http://api.datamuse.com/words")
                 .build()).poll().callback(connectionStatus -> {
             if (connectionStatus != ConnectionStatus.CONNECTED) {
-                if (adapter != null && adapter.getItem(viewPager.getCurrentItem()).adapter != null
+                if (adapter != null && adapter.getCount() > 0 && adapter.getItem(viewPager.getCurrentItem()).adapter != null
                         && adapter.getItem(viewPager.getCurrentItem()).adapter.getItemCount() < 1) {
                     if (noInternet != null) noInternet.setVisibility(View.VISIBLE);
                     if (viewPager != null) viewPager.setBackgroundColor(getResources().getColor(R.color.noInternet));

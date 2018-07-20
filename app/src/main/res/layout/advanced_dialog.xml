@@ -9,45 +9,62 @@
         android:ellipsize="end" android:singleLine="true" android:layout_width="match_parent"
         android:layout_marginStart="@dimen/search_view_margin_text" android:layout_marginLeft="@dimen/search_view_margin_text"/>
 
-    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
-        <RadioGroup android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="vertical" android:layout_marginStart="@dimen/toolbarSize"
-            android:layout_marginEnd="@dimen/toolbarSize" android:layout_marginTop="10dp">
-            <RadioButton android:id="@+id/rbSynonym" android:layout_width="match_parent"
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" >
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:layout_marginStart="@dimen/fabPadding"
+            android:layout_marginEnd="@dimen/fabPadding" android:layout_marginTop="@dimen/filter_margin_start"
+            android:id="@+id/checkboxContainer" android:paddingBottom="@dimen/filter_margin_start">
+            <CheckBox android:id="@+id/rbReverse" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_gravity="center_vertical"
+                android:text="@string/reverse" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:padding="6dp" />
+
+            <CheckBox android:id="@+id/rbSoundsLike" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_gravity="center_vertical"
+                android:text="@string/sounds_like" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:padding="6dp" />
+
+            <CheckBox android:id="@+id/rbSpelledLike" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:layout_gravity="center_vertical"
+                android:text="@string/spelled_like" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:padding="6dp" />
+
+            <CheckBox android:id="@+id/rbSynonym" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:layout_gravity="center_vertical"
                 android:text="@string/synonyms" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:padding="6dp" />
 
-            <RadioButton android:id="@+id/rbAntonym" android:layout_width="match_parent"
+            <CheckBox android:id="@+id/rbAntonym" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:layout_gravity="center_vertical"
                 android:text="@string/antonyms" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:padding="6dp" />
 
-            <RadioButton android:id="@+id/rbTrigger" android:layout_width="match_parent"
+            <CheckBox android:id="@+id/rbTrigger" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:layout_gravity="center_vertical"
                 android:text="@string/triggers" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:padding="6dp" />
 
-            <RadioButton android:id="@+id/rbPartOf" android:layout_width="match_parent"
+            <CheckBox android:id="@+id/rbPartOf" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:layout_gravity="center_vertical"
                 android:text="@string/part_of" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:padding="6dp" />
 
-            <RadioButton android:id="@+id/rbComprise" android:layout_width="match_parent"
+            <CheckBox android:id="@+id/rbComprise" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:layout_gravity="center_vertical"
                 android:text="@string/comprises" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:padding="6dp" />
 
-            <RadioButton android:id="@+id/rbRhymes" android:layout_width="match_parent"
+            <CheckBox android:id="@+id/rbRhymes" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:layout_gravity="center_vertical"
                 android:text="@string/rhymes" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:padding="6dp" />
 
-            <RadioButton android:id="@+id/rbHomophones" android:layout_width="match_parent"
+            <CheckBox android:id="@+id/rbHomophones" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:layout_gravity="center_vertical"
                 android:text="@string/homophones" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:padding="6dp" />
-        </RadioGroup>
+        </LinearLayout>
     </ScrollView>
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
