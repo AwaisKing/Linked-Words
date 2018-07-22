@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#359DC7</color>
-    <color name="colorPrimaryDark">#2E8DB2</color>
-    <color name="colorAccent">#53C1D8</color>
+    <!--<color name="colorPrimary">#359DC7</color>-->
+    <!--<color name="colorPrimaryDark">#2E8DB2</color>-->
+    <!--<color name="colorAccent">#53C1D8</color>-->
+    <color name="colorPrimary">#24BACD</color>
+    <color name="colorPrimaryDark">#21ABBC</color>
+    <color name="colorAccent">#0F6088</color>
 
     <color name="noInternet">#A85C2a</color>
     <color name="noInternetBar">#9C5629</color>
@@ -13,7 +16,7 @@
     <color name="cards_and_dialogs_color">@android:color/white</color>
 
     <color name="progress1">@color/colorPrimaryDark</color>
-    <color name="progress2">@color/colorAccent</color>
-    <color name="progress3">@color/colorPrimary</color>
-    <color name="progress4">#00796B</color>
+    <color name="progress2">@color/colorPrimary</color>
+    <color name="progress3">#2E8DB2</color>
+    <color name="progress4">@color/colorAccent</color>
 </resources>

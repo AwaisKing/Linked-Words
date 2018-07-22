@@ -28,7 +28,6 @@ import android.widget.ImageView;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.ads.MobileAds;
-import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.AddTrace;
 import com.keiferstone.nonet.ConnectionStatus;
 import com.keiferstone.nonet.NoNet;
@@ -58,7 +57,7 @@ public class Main extends AppCompatActivity implements AppBarLayout.OnOffsetChan
     private AppBarLayout appBarLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
     private String[] tabs = {"Reverse", "Sounds Like", "Spelled Like", "Synonyms", "Antonyms",
-            "Triggers", "Part of", "Comprises", "Homophones", "Rhymes"};
+            "Triggers", "Part of", "Comprises", "Rhymes", "Homophones"};
 
     public static SharedPreferences sharedPreferences;
 
