@@ -67,17 +67,11 @@
             android:gravity="bottom" android:paddingLeft="8dp" android:paddingRight="8dp"
             android:paddingBottom="4dp">
             <Button
-                android:id="@+id/btnReverse"
+                android:id="@+id/btnSearch"
                 style="?attr/buttonBarPositiveButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/reverse_related"/>
-            <Button
-                android:id="@+id/btnSoundsLike"
-                style="?attr/buttonBarPositiveButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/sound_like"/>
+                android:text="@string/search"/>
         </android.support.v7.widget.ButtonBarLayout>
 
     </LinearLayout>

@@ -18,9 +18,9 @@ import awais.backworddictionary.R;
 import awais.backworddictionary.interfaces.FragmentLoader;
 
 public class AdvancedDialog extends Dialog implements CompoundButton.OnCheckedChangeListener {
-    private FragmentLoader fragmentLoader;
+    private final FragmentLoader fragmentLoader;
     private List<CompoundButton> checkBoxes;
-    private boolean enabledChecks[] = {true, true, true, true, false, false, false, false, false, false};
+    private final boolean[] enabledChecks = {true, true, true, true, false, false, false, false, false, false};
     private String bools;
 
     public AdvancedDialog(Activity act) {
@@ -79,9 +79,7 @@ public class AdvancedDialog extends Dialog implements CompoundButton.OnCheckedCh
             fragmentLoader.loadFragments(false);
             dismiss();
         });
-        (findViewById(R.id.btnCancel)).setOnClickListener(view -> {
-            dismiss();
-        });
+        (findViewById(R.id.btnCancel)).setOnClickListener(view -> dismiss());
     }
 
     @Override

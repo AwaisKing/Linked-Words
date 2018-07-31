@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="@string/reverse" android:id="@+id/search_reverse" />
+    <item android:title="@string/sounds_like" android:id="@+id/search_soundslike" />
+    <item android:title="@string/spelled_like" android:id="@+id/search_spelledlike" />
+    <item android:title="@string/synonyms"  android:id="@+id/search_synonyms" />
+    <item android:title="@string/antonyms"  android:id="@+id/search_antonyms" />
+    <item android:title="@string/triggers" android:id="@+id/search_triggers" />
+    <item android:title="@string/part_of" android:id="@+id/search_partof" />
+    <item android:title="@string/comprises" android:id="@+id/search_comprises" />
+    <item android:title="@string/rhymes"  android:id="@+id/search_rhymes" />
+    <item android:title="@string/homophones"  android:id="@+id/search_homophones" />
+</menu>

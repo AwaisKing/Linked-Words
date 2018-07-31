@@ -68,11 +68,11 @@ public class HuaweiFix {
         } catch (Exception ignored) { }
     }
 
-    @SuppressWarnings("JavaReflectionMemberAccess")
     private String getUserSerial() {
-        @SuppressLint("WrongConstant") Object userManager = context.getSystemService("user");
-        if (userManager == null) return "";
         try {
+            @SuppressLint("WrongConstant") Object userManager = context.getSystemService("user");
+            if (userManager == null) return "";
+            //noinspection JavaReflectionMemberAccess
             Method myUserHandleMethod = android.os.Process.class.getMethod("myUserHandle", (Class<?>[]) null);
             Object myUserHandle = myUserHandleMethod.invoke(android.os.Process.class, (Object[]) null);
             Method getSerialNumberForUser = userManager.getClass().getMethod("getSerialNumberForUser", myUserHandle.getClass());

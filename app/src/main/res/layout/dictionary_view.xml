@@ -4,6 +4,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/tools">
 
+    <android.support.v4.widget.SwipeRefreshLayout android:id="@+id/swipe_container"
+        android:layout_width="match_parent" android:layout_height="match_parent">
+        <android.support.v7.widget.RecyclerView android:id="@+id/recycler_view"
+            android:paddingTop="6dp" android:paddingBottom="8dp" android:clipToPadding="false"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            android:layout_below="@id/filterView" android:scrollbars="none" app:fastScrollEnabled="true"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            app:fastScrollVerticalTrackDrawable="@drawable/slider_track"
+            app:fastScrollHorizontalTrackDrawable="@drawable/slider_track"
+            app:fastScrollHorizontalThumbDrawable="@drawable/slider_thumb"
+            app:fastScrollVerticalThumbDrawable="@drawable/slider_thumb" />
+    </android.support.v4.widget.SwipeRefreshLayout>
+
     <FrameLayout android:gravity="center_horizontal" android:layout_width="match_parent"
         android:layout_height="48dp" android:id="@+id/filterView" android:visibility="gone"
         android:layout_marginLeft="@dimen/filter_spacing" android:layout_marginTop="@dimen/filter_spacing"
@@ -36,16 +49,4 @@
             </LinearLayout>
         </android.support.v7.widget.CardView>
     </FrameLayout>
-
-    <android.support.v7.widget.RecyclerView android:id="@+id/recycler_view"
-        android:paddingTop="@dimen/filter_spacing" android:clipToPadding="false"
-        android:layout_width="match_parent" android:layout_height="match_parent"
-        android:layout_below="@id/filterView" android:scrollbars="none" app:fastScrollEnabled="true"
-        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-        android:layout_above="@+id/adView" app:fastScrollVerticalTrackDrawable="@drawable/slider_track"
-        app:fastScrollHorizontalTrackDrawable="@drawable/slider_track"
-        app:fastScrollHorizontalThumbDrawable="@drawable/slider_thumb"
-        app:fastScrollVerticalThumbDrawable="@drawable/slider_thumb" />
-
-    <com.google.android.gms.ads.AdView android:id="@+id/adView" android:layout_alignParentBottom="true" xmlns:ads="http://schemas.android.com/apk/res-auto" ads:adUnitId="ca-app-pub-6411761147229517/1609681212" android:layout_width="match_parent" android:layout_height="wrap_content" ads:adSize="SMART_BANNER" />
 </RelativeLayout>

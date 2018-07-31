@@ -31,13 +31,14 @@ import awais.backworddictionary.custom.WordDialog;
 import awais.backworddictionary.custom.WordItem;
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
 
+import static awais.backworddictionary.Main.tts;
+
 public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.DictHolder>
         implements Filterable {
     private final Context mContext;
     private final List<WordItem> wordList;
     private List<?> filterList;
     private WordItem currentWord;
-    private final TextToSpeech tts;
 
     @Override
     public Filter getFilter() {
@@ -46,9 +47,10 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
             protected FilterResults performFiltering(CharSequence charSequence) {
                 FilterResults results = new FilterResults();
                 results.values = wordList;
-                if (charSequence.toString().isEmpty()) return results;
+                if (String.valueOf(charSequence).isEmpty() || String.valueOf(charSequence) == null)
+                    return results;
 
-                boolean showWords = Main.sharedPreferences.getBoolean("filterWord", false);
+                boolean showWords = Main.sharedPreferences.getBoolean("filterWord", true);
                 boolean showDefs = Main.sharedPreferences.getBoolean("filterDefinition", false);
                 boolean contains = Main.sharedPreferences.getBoolean("filterContain", true);
 
@@ -118,11 +120,10 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
         }
     }
 
-    DictionaryAdapter(Context mContext, List<WordItem> wordList, TextToSpeech tts) {
+    DictionaryAdapter(Context mContext, List<WordItem> wordList) {
         this.mContext = mContext;
         this.wordList = wordList;
         this.filterList = wordList;
-        this.tts = tts;
     }
 
     @Override
@@ -160,14 +161,14 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
             tagsBuilder.append("\nsyllables: ").append(wordItem.getNumSyllables());
         else
             tagsBuilder.append("syllables: ").append(wordItem.getNumSyllables());
-        holder.subtext.setText(tagsBuilder.toString().replaceAll(",\nsyllables", "\nsyllables"));
+        holder.subtext.setText(String.valueOf(tagsBuilder).replaceAll(",\nsyllables", "\nsyllables"));
         holder.overflow.setOnClickListener(view -> showPopupMenu(holder.overflow));
         holder.cardView.setOnLongClickListener(view -> {
             showPopupMenu(holder.overflow);
             return true;
         });
         holder.cardView.setOnClickListener(view ->
-                new WordDialog((Activity) mContext, wordItem, tts).show());
+                new WordDialog((Activity) mContext, wordItem).show());
     }
 
     private void showPopupMenu(View view) {
@@ -217,7 +218,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
                     return true;
                 case R.id.action_wiki:
                     String wordRawWiki = currentWord.getWord().replace(" ", "_").replace("\\s", "_");
-                    try {wordRawWiki = new URL(wordRawWiki).toString();} catch (Exception ignored) {}
+                    try {wordRawWiki = String.valueOf(new URL(wordRawWiki));} catch (Exception ignored) {}
 
                     Intent intent1 = new Intent();
                     intent1.setAction(Intent.ACTION_VIEW);

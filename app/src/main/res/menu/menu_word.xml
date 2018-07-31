@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
     <item android:title="@string/copy" android:id="@+id/action_copy" />
     <item android:title="@string/speak" android:id="@+id/action_speak" />
     <item android:title="@string/google" android:id="@+id/action_google" />

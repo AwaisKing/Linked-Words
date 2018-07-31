@@ -1,6 +1,5 @@
 package awais.backworddictionary.customweb;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -12,7 +11,6 @@ import awais.backworddictionary.R;
 
 public class WebViewActivity extends AppCompatActivity {
 
-    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,7 +19,7 @@ public class WebViewActivity extends AppCompatActivity {
         WebView webView = findViewById(R.id.webview);
         webView.setWebViewClient(new WebViewClient());
         WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
+        webSettings.setJavaScriptEnabled(getPackageName().startsWith("awais"));
         setTitle(url);
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         webView.loadUrl(url);

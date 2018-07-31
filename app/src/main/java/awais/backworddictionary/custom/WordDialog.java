@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.widget.DialogTitle;
+import android.support.v7.widget.PopupMenu;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
@@ -33,16 +34,17 @@ import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
 
+import static awais.backworddictionary.Main.boolsArray;
+import static awais.backworddictionary.Main.tts;
+
 public class WordDialog extends Dialog implements android.view.View.OnClickListener {
     private final WordItem wordItem;
-    private final TextToSpeech tts;
     private final Activity activity;
 
-    public WordDialog(Activity act, WordItem wordItem, TextToSpeech tts) {
+    public WordDialog(Activity act, WordItem wordItem) {
         super(act, R.style.Dialog);
         this.activity = act;
         this.wordItem = wordItem;
-        this.tts = tts;
     }
 
     @Override
@@ -88,8 +90,8 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
 
         lvDefs.setOnItemClickListener((adapterView, view, i, l) -> {
             SpannableStringBuilder wordItem = (SpannableStringBuilder) adapterView.getItemAtPosition(i);
-            if (wordItem != null && !wordItem.toString().isEmpty() && wordItem.toString().contains("\t")) {
-                String item = wordItem.toString().replaceAll("^(.*)\\t", "");
+            if (wordItem != null && !String.valueOf(wordItem).isEmpty() && String.valueOf(wordItem).contains("\t")) {
+                String item = String.valueOf(wordItem).replaceAll("^(.*)\\t", "");
                 try {
                     android.content.ClipboardManager clipboard = (android.content.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
                     if (clipboard != null)
@@ -113,16 +115,14 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
         Button google = findViewById(R.id.btnGoogle);
         Button wiki = findViewById(R.id.btnWiki);
         Button urban = findViewById(R.id.btnUrban);
-        Button reverse = findViewById(R.id.btnReverse);
-        Button soundslike = findViewById(R.id.btnSoundsLike);
+        Button search = findViewById(R.id.btnSearch);
 
         copy.setOnClickListener(this);
         speak.setOnClickListener(this);
         google.setOnClickListener(this);
         wiki.setOnClickListener(this);
         urban.setOnClickListener(this);
-        reverse.setOnClickListener(this);
-        soundslike.setOnClickListener(this);
+        search.setOnClickListener(this);
     }
 
     @Override
@@ -168,7 +168,7 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
 
             case R.id.btnWiki:
                 String wordRawWiki = wordItem.getWord().replace(" ", "_").replace("\\s", "_");
-                try {wordRawWiki = new URL(wordRawWiki).toString();} catch (Exception ignored) {}
+                try {wordRawWiki = String.valueOf(new URL(wordRawWiki));} catch (Exception ignored) {}
 
                 Intent intent1 = new Intent();
                 intent1.setAction(Intent.ACTION_VIEW);
@@ -188,27 +188,55 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
                         Uri.parse("http://www.urbandictionary.com/define.php?term=".concat(wordItem.getWord())));
                 break;
 
-            case R.id.btnReverse:
-                if (activity.getClass() == Main.class) {
-                    ((Main)activity).adapter.getItem(0).title = wordItem.getWord();
-                    ((Main)activity).viewPager.setCurrentItem(0, true);
-                    ((Main)activity).onSearch(wordItem.getWord());
-                }
-                break;
 
-            case R.id.btnSoundsLike:
-                if (activity.getClass() == Main.class) {
-                    try {
-                        ((Main)activity).adapter.getItem(1).title = wordItem.getWord();
-                        ((Main)activity).viewPager.setCurrentItem(1, true);
-                        ((Main)activity).onSearch(wordItem.getWord());
-                    } catch (Exception e) {
-                        Log.e("AWAISKING_APP", "", e);
-                    }
-                }
-                break;
+                // TODO FIX
+//            case R.id.btnFirst:
+//                if (activity.getClass() == Main.class) {
+//                    ((Main)activity).adapter.getItem(0).title = wordItem.getWord();
+//                    ((Main)activity).viewPager.setCurrentItem(0, true);
+//                    ((Main)activity).onSearch(wordItem.getWord());
+//                }
+//                break;
+//
+//            case R.id.btnSecond:
+//                if (activity.getClass() == Main.class) {
+//                    try {
+//                        ((Main)activity).adapter.getItem(1).title = wordItem.getWord();
+//                        ((Main)activity).viewPager.setCurrentItem(1, true);
+//                        ((Main)activity).onSearch(wordItem.getWord());
+//                    } catch (Exception e) {
+//                        Log.e("AWAISKING_APP", "", e);
+//                    }
+//                }
+//                break;
+
+            case R.id.btnSearch: showPopupMenu(v); return;
             default: break;
         }
         dismiss();
+    }
+
+    private void showPopupMenu(View view) {
+        PopupMenu popup = new PopupMenu(view.getContext(), view);
+        popup.getMenuInflater().inflate(R.menu.menu_search, popup.getMenu());
+
+        for (int i = 0; i < boolsArray.length; i++)
+            popup.getMenu().getItem(i).setVisible(Boolean.parseBoolean(boolsArray[i]));
+
+        popup.setOnMenuItemClickListener(menuItem -> {
+            if (activity.getClass() == Main.class) {
+                try {
+                    int index = ((Main) activity).getItemPosition((String) menuItem.getTitle());
+                    ((Main)activity).adapter.getItem(index).title = wordItem.getWord();
+                    ((Main)activity).viewPager.setCurrentItem(index, true);
+                    ((Main)activity).onSearch(wordItem.getWord());
+                } catch (Exception e) {
+                    Log.e("AWAISKING_APP", "", e);
+                }
+            }
+            dismiss();
+            return true;
+        });
+        popup.show();
     }
 }

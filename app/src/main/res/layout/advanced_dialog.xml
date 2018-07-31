@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:layout_marginTop="@dimen/search_view_margin_text" android:layout_marginBottom="@dimen/search_view_margin_text"
+    android:layout_marginTop="@dimen/search_view_margin_text" android:layout_marginBottom="8dp"
     android:orientation="vertical">
 
     <android.support.v7.widget.DialogTitle android:id="@+id/alertTitle"
@@ -17,7 +17,7 @@
             android:id="@+id/checkboxContainer" android:paddingBottom="@dimen/filter_margin_start">
             <CheckBox android:id="@+id/rbReverse" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-                android:text="@string/reverse" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:text="@string/reverse_related" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:padding="6dp" />
 
             <CheckBox android:id="@+id/rbSoundsLike" android:layout_width="match_parent"

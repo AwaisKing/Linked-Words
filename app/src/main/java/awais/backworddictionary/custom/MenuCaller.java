@@ -96,9 +96,9 @@ public class MenuCaller {
             helpBuilder.append("find antonyms of give word\n\n", new BulletSpan(26, 0xFF212121));
             helpBuilder.append("Triggers:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
             helpBuilder.append("find words which suit the given word or are associated with the word in paragraph or text\n\n", new BulletSpan(26, 0xFF212121));
-            helpBuilder.append("Part of:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append("Is part of:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
             helpBuilder.append("find words which are part of or are meronyms of given word\n\n", new BulletSpan(26, 0xFF212121));
-            helpBuilder.append("Comprises:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append("Comprises of:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
             helpBuilder.append("find words which is/are part(s) or component(s) of given word\n\n", new BulletSpan(26, 0xFF212121));
             helpBuilder.append("Rhymes:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
             helpBuilder.append("find words which perfectly rhyme with given word\n\n", new BulletSpan(26, 0xFF212121));
@@ -127,8 +127,8 @@ public class MenuCaller {
             licensesBuilder.append("OkHttp3 [Apache License 2.0]\n", new BulletSpan(26, 0xFF212121));
             licensesBuilder.append("GSON [Apache License 2.0]\n", new BulletSpan(26, 0xFF212121));
             licensesBuilder.append("SearchView [Apache License 2.0]\n", new BulletSpan(26, 0xFF212121));
-            licensesBuilder.append("Chrome Custom Tabs [Apache License 2.0]\n", new BulletSpan(26, 0xFF212121));
             licensesBuilder.append("NoNet [Apache License 2.0]\n\n", new BulletSpan(26, 0xFF212121));
+            licensesBuilder.append("Chrome Custom Tabs [Apache License 2.0]\n", new BulletSpan(26, 0xFF212121));
             licensesBuilder.append("License:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121));
             licensesBuilder.append("Apache License 2.0", new BulletSpan(26, 0xFF212121), new ClickableSpan() {
                 @Override
@@ -175,7 +175,7 @@ public class MenuCaller {
         }
 
         SpannableStringBuilder build() {
-            SpannableStringBuilder ssb = new SpannableStringBuilder(stringBuilder.toString());
+            SpannableStringBuilder ssb = new SpannableStringBuilder(stringBuilder);
             for (SpanSection section : spanSections) section.apply(ssb);
             return ssb;
         }

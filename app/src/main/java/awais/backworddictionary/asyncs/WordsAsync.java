@@ -1,9 +1,6 @@
 package awais.backworddictionary.asyncs;
 
-import android.app.Activity;
 import android.os.AsyncTask;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -12,7 +9,6 @@ import com.google.gson.reflect.TypeToken;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import awais.backworddictionary.Main;
 import awais.backworddictionary.custom.WordItem;
@@ -29,17 +25,10 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     private final Request.Builder builder = new Request.Builder();
     private Response response = null;
 
-    private final AtomicReference<SwipeRefreshLayout> refreshLayout = new AtomicReference<>();
-    private final AtomicReference<RecyclerView> recyclerView = new AtomicReference<>();
-    private final AtomicReference<Activity> activity = new AtomicReference<>();
     private final FragmentCallback fragmentCallback;
 
-    public WordsAsync(Activity activity, FragmentCallback fragmentCallback, String word, String method,
-                      SwipeRefreshLayout refreshLayout, RecyclerView recyclerView) {
-        this.activity.set(activity);
+    public WordsAsync(FragmentCallback fragmentCallback, String word, String method) {
         this.fragmentCallback = fragmentCallback;
-        this.refreshLayout.set(refreshLayout);
-        this.recyclerView.set(recyclerView);
         this.word = word;
         switch (method) {
             case "Reverse": this.method = "ml"; break;
@@ -48,8 +37,8 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
             case "Synonyms": this.method = "rel_syn"; break;
             case "Antonyms": this.method = "rel_ant"; break;
             case "Triggers": this.method = "rel_trg"; break;
-            case "Part of": this.method = "rel_par"; break;
-            case "Comprises": this.method = "rel_com"; break;
+            case "Is Part of": this.method = "rel_par"; break;
+            case "Comprises of": this.method = "rel_com"; break;
             case "Homophones": this.method = "rel_hom"; break;
             case "Rhymes": this.method = "rel_rhy"; break;
             default: this.method = "ml";
@@ -59,13 +48,7 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        activity.get().runOnUiThread(() -> {
-            refreshLayout.get().setRefreshing(true);
-            recyclerView.get().setClickable(false);
-            recyclerView.get().setEnabled(false);
-            recyclerView.get().setFocusable(false);
-            recyclerView.get().setLayoutFrozen(true);
-        });
+        if (fragmentCallback != null) fragmentCallback.wordStarted();
     }
 
     @Override
@@ -104,14 +87,8 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
 
     @Override
     protected void onPostExecute(ArrayList<WordItem> wordItems) {
-        if (wordItems != null) if (fragmentCallback != null) fragmentCallback.done(wordItems, word);
-        activity.get().runOnUiThread(() -> {
-            refreshLayout.get().setRefreshing(false);
-            recyclerView.get().setClickable(true);
-            recyclerView.get().setEnabled(true);
-            recyclerView.get().setFocusable(true);
-            recyclerView.get().setLayoutFrozen(false);
-        });
+        if (fragmentCallback != null)
+            fragmentCallback.done(wordItems, word);
         super.onPostExecute(wordItems);
     }
 }

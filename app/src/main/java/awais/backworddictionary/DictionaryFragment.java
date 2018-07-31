@@ -3,10 +3,8 @@ package awais.backworddictionary;
 import android.animation.Animator;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -14,11 +12,12 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,17 +26,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.firebase.perf.metrics.AddTrace;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.atomic.AtomicReference;
 
 import awais.backworddictionary.asyncs.WordsAsync;
 import awais.backworddictionary.custom.WordItem;
@@ -47,83 +38,76 @@ import awais.backworddictionary.interfaces.FragmentCallback;
 public class DictionaryFragment extends Fragment implements FragmentCallback, FilterCheck {
     private List<WordItem> wordList;
     private RecyclerView recyclerView;
-    private TextToSpeech tts;
     private Activity activity;
+    private InputMethodManager imm;
 
     private EditText filterSearchEditor;
     private ImageView filterSearchButton;
     private FrameLayout filterView;
     private FloatingActionButton fab;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private final boolean[] filterCheck = {true, true, true};
     public DictionaryAdapter adapter;
     public String title;
 
-    private FilterCheck filterChecker;
-    private static FragmentCallback mainCallback;
-    private static final AtomicReference<SwipeRefreshLayout> refreshLayout = new AtomicReference<>();
-    private ViewGroup.MarginLayoutParams tabParams;
+    private static ViewGroup.MarginLayoutParams tabParams;
     private static int initialMargin = -1;
-
-    public DictionaryFragment createNew(FragmentCallback callback, SwipeRefreshLayout refreshLayout) {
-        DictionaryFragment.mainCallback = callback;
-        DictionaryFragment.refreshLayout.set(refreshLayout);
-        return new DictionaryFragment();
-    }
-
-    @Override @AddTrace(name = "onCreateDictFragmentTrace")
-    public void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
-        tts = new TextToSpeech(activity, initStatus -> {
-            if (initStatus == TextToSpeech.SUCCESS) {
-                if (tts.isLanguageAvailable(Locale.US) == TextToSpeech.LANG_AVAILABLE)
-                    tts.setLanguage(Locale.US);
-                else if (tts.isLanguageAvailable(Locale.CANADA) == TextToSpeech.LANG_AVAILABLE)
-                    tts.setLanguage(Locale.CANADA);
-                else if (tts.isLanguageAvailable(Locale.UK) == TextToSpeech.LANG_AVAILABLE)
-                    tts.setLanguage(Locale.UK);
-                else if (tts.isLanguageAvailable(Locale.ENGLISH) == TextToSpeech.LANG_AVAILABLE)
-                    tts.setLanguage(Locale.ENGLISH);
-            }
-        });
-    }
+    private static int startOffset=-120, endOffset, topPadding;
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        try {tts.stop();} catch (Exception ignore){}
-        try {tts.shutdown();} catch (Exception ignore){}
+        try {Main.tts.stop();} catch (Exception ignored){}
+        try {Main.tts.shutdown();} catch (Exception ignored){}
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,@Nullable Bundle savedInstanceState) {
         final View magicRootView = inflater.inflate(R.layout.dictionary_view, container, false);
 
-        AdView adView = magicRootView.findViewById(R.id.adView);
-        adView.loadAd(new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build());
-        adView.setAdListener(new AdListener() {
-            public void onAdFailedToLoad(int var1) { adView.setVisibility(View.GONE); }
-            public void onAdLoaded() { adView.setVisibility(View.VISIBLE); }
-        });
+        if (getActivity() != null) activity = getActivity();
+        else activity = (Activity) getContext();
+
+        if (activity != null)
+            imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 
         wordList = new ArrayList<>();
-        adapter = new DictionaryAdapter(getContext(), wordList, tts);
+        adapter = new DictionaryAdapter(getContext(), wordList);
         adapter.setHasStableIds(true);
+
+        swipeRefreshLayout = magicRootView.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setColorSchemeResources(R.color.progress1, R.color.progress2,
+                R.color.progress3, R.color.progress4);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            swipeRefreshLayout.setRefreshing(true);
+            if (getActivity() != null) {
+                Main activity = (Main) getActivity();
+                if (activity.mSearchView != null && activity.mSearchView.isSearchOpen())
+                    activity.mSearchView.close(true);
+                if (!activity.getTitle().equals(getResources().getString(R.string.app_name)))
+                    activity.onSearch(String.valueOf(activity.getTitle()));
+                else swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
+        startOffset = swipeRefreshLayout.getProgressViewStartOffset();
+        endOffset = (int) getEndOffset();
 
         recyclerView = magicRootView.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
 
-        filterChecker = this;
+        topPadding = recyclerView.getPaddingTop();
 
         filterView = magicRootView.findViewById(R.id.filterView);
         ImageView filterBackButton = magicRootView.findViewById(R.id.filterBack);
-        filterBackButton.setOnClickListener(view -> filterChecker.isOpen(false, fab, 0));
+        filterBackButton.setOnClickListener(view -> isOpen(false, fab, 0));
         filterSearchEditor = magicRootView.findViewById(R.id.swipeSearch);
         filterSearchButton = magicRootView.findViewById(R.id.filterSettings);
         filterSearchButton.setTag("filter");
-        filterSearchEditor.setOnClickListener(view -> openKeyboard());
+        filterSearchEditor.setOnClickListener(view -> toggleKeyboard(true));
+        filterSearchEditor.setOnFocusChangeListener((view, b) -> toggleKeyboard(b));
         filterSearchEditor.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence cs, int i, int i1, int i2) {}
             @Override public void onTextChanged(CharSequence cs, int i, int i1, int i2) {
@@ -142,9 +126,9 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         filterSearchButton.setOnClickListener(view -> {
             if (filterSearchButton.getTag() != null && !TextUtils.isEmpty((CharSequence) filterSearchButton.getTag())
                     && filterSearchButton.getTag().equals("filter")) {
-                filterCheck[0] = Main.sharedPreferences.getBoolean("filterWord", false);
+                filterCheck[0] = Main.sharedPreferences.getBoolean("filterWord", true);
                 filterCheck[1] = Main.sharedPreferences.getBoolean("filterDefinition", false);
-                filterCheck[2] = Main.sharedPreferences.getBoolean("filterContain", true);
+                filterCheck[2] = Main.sharedPreferences.getBoolean("filterContain", false);
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                 builder.setTitle("Select The Difficulty Level");
@@ -174,45 +158,56 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         return magicRootView;
     }
 
-    private void openKeyboard() {
-        try {
-            InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (inputMethodManager != null)
-                inputMethodManager.showSoftInput(filterSearchEditor, 1);
-        } catch (Exception e) { Log.e("AWAISKING_APP", "", e); }
+    private void toggleKeyboard(boolean show) {
+        if (imm != null) {
+            if (show) imm.showSoftInput(filterSearchEditor, 1);
+            else imm.hideSoftInputFromWindow(filterSearchEditor.getWindowToken(), 1);
+        }
     }
 
     public void startWords(CharSequence method, String word) {
         if (filterView != null && filterSearchEditor != null) filterSearchEditor.setText("");
         if (word == null || word.isEmpty() || TextUtils.isEmpty(word)) return;
-        new WordsAsync(activity,this, word, String.valueOf(method),
-                refreshLayout.get(), recyclerView).execute();
+        new WordsAsync(this, word, String.valueOf(method)).execute();
     }
 
-    @Override @AddTrace(name = "onAttachTrace")
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (getActivity() != null) activity = getActivity();
         else activity = (Activity) context;
     }
 
-    @Override @AddTrace(name = "onActivityCreatedTrace")
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         activity = getActivity();
     }
 
-    @Override @AddTrace(name = "doneFragmentTrace")
+    @Override
     public void done(ArrayList<WordItem> items, final String word) {
-        wordList = items;
-        adapter = new DictionaryAdapter(activity, wordList, tts);
+        wordList = items != null ? items : new ArrayList<>();
+        adapter = new DictionaryAdapter(activity, wordList);
         adapter.notifyDataSetChanged();
         recyclerView.setAdapter(adapter);
 
         title = word;
         activity.setTitle(title);
 
-        if (mainCallback != null) mainCallback.done(items, word);
+        recyclerView.setClickable(true);
+        recyclerView.setEnabled(true);
+        recyclerView.setFocusable(true);
+        recyclerView.setLayoutFrozen(false);
+        swipeRefreshLayout.post(() -> swipeRefreshLayout.setRefreshing(false));
+    }
+
+    @Override
+    public void wordStarted() {
+        swipeRefreshLayout.post(() -> swipeRefreshLayout.setRefreshing(true));
+        recyclerView.setClickable(false);
+        recyclerView.setEnabled(false);
+        recyclerView.setFocusable(false);
+        recyclerView.setLayoutFrozen(true);
     }
 
     public boolean isFilterOpen() {
@@ -223,44 +218,61 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         if (fab != null) isOpen(false, fab, 0);
     }
 
-    @Override @AddTrace(name = "isOpenTrace")
+    @Override
     public void isOpen(boolean opened, FloatingActionButton fab, int method) {
         this.fab = fab;
 
         TabLayout tabLayout = ((View)fab.getParent().getParent()).findViewById(R.id.tabs);
         if (tabParams == null && tabLayout != null) {
             tabParams = (ViewGroup.MarginLayoutParams) tabLayout.getLayoutParams();
-            if (initialMargin == -1) initialMargin = tabParams.rightMargin;
-            if (Build.VERSION.SDK_INT >= 17)
-                initialMargin = initialMargin < 0 ? tabParams.getMarginEnd() : initialMargin;
+            if (initialMargin == -1) {
+                initialMargin = tabParams.rightMargin;
+                if (Build.VERSION.SDK_INT >= 17)
+                    initialMargin = initialMargin < 0 ? tabParams.getMarginEnd() : initialMargin;
+            }
         }
 
         if (opened) {
             if (method == 0 && filterView != null) {
                 filterView.setVisibility(View.VISIBLE);
-                ((View)fab.getParent()).setVisibility(View.GONE);
-            }
-            if (method == 30 && filterView != null) {
+                if (filterSearchEditor != null) filterSearchEditor.requestFocus();
+//                ((View)fab.getParent()).setVisibility(View.GONE);
+            } else if (method == 30 && filterView != null) {
                 filterView.setVisibility(View.GONE);
-                ((View)fab.getParent()).setVisibility(View.VISIBLE);
+//                ((View)fab.getParent()).setVisibility(View.VISIBLE);
+//            } else if (method == 1) {
+//                ((View)fab.getParent()).setVisibility(View.GONE);
             }
             if (tabParams != null) {
                 tabParams.setMargins(0, 0, 0, 0);
                 if (Build.VERSION.SDK_INT >= 17) tabParams.setMarginEnd(0);
             }
+            if (recyclerView != null) {
+                if (method == 0)
+                    recyclerView.setPadding(0, initialMargin, 0, recyclerView.getPaddingBottom());
+                if (recyclerView.getLayoutManager() != null &&
+                        ((LinearLayoutManager)recyclerView.getLayoutManager()).findFirstVisibleItemPosition() <= 5)
+                    recyclerView.smoothScrollToPosition(0);
+                swipeRefreshLayout.setProgressViewOffset(false, startOffset, endOffset);
+            }
             hideFAB();
         } else {
             if (method == 0 && filterView != null) {
                 filterView.setVisibility(View.GONE);
-                ((View)fab.getParent()).setVisibility(View.VISIBLE);
-            }
-            if (method == 30 && filterView != null) {
+//                ((View)fab.getParent()).setVisibility(View.VISIBLE);
+            } else if (method == 30 && filterView != null) {
                 filterView.setVisibility(View.VISIBLE);
-                ((View)fab.getParent()).setVisibility(View.GONE);
+//                ((View)fab.getParent()).setVisibility(View.GONE);
+//            } else if (method == 1) {
+//                ((View)fab.getParent()).setVisibility(View.VISIBLE);
             }
             if (tabParams != null) {
                 tabParams.setMargins(0, 0, initialMargin, 0);
                 if (Build.VERSION.SDK_INT >= 17) tabParams.setMarginEnd(initialMargin);
+            }
+            if (recyclerView != null) {
+                recyclerView.setPadding(0, topPadding, 0, recyclerView.getPaddingBottom());
+                swipeRefreshLayout.setProgressViewOffset(false, startOffset, (int) (endOffset-(endOffset*0.7)));
             }
             showFAB();
         }
@@ -275,6 +287,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                 .setListener(new Animator.AnimatorListener() {
                     @Override public void onAnimationEnd(Animator animation) {
                         fab.hide();
+                        ((View)fab.getParent()).setVisibility(View.GONE);
                     }
                     @Override public void onAnimationStart(Animator animation) {}
                     @Override public void onAnimationCancel(Animator animation) {}
@@ -290,10 +303,19 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                 .setListener(new Animator.AnimatorListener() {
                     @Override public void onAnimationEnd(Animator animation) {
                         fab.show();
+                        ((View)fab.getParent()).setVisibility(View.VISIBLE);
                     }
                     @Override public void onAnimationStart(Animator animation) {}
                     @Override public void onAnimationCancel(Animator animation) {}
                     @Override public void onAnimationRepeat(Animator animation) {}
                 });
+    }
+
+    private float getEndOffset() {
+        TypedValue tv = new TypedValue();
+        if (getActivity() != null &&
+                getActivity().getTheme().resolveAttribute(R.attr.actionBarSize, tv, true))
+            return TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+        return swipeRefreshLayout != null ? swipeRefreshLayout.getProgressViewEndOffset() : 250.0f;
     }
 }

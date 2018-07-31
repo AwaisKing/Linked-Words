@@ -8,34 +8,32 @@
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay" android:stateListAnimator="@null">
         <android.support.v7.widget.Toolbar android:layout_width="match_parent"
-            android:layout_height="@dimen/toolbarSize"
-            app:layout_scrollFlags="scroll|enterAlways|snap"  android:id="@+id/toolbar"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            android:layout_height="@dimen/toolbarSize" app:layout_scrollFlags="scroll|enterAlways"
+            app:popupTheme="@style/AppTheme.PopupOverlay" android:id="@+id/toolbar" />
         <RelativeLayout android:layout_width="match_parent" android:layout_height="@dimen/toolbarSize"
-            app:layout_collapseMode="pin" android:layout_gravity="bottom">
+            app:layout_collapseMode="pin" android:layout_gravity="bottom"
+            android:clipChildren="false">
             <android.support.design.widget.TabLayout android:id="@+id/tabs" android:layout_marginEnd="@dimen/toolbarSize"
                 android:layout_width="match_parent" android:layout_height="@dimen/toolbarSize"
                 android:layout_gravity="bottom" app:tabMode="scrollable" app:tabIndicatorHeight="4dp"
                 app:tabIndicatorColor="@color/cards_and_dialogs_color" app:tabGravity="center"
-                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:popupTheme="@style/AppTheme.PopupOverlay" android:clipChildren="false"
                 android:layout_marginRight="@dimen/toolbarSize" />
             <RelativeLayout android:layout_width="@dimen/toolbarSize" android:layout_height="match_parent"
-                android:layout_alignParentRight="true" android:layout_alignParentEnd="true">
+                android:layout_alignParentRight="true" android:layout_alignParentEnd="true"
+                android:clipChildren="false">
                 <android.support.design.widget.FloatingActionButton android:tooltipText="Filter"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:id="@+id/filterButton" app:fabSize="mini" app:useCompatPadding="true"
+                    android:id="@+id/filterButton" app:fabSize="mini"
                     app:srcCompat="@drawable/ic_filter" android:layout_centerInParent="true"
-                    android:scaleType="centerInside" android:layout_margin="@dimen/fabPadding" />
+                    android:scaleType="centerInside" />
             </RelativeLayout>
         </RelativeLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.SwipeRefreshLayout android:id="@+id/swipe_container"
+    <android.support.v4.view.ViewPager android:id="@+id/viewpager"
         android:layout_width="match_parent" android:layout_height="match_parent"
-        app:layout_behavior="@string/scroll_behavior">
-        <android.support.v4.view.ViewPager android:id="@+id/viewpager"
-            android:layout_width="match_parent" android:layout_height="match_parent" />
-    </android.support.v4.widget.SwipeRefreshLayout>
+        app:layout_behavior="@string/scroll_behavior"/>
 
     <View android:layout_width="match_parent" android:layout_height="4dp"
         android:focusableInTouchMode="false" android:clickable="false" android:id="@+id/shadow"
@@ -49,8 +47,8 @@
     </com.lapism.searchview.SearchView>
 
     <ImageView android:id="@+id/noInternet" android:layout_width="match_parent"
-        app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"
         android:layout_height="match_parent" tools:srcCompat="@drawable/no_internet"
         android:src="@drawable/no_internet" android:contentDescription="@null"
-        android:padding="@dimen/toolbarSize" android:visibility="gone" android:layout_margin="15sp"/>
+        android:padding="@dimen/toolbarSize" android:visibility="gone" android:layout_margin="20dp"
+        app:layout_behavior="@string/scroll_behavior" />
 </android.support.design.widget.CoordinatorLayout>
