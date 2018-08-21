@@ -398,6 +398,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             searchAdapter.setHasStableIds(true);
             searchAdapter.addOnItemClickListener((view, position) -> {
                 if (searchAdapter.getSuggestionsList() != null
+                        && searchAdapter.getSuggestionsList().size() > 0
                         && searchAdapter.getSuggestionsList().get(position) != null)
                 onSearch(String.valueOf(searchAdapter.getSuggestionsList().get(position).get_text()));
             });
