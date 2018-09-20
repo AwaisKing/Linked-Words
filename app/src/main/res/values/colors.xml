@@ -1,16 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--<color name="colorPrimary">#359DC7</color>-->
-    <!--<color name="colorPrimaryDark">#2E8DB2</color>-->
-    <!--<color name="colorAccent">#53C1D8</color>-->
-    <color name="colorPrimary">#9b6df7</color>
-    <color name="colorPrimaryDark">#8b62de</color>
-    <color name="colorAccent">#ad88f7</color>
+    <color name="colorPrimary">#007EE5</color>
+    <color name="colorPrimaryDark">#0072CF</color>
+    <color name="colorAccent">#2196F3</color>
 
-    <!--<color name="noInternet">#A85C2A</color>-->
-    <!--<color name="noInternetBar">#9C5629</color>-->
-    <!--<color name="noInternetStatusBar">#814721</color>-->
-    <!--<color name="noInternetAccent">#C46C34</color>-->
     <color name="noInternet">#D54235</color>
     <color name="noInternetBar">#D54235</color>
     <color name="noInternetStatusBar">#BF3727</color>
@@ -22,5 +15,5 @@
     <color name="progress1">@color/colorAccent</color>
     <color name="progress2">@color/colorPrimary</color>
     <color name="progress3">@color/colorPrimaryDark</color>
-    <color name="progress4">#7C4DFF</color>
+    <color name="progress4">#1E70EB</color>
 </resources>

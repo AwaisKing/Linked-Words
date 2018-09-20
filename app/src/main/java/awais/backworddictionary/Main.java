@@ -28,11 +28,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 import com.keiferstone.nonet.ConnectionStatus;
 import com.keiferstone.nonet.NoNet;
 import com.lapism.searchview.SearchAdapter;
+import com.lapism.searchview.SearchHistoryTable;
 import com.lapism.searchview.SearchItem;
 import com.lapism.searchview.SearchView;
 
@@ -56,6 +59,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     public DictionariesAdapter adapter;
     public SearchView mSearchView;
     private SearchAdapter searchAdapter;
+    private SearchHistoryTable mHistoryDatabase;
     private FloatingActionButton fabFilter;
     private MenuCaller menuCaller;
     private ImageView noInternet;
@@ -394,13 +398,25 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             mSearchView.setTheme(SearchView.THEME_LIGHT);
             mSearchView.setShadowColor(ContextCompat.getColor(this, R.color.search_shadow_layout));
 
+            mHistoryDatabase = new SearchHistoryTable(this);
+            mHistoryDatabase.setHistorySize(8);
+
             searchAdapter = new SearchAdapter(this);
             searchAdapter.setHasStableIds(true);
-            searchAdapter.addOnItemClickListener((view, position) -> {
-                if (searchAdapter.getSuggestionsList() != null
-                        && searchAdapter.getSuggestionsList().size() > 0
-                        && searchAdapter.getSuggestionsList().get(position) != null)
-                onSearch(String.valueOf(searchAdapter.getSuggestionsList().get(position).get_text()));
+            searchAdapter.addOnItemClickListener((View view, int position) -> {
+                TextView tvItem = view.findViewById(R.id.textView_item_text);
+
+//                if (searchAdapter.getSuggestionsList() != null
+//                        && searchAdapter.getSuggestionsList().size() > 0
+//                        && searchAdapter.getSuggestionsList().get(position) != null) {
+//                    SearchItem item = searchAdapter.getSuggestionsList().get(position);
+//                    onSearch(String.valueOf(item.get_text()));
+//                    mHistoryDatabase.addItem(item);
+//                }
+
+                SearchItem item = new SearchItem(tvItem.getText());
+                onSearch(String.valueOf(tvItem.getText()));
+                mHistoryDatabase.addItem(item);
             });
             mSearchView.setAdapter(searchAdapter);
 
@@ -419,6 +435,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 public boolean onQueryTextSubmit(String query) {
                     try { handler.removeCallbacks(textWatch); } catch (Exception ignored) {}
                     onSearch(query);
+                    mHistoryDatabase.addItem(new SearchItem(query));
                     return true;
                 }
 
