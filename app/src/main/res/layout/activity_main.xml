@@ -51,4 +51,16 @@
         android:src="@drawable/no_internet" android:contentDescription="@null"
         android:padding="@dimen/toolbarSize" android:visibility="gone" android:layout_margin="20dp"
         app:layout_behavior="@string/scroll_behavior" />
+
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="ca-app-pub-6411761147229517/1609681212"
+
+        app:layout_behavior="@string/bottom_behavior">
+    </com.google.android.gms.ads.AdView>
 </android.support.design.widget.CoordinatorLayout>

@@ -1,6 +1,16 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="NoTitleAppTheme" parent="Base.Theme.AppCompat.Light">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="coordinatorLayoutStyle">@style/Widget.Support.CoordinatorLayout</item>
+        <item name="tabStyle">@style/Widget.Design.TabLayout</item>
+        <item name="floatingActionButtonStyle">@style/Widget.Design.FloatingActionButton</item>
+        <item name="cardViewStyle">@style/CardViewStyle</item>
+
+    </style>
+
+    <style name="AppTheme" parent="NoTitleAppTheme">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -20,4 +30,6 @@
         <item name="android:windowBackground">@drawable/dialog_back</item>
         <item name="android:windowIsFloating">true</item>
     </style>
+
+    <style name="CardViewStyle" parent="Base.CardView" />
 </resources>

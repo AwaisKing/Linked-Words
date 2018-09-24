@@ -35,4 +35,5 @@
     <string name="rhymes">Rhymes</string>
 
     <string name="scroll_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
+    <string name="bottom_behavior" translatable="false">awais.backworddictionary.custom.BottomNavigationBehavior</string>
 </resources>
