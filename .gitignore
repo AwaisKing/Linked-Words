@@ -48,3 +48,4 @@ captures/
 .idea/dictionaries/AWAiS.xml
 .idea/inspectionProfiles/Project_Default.xml
 app/google-services.json
+app/src/main/res/values/ads.xml

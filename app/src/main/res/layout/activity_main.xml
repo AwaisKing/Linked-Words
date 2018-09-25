@@ -39,7 +39,7 @@
         android:focusableInTouchMode="false" android:clickable="false" android:id="@+id/shadow"
         android:focusable="false" android:focusedByDefault="false" android:longClickable="false"
         android:contextClickable="false" android:soundEffectsEnabled="false"
-        android:background="@drawable/elevation_api" app:layout_anchor="@id/appbarLayout"
+        android:background="@drawable/elevation_top" app:layout_anchor="@id/appbarLayout"
         app:layout_behavior="@string/scroll_behavior" app:layout_anchorGravity="bottom"/>
 
     <com.lapism.searchview.SearchView android:id="@+id/searchView" android:layout_width="match_parent"
@@ -52,15 +52,20 @@
         android:padding="@dimen/toolbarSize" android:visibility="gone" android:layout_margin="20dp"
         app:layout_behavior="@string/scroll_behavior" />
 
-    <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/adView"
+    <LinearLayout android:id="@+id/adLayout"
+        android:layout_gravity="bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
-        ads:adSize="SMART_BANNER"
-        ads:adUnitId="ca-app-pub-6411761147229517/1609681212"
-
-        app:layout_behavior="@string/bottom_behavior">
-    </com.google.android.gms.ads.AdView>
+        android:orientation="vertical"
+        app:layout_behavior="@string/bottom_behavior" >
+        <View android:layout_width="match_parent" android:layout_height="4dp"
+            android:focusableInTouchMode="false" android:clickable="false"
+            android:focusable="false" android:focusedByDefault="false" android:longClickable="false"
+            android:contextClickable="false" android:soundEffectsEnabled="false"
+            android:background="@drawable/elevation_bottom" />
+        <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@color/colorPrimary">
+            <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto" android:id="@+id/adView" android:layout_width="match_parent" android:layout_height="wrap_content" ads:adSize="SMART_BANNER" ads:adUnitId="@string/adviewid" />
+        </RelativeLayout>
+    </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

@@ -7,7 +7,6 @@
         <item name="tabStyle">@style/Widget.Design.TabLayout</item>
         <item name="floatingActionButtonStyle">@style/Widget.Design.FloatingActionButton</item>
         <item name="cardViewStyle">@style/CardViewStyle</item>
-
     </style>
 
     <style name="AppTheme" parent="NoTitleAppTheme">

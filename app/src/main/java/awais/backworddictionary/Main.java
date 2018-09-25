@@ -1,5 +1,6 @@
 package awais.backworddictionary;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
@@ -10,6 +11,7 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.SnackbarContentLayout;
@@ -32,6 +34,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.ads.mediation.NetworkExtras;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -48,6 +52,7 @@ import java.util.Locale;
 
 import awais.backworddictionary.asyncs.SearchAsync;
 import awais.backworddictionary.custom.AdvancedDialog;
+import awais.backworddictionary.custom.Listener;
 import awais.backworddictionary.custom.MenuCaller;
 import awais.backworddictionary.custom.SettingsDialog;
 import awais.backworddictionary.custom.WordItem;
@@ -78,11 +83,11 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
-        MobileAds.initialize(this, "ca-app-pub-6411761147229517~1317441366");
+        MobileAds.initialize(this, getResources().getString(R.string.appid));
 
-        AdView mAdView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+        AdView adView = findViewById(R.id.adView);
+        adView.setAdListener(new Listener(findViewById(R.id.adLayout)));
+        adView.loadAd(new AdRequest.Builder().setIsDesignedForFamilies(true).build());
 
         tabLayout = findViewById(R.id.tabs);
         viewPager = findViewById(R.id.viewpager);
@@ -469,6 +474,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
                 @Override public boolean onOpen() {
                     adapter.getItem(viewPager.getCurrentItem()).isOpen(true, fabFilter, 1);
+                    ((AppBarLayout) findViewById(R.id.appbarLayout)).setExpanded(true, true);
                     return false;
                 }
             });
