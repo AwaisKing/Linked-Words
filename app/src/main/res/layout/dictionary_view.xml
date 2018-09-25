@@ -39,7 +39,8 @@
                     android:imeOptions="actionSearch" android:inputType="text" android:focusable="true"
                     android:focusableInTouchMode="true" android:textIsSelectable="true"
                     android:singleLine="true" android:paddingLeft="12dp" android:paddingRight="8dp"
-                    android:paddingStart="12dp" android:paddingEnd="8dp" />
+                    android:paddingStart="12dp" android:paddingEnd="8dp"
+                    android:importantForAutofill="no" card_view:ignore="UnusedAttribute" />
 
                 <ImageView android:id="@+id/filterSettings" android:layout_height="match_parent"
                     android:layout_width="48dp" style="?attr/selectableItemBackgroundBorderless"

@@ -48,7 +48,7 @@
 
     <ImageView android:id="@+id/noInternet" android:layout_width="match_parent"
         android:layout_height="match_parent" tools:srcCompat="@drawable/no_internet"
-        android:src="@drawable/no_internet" android:contentDescription="@null"
+        app:srcCompat="@drawable/no_internet" android:contentDescription="@null"
         android:padding="@dimen/toolbarSize" android:visibility="gone" android:layout_margin="20dp"
         app:layout_behavior="@string/scroll_behavior" />
 

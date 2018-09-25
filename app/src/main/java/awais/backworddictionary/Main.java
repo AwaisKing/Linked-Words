@@ -1,6 +1,5 @@
 package awais.backworddictionary;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
@@ -30,12 +29,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.ads.mediation.NetworkExtras;
-import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -153,7 +149,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     private void setupNoNet() {
         NoNet.monitor(this).configure(NoNet.configure().endpoint("http://api.datamuse.com/words")
                 .connectedPollFrequency(1).disconnectedPollFrequency(1).build()).callback(connectionStatus -> {
-            Log.d("AWAISKING_APP", "--> " + adapter.getItem(viewPager.getCurrentItem()));
+//            Log.d("AWAISKING_APP", "--> " + adapter.getItem(viewPager.getCurrentItem()));
             if (connectionStatus != ConnectionStatus.CONNECTED) {
                 if (adapter != null && adapter.getCount() > 0 && (
                         adapter.getItem(viewPager.getCurrentItem()).adapter != null
@@ -264,8 +260,8 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     }
 
     private void handleData() {
-        if (getIntent() == null && (getIntent().getExtras() == null || getIntent().getAction() == null))
-            return;
+        if (getIntent() == null || (getIntent() != null && getIntent().getExtras() == null ||
+                getIntent().getAction() == null)) return;
 
         Handler handler;
         if (getMainLooper() != null) handler = new Handler(getMainLooper());

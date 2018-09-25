@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Spannable;
@@ -85,7 +86,7 @@ public class MenuCaller {
             helpBuilder.append("find words which are spelled like defined word with wildcards\n", new BulletSpan(26, 0xFF212121));
             helpBuilder.append("[Wildcard Help]\n\n", new BulletSpan(26, 0xFF212121), new ClickableSpan() {
                 @Override
-                public void onClick(View view) {
+                public void onClick(@NonNull View view) {
                     customTabsIntent.setToolbarColor(Color.parseColor("#FFC400"));
                     CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(),
                             Uri.parse("https://www.onelook.com/?c=faq#patterns"));
@@ -110,7 +111,7 @@ public class MenuCaller {
             licensesBuilder.append("App Icon:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121));
             licensesBuilder.append("Android Asset Studio - Launcher icon generator\n\n", new BulletSpan(26, 0xFF212121), new ClickableSpan() {
                 @Override
-                public void onClick(View view) {
+                public void onClick(@NonNull View view) {
                     customTabsIntent.setToolbarColor(Color.parseColor("#607d8b"));
                     CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(),
                             Uri.parse("https://romannurik.github.io/AndroidAssetStudio/"));
@@ -118,7 +119,7 @@ public class MenuCaller {
             licensesBuilder.append("Dictionary API:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121));
             licensesBuilder.append("Datamuse API\n\n", new BulletSpan(26, 0xFF212121), new ClickableSpan() {
                 @Override
-                public void onClick(View view) {
+                public void onClick(@NonNull View view) {
                     customTabsIntent.setToolbarColor(Color.parseColor("#006fcc"));
                     CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(),
                             Uri.parse("https://www.datamuse.com/api/"));
@@ -132,7 +133,7 @@ public class MenuCaller {
             licensesBuilder.append("License:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121));
             licensesBuilder.append("Apache License 2.0", new BulletSpan(26, 0xFF212121), new ClickableSpan() {
                 @Override
-                public void onClick(View view) {
+                public void onClick(@NonNull View view) {
                     customTabsIntent.setToolbarColor(Color.parseColor("#cb2533"));
                     CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(),
                             Uri.parse("https://www.apache.org/licenses/LICENSE-2.0"));

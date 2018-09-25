@@ -4,7 +4,7 @@ import android.view.View;
 import com.google.android.gms.ads.AdListener;
 
 public class Listener extends AdListener {
-    private View v;
+    private final View v;
     public Listener(View v) { this.v = v; }
     @Override public void onAdLoaded() { v.setVisibility(View.VISIBLE); }
     @Override public void onAdFailedToLoad(int errorCode) { v.setVisibility(View.GONE); }
