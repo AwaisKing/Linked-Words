@@ -1,71 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android" tools:context=".Main"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent"
-    android:layout_height="match_parent" tools:ignore="UnusedAttribute">
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Main"
+    tools:ignore="UnusedAttribute">
 
-    <android.support.design.widget.AppBarLayout android:id="@+id/appbarLayout"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay" android:stateListAnimator="@null">
-        <android.support.v7.widget.Toolbar android:layout_width="match_parent"
-            android:layout_height="@dimen/toolbarSize" app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/AppTheme.PopupOverlay" android:id="@+id/toolbar" />
-        <RelativeLayout android:layout_width="match_parent" android:layout_height="@dimen/toolbarSize"
-            app:layout_collapseMode="pin" android:layout_gravity="bottom"
-            android:clipChildren="false">
-            <android.support.design.widget.TabLayout android:id="@+id/tabs" android:layout_marginEnd="@dimen/toolbarSize"
-                android:layout_width="match_parent" android:layout_height="@dimen/toolbarSize"
-                android:layout_gravity="bottom" app:tabMode="scrollable" app:tabIndicatorHeight="4dp"
-                app:tabIndicatorColor="@color/cards_and_dialogs_color" app:tabGravity="center"
-                app:popupTheme="@style/AppTheme.PopupOverlay" android:clipChildren="false"
-                android:layout_marginRight="@dimen/toolbarSize" />
-            <RelativeLayout android:layout_width="@dimen/toolbarSize" android:layout_height="match_parent"
-                android:layout_alignParentRight="true" android:layout_alignParentEnd="true"
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stateListAnimator="@null"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/toolbarSize"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/toolbarSize"
+            android:layout_gravity="bottom"
+            android:clipChildren="false"
+            app:layout_collapseMode="pin">
+
+            <android.support.design.widget.TabLayout
+                android:id="@+id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/toolbarSize"
+                android:layout_gravity="bottom"
+                android:layout_marginEnd="@dimen/toolbarSize"
+                android:layout_marginRight="@dimen/toolbarSize"
+                android:clipChildren="false"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:tabGravity="center"
+                app:tabIndicatorColor="@color/cards_and_dialogs_color"
+                app:tabIndicatorHeight="4dp"
+                app:tabMode="scrollable" />
+
+            <RelativeLayout
+                android:layout_width="@dimen/toolbarSize"
+                android:layout_height="match_parent"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
                 android:clipChildren="false">
-                <android.support.design.widget.FloatingActionButton android:tooltipText="Filter"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:id="@+id/filterButton" app:fabSize="mini"
-                    app:srcCompat="@drawable/ic_filter" android:layout_centerInParent="true"
-                    android:scaleType="centerInside" />
+
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/filterButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:elevation="2dp"
+                    android:scaleType="centerInside"
+                    android:tooltipText="Filter"
+                    app:elevation="2dp"
+                    app:fabSize="mini"
+                    app:srcCompat="@drawable/ic_filter" />
             </RelativeLayout>
         </RelativeLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.view.ViewPager android:id="@+id/viewpager"
-        android:layout_width="match_parent" android:layout_height="match_parent"
-        app:layout_behavior="@string/scroll_behavior"/>
-
-    <View android:layout_width="match_parent" android:layout_height="4dp"
-        android:focusableInTouchMode="false" android:clickable="false" android:id="@+id/shadow"
-        android:focusable="false" android:focusedByDefault="false" android:longClickable="false"
-        android:contextClickable="false" android:soundEffectsEnabled="false"
-        android:background="@drawable/elevation_top" app:layout_anchor="@id/appbarLayout"
-        app:layout_behavior="@string/scroll_behavior" app:layout_anchorGravity="bottom"/>
-
-    <com.lapism.searchview.SearchView android:id="@+id/searchView" android:layout_width="match_parent"
-        android:layout_height="match_parent" app:layout_behavior="@string/search_behavior2">
-    </com.lapism.searchview.SearchView>
-
-    <ImageView android:id="@+id/noInternet" android:layout_width="match_parent"
-        android:layout_height="match_parent" tools:srcCompat="@drawable/no_internet"
-        app:srcCompat="@drawable/no_internet" android:contentDescription="@null"
-        android:padding="@dimen/toolbarSize" android:visibility="gone" android:layout_margin="20dp"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_behavior="@string/scroll_behavior" />
 
-    <LinearLayout android:id="@+id/adLayout"
-        android:layout_gravity="bottom"
+    <View
+        android:id="@+id/shadow"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="@drawable/elevation_top"
+        android:clickable="false"
+        android:contextClickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:focusedByDefault="false"
+        android:longClickable="false"
+        android:soundEffectsEnabled="false"
+        app:layout_anchor="@id/appbarLayout"
+        app:layout_anchorGravity="bottom"
+        app:layout_behavior="@string/scroll_behavior" />
+
+    <com.lapism.searchview.SearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/search_behavior3" />
+
+    <ImageView
+        android:id="@+id/noInternet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        android:contentDescription="@null"
+        android:padding="@dimen/toolbarSize"
+        android:src="@drawable/no_internet"
+        android:visibility="gone"
+        app:layout_behavior="@string/scroll_behavior"
+        app:srcCompat="@drawable/no_internet"
+        tools:srcCompat="@drawable/no_internet" />
+
+    <include
+        layout="@layout/bottom_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_behavior="@string/bottom_behavior" >
-        <View android:layout_width="match_parent" android:layout_height="4dp"
-            android:focusableInTouchMode="false" android:clickable="false"
-            android:focusable="false" android:focusedByDefault="false" android:longClickable="false"
-            android:contextClickable="false" android:soundEffectsEnabled="false"
-            android:background="@drawable/elevation_bottom" />
-        <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:background="@color/colorPrimary">
-            <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto" android:id="@+id/adView" android:layout_width="match_parent" android:layout_height="wrap_content" ads:adSize="SMART_BANNER" ads:adUnitId="@string/adviewid" />
-        </RelativeLayout>
-    </LinearLayout>
+        android:layout_gravity="bottom" />
 </android.support.design.widget.CoordinatorLayout>

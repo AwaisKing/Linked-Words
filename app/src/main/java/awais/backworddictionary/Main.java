@@ -20,6 +20,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.TooltipCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -461,16 +462,23 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             });
 
             mSearchView.setOnOpenCloseListener(new SearchView.OnOpenCloseListener() {
+                private final Toolbar mToolbar = findViewById(R.id.toolbar);
+                private final AppBarLayout.LayoutParams p = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+
                 @Override public boolean onClose() {
                     if (adapter != null && adapter.getItem(viewPager.getCurrentItem()) != null &&
                             !adapter.getItem(viewPager.getCurrentItem()).isFilterOpen())
                         adapter.getItem(viewPager.getCurrentItem()).isOpen(false, fabFilter, 1);
+                    p.setScrollFlags(5);
+                    mToolbar.setLayoutParams(p);
                     return false;
                 }
 
                 @Override public boolean onOpen() {
                     adapter.getItem(viewPager.getCurrentItem()).isOpen(true, fabFilter, 1);
                     ((AppBarLayout) findViewById(R.id.appbarLayout)).setExpanded(true, true);
+                    p.setScrollFlags(0);
+                    mToolbar.setLayoutParams(p);
                     return false;
                 }
             });

@@ -33,8 +33,7 @@ import awais.backworddictionary.customweb.CustomTabActivityHelper;
 
 import static awais.backworddictionary.Main.tts;
 
-public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.DictHolder>
-        implements Filterable {
+public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.DictHolder> implements Filterable {
     private final Context mContext;
     private final List<WordItem> wordList;
     private List<?> filterList;
@@ -249,7 +248,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
         return filterList.size();
     }
 
-    public void updateList(List<WordItem> list){
+    void updateList(List<WordItem> list){
         filterList = list;
         notifyDataSetChanged();
     }

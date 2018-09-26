@@ -16,7 +16,7 @@
         <TextView android:layout_width="0dp" android:layout_height="wrap_content"
             android:layout_weight="0.85" android:text="@string/max_words" />
 
-        <NumberPicker android:id="@+id/numberPicker"
+        <awais.backworddictionary.custom.NumberPicker android:id="@+id/numberPicker"
             android:layout_width="0dp"
             android:layout_height="wrap_content" android:layout_weight="1" />
     </LinearLayout>

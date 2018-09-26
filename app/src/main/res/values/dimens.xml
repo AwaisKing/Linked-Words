@@ -4,5 +4,5 @@
 
     <dimen name="fabPadding">5dp</dimen>
 
-    <dimen name="design_fab_size_mini" tools:override="true">48dp</dimen>
+    <dimen name="design_fab_size_mini" tools:override="true">45dp</dimen>
 </resources>
