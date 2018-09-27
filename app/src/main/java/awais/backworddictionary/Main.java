@@ -11,6 +11,7 @@ import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.SnackbarContentLayout;
@@ -24,6 +25,7 @@ import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.TooltipCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -97,6 +99,13 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         actionButton.setVisibility(View.VISIBLE);
         actionButton.setText(R.string.settings);
         actionButton.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS)));
+        try {
+            View snack = (View) contentLayout.getParent();
+            CoordinatorLayout.LayoutParams snackParams = (CoordinatorLayout.LayoutParams) snack.getLayoutParams();
+            snackParams.width = CoordinatorLayout.LayoutParams.MATCH_PARENT;
+            snackParams.gravity = Gravity.FILL_HORIZONTAL | Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
+            snack.setLayoutParams(snackParams);
+        } catch (Exception ignored) {}
 
         menuCaller = new MenuCaller(this);
         sharedPreferences = getSharedPreferences("settings", MODE_PRIVATE);
