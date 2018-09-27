@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="appid">YOUR_ADMOB_APP_ID</string>
+    <string name="adviewid">YOUR_ADMOB_BANNER_ID</string>
+</resources>
