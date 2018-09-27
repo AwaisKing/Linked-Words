@@ -415,18 +415,8 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             searchAdapter.setHasStableIds(true);
             searchAdapter.addOnItemClickListener((View view, int position) -> {
                 TextView tvItem = view.findViewById(R.id.textView_item_text);
-
-//                if (searchAdapter.getSuggestionsList() != null
-//                        && searchAdapter.getSuggestionsList().size() > 0
-//                        && searchAdapter.getSuggestionsList().get(position) != null) {
-//                    SearchItem item = searchAdapter.getSuggestionsList().get(position);
-//                    onSearch(String.valueOf(item.get_text()));
-//                    mHistoryDatabase.addItem(item);
-//                }
-
-                SearchItem item = new SearchItem(tvItem.getText());
                 onSearch(String.valueOf(tvItem.getText()));
-                mHistoryDatabase.addItem(item);
+                mHistoryDatabase.addItem(new SearchItem(tvItem.getText()));
             });
             mSearchView.setAdapter(searchAdapter);
 
@@ -444,8 +434,8 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 @Override
                 public boolean onQueryTextSubmit(String query) {
                     try { handler.removeCallbacks(textWatch); } catch (Exception ignored) {}
-                    onSearch(query);
                     mHistoryDatabase.addItem(new SearchItem(query));
+                    onSearch(query);
                     return true;
                 }
 

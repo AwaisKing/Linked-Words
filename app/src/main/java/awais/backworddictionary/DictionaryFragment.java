@@ -131,7 +131,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                 filterCheck[2] = Main.sharedPreferences.getBoolean("filterContain", false);
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                builder.setTitle("Select The Difficulty Level");
+                builder.setTitle("Select the filters");
                 builder.setMultiChoiceItems(new String[]{"Words", "Definitions", "Contains"}, filterCheck,
                         (dialogInterface, i, b) -> {
                             filterCheck[i] = b;
