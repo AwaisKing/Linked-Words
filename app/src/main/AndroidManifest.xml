@@ -47,5 +47,9 @@
             tools:targetApi="jelly_bean">
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".Main" />
         </activity>
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/appid" />
     </application>
 </manifest>
