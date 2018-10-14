@@ -1,0 +1,3 @@
+<resources>
+    <string name="no_server_connection_message">No connection to server.</string>
+</resources>

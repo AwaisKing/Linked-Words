@@ -131,8 +131,8 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                 filterCheck[2] = Main.sharedPreferences.getBoolean("filterContain", false);
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                builder.setTitle("Select the filters");
-                builder.setMultiChoiceItems(new String[]{"Words", "Definitions", "Contains"}, filterCheck,
+                builder.setTitle(getString(R.string.select_filters));
+                builder.setMultiChoiceItems(new String[]{getString(R.string.words), getString(R.string.defs), getString(R.string.contains)}, filterCheck,
                         (dialogInterface, i, b) -> {
                             filterCheck[i] = b;
                             String item = "";
@@ -143,7 +143,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                             }
                             Main.sharedPreferences.edit().putBoolean(item, b).apply();
                         });
-                builder.setNeutralButton("OK", (dialogInterface, i) -> {
+                builder.setNeutralButton(getString(R.string.ok), (dialogInterface, i) -> {
                     if (wordList.size() > 2)
                         adapter.getFilter().filter(filterSearchEditor.getText());
                     dialogInterface.dismiss();
@@ -168,7 +168,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     public void startWords(CharSequence method, String word) {
         if (filterView != null && filterSearchEditor != null) filterSearchEditor.setText("");
         if (word == null || word.isEmpty() || TextUtils.isEmpty(word)) return;
-        new WordsAsync(this, word, String.valueOf(method)).execute();
+        new WordsAsync(this, word, (String) method, this.activity).execute();
     }
 
     @Override

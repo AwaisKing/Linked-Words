@@ -82,7 +82,7 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
                 stringBuilder.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), 0, item.indexOf("\t")+2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 defsStyled.add(stringBuilder);
             }
-        } else defsStyled.add(SpannableStringBuilder.valueOf("No definition found..."));
+        } else defsStyled.add(SpannableStringBuilder.valueOf(activity.getString(R.string.no_definition_found)));
 
 
         lvDefs.setAdapter(new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1,
@@ -96,15 +96,15 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
                     android.content.ClipboardManager clipboard = (android.content.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
                     if (clipboard != null)
                         clipboard.setPrimaryClip(android.content.ClipData.newPlainText("word", item));
-                    Toast.makeText(activity, "Copied to clipboard.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, R.string.copied_clipboard, Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     try {
                         //noinspection deprecation
                         android.text.ClipboardManager clipboard = (android.text.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
                         if (clipboard != null) clipboard.setText(item);
-                        Toast.makeText(activity, "Copied to clipboard.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, R.string.copied_clipboard, Toast.LENGTH_SHORT).show();
                     } catch (Exception ignored){
-                        Toast.makeText(activity, "Error copying to clipboard!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, R.string.error_copying_clipboard, Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -135,15 +135,15 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
                     android.content.ClipboardManager clipboard = (android.content.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
                     if (clipboard != null)
                         clipboard.setPrimaryClip(android.content.ClipData.newPlainText("word", wordItem.getWord()));
-                    Toast.makeText(activity, "Copied to clipboard.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, R.string.copied_clipboard, Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     try {
                         //noinspection deprecation
                         android.text.ClipboardManager clipboard = (android.text.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
                         if (clipboard != null) clipboard.setText(wordItem.getWord());
-                        Toast.makeText(activity, "Copied to clipboard.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, R.string.copied_clipboard, Toast.LENGTH_SHORT).show();
                     } catch (Exception ignored){
-                        Toast.makeText(activity, "Error copying to clipboard!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, R.string.error_copying_clipboard, Toast.LENGTH_SHORT).show();
                     }
                 }
                 return;
@@ -151,7 +151,7 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
             case R.id.btnSpeak:
                 if (tts != null) tts.speak(wordItem.getWord(), TextToSpeech.QUEUE_FLUSH, null);
                 return;
-                
+
             case R.id.btnGoogle:
                 String wordRawGoogle = wordItem.getWord().replace(" ", "+").replace("\\s", "+");
                 try {
@@ -187,29 +187,6 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
                 CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(),
                         Uri.parse("http://www.urbandictionary.com/define.php?term=".concat(wordItem.getWord())));
                 break;
-
-
-                // TODO FIX
-//            case R.id.btnFirst:
-//                if (activity.getClass() == Main.class) {
-//                    ((Main)activity).adapter.getItem(0).title = wordItem.getWord();
-//                    ((Main)activity).viewPager.setCurrentItem(0, true);
-//                    ((Main)activity).onSearch(wordItem.getWord());
-//                }
-//                break;
-//
-//            case R.id.btnSecond:
-//                if (activity.getClass() == Main.class) {
-//                    try {
-//                        ((Main)activity).adapter.getItem(1).title = wordItem.getWord();
-//                        ((Main)activity).viewPager.setCurrentItem(1, true);
-//                        ((Main)activity).onSearch(wordItem.getWord());
-//                    } catch (Exception e) {
-//                        Log.e("AWAISKING_APP", "", e);
-//                    }
-//                }
-//                break;
-
             case R.id.btnSearch: showPopupMenu(v); return;
             default: break;
         }

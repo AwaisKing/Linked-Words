@@ -72,7 +72,7 @@ public class AdvancedDialog extends Dialog implements CompoundButton.OnCheckedCh
 
         (findViewById(R.id.btnOK)).setOnClickListener(view -> {
             if (getResult() == 0) {
-                Toast.makeText(getContext(), "Select at least 1 option then press OK.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.select_a_option_first, Toast.LENGTH_SHORT).show();
                 return;
             }
             Main.sharedPreferences.edit().putString("tabs", Arrays.toString(enabledChecks)).apply();

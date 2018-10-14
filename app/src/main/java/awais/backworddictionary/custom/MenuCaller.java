@@ -45,7 +45,7 @@ public class MenuCaller {
             case R.id.mExamples: menuDialog.setMessage(examplesBuilder.build()); break;
             case R.id.mHelp: menuDialog.setMessage(helpBuilder.build()); break;
             case R.id.mLicenses: menuDialog.setMessage(licensesBuilder.build());
-                menuDialog.setTitle(item.getTitle() + " & Credits");break;
+                menuDialog.setTitle(activity.getString(R.string._credits));break;
             case R.id.mAbout: menuDialog.setMessage("aboutHere"); break;
         }
         menuDialog.show(activity.getSupportFragmentManager(),
@@ -58,53 +58,53 @@ public class MenuCaller {
             Activity activity = (Activity) params[0];
 
             // XXX EXAMPLES
-            examplesBuilder.append("Finding a word by its definition:\n", new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121), new StyleSpan(Typeface.BOLD));
+            examplesBuilder.append(activity.getString(R.string.finding_help) + ":\n", new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121), new StyleSpan(Typeface.BOLD));
             examplesBuilder.append("person who makes gold\n", new BulletSpan(26, 0xFF212121));
             examplesBuilder.append("one who massages\n", new BulletSpan(26, 0xFF212121));
             examplesBuilder.append("food search\n\n", new BulletSpan(26, 0xFF212121));
-            examplesBuilder.append("Finding related words:\n", new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121), new StyleSpan(Typeface.BOLD));
+            examplesBuilder.append(activity.getString(R.string.related_help) + ":\n", new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121), new StyleSpan(Typeface.BOLD));
             examplesBuilder.append("rainbow colors\n", new BulletSpan(26, 0xFF212121));
             examplesBuilder.append("tropical birds\n", new BulletSpan(26, 0xFF212121));
             examplesBuilder.append("spicy vegetables\n\n", new BulletSpan(26, 0xFF212121));
-            examplesBuilder.append("Finding answers:\n", new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121), new StyleSpan(Typeface.BOLD));
+            examplesBuilder.append(activity.getString(R.string.answers_help) + ":\n", new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121), new StyleSpan(Typeface.BOLD));
             examplesBuilder.append("what's popular city of Pakistan?\n", new BulletSpan(26, 0xFF212121));
             examplesBuilder.append("what's largest continent on earth?\n", new BulletSpan(26, 0xFF212121));
             examplesBuilder.append("who was Galileo?\n\n", new BulletSpan(26, 0xFF212121));
-            examplesBuilder.append("Wildcards [Spelled Like]:\n", new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121), new StyleSpan(Typeface.BOLD));
-            examplesBuilder.append("l?nd\t-- here ? matches any single character.\n", new BulletSpan(26, 0xFF212121));
-            examplesBuilder.append("fr*k\t-- here * matches any number of characters.\n", new BulletSpan(26, 0xFF212121));
-            examplesBuilder.append("ta#t\t-- here # matches any English consonant.\n", new BulletSpan(26, 0xFF212121));
-            examplesBuilder.append("**stone**\t-- find phrases with stone word in it.\n", new BulletSpan(26, 0xFF212121));
+            examplesBuilder.append(activity.getString(R.string.spelled_help) + ":\n", new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121), new StyleSpan(Typeface.BOLD));
+            examplesBuilder.append("l?nd\t-- " + activity.getString(R.string.single_char_help, '?') + '\n', new BulletSpan(26, 0xFF212121));
+            examplesBuilder.append("fr*g\t-- " + activity.getString(R.string.number_char_help, '*') + '\n', new BulletSpan(26, 0xFF212121));
+            examplesBuilder.append("ta#t\t-- " + activity.getString(R.string.consonant_char_help, '#') + '\n', new BulletSpan(26, 0xFF212121));
+            examplesBuilder.append("**stone**\t-- " + activity.getString(R.string.phrase_help) + '\n', new BulletSpan(26, 0xFF212121));
 
             // XXX HELP
             helpBuilder = new SpanBuilder();
-            helpBuilder.append("Reverse:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
-            helpBuilder.append("find related words, phrases, answers by a word or by meaning\n\n", new BulletSpan(26, 0xFF212121));
-            helpBuilder.append("Sounds Like:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
-            helpBuilder.append("find words which sound similar to given word\n\n", new BulletSpan(26, 0xFF212121));
-            helpBuilder.append("Spelled Like:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
-            helpBuilder.append("find words which are spelled like defined word with wildcards\n", new BulletSpan(26, 0xFF212121));
-            helpBuilder.append("[Wildcard Help]\n\n", new BulletSpan(26, 0xFF212121), new ClickableSpan() {
+            helpBuilder.append(activity.getString(R.string.reverse)+ ":\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append(activity.getString(R.string.reverse_help) + "\n\n", new BulletSpan(26, 0xFF212121));
+            helpBuilder.append(activity.getString(R.string.sounds_like) + ":\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append(activity.getString(R.string.sounds_like_help) + "\n\n", new BulletSpan(26, 0xFF212121));
+            helpBuilder.append(activity.getString(R.string.spelled_help) + ":\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append(activity.getString(R.string.wildcards_help) + '\n', new BulletSpan(26, 0xFF212121));
+            helpBuilder.append("[" + activity.getString(R.string.wildcard_link_help) + "]\n\n", new BulletSpan(26, 0xFF212121), new ClickableSpan() {
                 @Override
                 public void onClick(@NonNull View view) {
                     customTabsIntent.setToolbarColor(Color.parseColor("#FFC400"));
                     CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(),
                             Uri.parse("https://www.onelook.com/?c=faq#patterns"));
                 }});
-            helpBuilder.append("Synonyms:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
-            helpBuilder.append("find synonyms of given word (similar to Reverse function, but more category specific)\n\n", new BulletSpan(26, 0xFF212121));
-            helpBuilder.append("Antonyms:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
-            helpBuilder.append("find antonyms of give word\n\n", new BulletSpan(26, 0xFF212121));
-            helpBuilder.append("Triggers:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
-            helpBuilder.append("find words which suit the given word or are associated with the word in paragraph or text\n\n", new BulletSpan(26, 0xFF212121));
-            helpBuilder.append("Is part of:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
-            helpBuilder.append("find words which are part of or are meronyms of given word\n\n", new BulletSpan(26, 0xFF212121));
-            helpBuilder.append("Comprises of:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
-            helpBuilder.append("find words which is/are part(s) or component(s) of given word\n\n", new BulletSpan(26, 0xFF212121));
-            helpBuilder.append("Rhymes:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
-            helpBuilder.append("find words which perfectly rhyme with given word\n\n", new BulletSpan(26, 0xFF212121));
-            helpBuilder.append("Homophones:\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
-            helpBuilder.append("find words which sound exactly alike\n\n", new BulletSpan(26, 0xFF212121));
+            helpBuilder.append(activity.getString(R.string.synonyms) + ":\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append(activity.getString(R.string.synonym_help) + "\n\n", new BulletSpan(26, 0xFF212121));
+            helpBuilder.append(activity.getString(R.string.antonyms) + ":\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append(activity.getString(R.string.antonym_help) + "\n\n", new BulletSpan(26, 0xFF212121));
+            helpBuilder.append(activity.getString(R.string.triggers) + ":\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append(activity.getString(R.string.triggers_help) + "\n\n", new BulletSpan(26, 0xFF212121));
+            helpBuilder.append(activity.getString(R.string.part_of) + ":\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append(activity.getString(R.string.is_part_of_help) + "\n\n", new BulletSpan(26, 0xFF212121));
+            helpBuilder.append(activity.getString(R.string.comprises) + ":\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append(activity.getString(R.string.comprises_of_help) + "\n\n", new BulletSpan(26, 0xFF212121));
+            helpBuilder.append(activity.getString(R.string.rhymes) + ":\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append(activity.getString(R.string.rhymes_help) + "\n\n", new BulletSpan(26, 0xFF212121));
+            helpBuilder.append(activity.getString(R.string.homophones) + ":\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
+            helpBuilder.append(activity.getString(R.string.homophones_help) + "\n\n", new BulletSpan(26, 0xFF212121));
 
             // XXX LICENSES
             licensesBuilder = new SpanBuilder();

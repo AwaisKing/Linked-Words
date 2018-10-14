@@ -1,16 +1,19 @@
 package awais.backworddictionary.asyncs;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 import awais.backworddictionary.Main;
+import awais.backworddictionary.R;
 import awais.backworddictionary.custom.WordItem;
 import awais.backworddictionary.interfaces.FragmentCallback;
 import okhttp3.OkHttpClient;
@@ -27,20 +30,20 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
 
     private final FragmentCallback fragmentCallback;
 
-    public WordsAsync(FragmentCallback fragmentCallback, String word, String method) {
+    public WordsAsync(FragmentCallback fragmentCallback, String word, String method, Context context) {
         this.fragmentCallback = fragmentCallback;
         this.word = word;
-        switch (method) {
-            case "Reverse": this.method = "ml"; break;
-            case "Sounds Like": this.method = "sl"; break;
-            case "Spelled Like": this.method = "sp"; break;
-            case "Synonyms": this.method = "rel_syn"; break;
-            case "Antonyms": this.method = "rel_ant"; break;
-            case "Triggers": this.method = "rel_trg"; break;
-            case "Is Part of": this.method = "rel_par"; break;
-            case "Comprises of": this.method = "rel_com"; break;
-            case "Homophones": this.method = "rel_hom"; break;
-            case "Rhymes": this.method = "rel_rhy"; break;
+        switch (getResId(method, context)) {
+            case R.string.reverse: this.method = "ml"; break;
+            case R.string.sounds_like: this.method = "sl"; break;
+            case R.string.spelled_like: this.method = "sp"; break;
+            case R.string.synonyms: this.method = "rel_syn"; break;
+            case R.string.antonyms: this.method = "rel_ant"; break;
+            case R.string.triggers: this.method = "rel_trg"; break;
+            case R.string.part_of: this.method = "rel_par"; break;
+            case R.string.comprises: this.method = "rel_com"; break;
+            case R.string.homophones: this.method = "rel_hom"; break;
+            case R.string.rhymes: this.method = "rel_rhy"; break;
             default: this.method = "ml";
         }
     }
@@ -61,8 +64,8 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
             query = URLEncoder.encode(word, "UTF-8");
         } catch (Exception e) {
             query = word.replaceAll("\\s", "+").replaceAll(" ", "+")
-                    .replace("#", "%23").replace("@", "%40")
-                    .replace("&", "%26");
+                    .replaceAll("#", "%23").replaceAll("@", "%40")
+                    .replaceAll("&", "%26");
         }
 
         int wordsCount = Main.sharedPreferences.getInt("maxWords", 80);
@@ -90,5 +93,16 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
         if (fragmentCallback != null)
             fragmentCallback.done(wordItems, word);
         super.onPostExecute(wordItems);
+    }
+
+    private int getResId(String string, Context context) {
+        Field[] fields = R.string.class.getFields();
+        for (Field field : fields) {
+            if (field.getName().startsWith("abc_")) continue;
+            int resId = context.getResources().getIdentifier(field.getName(), "string", context.getPackageName());
+            if (resId == 0) continue;
+            if (context.getString(resId).equals(string)) return resId;
+        }
+        return  0;
     }
 }

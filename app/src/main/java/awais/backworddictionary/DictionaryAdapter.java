@@ -54,7 +54,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
                 boolean contains = Main.sharedPreferences.getBoolean("filterContain", true);
 
                 if (!showDefs && !showWords && mContext != null) {
-                    Toast.makeText(mContext, "Select a filter first.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, mContext.getString(R.string.select_filter_first), Toast.LENGTH_SHORT).show();
                     return results;
                 }
 
@@ -201,7 +201,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
                     tts.speak(currentWord.getWord(), TextToSpeech.QUEUE_FLUSH, null);
                     return true;
                 case R.id.action_google:
-                    String wordRawGoogle = currentWord.getWord().replace(" ", "+").replace("\\s", "+");
+                    String wordRawGoogle = currentWord.getWord().replaceAll(" ", "+").replaceAll("\\s", "+");
                     try {
                         Intent intent1 = new Intent(Intent.ACTION_WEB_SEARCH);
                         intent1.putExtra(SearchManager.QUERY, currentWord.getWord());
@@ -216,7 +216,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
 
                     return true;
                 case R.id.action_wiki:
-                    String wordRawWiki = currentWord.getWord().replace(" ", "_").replace("\\s", "_");
+                    String wordRawWiki = currentWord.getWord().replaceAll(" ", "_").replaceAll("\\s", "_");
                     try {wordRawWiki = String.valueOf(new URL(wordRawWiki));} catch (Exception ignored) {}
 
                     Intent intent1 = new Intent();

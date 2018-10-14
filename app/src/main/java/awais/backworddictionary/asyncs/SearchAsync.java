@@ -38,7 +38,9 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
         try {
             query = URLEncoder.encode(params[0], "UTF-8");
         } catch (Exception e) {
-            query = params[0].replace("&", "%26").replace("@","%40").replace("#","%23");
+            query = params[0].replaceAll("\\s", "+").replaceAll(" ", "+")
+                    .replaceAll("#", "%23").replaceAll("@", "%40")
+                    .replaceAll("&", "%26");
         }
         ArrayList<WordItem> arrayList = new ArrayList<>();
 
