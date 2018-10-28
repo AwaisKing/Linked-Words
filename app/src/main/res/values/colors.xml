@@ -5,7 +5,7 @@
     <color name="colorAccent">#2196F3</color>
 
     <color name="noInternet">#D54235</color>
-    <color name="noInternetBar">#D54235</color>
+    <!--<color name="noInternetBar">#D54235</color>--> <!-- TODO ADD MAYBE IDK -->
     <color name="noInternetStatusBar">#BF3727</color>
     <color name="noInternetAccent">#FF3D00</color>
 

@@ -18,7 +18,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/toolbarSize"
-            app:layout_scrollFlags="scroll|enterAlways"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
         <RelativeLayout
@@ -26,23 +26,26 @@
             android:layout_height="@dimen/toolbarSize"
             android:layout_gravity="bottom"
             android:clipChildren="false"
-            app:layout_collapseMode="pin">
+            app:layout_collapseMode="pin"
+            app:layout_scrollFlags="scroll|enterAlways">
 
             <android.support.design.widget.TabLayout
                 android:id="@+id/tabs"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/toolbarSize"
+                android:layout_alignWithParentIfMissing="true"
                 android:layout_gravity="bottom"
-                android:layout_marginEnd="@dimen/toolbarSize"
-                android:layout_marginRight="@dimen/toolbarSize"
+                android:layout_toStartOf="@id/filterContainer"
+                android:layout_toLeftOf="@id/filterContainer"
                 android:clipChildren="false"
                 app:popupTheme="@style/AppTheme.PopupOverlay"
                 app:tabGravity="center"
                 app:tabIndicatorColor="@color/cards_and_dialogs_color"
-                app:tabIndicatorHeight="4dp"
+                app:tabIndicatorHeight="3dp"
                 app:tabMode="scrollable" />
 
             <RelativeLayout
+                android:id="@+id/filterContainer"
                 android:layout_width="@dimen/toolbarSize"
                 android:layout_height="match_parent"
                 android:layout_alignParentEnd="true"
@@ -60,7 +63,8 @@
                     android:tooltipText="Filter"
                     app:elevation="2dp"
                     app:fabSize="mini"
-                    app:srcCompat="@drawable/ic_filter" />
+                    app:srcCompat="@drawable/ic_filter"
+                    tools:targetApi="o" />
             </RelativeLayout>
         </RelativeLayout>
     </android.support.design.widget.AppBarLayout>
@@ -105,6 +109,34 @@
         app:layout_behavior="@string/scroll_behavior"
         app:srcCompat="@drawable/no_internet"
         tools:srcCompat="@drawable/no_internet" />
+
+    <!--<com.github.clans.fab.FloatingActionMenu-->
+        <!--android:id="@+id/fabOptions"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="bottom|end"-->
+        <!--android:scaleType="centerInside"-->
+        <!--app:menu_icon="@drawable/ic_options"-->
+        <!--app:menu_colorNormal="@color/colorAccent"-->
+        <!--app:menu_colorRipple="#afff"-->
+        <!--app:menu_colorPressed="@color/colorAccent"-->
+        <!--app:menu_showShadow="true"-->
+        <!--android:tooltipText="Options"-->
+        <!--app:elevation="2dp"-->
+        <!--app:fabSize="normal"-->
+        <!--android:layout_marginBottom="@dimen/filter_margin_start"-->
+        <!--android:layout_marginRight="@dimen/filter_margin_start"-->
+        <!--android:layout_marginEnd="@dimen/filter_margin_start"-->
+        <!--app:layout_behavior="@string/fab_transformation_sheet_behavior">-->
+
+        <!--<com.github.clans.fab.FloatingActionButton-->
+            <!--android:id="@+id/menu_item"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--app:srcCompat="@drawable/ic_licenses"-->
+            <!--app:fab_size="mini"-->
+            <!--app:fab_label="Menu item 1" />-->
+    <!--</com.github.clans.fab.FloatingActionMenu>-->
 
     <include
         layout="@layout/bottom_view"

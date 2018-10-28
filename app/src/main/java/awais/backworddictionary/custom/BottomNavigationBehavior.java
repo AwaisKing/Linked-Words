@@ -12,7 +12,7 @@ import android.view.View;
 
 import awais.backworddictionary.R;
 
-@SuppressWarnings("unused")
+@SuppressWarnings( {"unused", "WeakerAccess"} )
 public class BottomNavigationBehavior extends CoordinatorLayout.Behavior<View> {
     public BottomNavigationBehavior(Context context, AttributeSet attrs) {
         super(context, attrs);

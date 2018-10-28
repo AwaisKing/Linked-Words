@@ -2,21 +2,28 @@
 
     <style name="NoTitleAppTheme" parent="Base.Theme.AppCompat.Light">
         <item name="windowActionBar">false</item>
+        <item name="windowActionBarOverlay">true</item>
         <item name="windowNoTitle">true</item>
-        <item name="coordinatorLayoutStyle">@style/Widget.Support.CoordinatorLayout</item>
-        <item name="tabStyle">@style/Widget.Design.TabLayout</item>
-        <item name="floatingActionButtonStyle">@style/Widget.Design.FloatingActionButton</item>
-        <item name="cardViewStyle">@style/CardViewStyle</item>
-    </style>
 
-    <style name="AppTheme" parent="NoTitleAppTheme">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="coordinatorLayoutStyle">@style/Widget.Support.CoordinatorLayout</item>
+        <item name="floatingActionButtonStyle">@style/Widget.Design.FloatingActionButton</item>
+        <item name="tabStyle">@style/AppTabLayout</item>
+        <item name="cardViewStyle">@style/CardViewStyle</item>
+
+        <item name="android:typeface">sans</item>
+        <item name="fontFamily">@font/googlesans_medium</item>
     </style>
+
+    <style name="AppTheme" parent="NoTitleAppTheme" />
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="CardViewStyle" parent="Base.CardView" />
 
     <style name="Dialog" parent="Theme.AppCompat.Light.DialogWhenLarge">
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -30,5 +37,14 @@
         <item name="android:windowIsFloating">true</item>
     </style>
 
-    <style name="CardViewStyle" parent="Base.CardView" />
+    <style name="AppTabLayout" parent="Widget.Design.TabLayout">
+        <item name="tabTextAppearance">@style/TabStyle</item>
+        <item name="tabIndicator">@drawable/tab_indicator</item>
+    </style>
+
+    <style name="TabStyle" parent="TextAppearance.Design.Tab">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:typeface">sans</item>
+        <item name="fontFamily">@font/googlesans_medium</item>
+    </style>
 </resources>

@@ -7,7 +7,6 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,7 @@ import okhttp3.Response;
 public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     private ArrayList<WordItem> wordItemsList = new ArrayList<>();
     private final String word;
-    private final String method;
+    private String method;
     private final OkHttpClient client = new OkHttpClient();
     private final Request.Builder builder = new Request.Builder();
     private Response response = null;
@@ -33,19 +32,32 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     public WordsAsync(FragmentCallback fragmentCallback, String word, String method, Context context) {
         this.fragmentCallback = fragmentCallback;
         this.word = word;
-        switch (getResId(method, context)) {
-            case R.string.reverse: this.method = "ml"; break;
-            case R.string.sounds_like: this.method = "sl"; break;
-            case R.string.spelled_like: this.method = "sp"; break;
-            case R.string.synonyms: this.method = "rel_syn"; break;
-            case R.string.antonyms: this.method = "rel_ant"; break;
-            case R.string.triggers: this.method = "rel_trg"; break;
-            case R.string.part_of: this.method = "rel_par"; break;
-            case R.string.comprises: this.method = "rel_com"; break;
-            case R.string.homophones: this.method = "rel_hom"; break;
-            case R.string.rhymes: this.method = "rel_rhy"; break;
-            default: this.method = "ml";
+        if (context == null) {
+            this.method = "ml";
+            return;
         }
+        String[] methodsList = new String[] {
+                context.getResources().getString(R.string.reverse),
+                context.getResources().getString(R.string.sounds_like),
+                context.getResources().getString(R.string.spelled_like),
+                context.getResources().getString(R.string.synonyms),
+                context.getResources().getString(R.string.antonyms),
+                context.getResources().getString(R.string.triggers),
+                context.getResources().getString(R.string.part_of),
+                context.getResources().getString(R.string.comprises),
+                context.getResources().getString(R.string.homophones)
+        };
+        if (methodsList[0].equals(method))      this.method = "ml";
+        else if (methodsList[1].equals(method)) this.method = "sl";
+        else if (methodsList[2].equals(method)) this.method = "sp";
+        else if (methodsList[3].equals(method)) this.method = "rel_syn";
+        else if (methodsList[4].equals(method)) this.method = "rel_ant";
+        else if (methodsList[5].equals(method)) this.method = "rel_trg";
+        else if (methodsList[6].equals(method)) this.method = "rel_par";
+        else if (methodsList[7].equals(method)) this.method = "rel_com";
+        else if (methodsList[8].equals(method)) this.method = "rel_hom";
+        else if (methodsList[9].equals(method)) this.method = "rel_rhy";
+        else                                    this.method = "ml";
     }
 
     @Override
@@ -95,14 +107,14 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
         super.onPostExecute(wordItems);
     }
 
-    private int getResId(String string, Context context) {
-        Field[] fields = R.string.class.getFields();
-        for (Field field : fields) {
-            if (field.getName().startsWith("abc_")) continue;
-            int resId = context.getResources().getIdentifier(field.getName(), "string", context.getPackageName());
-            if (resId == 0) continue;
-            if (context.getString(resId).equals(string)) return resId;
-        }
-        return  0;
-    }
+//    private int getResId(String string, Context context) {
+//        Field[] fields = R.string.class.getFields();
+//        for (Field field : fields) {
+//            if (field.getName().startsWith("abc_")) continue;
+//            int resId = context.getResources().getIdentifier(field.getName(), "string", context.getPackageName());
+//            if (resId == 0) continue;
+//            if (context.getString(resId).equals(string)) return resId;
+//        }
+//        return  0;
+//    }
 }

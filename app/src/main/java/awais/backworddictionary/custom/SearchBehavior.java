@@ -10,7 +10,7 @@ import android.view.View;
 
 import com.lapism.searchview.SearchView;
 
-@SuppressWarnings("unused")
+@SuppressWarnings( {"unused", "WeakerAccess"} )
 public class SearchBehavior extends CoordinatorLayout.Behavior<SearchView> {
     public SearchBehavior() {}
     public SearchBehavior(Context context, AttributeSet attrs) {

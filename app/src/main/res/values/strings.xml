@@ -40,7 +40,7 @@
     <string name="contains">Contains</string>
 
     <string name="remove_recent">Remove recent search</string>
-    <string name="confirm_remove">Are you sure to remove %s from recent searches?</string>
+    <string name="confirm_remove">Are you sure to remove \"%s\" from recent searches?</string>
     <string name="select_a_option_first">Select at least 1 option then press OK.</string>
 
     <string name="select_filters">Select the filters</string>

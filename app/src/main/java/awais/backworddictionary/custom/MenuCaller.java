@@ -26,15 +26,12 @@ import awais.backworddictionary.customweb.CustomTabActivityHelper;
 public class MenuCaller {
     private final AppCompatActivity activity;
     private final MenuDialog menuDialog;
-    private static SpanBuilder examplesBuilder, helpBuilder, licensesBuilder;
+    private static SpannableStringBuilder examplesSpan, helpSpan, licensesSpan;
     private static CustomTabsIntent.Builder customTabsIntent;
 
     public MenuCaller(AppCompatActivity act) {
         activity = act;
         menuDialog = new MenuDialog();
-        helpBuilder = new SpanBuilder();
-        examplesBuilder = new SpanBuilder();
-        licensesBuilder = new SpanBuilder();
         customTabsIntent = new CustomTabsIntent.Builder();
         new Menuer().execute(act);
     }
@@ -42,9 +39,9 @@ public class MenuCaller {
     public void show(MenuItem item) {
         menuDialog.setTitle(item.getTitle());
         switch (item.getItemId()) {
-            case R.id.mExamples: menuDialog.setMessage(examplesBuilder.build()); break;
-            case R.id.mHelp: menuDialog.setMessage(helpBuilder.build()); break;
-            case R.id.mLicenses: menuDialog.setMessage(licensesBuilder.build());
+            case R.id.mExamples: menuDialog.setMessage(examplesSpan); break;
+            case R.id.mHelp: menuDialog.setMessage(helpSpan); break;
+            case R.id.mLicenses: menuDialog.setMessage(licensesSpan);
                 menuDialog.setTitle(activity.getString(R.string._credits));break;
             case R.id.mAbout: menuDialog.setMessage("aboutHere"); break;
         }
@@ -57,6 +54,7 @@ public class MenuCaller {
         protected Void doInBackground(Object... params) {
             Activity activity = (Activity) params[0];
 
+            SpanBuilder examplesBuilder = new SpanBuilder();
             // XXX EXAMPLES
             examplesBuilder.append(activity.getString(R.string.finding_help) + ":\n", new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121), new StyleSpan(Typeface.BOLD));
             examplesBuilder.append("person who makes gold\n", new BulletSpan(26, 0xFF212121));
@@ -75,9 +73,10 @@ public class MenuCaller {
             examplesBuilder.append("fr*g\t-- " + activity.getString(R.string.number_char_help, '*') + '\n', new BulletSpan(26, 0xFF212121));
             examplesBuilder.append("ta#t\t-- " + activity.getString(R.string.consonant_char_help, '#') + '\n', new BulletSpan(26, 0xFF212121));
             examplesBuilder.append("**stone**\t-- " + activity.getString(R.string.phrase_help) + '\n', new BulletSpan(26, 0xFF212121));
+            examplesSpan = examplesBuilder.build();
 
             // XXX HELP
-            helpBuilder = new SpanBuilder();
+            SpanBuilder helpBuilder = new SpanBuilder();
             helpBuilder.append(activity.getString(R.string.reverse)+ ":\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
             helpBuilder.append(activity.getString(R.string.reverse_help) + "\n\n", new BulletSpan(26, 0xFF212121));
             helpBuilder.append(activity.getString(R.string.sounds_like) + ":\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
@@ -105,9 +104,10 @@ public class MenuCaller {
             helpBuilder.append(activity.getString(R.string.rhymes_help) + "\n\n", new BulletSpan(26, 0xFF212121));
             helpBuilder.append(activity.getString(R.string.homophones) + ":\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
             helpBuilder.append(activity.getString(R.string.homophones_help) + "\n\n", new BulletSpan(26, 0xFF212121));
+            helpSpan = helpBuilder.build();
 
             // XXX LICENSES
-            licensesBuilder = new SpanBuilder();
+            SpanBuilder licensesBuilder = new SpanBuilder();
             licensesBuilder.append("App Icon:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121));
             licensesBuilder.append("Android Asset Studio - Launcher icon generator\n\n", new BulletSpan(26, 0xFF212121), new ClickableSpan() {
                 @Override
@@ -129,7 +129,8 @@ public class MenuCaller {
             licensesBuilder.append("GSON [Apache License 2.0]\n", new BulletSpan(26, 0xFF212121));
             licensesBuilder.append("SearchView [Apache License 2.0]\n", new BulletSpan(26, 0xFF212121));
             licensesBuilder.append("NoNet [Apache License 2.0]\n", new BulletSpan(26, 0xFF212121));
-            licensesBuilder.append("Chrome Custom Tabs [Apache License 2.0]\n\n", new BulletSpan(26, 0xFF212121));
+            licensesBuilder.append("Chrome Custom Tabs [Apache License 2.0]\n", new BulletSpan(26, 0xFF212121));
+            // licensesBuilder.append("Expandable FAB [Apache License 2.0]\n\n", new BulletSpan(26, 0xFF212121));
             licensesBuilder.append("License:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121));
             licensesBuilder.append("Apache License 2.0", new BulletSpan(26, 0xFF212121), new ClickableSpan() {
                 @Override
@@ -138,6 +139,7 @@ public class MenuCaller {
                     CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(),
                             Uri.parse("https://www.apache.org/licenses/LICENSE-2.0"));
                 }});
+            licensesSpan = licensesBuilder.build();
 
             return null;
         }

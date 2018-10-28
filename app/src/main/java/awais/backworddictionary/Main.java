@@ -3,7 +3,7 @@ package awais.backworddictionary;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.graphics.drawable.ColorDrawable;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,9 +23,13 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.TooltipCompat;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -34,6 +38,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.ads.AdRequest;
@@ -55,6 +60,7 @@ import awais.backworddictionary.custom.MenuCaller;
 import awais.backworddictionary.custom.SearchAdapter;
 import awais.backworddictionary.custom.SearchHistoryTable;
 import awais.backworddictionary.custom.SettingsDialog;
+import awais.backworddictionary.custom.Utils;
 import awais.backworddictionary.custom.WordItem;
 import awais.backworddictionary.interfaces.FragmentLoader;
 import awais.backworddictionary.interfaces.MainCheck;
@@ -64,7 +70,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     public static TextToSpeech tts;
     private TabLayout tabLayout;
     public ViewPager viewPager;
-    public DictionariesAdapter adapter;
+    public DictionaryFragmentsAdapter fragmentsAdapter;
     public SearchView mSearchView;
     private SearchAdapter searchAdapter;
     private SearchHistoryTable mHistoryDatabase;
@@ -72,6 +78,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     private MenuCaller menuCaller;
     private ImageView noInternet;
     private Snackbar snackbar;
+    private AppBarLayout appBarLayout;
     public static String[] boolsArray;
     private static final int[] tabs = {R.string.reverse, R.string.sounds_like, R.string.spelled_like, R.string.synonyms, R.string.antonyms,
             R.string.triggers, R.string.part_of, R.string.comprises, R.string.rhymes, R.string.homophones};
@@ -81,7 +88,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
+        if (!BuildConfig.DEBUG) Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         MobileAds.initialize(this, getResources().getString(R.string.appid));
 
@@ -93,8 +100,11 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         viewPager = findViewById(R.id.viewpager);
         noInternet = findViewById(R.id.noInternet);
         fabFilter = findViewById(R.id.filterButton);
+        appBarLayout = findViewById(R.id.appbarLayout);
+        // fabOptions = findViewById(R.id.fabOptions);
 
         snackbar = Snackbar.make(viewPager, R.string.no_connection, -2);
+
         SnackbarContentLayout contentLayout = (SnackbarContentLayout) ((ViewGroup)snackbar.getView()).getChildAt(0);
         Button actionButton = contentLayout.findViewById(R.id.snackbar_action);
         actionButton.setVisibility(View.VISIBLE);
@@ -114,7 +124,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
         TooltipCompat.setTooltipText(fabFilter, getString(R.string.filter));
         fabFilter.setOnClickListener(view ->
-                adapter.getItem(viewPager.getCurrentItem()).isOpen(true, fabFilter, 0));
+                fragmentsAdapter.getItem(viewPager.getCurrentItem()).isOpen(true, fabFilter, 0));
 
         handleData();
 
@@ -160,47 +170,14 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     private void setupNoNet() {
         NoNet.monitor(this).configure(NoNet.configure().endpoint("http://api.datamuse.com/words")
                 .connectedPollFrequency(1).disconnectedPollFrequency(1).build()).callback(connectionStatus -> {
-//            Log.d("AWAISKING_APP", "--> " + adapter.getItem(viewPager.getCurrentItem()));
-            if (connectionStatus != ConnectionStatus.CONNECTED) {
-                if (adapter != null && adapter.getCount() > 0 && (
-                        adapter.getItem(viewPager.getCurrentItem()).adapter != null
-                                && adapter.getItem(viewPager.getCurrentItem()).adapter.getItemCount() < 1
-                                || adapter.getItem(viewPager.getCurrentItem()).adapter == null)) {
-                    if (noInternet != null) noInternet.setVisibility(View.VISIBLE);
-                    if (viewPager != null)
-                        viewPager.setBackgroundColor(getResources().getColor(R.color.noInternet));
-                    if (getSupportActionBar() != null)
-                        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.noInternetBar)));
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                        getWindow().setStatusBarColor(getResources().getColor(R.color.noInternetStatusBar));
-                    if (findViewById(R.id.tabs) != null)
-                        findViewById(R.id.tabs).setBackgroundColor(getResources().getColor(R.color.noInternetBar));
-                    if (fabFilter != null) {
-                        fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.noInternetAccent)));
-                        if (fabFilter.getParent() != null && fabFilter.getParent() instanceof View)
-                            ((View) fabFilter.getParent()).setBackgroundColor(getResources().getColor(R.color.noInternetBar));
-                    }
-                }
-            } else {
-                if (noInternet != null) noInternet.setVisibility(View.GONE);
-                if (viewPager != null) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-                        viewPager.setBackground(null);
-                    viewPager.setBackgroundDrawable(null);
-                    viewPager.setBackgroundResource(0);
-                }
-                if (getSupportActionBar() != null)
-                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
-                if (findViewById(R.id.tabs) != null)
-                    findViewById(R.id.tabs).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                if (fabFilter != null) {
-                    fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                    if (fabFilter.getParent() != null && fabFilter.getParent() instanceof View)
-                        ((View) fabFilter.getParent()).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                }
-            }
+
+            if (connectionStatus != ConnectionStatus.CONNECTED) { // NOT CONNECTED
+                DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
+                if (fragment == null || fragment.wordsAdapter == null || fragment.wordsAdapter.getItemCount() <= 0)
+                    connectionTheme(false);
+            } else
+                connectionTheme(true);
+
         }).snackbar(snackbar);
     }
 
@@ -213,59 +190,50 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         }
         String bools = Main.sharedPreferences.getString("tabs", "[true, true, true, true, false, false, false, false, false, false]");
         if (tabLayout != null) try { tabLayout.clearOnTabSelectedListeners(); } catch (Exception ignored) {}
-        adapter = new DictionariesAdapter(getSupportFragmentManager());
+        fragmentsAdapter = new DictionaryFragmentsAdapter(getSupportFragmentManager());
         bools = bools.substring(1, bools.length() - 1);
         boolsArray = bools.split(", ");
         for (int i=0; i<boolsArray.length; i++)
             if (boolsArray[i].equalsIgnoreCase("true"))
-                adapter.addFrag(new DictionaryFragment(), getString(tabs[i]));
+                fragmentsAdapter.addFrag(new DictionaryFragment(), getString(tabs[i]));
         viewPager.setOffscreenPageLimit(5);
         if (tabLayout == null) tabLayout = findViewById(R.id.tabs);
         if (tabLayout == null) return;
         tabLayout.setupWithViewPager(viewPager);
-        viewPager.setAdapter(adapter);
+        viewPager.setAdapter(fragmentsAdapter);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             int prevTab = 0;
             @Override public void onTabSelected(final TabLayout.Tab tab) {
                 setTitle(R.string.app_name);
+                if (fragmentsAdapter == null) return;
 
-                if (adapter != null) {
-                    final DictionaryFragment currentItem = adapter.getItem(tab.getPosition());
-                    final DictionaryFragment prevItem = adapter.getItem(prevTab);
+                final DictionaryFragment currentItem = fragmentsAdapter.getItem(tab.getPosition());
+                final DictionaryFragment prevItem = fragmentsAdapter.getItem(prevTab);
 
-                    if (currentItem != null) {
-                        if (currentItem.title != null && (!currentItem.title.isEmpty()|| TextUtils.isEmpty(currentItem.title)))
-                            setTitle(currentItem.title);
-                        else {
-                            if (prevItem.title != null && !prevItem.title.isEmpty()) {
-                                try {
-                                    currentItem.adapter.updateList(new ArrayList<>());
-                                    currentItem.startWords(tab.getText(), prevItem.title);
-                                    currentItem.title = prevItem.title;
-                                } catch (Exception e) {
-                                    Log.e("AWAISKING_APP", "" , e);
-                                }
+                if (currentItem != null) {
+                    if (!Utils.isEmpty(currentItem.title))
+                        setTitle(currentItem.title);
+                    else {
+                        if (prevItem.title != null && !prevItem.title.isEmpty()) {
+                            try {
+                                currentItem.wordsAdapter.updateList(new ArrayList<>());
+                                currentItem.startWords(tab.getText(), prevItem.title);
+                                currentItem.title = prevItem.title;
+                            } catch (Exception e) {
+                                if (BuildConfig.DEBUG)
+                                    Log.e("AWAISKING_APP", "", e);
                             }
                         }
-                        try {
-                            if (currentItem.adapter != null && currentItem.adapter.getItemCount() > 0) {
-                                noInternet.setVisibility(View.GONE);
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-                                    viewPager.setBackground(null);
-                                viewPager.setBackgroundDrawable(null);
-                                viewPager.setBackgroundResource(0);
-                                if (getSupportActionBar() != null)
-                                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                                    getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
-                                findViewById(R.id.tabs).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                                if (fabFilter != null)
-                                    fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-                            }
-                        } catch (Exception ignored) {}
-                        if (prevItem != null) prevItem.isOpen(true, fabFilter, 30);
-                        currentItem.isOpen(false, fabFilter, 0);
                     }
+                    try {
+                        Log.d("AWAISKING_APP", "--> " + currentItem.wordsAdapter.getItemCount());
+                        if (currentItem.wordsAdapter != null && currentItem.wordsAdapter.getItemCount() > 0)
+                            connectionTheme(true);
+                    } catch (Exception ignored) {}
+
+                    if (prevItem != null)
+                        prevItem.isOpen(true, fabFilter, 30);
+                    currentItem.isOpen(false, fabFilter, 0);
                 }
             }
             @Override public void onTabUnselected(TabLayout.Tab tab) { prevTab = tab.getPosition(); }
@@ -274,7 +242,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     }
 
     public int getItemPosition(String item) {
-        return adapter.mFragmentTitleList.indexOf(item);
+        return fragmentsAdapter.mFragmentTitleList.indexOf(item);
     }
 
     private void handleData() {
@@ -345,9 +313,9 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
     public void onSearch(String word) {
         try {
-            if (adapter != null && viewPager != null) {
-                CharSequence method = adapter.getPageTitle(viewPager.getCurrentItem());
-                adapter.getItem(viewPager.getCurrentItem()).startWords(method, word);
+            if (fragmentsAdapter != null && viewPager != null) {
+                CharSequence method = fragmentsAdapter.getPageTitle(viewPager.getCurrentItem());
+                fragmentsAdapter.getItem(viewPager.getCurrentItem()).startWords(method, word);
             }
             if (mSearchView != null && mSearchView.isSearchOpen()) mSearchView.close(false);
         } catch (Exception e) {
@@ -375,10 +343,10 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         }
     }
 
-    public class DictionariesAdapter extends FragmentPagerAdapter {
+    public class DictionaryFragmentsAdapter extends FragmentPagerAdapter {
         private final List<DictionaryFragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
-        DictionariesAdapter(FragmentManager manager) {
+        DictionaryFragmentsAdapter(FragmentManager manager) {
             super(manager);
         }
         @Override
@@ -407,9 +375,9 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
     @Override
     public void onBackPressed() {
-        if (adapter != null && viewPager != null && adapter.getCount() > 0 &&
-                adapter.getItem(viewPager.getCurrentItem()).isFilterOpen())
-            adapter.getItem(viewPager.getCurrentItem()).hideFilter();
+        if (fragmentsAdapter != null && viewPager != null && fragmentsAdapter.getCount() > 0 &&
+                fragmentsAdapter.getItem(viewPager.getCurrentItem()).isFilterOpen())
+            fragmentsAdapter.getItem(viewPager.getCurrentItem()).hideFilter();
         else super.onBackPressed();
     }
 
@@ -424,6 +392,9 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             mSearchView.setVoice(false);
             mSearchView.setTheme(SearchView.THEME_LIGHT);
             mSearchView.setShadowColor(ContextCompat.getColor(this, R.color.search_shadow_layout));
+
+            CardView cardView = mSearchView.findViewById(com.lapism.searchview.R.id.cardView);
+            cardView.setRadius(cardView.getRadius() * 8.0f);
 
             mHistoryDatabase = new SearchHistoryTable(this);
             mHistoryDatabase.setHistorySize(8);
@@ -444,6 +415,17 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 });
                 alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.no), (dialog, which) -> dialog.dismiss());
                 alertDialog.show();
+                TextView tvMessage = alertDialog.findViewById(android.R.id.message);
+                if (tvMessage != null) {
+                    tvMessage.setTypeface(LinkedApp.fontRegular);
+                    SpannableStringBuilder messageSpan = new SpannableStringBuilder(tvMessage.getText());
+                    int spanStart = tvMessage.getText().toString().indexOf('"');
+                    int spanEnd = tvMessage.getText().toString().lastIndexOf('"');
+                    messageSpan.setSpan(new StyleSpan(Typeface.BOLD), spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    messageSpan.delete(spanStart, spanStart + 1);
+                    messageSpan.delete(spanEnd - 1, spanEnd);
+                    tvMessage.setText(messageSpan);
+                }
                 return true;
             });
             mSearchView.setAdapter(searchAdapter);
@@ -488,17 +470,17 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 private final AppBarLayout.LayoutParams p = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
 
                 @Override public boolean onClose() {
-                    if (adapter != null && adapter.getItem(viewPager.getCurrentItem()) != null &&
-                            !adapter.getItem(viewPager.getCurrentItem()).isFilterOpen())
-                        adapter.getItem(viewPager.getCurrentItem()).isOpen(false, fabFilter, 1);
+                    if (fragmentsAdapter != null && fragmentsAdapter.getItem(viewPager.getCurrentItem()) != null &&
+                            !fragmentsAdapter.getItem(viewPager.getCurrentItem()).isFilterOpen())
+                        fragmentsAdapter.getItem(viewPager.getCurrentItem()).isOpen(false, fabFilter, 1);
                     p.setScrollFlags(5);
                     mToolbar.setLayoutParams(p);
                     return false;
                 }
 
                 @Override public boolean onOpen() {
-                    adapter.getItem(viewPager.getCurrentItem()).isOpen(true, fabFilter, 1);
-                    ((AppBarLayout) findViewById(R.id.appbarLayout)).setExpanded(true, true);
+                    fragmentsAdapter.getItem(viewPager.getCurrentItem()).isOpen(true, fabFilter, 1);
+                    appBarLayout.setExpanded(true, true);
                     p.setScrollFlags(0);
                     mToolbar.setLayoutParams(p);
                     return false;
@@ -527,5 +509,38 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     protected void onPause() {
         super.onPause();
         mHistoryDatabase.close();
+    }
+
+    private void connectionTheme(boolean isConnected) {
+        if (isConnected) {
+            if (noInternet != null) noInternet.setVisibility(View.GONE);
+            if (viewPager != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+                    viewPager.setBackground(null);
+                viewPager.setBackgroundDrawable(null);
+                viewPager.setBackgroundResource(0);
+            }
+            if (appBarLayout != null)
+                appBarLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+            if (fabFilter != null) {
+                fabFilter.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+            }
+        } else {
+            if (noInternet != null)
+                noInternet.setVisibility(View.VISIBLE);
+            if (viewPager != null)
+                viewPager.setBackgroundColor(getResources().getColor(R.color.noInternet));
+            if (appBarLayout != null)
+                appBarLayout.setBackgroundColor(getResources().getColor(R.color.noInternet));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                getWindow().setStatusBarColor(getResources().getColor(R.color.noInternetStatusBar));
+            if (fabFilter != null) {
+                fabFilter.setBackgroundColor(getResources().getColor(R.color.noInternetAccent));
+                fabFilter.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.noInternetAccent)));
+            }
+        }
     }
 }

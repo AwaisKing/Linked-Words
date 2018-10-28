@@ -12,6 +12,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import awais.backworddictionary.LinkedApp;
 import awais.backworddictionary.R;
 
 public class MenuDialog extends BottomSheetDialogFragment {
@@ -41,19 +42,22 @@ public class MenuDialog extends BottomSheetDialogFragment {
         View contentView = View.inflate(getContext(), R.layout.dialog_modal, null);
         ((TextView) contentView.findViewById(android.R.id.title)).setText(title);
 
-        TextView spannableMessage = contentView.findViewById(android.R.id.message);
         WebView aboutMessage = contentView.findViewById(R.id.webViewAbout);
+
+        TextView spannableMessage = contentView.findViewById(android.R.id.message);
         spannableMessage.setMovementMethod(LinkMovementMethod.getInstance());
-        if (message != null) {
-            if (message.getClass() != String.class) {
-                spannableMessage.setVisibility(View.VISIBLE);
-                aboutMessage.setVisibility(View.GONE);
-                spannableMessage.setText((SpannableStringBuilder) message);
-            } else {
-                spannableMessage.setVisibility(View.GONE);
-                aboutMessage.setVisibility(View.VISIBLE);
-                aboutMessage.loadUrl("file:///android_asset/about.html");
-            }
+
+        if (message == null) return;
+
+        if (message instanceof SpannableStringBuilder) {
+            spannableMessage.setVisibility(View.VISIBLE);
+            aboutMessage.setVisibility(View.GONE);
+            spannableMessage.setTypeface(LinkedApp.fontRegular);
+            spannableMessage.setText((SpannableStringBuilder)message);
+        } else {
+            spannableMessage.setVisibility(View.GONE);
+            aboutMessage.setVisibility(View.VISIBLE);
+            aboutMessage.loadUrl("file:///android_asset/about.html");
         }
         dialog.setContentView(contentView);
 

@@ -29,7 +29,7 @@ public abstract class ConnectivityReceiver extends BroadcastReceiver {
             if (cm != null) {
                 NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
                 if (activeNetwork != null) {
-                    onConnectivityChanged(activeNetwork.isConnectedOrConnecting() ? CONNECTED : DISCONNECTED);
+                    onConnectivityChanged(activeNetwork.isConnected() ? CONNECTED : DISCONNECTED);
                     return;
                 }
             }

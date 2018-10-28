@@ -3,15 +3,14 @@ package awais.backworddictionary;
 import android.animation.Animator;
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -48,11 +47,9 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private final boolean[] filterCheck = {true, true, true};
-    public DictionaryAdapter adapter;
+    public DictionaryWordsAdapter wordsAdapter;
     public String title;
 
-    private static ViewGroup.MarginLayoutParams tabParams;
-    private static int initialMargin = -1;
     private static int startOffset=-120, endOffset, topPadding;
 
     @Override
@@ -73,8 +70,8 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
             imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 
         wordList = new ArrayList<>();
-        adapter = new DictionaryAdapter(getContext(), wordList);
-        adapter.setHasStableIds(true);
+        wordsAdapter = new DictionaryWordsAdapter(getContext(), wordList);
+        wordsAdapter.setHasStableIds(true);
 
         swipeRefreshLayout = magicRootView.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setColorSchemeResources(R.color.progress1, R.color.progress2,
@@ -96,11 +93,15 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
 
         recyclerView = magicRootView.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(wordsAdapter);
 
         topPadding = recyclerView.getPaddingTop();
 
         filterView = magicRootView.findViewById(R.id.filterView);
+
+        CardView filterCard = magicRootView.findViewById(R.id.filterCard);
+        filterCard.setRadius(filterCard.getRadius() * 8.0f);
+
         ImageView filterBackButton = magicRootView.findViewById(R.id.filterBack);
         filterBackButton.setOnClickListener(view -> isOpen(false, fab, 0));
         filterSearchEditor = magicRootView.findViewById(R.id.swipeSearch);
@@ -111,7 +112,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         filterSearchEditor.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence cs, int i, int i1, int i2) {}
             @Override public void onTextChanged(CharSequence cs, int i, int i1, int i2) {
-                if (wordList.size() > 2) adapter.getFilter().filter(cs);
+                if (wordList.size() > 2) wordsAdapter.getFilter().filter(cs);
             }
             @Override public void afterTextChanged(Editable editable) {
                 if (editable.length() > 0) {
@@ -145,7 +146,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                         });
                 builder.setNeutralButton(getString(R.string.ok), (dialogInterface, i) -> {
                     if (wordList.size() > 2)
-                        adapter.getFilter().filter(filterSearchEditor.getText());
+                        wordsAdapter.getFilter().filter(filterSearchEditor.getText());
                     dialogInterface.dismiss();
                 });
                 builder.create().show();
@@ -187,9 +188,9 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     @Override
     public void done(ArrayList<WordItem> items, final String word) {
         wordList = items != null ? items : new ArrayList<>();
-        adapter = new DictionaryAdapter(activity, wordList);
-        adapter.notifyDataSetChanged();
-        recyclerView.setAdapter(adapter);
+        wordsAdapter = new DictionaryWordsAdapter(activity, wordList);
+        wordsAdapter.notifyDataSetChanged();
+        recyclerView.setAdapter(wordsAdapter);
 
         title = word;
         activity.setTitle(title);
@@ -222,54 +223,29 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     public void isOpen(boolean opened, FloatingActionButton fab, int method) {
         this.fab = fab;
 
-        TabLayout tabLayout = ((View)fab.getParent().getParent()).findViewById(R.id.tabs);
-        if (tabParams == null && tabLayout != null) {
-            tabParams = (ViewGroup.MarginLayoutParams) tabLayout.getLayoutParams();
-            if (initialMargin == -1) {
-                initialMargin = tabParams.rightMargin;
-                if (Build.VERSION.SDK_INT >= 17)
-                    initialMargin = initialMargin < 0 ? tabParams.getMarginEnd() : initialMargin;
-            }
-        }
+        float topMargin = getResources().getDimension(R.dimen.toolbarSize);
 
         if (opened) {
             if (method == 0 && filterView != null) {
                 filterView.setVisibility(View.VISIBLE);
                 if (filterSearchEditor != null) filterSearchEditor.requestFocus();
-//                ((View)fab.getParent()).setVisibility(View.GONE);
-            } else if (method == 30 && filterView != null) {
+            } else if (method == 30 && filterView != null)
                 filterView.setVisibility(View.GONE);
-//                ((View)fab.getParent()).setVisibility(View.VISIBLE);
-//            } else if (method == 1) {
-//                ((View)fab.getParent()).setVisibility(View.GONE);
-            }
-            if (tabParams != null) {
-                tabParams.setMargins(0, 0, 0, 0);
-                if (Build.VERSION.SDK_INT >= 17) tabParams.setMarginEnd(0);
-            }
+
             if (recyclerView != null) {
                 if (method == 0)
-                    recyclerView.setPadding(0, initialMargin, 0, recyclerView.getPaddingBottom());
+                    recyclerView.setPadding(0, (int) topMargin, 0, recyclerView.getPaddingBottom());
                 if (recyclerView.getLayoutManager() != null &&
-                        ((LinearLayoutManager)recyclerView.getLayoutManager()).findFirstVisibleItemPosition() <= 5)
+                        ((LinearLayoutManager)recyclerView.getLayoutManager()).findFirstVisibleItemPosition() <= 3)
                     recyclerView.smoothScrollToPosition(0);
                 swipeRefreshLayout.setProgressViewOffset(false, startOffset, endOffset);
             }
             hideFAB();
         } else {
-            if (method == 0 && filterView != null) {
+            if (method == 0 && filterView != null)
                 filterView.setVisibility(View.GONE);
-//                ((View)fab.getParent()).setVisibility(View.VISIBLE);
-            } else if (method == 30 && filterView != null) {
+            else if (method == 30 && filterView != null)
                 filterView.setVisibility(View.VISIBLE);
-//                ((View)fab.getParent()).setVisibility(View.GONE);
-//            } else if (method == 1) {
-//                ((View)fab.getParent()).setVisibility(View.VISIBLE);
-            }
-            if (tabParams != null) {
-                tabParams.setMargins(0, 0, initialMargin, 0);
-                if (Build.VERSION.SDK_INT >= 17) tabParams.setMarginEnd(initialMargin);
-            }
             if (recyclerView != null) {
                 recyclerView.setPadding(0, topPadding, 0, recyclerView.getPaddingBottom());
                 swipeRefreshLayout.setProgressViewOffset(false, startOffset, (int) (endOffset-(endOffset*0.7)));

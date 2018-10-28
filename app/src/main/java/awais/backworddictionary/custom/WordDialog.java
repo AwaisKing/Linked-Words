@@ -7,21 +7,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.widget.DialogTitle;
 import android.support.v7.widget.PopupMenu;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -71,44 +66,18 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
         alertTitle.setText(wordItem.getWord());
 
         ListView lvDefs = findViewById(R.id.lvDefs);
-
-        ArrayList<SpannableStringBuilder> defsStyled = new ArrayList<>();
+        ArrayList<String[]> list = new ArrayList<>();
         if (wordItem.getDefs() != null) {
-            for (String item : wordItem.getDefs()) {
-                SpannableStringBuilder stringBuilder = new SpannableStringBuilder();
-                stringBuilder.append(item);
-                stringBuilder.insert(0, "[");
-                stringBuilder.insert(item.indexOf("\t")+1, "]");
-                stringBuilder.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), 0, item.indexOf("\t")+2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                defsStyled.add(stringBuilder);
-            }
-        } else defsStyled.add(SpannableStringBuilder.valueOf(activity.getString(R.string.no_definition_found)));
+            for (String item : wordItem.getDefs())
+                list.add(item.split("\t"));
+        } else
+            list.add(new String[] {"", activity.getString(R.string.no_definition_found)});
 
-
-        lvDefs.setAdapter(new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1,
-                android.R.id.text1, defsStyled));
-
-        lvDefs.setOnItemClickListener((adapterView, view, i, l) -> {
-            SpannableStringBuilder wordItem = (SpannableStringBuilder) adapterView.getItemAtPosition(i);
-            if (wordItem != null && !String.valueOf(wordItem).isEmpty() && String.valueOf(wordItem).contains("\t")) {
-                String item = String.valueOf(wordItem).replaceAll("^(.*)\\t", "");
-                try {
-                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
-                    if (clipboard != null)
-                        clipboard.setPrimaryClip(android.content.ClipData.newPlainText("word", item));
-                    Toast.makeText(activity, R.string.copied_clipboard, Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    try {
-                        //noinspection deprecation
-                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
-                        if (clipboard != null) clipboard.setText(item);
-                        Toast.makeText(activity, R.string.copied_clipboard, Toast.LENGTH_SHORT).show();
-                    } catch (Exception ignored){
-                        Toast.makeText(activity, R.string.error_copying_clipboard, Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        });
+        lvDefs.setAdapter(new WordAdapter(activity, list, (view, position, text) -> {
+            if (!String.valueOf(text).equals(activity.getString(R.string.no_definition_found))
+                    && !String.valueOf(text).isEmpty())
+                copyText(String.valueOf(text).replaceAll("^(.*)\\t", ""));
+        }));
 
         Button copy = findViewById(R.id.btnCopy);
         Button speak = findViewById(R.id.btnSpeak);
@@ -131,21 +100,7 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
 
         switch (v.getId()) {
             case R.id.btnCopy:
-                try {
-                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
-                    if (clipboard != null)
-                        clipboard.setPrimaryClip(android.content.ClipData.newPlainText("word", wordItem.getWord()));
-                    Toast.makeText(activity, R.string.copied_clipboard, Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    try {
-                        //noinspection deprecation
-                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
-                        if (clipboard != null) clipboard.setText(wordItem.getWord());
-                        Toast.makeText(activity, R.string.copied_clipboard, Toast.LENGTH_SHORT).show();
-                    } catch (Exception ignored){
-                        Toast.makeText(activity, R.string.error_copying_clipboard, Toast.LENGTH_SHORT).show();
-                    }
-                }
+                copyText(wordItem.getWord());
                 return;
 
             case R.id.btnSpeak:
@@ -197,14 +152,14 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
         PopupMenu popup = new PopupMenu(view.getContext(), view);
         popup.getMenuInflater().inflate(R.menu.menu_search, popup.getMenu());
 
-        for (int i = 0; i < boolsArray.length; i++)
+        for (int i = boolsArray.length - 1; i >= 0; i--)
             popup.getMenu().getItem(i).setVisible(Boolean.parseBoolean(boolsArray[i]));
 
         popup.setOnMenuItemClickListener(menuItem -> {
             if (activity.getClass() == Main.class) {
                 try {
                     int index = ((Main) activity).getItemPosition((String) menuItem.getTitle());
-                    ((Main)activity).adapter.getItem(index).title = wordItem.getWord();
+                    ((Main)activity).fragmentsAdapter.getItem(index).title = wordItem.getWord();
                     ((Main)activity).viewPager.setCurrentItem(index, true);
                     ((Main)activity).onSearch(wordItem.getWord());
                 } catch (Exception e) {
@@ -215,5 +170,23 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
             return true;
         });
         popup.show();
+    }
+
+    private void copyText(String stringToCopy) {
+        try {
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+            if (clipboard != null)
+                clipboard.setPrimaryClip(android.content.ClipData.newPlainText("word", stringToCopy));
+            Toast.makeText(activity, R.string.copied_clipboard, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            try {
+                //noinspection deprecation
+                android.text.ClipboardManager clipboard = (android.text.ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+                if (clipboard != null) clipboard.setText(stringToCopy);
+                Toast.makeText(activity, R.string.copied_clipboard, Toast.LENGTH_SHORT).show();
+            } catch (Exception ignored) {
+                Toast.makeText(activity, R.string.error_copying_clipboard, Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

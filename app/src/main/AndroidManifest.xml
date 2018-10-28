@@ -9,8 +9,7 @@
         android:supportsRtl="true" android:theme="@style/AppTheme" android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher" android:imeOptions="flagNoExtractUi|actionSearch"
         android:windowSoftInputMode="adjustResize" android:hardwareAccelerated="true"
-        android:name="android.support.multidex.MultiDexApplication"
-        android:fullBackupContent="@xml/backup_descriptor">
+        android:name=".LinkedApp" android:fullBackupContent="@xml/backup_descriptor">
 
         <activity android:name=".Main" android:theme="@style/AppTheme" android:launchMode="singleTop"
             android:configChanges="keyboardHidden|orientation|screenSize" >
