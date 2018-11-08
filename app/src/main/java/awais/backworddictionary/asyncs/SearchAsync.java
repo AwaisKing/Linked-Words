@@ -6,6 +6,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +19,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
-    private static OkHttpClient client = new OkHttpClient();
-    private static Call call;
+    private WeakReference<OkHttpClient> client = new WeakReference<>(new OkHttpClient());
+    private WeakReference<Call> call;
     private final MainCheck mainCheck;
 
     public SearchAsync(MainCheck mainCheck) {
@@ -46,28 +47,26 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
 
         Response response = null;
         try {
-            if (client != null) {
+            if (client.get() != null) {
                 try {
-                    client.dispatcher().cancelAll();
-                    client.connectionPool().evictAll();
-                    client.cache().close();
+                    client.get().dispatcher().cancelAll();
+                    client.get().connectionPool().evictAll();
+                    client.get().cache().close();
                 } catch (Exception ignored) {}
             }
 
-            if (call != null) try { call.cancel(); } catch (Exception ignored) {}
+            if (call.get() != null) try { call.get().cancel(); } catch (Exception ignored) {}
 
-            if (client == null) client = new OkHttpClient();
-            call = client.newCall(new Request.Builder()
-                    .url("http://api.datamuse.com/sug?s=".concat(query)).build());
-            response = call.execute();
-
-//            if (call != null) try { call.cancel(); } catch (Exception ignored) {}
+            if (client.get() == null) client = new WeakReference<>(new OkHttpClient());
+            call = new WeakReference<>(client.get().newCall(new Request.Builder()
+                    .url("http://api.datamuse.com/sug?s=".concat(query)).build()));
+            response = call.get().execute();
 
             if (response != null && response.code() == 200) {
                 //noinspection ConstantConditions
                 arrayList = new Gson().fromJson(response.body().string(),
                         new TypeToken<List<WordItem>>(){}.getType());
-                try { call.cancel(); } catch (Exception ignored) {}
+                try { call.get().cancel(); } catch (Exception ignored) {}
             }
         } catch (Exception e) {
             Log.e("AWAISKING_APP", "", e);

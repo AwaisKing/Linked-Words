@@ -45,7 +45,8 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
                 context.getResources().getString(R.string.triggers),
                 context.getResources().getString(R.string.part_of),
                 context.getResources().getString(R.string.comprises),
-                context.getResources().getString(R.string.homophones)
+                context.getResources().getString(R.string.homophones),
+                context.getResources().getString(R.string.rhymes)
         };
         if (methodsList[0].equals(method))      this.method = "ml";
         else if (methodsList[1].equals(method)) this.method = "sl";
@@ -107,6 +108,9 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
         super.onPostExecute(wordItems);
     }
 
+/*
+        This might work if other method doesn't
+*/
 //    private int getResId(String string, Context context) {
 //        Field[] fields = R.string.class.getFields();
 //        for (Field field : fields) {

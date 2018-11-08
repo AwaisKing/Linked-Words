@@ -5,6 +5,7 @@ import android.util.Log;
 
 import java.lang.reflect.Field;
 
+@SuppressWarnings( "BooleanMethodIsAlwaysInverted" )
 public class Utils {
 
     // thanks to weston
