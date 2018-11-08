@@ -180,14 +180,27 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ResultView
             text = view.findViewById(com.lapism.searchview.R.id.textView_item_text);
             view.setOnClickListener(v -> {
                 if (mItemClickListener != null)
-                    mItemClickListener.onItemClick(v, getLayoutPosition(), String.valueOf(text.getText()));
+                    mItemClickListener.onItemClick(v, positionFix(), String.valueOf(text.getText()));
             });
             view.setOnLongClickListener(v -> {
                 if (mItemLongClickListener != null)
-                    return mItemLongClickListener.onItemLongClick(v, getLayoutPosition(), String.valueOf(text.getText()));
+                    return mItemLongClickListener.onItemLongClick(v, positionFix(), String.valueOf(text.getText()));
                 return true;
             });
         }
-    }
 
+        private int positionFix() {
+            int ofPos = getLayoutPosition(), count = getItemCount();
+            int layoutPosition = getLayoutPosition(), adapterPosition = getAdapterPosition();
+            if (layoutPosition <= count && adapterPosition > count) ofPos = layoutPosition;
+            else if (layoutPosition > count && adapterPosition <= count)
+                ofPos = adapterPosition;
+            else if (layoutPosition > count && adapterPosition > count) {
+                if (layoutPosition > adapterPosition) ofPos = adapterPosition;
+                else if (layoutPosition < adapterPosition) ofPos = layoutPosition;
+            }
+            if (ofPos > count) ofPos = count - 1;
+            return ofPos;
+        }
+    }
 }

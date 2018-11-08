@@ -99,8 +99,8 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
 
         filterView = magicRootView.findViewById(R.id.filterView);
 
-        CardView filterCard = magicRootView.findViewById(R.id.filterCard);
-        filterCard.setRadius(filterCard.getRadius() * 8.0f);
+//        CardView filterCard = magicRootView.findViewById(R.id.filterCard);
+//        filterCard.setRadius(filterCard.getRadius() * 8.0f); todo?
 
         ImageView filterBackButton = magicRootView.findViewById(R.id.filterBack);
         filterBackButton.setOnClickListener(view -> isOpen(false, fab, 0));
