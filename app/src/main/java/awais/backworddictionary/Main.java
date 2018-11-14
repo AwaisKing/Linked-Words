@@ -23,12 +23,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.TooltipCompat;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.Gravity;
@@ -46,8 +45,6 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.keiferstone.nonet.ConnectionStatus;
 import com.keiferstone.nonet.NoNet;
-import com.lapism.searchview.SearchItem;
-import com.lapism.searchview.SearchView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,9 +61,12 @@ import awais.backworddictionary.custom.Utils;
 import awais.backworddictionary.custom.WordItem;
 import awais.backworddictionary.interfaces.FragmentLoader;
 import awais.backworddictionary.interfaces.MainCheck;
-import io.fabric.sdk.android.Fabric;
+import awais.lapism.SearchItem;
+import awais.lapism.SearchView;
 
 public class Main extends AppCompatActivity implements FragmentLoader, MainCheck {
+    static { AppCompatDelegate.setCompatVectorFromResourcesEnabled(true); }
+
     private static final int[] tabs = {R.string.reverse, R.string.sounds_like, R.string.spelled_like, R.string.synonyms, R.string.antonyms,
             R.string.triggers, R.string.part_of, R.string.comprises, R.string.rhymes, R.string.homophones};
     public static TextToSpeech tts;
@@ -87,7 +87,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!BuildConfig.DEBUG) Fabric.with(this, new Crashlytics());
+        Utils.initCrashlytics(this);
         setContentView(R.layout.activity_main);
         MobileAds.initialize(this, getResources().getString(R.string.appid));
 
@@ -146,12 +146,17 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         NoNet.monitor(this).configure(NoNet.configure().endpoint("http://api.datamuse.com/words")
                 .connectedPollFrequency(1).disconnectedPollFrequency(1).build()).callback(connectionStatus -> {
 
-            if (connectionStatus != ConnectionStatus.CONNECTED) { // NOT CONNECTED
-                DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
+            DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
+            if (connectionStatus != ConnectionStatus.CONNECTED) {
                 if (fragment == null || fragment.wordsAdapter == null || fragment.wordsAdapter.getItemCount() <= 0)
                     connectionTheme(false);
-            } else
+            } else {
                 connectionTheme(true);
+                if (fragment != null && !Utils.isEmpty(fragment.title) &&
+                        !fragment.title.equals(getString(R.string.app_name))
+                        && fragment.wordsAdapter.getItemCount() < 1)
+                    onSearch(fragment.title);
+            }
 
         }).snackbar(snackbar);
     }
@@ -165,6 +170,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         }
 
         String bools = Main.sharedPreferences.getString("tabs", "[true, true, true, true, false, false, false, false, false, false]");
+        if (Utils.isEmpty(bools)) bools = "[true, true, true, true, false, false, false, false, false, false]";
         bools = bools.substring(1, bools.length() - 1);
         boolsArray = bools.split(", ");
 
@@ -207,7 +213,6 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                         }
                     }
                     try {
-                        Log.d("AWAISKING_APP", "--> " + currentItem.wordsAdapter.getItemCount());
                         if (currentItem.wordsAdapter != null && currentItem.wordsAdapter.getItemCount() > 0)
                             connectionTheme(true);
                     } catch (Exception ignored) {}
@@ -309,7 +314,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             if (mSearchView != null && mSearchView.isSearchOpen())
                 mSearchView.close(false);
         } catch (Exception e) {
-            Log.e("AWAISKING_APP", "", e);
+            if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
         }
     }
 
@@ -345,6 +350,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             DictionaryFragment dictionaryFragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
             if (dictionaryFragment.isFilterOpen())
                 dictionaryFragment.hideFilter();
+            else super.onBackPressed();
         } else super.onBackPressed();
     }
 
@@ -356,11 +362,9 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             mSearchView.setVersion(SearchView.VERSION_MENU_ITEM);
             mSearchView.setVersionMargins(SearchView.VERSION_MARGINS_MENU_ITEM);
             mSearchView.setHint(R.string.search);
-            mSearchView.setVoice(false);
-            mSearchView.setTheme(SearchView.THEME_LIGHT);
             mSearchView.setShadowColor(ContextCompat.getColor(this, R.color.search_shadow_layout));
 
-            // CardView cardView = mSearchView.findViewById(com.lapism.searchview.R.id.cardView);
+            // CardView cardView = mSearchView.findViewById(R.id.cardView);
             // cardView.setRadius(cardView.getRadius() * 8.0f);
 
             mHistoryDatabase = new SearchHistoryTable(this);
@@ -385,9 +389,10 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 TextView tvMessage = alertDialog.findViewById(android.R.id.message);
                 if (tvMessage != null) {
                     tvMessage.setTypeface(LinkedApp.fontRegular);
-                    SpannableStringBuilder messageSpan = new SpannableStringBuilder(tvMessage.getText());
-                    int spanStart = tvMessage.getText().toString().indexOf('"');
-                    int spanEnd = tvMessage.getText().toString().lastIndexOf('"');
+                    String tvMessageText = tvMessage.getText().toString();
+                    SpannableStringBuilder messageSpan = new SpannableStringBuilder(tvMessageText);
+                    int spanStart = tvMessageText.indexOf('"');
+                    int spanEnd = tvMessageText.lastIndexOf('"');
                     messageSpan.setSpan(new StyleSpan(Typeface.BOLD), spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     messageSpan.delete(spanStart, spanStart + 1);
                     messageSpan.delete(spanEnd - 1, spanEnd);
@@ -403,7 +408,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 private long last_text_edit = System.currentTimeMillis();
                 private final Runnable textWatch = () -> {
                     if (System.currentTimeMillis() > (last_text_edit + 500L)) {
-                        if (text != null && !text.isEmpty() && !TextUtils.isEmpty(text) && !text.equals(""))
+                        if (!Utils.isEmpty(text))
                             new SearchAsync(Main.this).execute(text);
                     }
                 };

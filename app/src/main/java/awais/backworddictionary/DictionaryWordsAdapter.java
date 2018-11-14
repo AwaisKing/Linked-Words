@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import awais.backworddictionary.custom.Utils;
 import awais.backworddictionary.custom.WordDialog;
 import awais.backworddictionary.custom.WordItem;
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
@@ -46,7 +47,7 @@ public class DictionaryWordsAdapter extends RecyclerView.Adapter<DictionaryWords
             protected FilterResults performFiltering(CharSequence charSequence) {
                 FilterResults results = new FilterResults();
                 results.values = wordList;
-                if (String.valueOf(charSequence).isEmpty() || String.valueOf(charSequence) == null)
+                if (Utils.isEmpty(charSequence))
                     return results;
 
                 boolean showWords = Main.sharedPreferences.getBoolean("filterWord", true);

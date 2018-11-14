@@ -7,10 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.lapism.searchview.SearchItem;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import awais.backworddictionary.R;
+import awais.lapism.SearchItem;
 
 public class SearchHistoryTable {
     private static int mHistorySize = 4;
@@ -63,7 +64,7 @@ public class SearchHistoryTable {
 
         Cursor cursor = db.rawQuery(selectQuery, null);
         if (cursor.moveToFirst()) do
-            list.add(new SearchItem(com.lapism.searchview.R.drawable.ic_history_black_24dp, cursor.getString(1)));
+            list.add(new SearchItem(R.drawable.ic_history_black_24dp, cursor.getString(1)));
         while (cursor.moveToNext());
         cursor.close();
 
@@ -74,9 +75,10 @@ public class SearchHistoryTable {
         if (db == null) return;
         if (!db.isOpen()) return;
         if (key == null) db.delete("search_history", null, null);
-        else db.delete("search_history", "_text = ?", new String[] {key});
+        else db.delete("search_history", "_text = ?", new String[]{key});
     }
 
+    @SuppressWarnings("unused")
     public int getItemsCount() {
         if (db == null) return -1;
         if (!db.isOpen()) return -1;
@@ -87,12 +89,13 @@ public class SearchHistoryTable {
     }
 
     private int getItemId(SearchItem item) {
-        Cursor res = db.rawQuery("SELECT _id FROM search_history WHERE _text = ?;", new String[] {item.get_text().toString()});
+        Cursor res = db.rawQuery("SELECT _id FROM search_history WHERE _text = ?;", new String[]{item.get_text().toString()});
         res.moveToFirst();
         int id = res.getInt(0);
         res.close();
         return id;
     }
+
     private int getLastItemId() {
         String sql = "SELECT _id FROM search_history";
         Cursor res = db.rawQuery(sql, null);
@@ -119,7 +122,8 @@ public class SearchHistoryTable {
         }
 
         @Override
-        public void onOpen(SQLiteDatabase db) {}
+        public void onOpen(SQLiteDatabase db) {
+        }
 
         @Override
         public void onCreate(SQLiteDatabase db) {

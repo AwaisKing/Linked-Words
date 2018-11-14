@@ -3,4 +3,8 @@
     <dimen name="toolbarSize">48dp</dimen>
 
     <dimen name="fabPadding">3dp</dimen>
+	
+	<dimen name="search_toolbar_margin_big_left_right">120dp</dimen>
+    <dimen name="search_toolbar_margin_small_left_right">64dp</dimen>
+    <dimen name="search_toolbar_margin_top">5dp</dimen>
 </resources>

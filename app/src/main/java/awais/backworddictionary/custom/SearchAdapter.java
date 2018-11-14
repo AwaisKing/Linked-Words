@@ -16,12 +16,14 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.lapism.searchview.SearchItem;
-import com.lapism.searchview.SearchView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import awais.backworddictionary.R;
+import awais.lapism.SearchItem;
+import awais.lapism.SearchView;
 
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ResultViewHolder> implements Filterable {
     private final SearchHistoryTable mHistoryDatabase;
@@ -118,7 +120,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ResultView
     @Override
     public SearchAdapter.ResultViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, int viewType) {
         return new ResultViewHolder(LayoutInflater.from(parent.getContext())
-                .inflate(com.lapism.searchview.R.layout.search_item, parent, false));
+                .inflate(R.layout.search_item, parent, false));
     }
 
     @Override
@@ -176,8 +178,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ResultView
 
         ResultViewHolder(View view) {
             super(view);
-            icon_left = view.findViewById(com.lapism.searchview.R.id.imageView_item_icon_left);
-            text = view.findViewById(com.lapism.searchview.R.id.textView_item_text);
+            icon_left = view.findViewById(R.id.imageView_item_icon_left);
+            text = view.findViewById(R.id.textView_item_text);
             view.setOnClickListener(v -> {
                 if (mItemClickListener != null)
                     mItemClickListener.onItemClick(v, positionFix(), String.valueOf(text.getText()));

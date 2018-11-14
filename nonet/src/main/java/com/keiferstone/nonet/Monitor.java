@@ -88,27 +88,17 @@ public class Monitor {
         PollTask.run(configuration, connectionStatus -> {
             Monitor.this.connectionStatus = connectionStatus;
 
-            if (callback != null) {
-                callback.onConnectionEvent(connectionStatus);
-            }
+            if (callback != null) callback.onConnectionEvent(connectionStatus);
 
             BannerView banner = getBanner();
             if (connectionStatus == DISCONNECTED) {
-                if (toast != null) {
-                    toast.show();
-                }
-                if (snackbar != null) {
-                    snackbar.show();
-                }
-                if (banner != null) {
-                    banner.show();
-                }
+                if (toast != null) toast.show();
+                if (snackbar != null) snackbar.show();
+                if (banner != null) banner.show();
             } else {
                 cancelToast();
                 dismissSnackbar();
-                if (banner != null) {
-                    banner.hide();
-                }
+                if (banner != null) banner.hide();
             }
 
             schedulePollTask();
@@ -126,16 +116,13 @@ public class Monitor {
 
     private void registerConnectivityReceiver() {
         Context context = getContext();
-        if (context != null) {
+        if (context != null)
             context.registerReceiver(connectivityReceiver, ConnectivityReceiver.getIntentFilter());
-        }
     }
 
     private void unregisterConnectivityReceiver() {
         Context context = getContext();
-        if (context != null) {
-            context.unregisterReceiver(connectivityReceiver);
-        }
+        if (context != null) context.unregisterReceiver(connectivityReceiver);
     }
 
     private void schedulePollTask() {
@@ -143,9 +130,8 @@ public class Monitor {
             int pollFrequency = connectionStatus == CONNECTED
                     ? configuration.getConnectedPollFrequency()
                     : configuration.getDisconnectedPollFrequency();
-            if (pollFrequency > 0 && pollFrequency != Configuration.NEVER) {
+            if (pollFrequency > 0 && pollFrequency != Configuration.NEVER)
                 handler.postDelayed(pollTaskRunnable, pollFrequency * 1000);
-            }
         }
     }
 
@@ -154,15 +140,11 @@ public class Monitor {
     }
 
     private void cancelToast() {
-        if (toast != null) {
-            toast.cancel();
-        }
+        if (toast != null) toast.cancel();
     }
 
     private void dismissSnackbar() {
-        if (snackbar != null) {
-            snackbar.dismiss();
-        }
+        if (snackbar != null) snackbar.dismiss();
     }
 
     @Nullable

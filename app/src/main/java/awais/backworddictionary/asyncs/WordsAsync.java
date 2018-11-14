@@ -22,7 +22,7 @@ import okhttp3.Response;
 public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     private ArrayList<WordItem> wordItemsList = new ArrayList<>();
     private final String word;
-    private String method;
+    private final String method;
     private final OkHttpClient client = new OkHttpClient();
     private final Request.Builder builder = new Request.Builder();
     private Response response = null;

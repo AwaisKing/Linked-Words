@@ -5,4 +5,26 @@
     <dimen name="fabPadding">5dp</dimen>
 
     <dimen name="design_fab_size_mini" tools:override="true">45dp</dimen>
+
+    <!-- Lapism SearchView -->
+    <dimen name="filter_margin_start">12dp</dimen>
+    <dimen name="filter_margin_top">8dp</dimen>
+    <dimen name="filter_spacing">5dp</dimen>
+    <dimen name="progress_margin_end">12dp</dimen>
+    <dimen name="progress_width">24dp</dimen>
+    <dimen name="search_divider">1dp</dimen>
+    <dimen name="search_height">46dp</dimen>
+    <dimen name="search_icon">24dp</dimen>
+    <dimen name="search_item_height">56dp</dimen>
+    <dimen name="search_item_margin_text">24dp</dimen>
+    <dimen name="search_key_line">16dp</dimen>
+    <dimen name="search_menu_item_margin">1dp</dimen>
+    <dimen name="search_menu_item_margin_left_right">2dp</dimen>
+    <dimen name="search_reveal">24dp</dimen>
+    <dimen name="search_text_medium">16sp</dimen>
+    <dimen name="search_text_small">14sp</dimen>
+    <dimen name="search_toolbar_margin_big_left_right">8dp</dimen>
+    <dimen name="search_toolbar_margin_small_left_right">8dp</dimen>
+    <dimen name="search_toolbar_margin_top">5dp</dimen>
+    <dimen name="search_view_margin_text">24dp</dimen>
 </resources>

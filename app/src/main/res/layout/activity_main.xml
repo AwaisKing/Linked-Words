@@ -91,11 +91,11 @@
         app:layout_anchorGravity="bottom"
         app:layout_behavior="@string/scroll_behavior" />
 
-    <com.lapism.searchview.SearchView
+    <awais.lapism.SearchView
         android:id="@+id/searchView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/search_behavior3" />
+        app:layout_behavior="@string/search_behavior2" />
 
     <ImageView
         android:id="@+id/noInternet"

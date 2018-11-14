@@ -183,6 +183,7 @@ public class MenuCaller {
             return ssb;
         }
 
+        @NonNull
         @Override
         public String toString() {
             return String.valueOf(build());
