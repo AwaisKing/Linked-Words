@@ -122,8 +122,11 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         setSupportActionBar(findViewById(R.id.toolbar));
 
         TooltipCompat.setTooltipText(fabFilter, getString(R.string.filter));
-        fabFilter.setOnClickListener(view ->
-                fragmentsAdapter.getItem(viewPager.getCurrentItem()).isOpen(true, fabFilter, 0));
+        fabFilter.setOnClickListener(view -> {
+                DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
+                if (fragment != null && fragment.isAdded())
+                    fragment.showFilter(true, fabFilter, 0);
+        });
 
         handleData();
 
@@ -197,7 +200,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 final DictionaryFragment currentItem = fragmentsAdapter.getItem(tab.getPosition());
                 final DictionaryFragment prevItem = fragmentsAdapter.getItem(prevTab);
 
-                if (currentItem != null) {
+                if (currentItem != null && currentItem.isAdded()) {
                     if (!Utils.isEmpty(currentItem.title))
                         setTitle(currentItem.title);
                     else {
@@ -217,9 +220,9 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                             connectionTheme(true);
                     } catch (Exception ignored) {}
 
-                    if (prevItem != null)
-                        prevItem.isOpen(true, fabFilter, 30);
-                    currentItem.isOpen(false, fabFilter, 0);
+                    if (prevItem != null && prevItem.isAdded())
+                        prevItem.showFilter(true, fabFilter, 30);
+                    currentItem.showFilter(false, fabFilter, 0);
                 }
             }
 
@@ -309,7 +312,9 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             if (fragmentsAdapter != null && viewPager != null) {
                 final int pagerCurrentItem = viewPager.getCurrentItem();
                 final CharSequence method = fragmentsAdapter.getPageTitle(pagerCurrentItem);
-                fragmentsAdapter.getItem(pagerCurrentItem).startWords(method, word);
+                DictionaryFragment fragment = fragmentsAdapter.getItem(pagerCurrentItem);
+                if (fragment != null && fragment.isAdded())
+                    fragment.startWords(method, word);
             }
             if (mSearchView != null && mSearchView.isSearchOpen())
                 mSearchView.close(false);
@@ -348,7 +353,8 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     public void onBackPressed() {
         if (fragmentsAdapter != null && viewPager != null && fragmentsAdapter.getCount() > 0) {
             DictionaryFragment dictionaryFragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
-            if (dictionaryFragment.isFilterOpen())
+            if (dictionaryFragment != null && dictionaryFragment.isAdded()
+                    && dictionaryFragment.isFilterOpen())
                 dictionaryFragment.hideFilter();
             else super.onBackPressed();
         } else super.onBackPressed();
@@ -447,8 +453,9 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 public boolean onClose() {
                     if (fragmentsAdapter != null) {
                         DictionaryFragment currentFragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
-                        if (currentFragment != null && !currentFragment.isFilterOpen())
-                            currentFragment.isOpen(false, fabFilter, 1);
+                        if (currentFragment != null && currentFragment.isAdded()
+                                && !currentFragment.isFilterOpen())
+                            currentFragment.showFilter(false, fabFilter, 1);
                     }
                     p.setScrollFlags(5);
                     mToolbar.setLayoutParams(p);
@@ -457,8 +464,9 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
                 @Override
                 public boolean onOpen() {
-                    fragmentsAdapter.getItem(viewPager.getCurrentItem())
-                            .isOpen(true, fabFilter, 1);
+                    DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
+                    if (fragment != null && fragment.isAdded())
+                        fragment.showFilter(true, fabFilter, 1);
                     appBarLayout.setExpanded(true, true);
                     p.setScrollFlags(0);
                     mToolbar.setLayoutParams(p);

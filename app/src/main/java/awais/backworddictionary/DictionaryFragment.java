@@ -98,11 +98,8 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
 
         filterView = magicRootView.findViewById(R.id.filterView);
 
-//        CardView filterCard = magicRootView.findViewById(R.id.filterCard);
-//        filterCard.setRadius(filterCard.getRadius() * 8.0f); todo?
-
         ImageView filterBackButton = magicRootView.findViewById(R.id.filterBack);
-        filterBackButton.setOnClickListener(view -> isOpen(false, fab, 0));
+        filterBackButton.setOnClickListener(view -> showFilter(false, fab, 0));
         filterSearchEditor = magicRootView.findViewById(R.id.swipeSearch);
         filterSearchButton = magicRootView.findViewById(R.id.filterSettings);
         filterSearchButton.setTag("filter");
@@ -215,16 +212,25 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     }
 
     public void hideFilter() {
-        if (fab != null) isOpen(false, fab, 0);
+        if (fab != null) showFilter(false, fab, 0);
     }
 
+
+    /**
+     * DO NOT CHANGE ANYTHING HERE, I STILL DON'T HAVE
+     * ANY IDEA WHAT IS METHOD ABOUT, PLEASE FORGIVE ME.
+     * I ASK FOR FORGIVENESS GOD. I SWEAR.
+     * @param showFilter either to show or hide filter
+     * @param fab        the floating action button
+     * @param method     no idea what this is. i really forgot.
+     */
     @Override
-    public void isOpen(boolean opened, FloatingActionButton fab, int method) {
+    public void showFilter(boolean showFilter, FloatingActionButton fab, int method) {
         this.fab = fab;
 
         float topMargin = getResources().getDimension(R.dimen.toolbarSize);
 
-        if (opened) {
+        if (showFilter) {
             if (method == 0 && filterView != null) {
                 filterView.setVisibility(View.VISIBLE);
                 if (filterSearchEditor != null) filterSearchEditor.requestFocus();
