@@ -2,20 +2,15 @@ package awais.backworddictionary;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.graphics.Typeface;
-import android.os.Build;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.SnackbarContentLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -30,21 +25,12 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
-import com.keiferstone.nonet.ConnectionStatus;
-import com.keiferstone.nonet.NoNet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +38,6 @@ import java.util.Locale;
 
 import awais.backworddictionary.asyncs.SearchAsync;
 import awais.backworddictionary.custom.AdvancedDialog;
-import awais.backworddictionary.custom.Listener;
 import awais.backworddictionary.custom.MenuCaller;
 import awais.backworddictionary.custom.SearchAdapter;
 import awais.backworddictionary.custom.SearchHistoryTable;
@@ -80,8 +65,8 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     private SearchHistoryTable mHistoryDatabase;
     private FloatingActionButton fabFilter;
     private MenuCaller menuCaller;
-    private ImageView noInternet;
-    private Snackbar snackbar;
+//    private ImageView noInternet;
+//    private Snackbar snackbar;
     private AppBarLayout appBarLayout;
 
     @Override
@@ -89,36 +74,33 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         super.onCreate(savedInstanceState);
         Utils.initCrashlytics(this);
         setContentView(R.layout.activity_main);
-        MobileAds.initialize(this, getResources().getString(R.string.appid));
 
-        AdView adView = findViewById(R.id.adView);
-        adView.setAdListener(new Listener(findViewById(R.id.adLayout)));
-        adView.loadAd(new AdRequest.Builder().build());
+        sharedPreferences = getSharedPreferences("settings", MODE_PRIVATE);
+        Utils.adsBox(this);
 
         tabLayout = findViewById(R.id.tabs);
         viewPager = findViewById(R.id.viewpager);
-        noInternet = findViewById(R.id.noInternet);
+//        noInternet = findViewById(R.id.noInternet);
         fabFilter = findViewById(R.id.filterButton);
         appBarLayout = findViewById(R.id.appbarLayout);
         // fabOptions = findViewById(R.id.fabOptions);
 
-        snackbar = Snackbar.make(viewPager, R.string.no_connection, -2);
+//        snackbar = Snackbar.make(viewPager, R.string.no_connection, -2);
 
-        SnackbarContentLayout contentLayout = (SnackbarContentLayout) ((ViewGroup) snackbar.getView()).getChildAt(0);
-        Button actionButton = contentLayout.findViewById(R.id.snackbar_action);
-        actionButton.setVisibility(View.VISIBLE);
-        actionButton.setText(R.string.settings);
-        actionButton.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS)));
-        try {
-            View snack = (View) contentLayout.getParent();
-            CoordinatorLayout.LayoutParams snackParams = (CoordinatorLayout.LayoutParams) snack.getLayoutParams();
-            snackParams.width = CoordinatorLayout.LayoutParams.MATCH_PARENT;
-            snackParams.gravity = Gravity.FILL_HORIZONTAL | Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
-            snack.setLayoutParams(snackParams);
-        } catch (Exception ignored) {}
+//        SnackbarContentLayout contentLayout = (SnackbarContentLayout) ((ViewGroup) snackbar.getView()).getChildAt(0);
+//        Button actionButton = contentLayout.findViewById(R.id.snackbar_action);
+//        actionButton.setVisibility(View.VISIBLE);
+//        actionButton.setText(R.string.settings);
+//        actionButton.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS)));
+//        try {
+//            View snack = (View) contentLayout.getParent();
+//            CoordinatorLayout.LayoutParams snackParams = (CoordinatorLayout.LayoutParams) snack.getLayoutParams();
+//            snackParams.width = CoordinatorLayout.LayoutParams.MATCH_PARENT;
+//            snackParams.gravity = Gravity.FILL_HORIZONTAL | Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
+//            snack.setLayoutParams(snackParams);
+//        } catch (Exception ignored) {}
 
         menuCaller = new MenuCaller(this);
-        sharedPreferences = getSharedPreferences("settings", MODE_PRIVATE);
         setSupportActionBar(findViewById(R.id.toolbar));
 
         TooltipCompat.setTooltipText(fabFilter, getString(R.string.filter));
@@ -130,39 +112,40 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
         handleData();
 
-        setupNoNet();
+//        setupNoNet();
     }
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        setSearchView();
-        myThread loadFragments = new myThread(1);
-        myThread setupTTS = new myThread(2);
+        myThread loadFragments = new myThread(true);
+        myThread setupTTS = new myThread(false);
 
         loadFragments.start();
         setupTTS.start();
+        
+        setSearchView();
     }
 
-    private void setupNoNet() {
-        NoNet.monitor(this).configure(NoNet.configure().endpoint("http://api.datamuse.com/words")
-                .connectedPollFrequency(1).disconnectedPollFrequency(1).build()).callback(connectionStatus -> {
-
-            DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
-            if (connectionStatus != ConnectionStatus.CONNECTED) {
-                if (fragment == null || fragment.wordsAdapter == null || fragment.wordsAdapter.getItemCount() <= 0)
-                    connectionTheme(false);
-            } else {
-                connectionTheme(true);
-                if (fragment != null && !Utils.isEmpty(fragment.title) &&
-                        !fragment.title.equals(getString(R.string.app_name))
-                        && fragment.wordsAdapter.getItemCount() < 1)
-                    onSearch(fragment.title);
-            }
-
-        }).snackbar(snackbar);
-    }
+//    private void setupNoNet() {
+//        NoNet.monitor(this).configure(NoNet.configure().endpoint("http://api.datamuse.com/words")
+//                .connectedPollFrequency(1).disconnectedPollFrequency(1).build()).callback(connectionStatus -> {
+//
+//            DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
+//            if (connectionStatus != ConnectionStatus.CONNECTED) {
+//                if (fragment == null || fragment.wordsAdapter == null || fragment.wordsAdapter.getItemCount() <= 0)
+//                    connectionTheme(false);
+//            } else {
+//                connectionTheme(true);
+//                if (fragment != null && !Utils.isEmpty(fragment.title) &&
+//                        !fragment.title.equals(getString(R.string.app_name))
+//                        && fragment.wordsAdapter.getItemCount() < 1)
+//                    onSearch(fragment.title);
+//            }
+//
+//        }).snackbar(snackbar);
+//    }
 
     @Override
     public void loadFragments(boolean main) {
@@ -215,10 +198,10 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                             }
                         }
                     }
-                    try {
-                        if (currentItem.wordsAdapter != null && currentItem.wordsAdapter.getItemCount() > 0)
-                            connectionTheme(true);
-                    } catch (Exception ignored) {}
+//                    try {
+//                        if (currentItem.wordsAdapter != null && currentItem.wordsAdapter.getItemCount() > 0)
+//                            connectionTheme(true);
+//                    } catch (Exception ignored) {}
 
                     if (prevItem != null && prevItem.isAdded())
                         prevItem.showFilter(true, fabFilter, 30);
@@ -300,7 +283,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         });
 
         menu.findItem(R.id.mSettings).setOnMenuItemClickListener(item -> {
-            new SettingsDialog(this).show();
+            new SettingsDialog(Main.this).show();
             return true;
         });
 
@@ -332,15 +315,18 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     @Override
     public void afterSearch(ArrayList<WordItem> result) {
         if (mSearchView != null && mSearchView.isShowingProgress()) mSearchView.hideProgress();
-        if (result != null && !result.isEmpty() && mSearchView != null
-                && mSearchView != null && searchAdapter != null) {
-            ArrayList<SearchItem> suggestionsList = new ArrayList<>();
-            for (WordItem item : result) suggestionsList.add(new SearchItem(item.getWord()));
-            searchAdapter.setData(suggestionsList);
-            searchAdapter.setSuggestionsList(suggestionsList);
-            searchAdapter.notifyDataSetChanged();
-            mSearchView.showSuggestions();
-        }
+
+        if (result == null || result.isEmpty() || mSearchView == null || searchAdapter == null)
+            return;
+
+        ArrayList<SearchItem> suggestionsList = new ArrayList<>();
+        for (WordItem item : result)
+            suggestionsList.add(new SearchItem(item.getWord()));
+
+        searchAdapter.setData(suggestionsList);
+        searchAdapter.setSuggestionsList(suggestionsList);
+        searchAdapter.notifyDataSetChanged();
+        mSearchView.showSuggestions();
     }
 
     @Override
@@ -351,129 +337,127 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
     @Override
     public void onBackPressed() {
-        if (fragmentsAdapter != null && viewPager != null && fragmentsAdapter.getCount() > 0) {
+        if (fragmentsAdapter == null || viewPager == null || fragmentsAdapter.getCount() <= 0)
+            super.onBackPressed();
+        else {
             DictionaryFragment dictionaryFragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
             if (dictionaryFragment != null && dictionaryFragment.isAdded()
                     && dictionaryFragment.isFilterOpen())
                 dictionaryFragment.hideFilter();
             else super.onBackPressed();
-        } else super.onBackPressed();
+        }
     }
 
     private void setSearchView() {
         mSearchView = findViewById(R.id.searchView);
-        if (mSearchView != null) {
-            mSearchView.bringToFront();
+        if (mSearchView == null) return;
+        mSearchView.bringToFront();
 
-            mSearchView.setVersion(SearchView.VERSION_MENU_ITEM);
-            mSearchView.setVersionMargins(SearchView.VERSION_MARGINS_MENU_ITEM);
-            mSearchView.setHint(R.string.search);
-            mSearchView.setShadowColor(ContextCompat.getColor(this, R.color.search_shadow_layout));
+        mSearchView.setVersion(SearchView.VERSION_MENU_ITEM);
+        mSearchView.setVersionMargins(SearchView.VERSION_MARGINS_MENU_ITEM);
+        mSearchView.setHint(R.string.search);
+        mSearchView.setShadowColor(ContextCompat.getColor(this, R.color.search_shadow_layout));
 
-            // CardView cardView = mSearchView.findViewById(R.id.cardView);
-            // cardView.setRadius(cardView.getRadius() * 8.0f);
+        mHistoryDatabase = new SearchHistoryTable(this);
+        mHistoryDatabase.setHistorySize(8);
 
-            mHistoryDatabase = new SearchHistoryTable(this);
-            mHistoryDatabase.setHistorySize(8);
-
-            searchAdapter = new SearchAdapter(mHistoryDatabase);
-            searchAdapter.setHasStableIds(true);
-            searchAdapter.addOnItemClickListener((View view, int position, String text) -> {
-                onSearch(text);
-                addHistoryItem(text);
+        searchAdapter = new SearchAdapter(mHistoryDatabase);
+        searchAdapter.setHasStableIds(true);
+        searchAdapter.addOnItemClickListener((View view, int position, String text) -> {
+            onSearch(text);
+            addHistoryItem(text);
+        });
+        searchAdapter.addOnItemLongClickListener((view, position, text) -> {
+            AlertDialog alertDialog = new AlertDialog.Builder(Main.this).create();
+            alertDialog.setTitle(getString(R.string.remove_recent));
+            alertDialog.setMessage(getString(R.string.confirm_remove, text));
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.yes), (dialog, which) -> {
+                deleteHistoryItem(text);
+                dialog.dismiss();
             });
-            searchAdapter.addOnItemLongClickListener((view, position, text) -> {
-                AlertDialog alertDialog = new AlertDialog.Builder(Main.this).create();
-                alertDialog.setTitle(getString(R.string.remove_recent));
-                alertDialog.setMessage(getString(R.string.confirm_remove, text));
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.yes), (dialog, which) -> {
-                    deleteHistoryItem(text);
-                    dialog.dismiss();
-                });
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.no), (dialog, which) -> dialog.dismiss());
-                alertDialog.show();
-                TextView tvMessage = alertDialog.findViewById(android.R.id.message);
-                if (tvMessage != null) {
-                    tvMessage.setTypeface(LinkedApp.fontRegular);
-                    String tvMessageText = tvMessage.getText().toString();
-                    SpannableStringBuilder messageSpan = new SpannableStringBuilder(tvMessageText);
-                    int spanStart = tvMessageText.indexOf('"');
-                    int spanEnd = tvMessageText.lastIndexOf('"');
-                    messageSpan.setSpan(new StyleSpan(Typeface.BOLD), spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    messageSpan.delete(spanStart, spanStart + 1);
-                    messageSpan.delete(spanEnd - 1, spanEnd);
-                    tvMessage.setText(messageSpan);
-                }
+            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.no), (dialog, which) -> dialog.dismiss());
+            alertDialog.show();
+            TextView tvMessage = alertDialog.findViewById(android.R.id.message);
+            if (tvMessage != null) {
+                tvMessage.setTypeface(LinkedApp.fontRegular);
+                String tvMessageText = tvMessage.getText().toString();
+                SpannableStringBuilder messageSpan = new SpannableStringBuilder(tvMessageText);
+                int spanStart = tvMessageText.indexOf('"');
+                int spanEnd = tvMessageText.lastIndexOf('"');
+                messageSpan.setSpan(new StyleSpan(Typeface.BOLD), spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                messageSpan.delete(spanStart, spanStart + 1);
+                messageSpan.delete(spanEnd - 1, spanEnd);
+                tvMessage.setText(messageSpan);
+            }
+            return true;
+        });
+        mSearchView.setAdapter(searchAdapter);
+
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            private final Handler handler = new Handler();
+            private String text = "";
+            private SearchAsync async = new SearchAsync(Main.this);
+            private final Runnable textWatch = () -> {
+                if (async.getStatus() == AsyncTask.Status.RUNNING)
+                    async.cancel(true);
+                if (async.getStatus() == AsyncTask.Status.FINISHED)
+                    async = new SearchAsync(Main.this);
+                if (!Utils.isEmpty(text)) async.execute(text);
+                else try { async.cancel(true); } catch (Exception ignore) {}
+            };
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                try { handler.removeCallbacks(textWatch); } catch (Exception ignored) {}
+                if (mHistoryDatabase != null && !Utils.isEmpty(query))
+                    try {
+                        addHistoryItem(query);
+                    } catch (Exception e) {
+                        Crashlytics.logException(e);
+                    }
+                onSearch(query);
                 return true;
-            });
-            mSearchView.setAdapter(searchAdapter);
+            }
 
-            mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                private final Handler handler = new Handler();
-                private String text = "";
-                private long last_text_edit = System.currentTimeMillis();
-                private final Runnable textWatch = () -> {
-                    if (System.currentTimeMillis() > (last_text_edit + 500L)) {
-                        if (!Utils.isEmpty(text))
-                            new SearchAsync(Main.this).execute(text);
-                    }
-                };
-
-                @Override
-                public boolean onQueryTextSubmit(String query) {
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                text = newText;
+                if (!Utils.isEmpty(newText)) {
                     try { handler.removeCallbacks(textWatch); } catch (Exception ignored) {}
-                    if (mHistoryDatabase != null && !Utils.isEmpty(query)) {
-                        try {
-                            addHistoryItem(query);
-                        } catch (Exception e) {
-                            Crashlytics.logException(e);
-                        }
-                    }
-                    onSearch(query);
-                    return true;
+                    handler.postDelayed(textWatch, 800);
                 }
+                return false;
+            }
+        });
 
-                @Override
-                public boolean onQueryTextChange(String newText) {
-                    text = newText;
-                    if (!Utils.isEmpty(newText)) {
-                        last_text_edit = System.currentTimeMillis();
-                        try { handler.removeCallbacks(textWatch); } catch (Exception ignored) {}
-                        handler.postDelayed(textWatch, 800);
-                    }
-                    return false;
+        mSearchView.setOnOpenCloseListener(new SearchView.OnOpenCloseListener() {
+            private final Toolbar mToolbar = findViewById(R.id.toolbar);
+            private final AppBarLayout.LayoutParams p = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+
+            @Override
+            public boolean onClose() {
+                if (fragmentsAdapter != null) {
+                    DictionaryFragment currentFragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
+                    if (currentFragment != null && currentFragment.isAdded()
+                            && !currentFragment.isFilterOpen())
+                        currentFragment.showFilter(false, fabFilter, 1);
                 }
-            });
+                p.setScrollFlags(5);
+                mToolbar.setLayoutParams(p);
+                return false;
+            }
 
-            mSearchView.setOnOpenCloseListener(new SearchView.OnOpenCloseListener() {
-                private final Toolbar mToolbar = findViewById(R.id.toolbar);
-                private final AppBarLayout.LayoutParams p = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
-
-                @Override
-                public boolean onClose() {
-                    if (fragmentsAdapter != null) {
-                        DictionaryFragment currentFragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
-                        if (currentFragment != null && currentFragment.isAdded()
-                                && !currentFragment.isFilterOpen())
-                            currentFragment.showFilter(false, fabFilter, 1);
-                    }
-                    p.setScrollFlags(5);
-                    mToolbar.setLayoutParams(p);
-                    return false;
-                }
-
-                @Override
-                public boolean onOpen() {
-                    DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
-                    if (fragment != null && fragment.isAdded())
-                        fragment.showFilter(true, fabFilter, 1);
-                    appBarLayout.setExpanded(true, true);
-                    p.setScrollFlags(0);
-                    mToolbar.setLayoutParams(p);
-                    return false;
-                }
-            });
-        }
+            @Override
+            public boolean onOpen() {
+                DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
+                if (fragment != null && fragment.isAdded())
+                    fragment.showFilter(true, fabFilter, 1);
+                appBarLayout.setExpanded(true, true);
+                p.setScrollFlags(0);
+                mToolbar.setLayoutParams(p);
+                return false;
+            }
+        });
     }
 
     private void addHistoryItem(CharSequence query) {
@@ -498,72 +482,73 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         mHistoryDatabase.close();
     }
 
-    private void connectionTheme(boolean isConnected) {
-        if (isConnected) {
-            if (noInternet != null) noInternet.setVisibility(View.GONE);
-            if (viewPager != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-                    viewPager.setBackground(null);
-                viewPager.setBackgroundDrawable(null);
-                viewPager.setBackgroundResource(0);
-            }
-
-            if (appBarLayout != null)
-                appBarLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
-
-            int color = getResources().getColor(R.color.colorAccent);
-            if (fabFilter != null) {
-                fabFilter.setBackgroundColor(color);
-                fabFilter.setBackgroundTintList(ColorStateList.valueOf(color));
-            }
-        } else {
-            if (noInternet != null)
-                noInternet.setVisibility(View.VISIBLE);
-
-            int color = getResources().getColor(R.color.noInternet);
-            if (viewPager != null)
-                viewPager.setBackgroundColor(color);
-            if (appBarLayout != null)
-                appBarLayout.setBackgroundColor(color);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                getWindow().setStatusBarColor(getResources().getColor(R.color.noInternetStatusBar));
-
-            color = getResources().getColor(R.color.noInternetAccent);
-            if (fabFilter != null) {
-                fabFilter.setBackgroundColor(color);
-                fabFilter.setBackgroundTintList(ColorStateList.valueOf(color));
-            }
-        }
-    }
+//    private void connectionTheme(boolean isConnected) {
+//        if (isConnected) {
+//            if (noInternet != null) noInternet.setVisibility(View.GONE);
+//            if (viewPager != null) {
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+//                    viewPager.setBackground(null);
+//                viewPager.setBackgroundDrawable(null);
+//                viewPager.setBackgroundResource(0);
+//            }
+//
+//            if (appBarLayout != null)
+//                appBarLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+//                getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+//
+//            int color = getResources().getColor(R.color.colorAccent);
+//            if (fabFilter != null) {
+//                fabFilter.setBackgroundColor(color);
+//                fabFilter.setBackgroundTintList(ColorStateList.valueOf(color));
+//            }
+//        } else {
+//            if (noInternet != null)
+//                noInternet.setVisibility(View.VISIBLE);
+//
+//            int color = getResources().getColor(R.color.noInternet);
+//            if (viewPager != null)
+//                viewPager.setBackgroundColor(color);
+//            if (appBarLayout != null)
+//                appBarLayout.setBackgroundColor(color);
+//
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+//                getWindow().setStatusBarColor(getResources().getColor(R.color.noInternetStatusBar));
+//
+//            color = getResources().getColor(R.color.noInternetAccent);
+//            if (fabFilter != null) {
+//                fabFilter.setBackgroundColor(color);
+//                fabFilter.setBackgroundTintList(ColorStateList.valueOf(color));
+//            }
+//        }
+//    }
 
     private class myThread extends Thread {
-        private final int method;
+        private final boolean method;
 
-        myThread(int method) { this.method = method; }
+        myThread(boolean method) { this.method = method; }
 
         @Override
         public void run() {
-            switch (method) {
-                case 1:
+            if (method) {
+                try {
                     loadFragments(true);
-                    break;
-                case 2:
-                    tts = new TextToSpeech(Main.this, initStatus -> {
-                        if (initStatus == TextToSpeech.SUCCESS) {
-                            if (tts.isLanguageAvailable(Locale.US) == TextToSpeech.LANG_AVAILABLE)
-                                tts.setLanguage(Locale.US);
-                            else if (tts.isLanguageAvailable(Locale.CANADA) == TextToSpeech.LANG_AVAILABLE)
-                                tts.setLanguage(Locale.CANADA);
-                            else if (tts.isLanguageAvailable(Locale.UK) == TextToSpeech.LANG_AVAILABLE)
-                                tts.setLanguage(Locale.UK);
-                            else if (tts.isLanguageAvailable(Locale.ENGLISH) == TextToSpeech.LANG_AVAILABLE)
-                                tts.setLanguage(Locale.ENGLISH);
-                        }
-                    });
-                    break;
+                } catch (Exception ignored) {
+                    runOnUiThread(() -> loadFragments(true));
+                }
+            } else {
+                tts = new TextToSpeech(Main.this, initStatus -> {
+                    if (initStatus == TextToSpeech.SUCCESS) {
+                        if (tts.isLanguageAvailable(Locale.US) == TextToSpeech.LANG_AVAILABLE)
+                            tts.setLanguage(Locale.US);
+                        else if (tts.isLanguageAvailable(Locale.CANADA) == TextToSpeech.LANG_AVAILABLE)
+                            tts.setLanguage(Locale.CANADA);
+                        else if (tts.isLanguageAvailable(Locale.UK) == TextToSpeech.LANG_AVAILABLE)
+                            tts.setLanguage(Locale.UK);
+                        else if (tts.isLanguageAvailable(Locale.ENGLISH) == TextToSpeech.LANG_AVAILABLE)
+                            tts.setLanguage(Locale.ENGLISH);
+                    }
+                });
             }
         }
     }

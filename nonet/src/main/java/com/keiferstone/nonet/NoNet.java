@@ -7,7 +7,7 @@ import android.content.Context;
 /**
  * An Android library for monitoring network connectivity.
  */
-public final class NoNet {
+final class NoNet {
     private static NoNet instance = null;
 
     private Configuration configuration;
@@ -45,12 +45,11 @@ public final class NoNet {
             builder.configure(instance.configuration);
         }
         if (context != null) {
-            if (context instanceof Activity) {
+            if (context instanceof Activity)
                 instance.monitorManager.attachToApplication(((Activity) context).getApplication());
-            } else if (context instanceof Service) {
+            else if (context instanceof Service)
                 instance.monitorManager.attachToApplication(((Service) context).getApplication());
             }
-        }
         instance.monitorManager.registerMonitor(builder.monitor);
         return builder;
     }
@@ -77,6 +76,7 @@ public final class NoNet {
      * <p>
      * Normal usage does not require calling this method.
      */
+    @SuppressWarnings("unused")
     public static void destroy() {
         if (instance != null) instance.monitorManager.destroy();
     }

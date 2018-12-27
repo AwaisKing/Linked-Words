@@ -20,9 +20,10 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
 
-    <string name="no_connection">Not connected to internet.</string>
+    <!--<string name="no_connection">Not connected to internet.</string>-->
     <string name="filter_settings">Filter Settings</string>
     <string name="max_words">Max Words</string>
+    <string name="show_ads">Show Ads</string>
 
     <string name="reverse_related">Reverse/Related</string>
     <string name="reverse">Reverse</string>

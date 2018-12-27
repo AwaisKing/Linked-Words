@@ -20,7 +20,6 @@ import static com.keiferstone.nonet.ConnectionStatus.UNKNOWN;
 
 @SuppressWarnings( {"unused"} )
 public class Monitor {
-    private static final String TAG = "AWAISKING_APP";
     private WeakReference<Context> contextRef;
     private Configuration configuration;
     private final Handler handler;

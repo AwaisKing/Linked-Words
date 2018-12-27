@@ -1,7 +1,6 @@
 package com.keiferstone.nonet;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import java.util.concurrent.TimeUnit;
 
@@ -14,7 +13,6 @@ import static com.keiferstone.nonet.ConnectionStatus.DISCONNECTED;
 
 @SuppressWarnings( "UnusedReturnValue" )
 class PollTask extends AsyncTask<Void, Void, Integer> {
-    private static final String TAG = PollTask.class.getSimpleName();
     private static OkHttpClient client;
     private final Configuration configuration;
     private final OnPollCompletedListener listener;
@@ -23,9 +21,8 @@ class PollTask extends AsyncTask<Void, Void, Integer> {
         this.configuration = configuration;
         this.listener = listener;
 
-        if (client == null)
-            client = new OkHttpClient.Builder()
-                    .connectTimeout(configuration.getTimeout(), TimeUnit.SECONDS).build();
+        if (client == null) client = new OkHttpClient.Builder()
+                .connectTimeout(configuration.getTimeout(), TimeUnit.SECONDS).build();
     }
 
     static PollTask run(Configuration configuration, OnPollCompletedListener listener) {
@@ -36,10 +33,7 @@ class PollTask extends AsyncTask<Void, Void, Integer> {
     @ConnectionStatus
     @Override
     protected Integer doInBackground(Void... params) {
-        Log.d(TAG, "Executing request to " + configuration.getEndpoint());
-
-        Request request = new Request.Builder().url(configuration.getEndpoint())
-                .build();
+        Request request = new Request.Builder().url(configuration.getEndpoint()).build();
 
         Response response;
         try {
@@ -48,18 +42,14 @@ class PollTask extends AsyncTask<Void, Void, Integer> {
             return DISCONNECTED;
         }
 
-        if (response != null && response.isSuccessful()) return CONNECTED;
+        if (response.isSuccessful()) return CONNECTED;
 
         return DISCONNECTED;
     }
 
     @Override
     protected void onPostExecute(@ConnectionStatus Integer integer) {
-        Log.d(TAG, "Poll result: " + integer);
-
-        if (listener != null) {
-            listener.onPollCompleted(integer);
-        }
+        if (listener != null) listener.onPollCompleted(integer);
     }
 
     interface OnPollCompletedListener {

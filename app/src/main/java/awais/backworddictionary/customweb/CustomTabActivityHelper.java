@@ -14,6 +14,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import awais.backworddictionary.BuildConfig;
+
 public class CustomTabActivityHelper {
     private static final String STABLE_PACKAGE = "com.android.chrome";
     private static final String BETA_PACKAGE = "com.chrome.beta";
@@ -82,13 +84,14 @@ public class CustomTabActivityHelper {
             if (handlers == null || handlers.size() == 0) return false;
             for (ResolveInfo resolveInfo : handlers) {
                 IntentFilter filter = resolveInfo.filter;
-                if (filter == null) continue;
-                if (filter.countDataAuthorities() == 0 || filter.countDataPaths() == 0) continue;
-                if (resolveInfo.activityInfo == null) continue;
+                if (filter == null || filter.countDataAuthorities() == 0
+                        || filter.countDataPaths() == 0 || resolveInfo.activityInfo == null)
+                    continue;
                 return true;
             }
-        } catch (RuntimeException e) {
-            Log.e("AWAISKING_CHROME_VIEW", "Runtime exception while getting specialized handlers");
+        } catch (Exception e) {
+            if (BuildConfig.DEBUG)
+                Log.e("AWAISKING_CHROME_VIEW", "", e);
         }
         return false;
     }

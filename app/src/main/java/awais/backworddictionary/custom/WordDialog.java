@@ -14,6 +14,7 @@ import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.widget.DialogTitle;
 import android.support.v7.widget.PopupMenu;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -25,6 +26,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
@@ -74,9 +76,9 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
             list.add(new String[] {"", activity.getString(R.string.no_definition_found)});
 
         lvDefs.setAdapter(new WordAdapter(activity, list, (view, position, text) -> {
-            if (!String.valueOf(text).equals(activity.getString(R.string.no_definition_found))
-                    && !String.valueOf(text).isEmpty())
-                copyText(String.valueOf(text).replaceAll("^(.*)\\t", ""));
+            String str = String.valueOf(text);
+            if (!str.equals(activity.getString(R.string.no_definition_found)) && !str.isEmpty())
+                copyText(str.replaceAll("^(.*)\\t", ""));
         }));
 
         Button copy = findViewById(R.id.btnCopy);
@@ -150,20 +152,22 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
 
     private void showPopupMenu(View view) {
         PopupMenu popup = new PopupMenu(view.getContext(), view);
-        popup.getMenuInflater().inflate(R.menu.menu_search, popup.getMenu());
+        Menu menu = popup.getMenu();
+        popup.getMenuInflater().inflate(R.menu.menu_search, menu);
 
         for (int i = boolsArray.length - 1; i >= 0; i--)
-            popup.getMenu().getItem(i).setVisible(Boolean.parseBoolean(boolsArray[i]));
+            menu.getItem(i).setVisible(Boolean.parseBoolean(boolsArray[i]));
 
         popup.setOnMenuItemClickListener(menuItem -> {
-            if (activity.getClass() == Main.class) {
+            if (activity instanceof Main) {
                 try {
-                    int index = ((Main) activity).getItemPosition((String) menuItem.getTitle());
-                    ((Main)activity).fragmentsAdapter.getItem(index).title = wordItem.getWord();
-                    ((Main)activity).viewPager.setCurrentItem(index, true);
-                    ((Main)activity).onSearch(wordItem.getWord());
+                    Main actMain = (Main) activity;
+                    int index = actMain.getItemPosition((String) menuItem.getTitle());
+                    actMain.fragmentsAdapter.getItem(index).title = wordItem.getWord();
+                    actMain.viewPager.setCurrentItem(index, true);
+                    actMain.onSearch(wordItem.getWord());
                 } catch (Exception e) {
-                    Log.e("AWAISKING_APP", "", e);
+                    if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
                 }
             }
             dismiss();

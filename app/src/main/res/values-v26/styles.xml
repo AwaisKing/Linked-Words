@@ -9,7 +9,7 @@
     </style>
 
     <style name="TabStyle" parent="TextAppearance.Design.Tab">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@android:color/white</item>
         <item name="android:typeface">sans</item>
         <item name="fontFamily">@font/googlesans_medium</item>
         <item name="android:fontFamily">@font/googlesans_medium</item>

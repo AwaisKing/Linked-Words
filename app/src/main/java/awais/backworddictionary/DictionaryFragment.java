@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -27,6 +28,7 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import awais.backworddictionary.asyncs.WordsAsync;
 import awais.backworddictionary.custom.WordItem;
@@ -60,10 +62,14 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,@Nullable Bundle savedInstanceState) {
-        final View magicRootView = inflater.inflate(R.layout.dictionary_view, container, false);
+        return inflater.inflate(R.layout.dictionary_view, container, false);
+    }
 
-        if (getActivity() != null) activity = getActivity();
-        else activity = (Activity) getContext();
+    @Override
+    public void onViewCreated(@NonNull View magicRootView, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(magicRootView, savedInstanceState);
+
+        activity = getActivity() != null ? getActivity() : (Activity) getContext();
 
         if (activity != null)
             imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -151,8 +157,6 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                 filterSearchButton.setTag("filter");
             }
         });
-
-        return magicRootView;
     }
 
     private void toggleKeyboard(boolean show) {
@@ -171,8 +175,20 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (getActivity() != null) activity = getActivity();
-        else activity = (Activity) context;
+        activity = getActivity() != null ? getActivity() : (Activity) context;
+        if (Main.tts != null) return;
+        Main.tts = new TextToSpeech(activity, initStatus -> {
+            if (initStatus == TextToSpeech.SUCCESS) {
+                if (Main.tts.isLanguageAvailable(Locale.US) == TextToSpeech.LANG_AVAILABLE)
+                    Main.tts.setLanguage(Locale.US);
+                else if (Main.tts.isLanguageAvailable(Locale.CANADA) == TextToSpeech.LANG_AVAILABLE)
+                    Main.tts.setLanguage(Locale.CANADA);
+                else if (Main.tts.isLanguageAvailable(Locale.UK) == TextToSpeech.LANG_AVAILABLE)
+                    Main.tts.setLanguage(Locale.UK);
+                else if (Main.tts.isLanguageAvailable(Locale.ENGLISH) == TextToSpeech.LANG_AVAILABLE)
+                    Main.tts.setLanguage(Locale.ENGLISH);
+            }
+        });
     }
 
     @Override

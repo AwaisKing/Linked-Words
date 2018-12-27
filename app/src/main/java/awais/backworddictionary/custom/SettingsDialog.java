@@ -2,20 +2,25 @@ package awais.backworddictionary.custom;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.widget.DialogTitle;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.NumberPicker;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
 
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
 
 public class SettingsDialog extends Dialog {
     private final int maxWords = Main.sharedPreferences.getInt("maxWords", 80);
+    private final boolean showAds = Main.sharedPreferences.getBoolean("showAds", true);
+    private final Activity activity;
 
     public SettingsDialog(Activity act) {
         super(act, R.style.Dialog);
+        activity = act;
     }
 
     @Override
@@ -34,12 +39,25 @@ public class SettingsDialog extends Dialog {
         numberPicker.setMaxValue(1000);
         numberPicker.setValue(maxWords);
 
+        LinearLayout showAdsLayout = findViewById(R.id.showAds);
+        CheckBox cbShowAds = (CheckBox) showAdsLayout.getChildAt(1);
+        cbShowAds.setChecked(showAds);
+        showAdsLayout.setOnClickListener(v -> cbShowAds.toggle());
+
         (findViewById(R.id.btnOK)).setOnClickListener(view -> {
-            Main.sharedPreferences.edit().putInt("maxWords", numberPicker.getValue()).apply();
+            SharedPreferences.Editor sharedEditor = Main.sharedPreferences.edit();
+            sharedEditor.putInt("maxWords", numberPicker.getValue());
+            sharedEditor.putBoolean("showAds", cbShowAds.isChecked());
+            if (activity instanceof Main) Utils.adsBox(activity);
+            sharedEditor.apply();
             dismiss();
         });
         (findViewById(R.id.btnCancel)).setOnClickListener(view -> {
-            Main.sharedPreferences.edit().putInt("maxWords", maxWords).apply();
+            if (activity instanceof Main) Utils.adsBox(activity);
+//            SharedPreferences.Editor sharedEditor = Main.sharedPreferences.edit();
+//            sharedEditor.putInt("maxWords", maxWords);
+//            sharedEditor.putBoolean("showAds", showAds);
+//            sharedEditor.apply();
             dismiss();
         });
     }

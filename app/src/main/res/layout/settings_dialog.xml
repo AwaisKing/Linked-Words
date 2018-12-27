@@ -21,6 +21,18 @@
             android:layout_height="wrap_content" android:layout_weight="1" />
     </LinearLayout>
 
+    <LinearLayout android:id="@+id/showAds" android:clickable="true" android:focusable="true"
+        android:layout_height="wrap_content" android:layout_width="match_parent"
+        android:gravity="center_vertical" android:layout_marginEnd="@dimen/toolbarSize"
+        android:layout_marginStart="@dimen/toolbarSize" android:orientation="horizontal">
+
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="2" android:text="@string/show_ads" />
+
+        <CheckBox android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="vertical" style="?attr/buttonBarStyle">
         <android.support.v7.widget.ButtonBarLayout android:layout_width="match_parent"

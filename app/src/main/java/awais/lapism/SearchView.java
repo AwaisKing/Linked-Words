@@ -4,6 +4,7 @@ import android.animation.LayoutTransition;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -33,7 +34,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -48,12 +48,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.R;
 
 @SuppressWarnings("unused")
@@ -244,12 +244,12 @@ public class SearchView extends FrameLayout implements View.OnClickListener {
         mProgressBar.setVisibility(View.GONE);
 
         mVoiceImageView = findViewById(R.id.imageView_mic);
-        mVoiceImageView.setImageResource(R.drawable.ic_mic_black_24dp);
+        mVoiceImageView.setImageResource(R.drawable.ic_mic_black);
         mVoiceImageView.setOnClickListener(this);
         mVoiceImageView.setVisibility(View.GONE);
 
         mEmptyImageView = findViewById(R.id.imageView_clear);
-        mEmptyImageView.setImageResource(R.drawable.ic_clear_black_24dp);
+        mEmptyImageView.setImageResource(R.drawable.ic_clear_black);
         mEmptyImageView.setOnClickListener(this);
         mEmptyImageView.setVisibility(View.GONE);
 
@@ -302,6 +302,7 @@ public class SearchView extends FrameLayout implements View.OnClickListener {
 
         setVersionMargins(VERSION_MARGINS_MENU_ITEM);
         setTheme(THEME_LIGHT);
+        setInfo();
         setVoice(true);
     }
 
@@ -608,11 +609,8 @@ public class SearchView extends FrameLayout implements View.OnClickListener {
     }
 
     public void setDivider(boolean divider) {
-        if (divider) {
-            mRecyclerView.addItemDecoration(new SearchDivider(mContext));
-        } else {
-            mRecyclerView.removeItemDecoration(new SearchDivider(mContext));
-        }
+        if (divider) mRecyclerView.addItemDecoration(new SearchDivider(mContext));
+        else mRecyclerView.removeItemDecoration(new SearchDivider(mContext));
     }
 
     public void setVoice(boolean voice) {
@@ -674,12 +672,8 @@ public class SearchView extends FrameLayout implements View.OnClickListener {
             f.setAccessible(true);
             try {
                 f.set(mSearchEditText, drawable);
-            } catch (IllegalAccessException e1) {
-                if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e1);
-            }
-        } catch (NoSuchFieldException e) {
-            if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
-        }
+            } catch (IllegalAccessException ignored) {}
+        } catch (NoSuchFieldException ignored) {}
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -925,38 +919,36 @@ public class SearchView extends FrameLayout implements View.OnClickListener {
     }
 
     private void onVoiceClicked() {
-        if (mOnVoiceClickListener != null) {
-            mOnVoiceClickListener.onVoiceClick();
-        }
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, mVoiceText);
-        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+        if (mOnVoiceClickListener != null) mOnVoiceClickListener.onVoiceClick();
+        try {
+            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, mVoiceText);
+            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
 
-        if (mActivity != null) {
-            mActivity.startActivityForResult(intent, SPEECH_REQUEST_CODE);
-        } else if (mFragment != null) {
-            mFragment.startActivityForResult(intent, SPEECH_REQUEST_CODE);
-        } else if (mSupportFragment != null) {
-            mSupportFragment.startActivityForResult(intent, SPEECH_REQUEST_CODE);
-        } else {
-            if (mContext instanceof Activity) {
-                ((Activity) mContext).startActivityForResult(intent, SPEECH_REQUEST_CODE);
+            if (mActivity != null) {
+                mActivity.startActivityForResult(intent, SPEECH_REQUEST_CODE);
+            } else if (mFragment != null) {
+                mFragment.startActivityForResult(intent, SPEECH_REQUEST_CODE);
+            } else if (mSupportFragment != null) {
+                mSupportFragment.startActivityForResult(intent, SPEECH_REQUEST_CODE);
+            } else {
+                if (mContext instanceof Activity) {
+                    ((Activity) mContext).startActivityForResult(intent, SPEECH_REQUEST_CODE);
+                }
             }
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(mContext, "No app or service found to perform voice search.", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void setInfo() {
         mVoice = isVoiceAvailable();
-        if (mVoice) {
-            mSearchEditText.setPrivateImeOptions("nm");
-        }
+        if (mVoice && mSearchEditText != null) mSearchEditText.setPrivateImeOptions("nm");
     }
 
     private boolean isVoiceAvailable() {
-        if (isInEditMode()) {
-            return true;
-        }
+        if (isInEditMode()) return true;
         PackageManager pm = getContext().getPackageManager();
         List<ResolveInfo> activities = pm.queryIntentActivities(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
         return activities.size() != 0;
@@ -1124,13 +1116,13 @@ public class SearchView extends FrameLayout implements View.OnClickListener {
     }
 
     // ---------------------------------------------------------------------------------------------
-    @SuppressWarnings("SameReturnValue")
+    @SuppressWarnings({"SameReturnValue", "UnusedReturnValue"})
     public interface OnQueryTextListener {
         boolean onQueryTextSubmit(String query);
         boolean onQueryTextChange(String newText);
     }
 
-    @SuppressWarnings("SameReturnValue")
+    @SuppressWarnings({"SameReturnValue", "UnusedReturnValue"})
     public interface OnOpenCloseListener {
         boolean onClose();
         boolean onOpen();

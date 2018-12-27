@@ -97,18 +97,18 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/search_behavior2" />
 
-    <ImageView
-        android:id="@+id/noInternet"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="20dp"
-        android:contentDescription="@null"
-        android:padding="@dimen/toolbarSize"
-        android:src="@drawable/no_internet"
-        android:visibility="gone"
-        app:layout_behavior="@string/scroll_behavior"
-        app:srcCompat="@drawable/no_internet"
-        tools:srcCompat="@drawable/no_internet" />
+    <!--<ImageView-->
+        <!--android:id="@+id/noInternet"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_margin="20dp"-->
+        <!--android:contentDescription="@null"-->
+        <!--android:padding="@dimen/toolbarSize"-->
+        <!--android:src="@drawable/no_internet"-->
+        <!--android:visibility="gone"-->
+        <!--app:layout_behavior="@string/scroll_behavior"-->
+        <!--app:srcCompat="@drawable/no_internet"-->
+        <!--tools:srcCompat="@drawable/no_internet" />-->
 
     <!--<com.github.clans.fab.FloatingActionMenu-->
         <!--android:id="@+id/fabOptions"-->

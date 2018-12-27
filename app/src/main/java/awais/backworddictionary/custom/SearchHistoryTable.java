@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,13 +40,11 @@ public class SearchHistoryTable {
         if (!db.isOpen()) return;
         ContentValues values = new ContentValues();
         boolean isTextAvailable = checkText(item.get_text().toString());
-        Log.d("AWAISKING_APP", "isTextAvailable : " + isTextAvailable);
         if (!isTextAvailable) {
             values.put("_text", item.get_text().toString());
             db.insert("search_history", null, values);
         } else {
             int lastItemId = getLastItemId();
-            Log.d("AWAISKING_APP", "lastId: " + lastItemId);
             values.put("_id", lastItemId + 1);
             db.update("search_history", values, "_id = ?", new String[]{Integer.toString(getItemId(item))});
         }
@@ -122,10 +119,6 @@ public class SearchHistoryTable {
         }
 
         @Override
-        public void onOpen(SQLiteDatabase db) {
-        }
-
-        @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE IF NOT EXISTS search_history ( _id INTEGER PRIMARY KEY AUTOINCREMENT, _text TEXT );");
         }
@@ -140,5 +133,7 @@ public class SearchHistoryTable {
         public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             onUpgrade(db, oldVersion, newVersion);
         }
+
+        @Override public void onOpen(SQLiteDatabase db) {}
     }
 }

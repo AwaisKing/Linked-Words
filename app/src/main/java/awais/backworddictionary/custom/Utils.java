@@ -1,18 +1,25 @@
 package awais.backworddictionary.custom;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Typeface;
-import android.util.Log;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.view.View;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.lang.reflect.Field;
 
 import awais.backworddictionary.BuildConfig;
+import awais.backworddictionary.Main;
+import awais.backworddictionary.R;
 import io.fabric.sdk.android.Fabric;
 
-@SuppressWarnings( "BooleanMethodIsAlwaysInverted" )
 public class Utils {
 
     // thanks to weston
@@ -22,32 +29,38 @@ public class Utils {
             final Field staticField = Typeface.class.getDeclaredField(typefaceName);
             staticField.setAccessible(true);
             staticField.set(null, fontTypeface);
-        } catch (Exception e) {
-            Log.e("AWAISKING_APP", "", e);
-        }
+        } catch (Exception ignored) {}
     }
 
     public static boolean isEmpty(String str) {
-        if (str == null) return true;
-        if (str.length() <= 0) return true;
-        if (str.trim().isEmpty()) return true;
-        return str.trim().equals("");
+        return str == null || str.length() <= 0 || str.trim().isEmpty() || str.trim().equals("");
     }
 
     public static boolean isEmpty(CharSequence sequence) {
-        if (sequence == null) return true;
-        if (sequence.length() <= 0) return true;
-        if (sequence == "") return true;
-        return sequence.equals("");
+        return sequence == null || sequence.length() <= 0 || sequence == "" || sequence.equals("");
     }
 
     public static void initCrashlytics(Activity activity) {
-        GoogleApiAvailability.getInstance()
-                .makeGooglePlayServicesAvailable(activity)
-                .addOnCompleteListener(task -> {
-                    Log.d("AWAISKING_APP", "task[c: " + task.isComplete() + ", s: " + task.isSuccessful() + ", x: " + task.isCanceled() + "]");
-                    if (task.isSuccessful() && !BuildConfig.DEBUG)
-                        Fabric.with(activity, new Crashlytics());
-                });
+        GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(activity)
+            .addOnCompleteListener(task -> {
+                if (!task.isSuccessful() || BuildConfig.DEBUG) return;
+                Fabric.with(activity, new Crashlytics());
+            });
+    }
+
+    public static void adsBox(Activity activity) {
+        if (Main.sharedPreferences.getBoolean("showAds", true)) {
+            MobileAds.initialize(activity, activity.getResources().getString(R.string.appid));
+            AdView adView = activity.findViewById(R.id.adView);
+            adView.setAdListener(new Listener(activity.findViewById(R.id.adLayout)));
+            adView.loadAd(new AdRequest.Builder().build());
+        } else activity.findViewById(R.id.adLayout).setVisibility(View.GONE);
+    }
+
+    public static boolean isConnectedToInternet(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnected();
     }
 }

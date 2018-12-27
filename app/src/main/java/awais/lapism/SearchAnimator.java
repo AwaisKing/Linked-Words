@@ -60,28 +60,18 @@ class SearchAnimator {
             anim.addListener(new Animator.AnimatorListener() { // new AnimatorListenerAdapter()
                 @Override
                 public void onAnimationStart(Animator animation) {
-                    if (listener != null) {
-                        listener.onOpen();
-                    }
+                    if (listener != null) listener.onOpen();
                 }
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    if (shouldClearOnOpen && editText.length() > 0 && editText.getText() != null) {
+                    if (shouldClearOnOpen && editText.length() > 0 && editText.getText() != null)
                         editText.getText().clear();
-                    }
                     editText.requestFocus();
                 }
 
-                @Override
-                public void onAnimationCancel(Animator animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-
-                }
+                @Override public void onAnimationCancel(Animator animation) {}
+                @Override public void onAnimationRepeat(Animator animation) {}
             });
 
             view.setVisibility(View.VISIBLE);
@@ -96,10 +86,7 @@ class SearchAnimator {
 
         if (cx <= 0) {
             int padding = context.getResources().getDimensionPixelSize(R.dimen.search_reveal);
-            if (SearchUtils.isRtlLayout(context))
-                cx = padding;
-            else
-                cx = view.getWidth() - padding;
+            cx = SearchUtils.isRtlLayout(context) ? padding : view.getWidth() - padding;
         }
 
         int cy = context.getResources().getDimensionPixelSize(R.dimen.search_height) / 2;
@@ -124,9 +111,7 @@ class SearchAnimator {
                 public void onAnimationEnd(Animator animation) {
                     view.setVisibility(View.GONE);
                     searchView.setVisibility(View.GONE);
-                    if (listener != null) {
-                        listener.onClose();
-                    }
+                    if (listener != null) listener.onClose();
                 }
 
                 @Override public void onAnimationCancel(Animator animation) {}

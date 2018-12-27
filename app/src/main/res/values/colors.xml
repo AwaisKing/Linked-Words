@@ -4,10 +4,10 @@
     <color name="colorPrimaryDark">#0072CF</color>
     <color name="colorAccent">#2196F3</color>
 
-    <color name="noInternet">#D54235</color>
+    <!--<color name="noInternet">#D54235</color>-->
     <!--<color name="noInternetBar">#D54235</color>--> <!-- TODO ADD MAYBE IDK -->
-    <color name="noInternetStatusBar">#BF3727</color>
-    <color name="noInternetAccent">#FF3D00</color>
+    <!--<color name="noInternetStatusBar">#BF3727</color>-->
+    <!--<color name="noInternetAccent">#FF3D00</color>-->
 
     <color name="divider">#BDBDBD</color>
     <color name="cards_and_dialogs_color">@android:color/white</color>
