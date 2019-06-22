@@ -29,6 +29,7 @@ import java.util.List;
 import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
+import awais.backworddictionary.adapters.WordAdapter;
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
 
 import static awais.backworddictionary.Main.boolsArray;
@@ -47,7 +48,8 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
     @Override
     public void show() {
         super.show();
-        if (getWindow() != null) getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+        Window window = getWindow();
+        if (window != null) window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
     }
 
@@ -59,7 +61,8 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
         setCanceledOnTouchOutside(true);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        if (getWindow() != null) getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+        Window window = getWindow();
+        if (window != null) window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
 
         setContentView(R.layout.word_dialog);
@@ -75,9 +78,9 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
         } else
             list.add(new String[] {"", activity.getString(R.string.no_definition_found)});
 
-        lvDefs.setAdapter(new WordAdapter(activity, list, (view, position, text) -> {
+        lvDefs.setAdapter(new WordAdapter(activity, true, list, (view, position, text) -> {
             String str = String.valueOf(text);
-            if (!str.equals(activity.getString(R.string.no_definition_found)) && !str.isEmpty())
+            if (!str.isEmpty() && !str.equals(activity.getString(R.string.no_definition_found)))
                 copyText(str.replaceAll("^(.*)\\t", ""));
         }));
 
@@ -112,14 +115,15 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
             case R.id.btnGoogle:
                 String wordRawGoogle = wordItem.getWord().replace(" ", "+").replace("\\s", "+");
                 try {
-                    Intent intent1 = new Intent(Intent.ACTION_WEB_SEARCH);
-                    intent1.putExtra(SearchManager.QUERY, wordItem.getWord());
-                    intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent1.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-                    activity.startActivity(intent1);
+                    Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
+                    intent.putExtra(SearchManager.QUERY, wordItem.getWord());
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                    activity.startActivity(intent);
                 } catch (Exception e) {
                     customTabsIntent.setToolbarColor(Color.parseColor("#4888f2"));
-                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://google.com/search?q=".concat(wordRawGoogle)));
+                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(),
+                            Uri.parse("https://google.com/search?q=define+".concat(wordRawGoogle)));
                 }
                 break;
 
@@ -135,7 +139,8 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
                 if (resInfo1 != null && resInfo1.size() > 0) activity.startActivity(intent1);
                 else {
                     customTabsIntent.setToolbarColor(Color.parseColor("#333333"));
-                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://en.wikipedia.org/wiki/".concat(wordRawWiki)));
+                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(),
+                            Uri.parse("https://en.wikipedia.org/wiki/".concat(wordRawWiki)));
                 }
                 break;
 

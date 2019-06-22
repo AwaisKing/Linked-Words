@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="SearchView">
+    <declare-styleable name="MaterialSearchView">
         <attr name="search_height" format="integer" />
         <attr name="search_version" format="enum">
             <enum name="toolbar" value="1000" />

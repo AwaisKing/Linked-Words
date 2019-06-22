@@ -1,84 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:layout_marginTop="@dimen/search_view_margin_text" android:layout_marginBottom="8dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="@dimen/search_view_margin_text"
+    android:layout_marginBottom="8dp"
     android:orientation="vertical">
 
-    <android.support.v7.widget.DialogTitle android:id="@+id/alertTitle"
-        style="?android:attr/windowTitleStyle" android:layout_height="wrap_content"
-        android:ellipsize="end" android:singleLine="true" android:layout_width="match_parent"
-        android:layout_marginStart="@dimen/search_view_margin_text" android:layout_marginLeft="@dimen/search_view_margin_text"/>
+    <android.support.v7.widget.DialogTitle
+        android:id="@+id/alertTitle"
+        style="?android:attr/windowTitleStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/search_view_margin_text"
+        android:layout_marginLeft="@dimen/search_view_margin_text"
+        android:ellipsize="end"
+        android:singleLine="true" />
 
-    <ScrollView android:layout_width="match_parent" android:layout_height="0dp"
-        android:layout_weight="1" >
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="vertical" android:layout_marginStart="@dimen/fabPadding"
-            android:layout_marginEnd="@dimen/fabPadding" android:layout_marginTop="@dimen/filter_margin_start"
-            android:id="@+id/checkboxContainer" android:paddingBottom="@dimen/filter_margin_start">
-            <CheckBox android:id="@+id/rbReverse" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-                android:text="@string/reverse_related" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:padding="6dp" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-            <CheckBox android:id="@+id/rbSoundsLike" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-                android:text="@string/sounds_like" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:padding="6dp" />
+        <LinearLayout
+            android:id="@+id/checkboxContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dialog_padding"
+            android:layout_marginLeft="@dimen/dialog_padding"
+            android:layout_marginTop="@dimen/filter_margin_start"
+            android:layout_marginEnd="@dimen/dialog_padding"
+            android:layout_marginRight="@dimen/dialog_padding"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/filter_margin_start">
 
-            <CheckBox android:id="@+id/rbSpelledLike" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-                android:text="@string/spelled_like" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:padding="6dp" />
+            <CheckBox
+                android:id="@+id/rbReverse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="6dp"
+                android:text="@string/reverse_related"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <CheckBox android:id="@+id/rbSynonym" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-                android:text="@string/synonyms" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:padding="6dp" />
+            <CheckBox
+                android:id="@+id/rbSoundsLike"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="6dp"
+                android:text="@string/sounds_like"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <CheckBox android:id="@+id/rbAntonym" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-                android:text="@string/antonyms" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:padding="6dp" />
+            <CheckBox
+                android:id="@+id/rbSpelledLike"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="6dp"
+                android:text="@string/spelled_like"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <CheckBox android:id="@+id/rbTrigger" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-                android:text="@string/triggers" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:padding="6dp" />
+            <CheckBox
+                android:id="@+id/rbSynonym"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="6dp"
+                android:text="@string/synonyms"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <CheckBox android:id="@+id/rbPartOf" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-                android:text="@string/part_of" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:padding="6dp" />
+            <CheckBox
+                android:id="@+id/rbAntonym"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="6dp"
+                android:text="@string/antonyms"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <CheckBox android:id="@+id/rbComprise" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-                android:text="@string/comprises" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:padding="6dp" />
+            <CheckBox
+                android:id="@+id/rbTrigger"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="6dp"
+                android:text="@string/triggers"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <CheckBox android:id="@+id/rbRhymes" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-                android:text="@string/rhymes" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:padding="6dp" />
+            <CheckBox
+                android:id="@+id/rbPartOf"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="6dp"
+                android:text="@string/part_of"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <CheckBox android:id="@+id/rbHomophones" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_gravity="center_vertical"
-                android:text="@string/homophones" android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:padding="6dp" />
+            <CheckBox
+                android:id="@+id/rbComprise"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="6dp"
+                android:text="@string/comprises"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+            <CheckBox
+                android:id="@+id/rbRhymes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="6dp"
+                android:text="@string/rhymes"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+            <CheckBox
+                android:id="@+id/rbHomophones"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="6dp"
+                android:text="@string/homophones"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
         </LinearLayout>
     </ScrollView>
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="vertical" style="?attr/buttonBarStyle">
-        <android.support.v7.widget.ButtonBarLayout android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:gravity="bottom|end"
-            android:orientation="horizontal" android:paddingLeft="8dp" android:paddingRight="8dp"
-            android:paddingTop="4dp">
-            <Button android:id="@+id/btnOK" style="?attr/buttonBarPositiveButtonStyle"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/ok"/>
-            <Button android:id="@+id/btnCancel" style="?attr/buttonBarNegativeButtonStyle"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/cancel"/>
+    <LinearLayout
+        style="?attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.ButtonBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom|end"
+            android:orientation="horizontal"
+            android:paddingLeft="8dp"
+            android:paddingTop="4dp"
+            android:paddingRight="8dp">
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/btnOK"
+                style="?attr/buttonBarPositiveButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ok" />
+
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/btnCancel"
+                style="?attr/buttonBarNegativeButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cancel" />
         </android.support.v7.widget.ButtonBarLayout>
     </LinearLayout>
 </LinearLayout>

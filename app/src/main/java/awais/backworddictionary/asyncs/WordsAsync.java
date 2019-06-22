@@ -18,6 +18,7 @@ import awais.backworddictionary.interfaces.FragmentCallback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     private ArrayList<WordItem> wordItemsList = new ArrayList<>();
@@ -90,10 +91,12 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
 
         try {
             response = client.newCall(builder.build()).execute();
-            if (response.code() == 200)
-                //noinspection ConstantConditions
-                wordItemsList = new Gson().fromJson(response.body().string(),
-                        new TypeToken<List<WordItem>>() {}.getType());
+            if (response.code() == 200) {
+                ResponseBody body = response.body();
+                if (body != null)
+                    wordItemsList = new Gson().fromJson(body.string(),
+                            new TypeToken<List<WordItem>>() {}.getType());
+            }
         } catch (Exception e) { Log.e("AWAISKING_APP", "", e); }
 
         if (response != null) response.close();

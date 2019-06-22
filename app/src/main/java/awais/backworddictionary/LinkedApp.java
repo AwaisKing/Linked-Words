@@ -5,19 +5,14 @@ import android.os.Build;
 import android.support.multidex.MultiDexApplication;
 import android.support.v4.content.res.ResourcesCompat;
 
-import awais.backworddictionary.custom.Utils;
+import awais.backworddictionary.helpers.Utils;
 
-@SuppressWarnings( "WeakerAccess" )
 public class LinkedApp extends MultiDexApplication {
     public static Typeface fontRegular, fontMedium, fontBold;
 
     @Override
     public void onCreate() {
         super.onCreate();
-
-        // fontRegular = Typeface.createFromAsset(getAssets(), "fonts/googlesans_regular.ttf");
-        // fontMedium = Typeface.createFromAsset(getAssets(), "fonts/googlesans_medium.ttf");
-        // fontBold = Typeface.createFromAsset(getAssets(), "fonts/googlesans_bold.ttf");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             fontRegular = getResources().getFont(R.font.googlesans_regular);

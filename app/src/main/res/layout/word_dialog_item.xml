@@ -16,7 +16,7 @@
         android:paddingLeft="8dp"
         android:paddingEnd="8dp"
         android:paddingRight="8dp"
-        android:textAlignment="viewStart"
+        android:textAlignment="textStart"
         android:textAppearance="?textAppearanceListItem" />
 
     <TextView
@@ -33,6 +33,6 @@
         android:paddingLeft="8dp"
         android:paddingEnd="8dp"
         android:paddingRight="8dp"
-        android:textAlignment="viewStart"
+        android:textAlignment="textStart"
         android:textAppearance="?android:textAppearanceSmall" />
 </RelativeLayout>

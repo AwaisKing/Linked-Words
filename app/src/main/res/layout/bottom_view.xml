@@ -8,9 +8,9 @@
         android:id="@+id/adLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:layout_gravity="bottom"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_behavior="@string/bottom_behavior">
 
         <View

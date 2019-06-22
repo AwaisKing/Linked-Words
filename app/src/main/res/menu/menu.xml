@@ -1,25 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/mSearch" android:title="@string/search" android:icon="@drawable/ic_search"
-        app:showAsAction="collapseActionView|always" android:orderInCategory="1" />
+    <item
+        android:id="@+id/mSearch"
+        android:icon="@drawable/ic_search"
+        android:orderInCategory="1"
+        android:title="@string/search"
+        app:showAsAction="collapseActionView|always" />
 
-    <item android:title="@string/advance" android:id="@+id/mAdvance" android:icon="@drawable/ic_tune"
-        app:showAsAction="always" android:orderInCategory="2"/>
+    <item
+        android:id="@+id/mAdvance"
+        android:icon="@drawable/ic_tune"
+        android:orderInCategory="2"
+        android:title="@string/advance"
+        app:showAsAction="always" />
 
-    <item android:title="@string/settings" android:id="@+id/mSettings" android:icon="@drawable/ic_settings_menu"
-        app:showAsAction="ifRoom" android:orderInCategory="3"/>
+    <item
+        android:id="@+id/mSettings"
+        android:icon="@drawable/ic_settings_menu"
+        android:orderInCategory="3"
+        android:title="@string/settings"
+        app:showAsAction="ifRoom" />
 
-    <item android:title="@string/examples" android:id="@+id/mExamples" android:icon="@drawable/ic_examples"
-        app:showAsAction="ifRoom" android:orderInCategory="4"/>
+    <item
+        android:id="@+id/mExamples"
+        android:icon="@drawable/ic_examples"
+        android:orderInCategory="4"
+        android:title="@string/examples"
+        app:showAsAction="ifRoom" />
 
-    <item android:title="@string/help" android:id="@+id/mHelp" android:icon="@drawable/ic_help"
-        app:showAsAction="ifRoom" android:orderInCategory="5"/>
+    <item
+        android:id="@+id/mHelp"
+        android:icon="@drawable/ic_help"
+        android:orderInCategory="5"
+        android:title="@string/help"
+        app:showAsAction="ifRoom" />
 
-    <item android:title="@string/licenses" android:id="@+id/mLicenses" android:icon="@drawable/ic_licenses"
-        app:showAsAction="ifRoom" android:orderInCategory="6"/>
+    <item
+        android:id="@+id/mLicenses"
+        android:icon="@drawable/ic_licenses"
+        android:orderInCategory="6"
+        android:title="@string/licenses"
+        app:showAsAction="ifRoom" />
 
-    <item android:title="@string/about" android:id="@+id/mAbout" android:icon="@drawable/ic_about"
-        app:showAsAction="ifRoom" android:orderInCategory="7"/>
+    <item
+        android:id="@+id/mAbout"
+        android:icon="@drawable/ic_about"
+        android:orderInCategory="7"
+        android:title="@string/about"
+        app:showAsAction="ifRoom" />
 </menu>

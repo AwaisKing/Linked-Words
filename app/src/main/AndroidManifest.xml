@@ -1,20 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" package="awais.backworddictionary">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="awais.backworddictionary">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <uses-sdk tools:overrideLibrary="android.support.customtabs"/>
+    <uses-sdk tools:overrideLibrary="android.support.customtabs" />
 
-    <application android:allowBackup="true" android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true" android:theme="@style/AppTheme" android:label="@string/app_name"
-        android:icon="@mipmap/ic_launcher" android:imeOptions="flagNoExtractUi|actionSearch"
-        android:windowSoftInputMode="adjustResize" android:hardwareAccelerated="true"
-        android:name=".LinkedApp" android:fullBackupContent="@xml/backup_descriptor">
+    <application
+        android:name=".LinkedApp"
+        android:allowBackup="true"
+        android:fullBackupContent="@xml/backup_descriptor"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_launcher"
+        android:imeOptions="flagNoExtractUi|actionSearch"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true"
+        android:windowSoftInputMode="adjustResize"
+        tools:ignore="UnusedAttribute">
 
-        <activity android:name=".Main" android:theme="@style/AppTheme" android:launchMode="singleTop"
-            android:configChanges="keyboardHidden|orientation|screenSize" >
+        <!-- Fix for crash [ Didn't find class "org.apache.http.ProtocolVersion" ]-->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
+        <activity
+            android:name=".Main"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
                 <action android:name="android.intent.action.MAIN" />
@@ -23,30 +41,41 @@
             <!-- App Indexing -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="http" android:host="rerolledgeek.blogspot.com" />
+
+                <data
+                    android:host="rerolledgeek.blogspot.com"
+                    android:scheme="http" />
                 <data android:scheme="https" />
             </intent-filter>
 
-            <!-- Search Filter -->
+            <!-- Search Intent Filter -->
             <intent-filter>
-                <action android:name="android.intent.action.WEB_SEARCH"/>
-                <action android:name="android.intent.action.SEARCH"/>
-                <action android:name="com.google.android.gms.actions.SEARCH_ACTION"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <action android:name="android.intent.action.WEB_SEARCH" />
+                <action android:name="android.intent.action.SEARCH" />
+                <action android:name="com.google.android.gms.actions.SEARCH_ACTION" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
+
+            <!-- Search Intent Filter -->
             <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="text/plain"/>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".customweb.WebViewActivity" android:parentActivityName=".Main"
+        <activity
+            android:name=".customweb.WebViewActivity"
+            android:parentActivityName=".Main"
             tools:targetApi="jelly_bean">
-            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".Main" />
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".Main" />
         </activity>
 
         <meta-data

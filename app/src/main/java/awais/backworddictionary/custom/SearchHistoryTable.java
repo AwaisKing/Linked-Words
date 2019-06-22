@@ -50,7 +50,7 @@ public class SearchHistoryTable {
         }
     }
 
-    List<SearchItem> getAllItems(String databaseKey) {
+    public List<SearchItem> getAllItems(String databaseKey) {
         List<SearchItem> list = new ArrayList<>();
         String selectQuery = "SELECT * FROM search_history";
         if (databaseKey != null) selectQuery += " WHERE _text = " + databaseKey;
@@ -109,7 +109,7 @@ public class SearchHistoryTable {
         return ret;
     }
 
-    class SearchHistoryDatabase extends SQLiteOpenHelper {
+    private static class SearchHistoryDatabase extends SQLiteOpenHelper {
 //        static final String SEARCH_HISTORY_TABLE = "search_history";
 //        static final String SEARCH_HISTORY_COLUMN_ID = "_id";
 //        static final String SEARCH_HISTORY_COLUMN_TEXT = "_text";

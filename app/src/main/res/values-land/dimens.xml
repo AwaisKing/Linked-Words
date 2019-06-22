@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="toolbarSize">48dp</dimen>
+    <dimen name="toolbar_size">48dp</dimen>
 
-    <dimen name="fabPadding">3dp</dimen>
-	
+    <dimen name="dialog_padding">3dp</dimen>
+
 	<dimen name="search_toolbar_margin_big_left_right">120dp</dimen>
     <dimen name="search_toolbar_margin_small_left_right">64dp</dimen>
     <dimen name="search_toolbar_margin_top">5dp</dimen>

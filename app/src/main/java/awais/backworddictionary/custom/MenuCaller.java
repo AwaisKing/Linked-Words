@@ -45,8 +45,7 @@ public class MenuCaller {
                 menuDialog.setTitle(activity.getString(R.string._credits));break;
             case R.id.mAbout: menuDialog.setMessage("aboutHere"); break;
         }
-        menuDialog.show(activity.getSupportFragmentManager(),
-                menuDialog.getTag());
+        menuDialog.show(activity.getSupportFragmentManager(), menuDialog.getTag());
     }
 
     private static class Menuer extends AsyncTask<Object, Void, Void> {
@@ -149,7 +148,7 @@ public class MenuCaller {
         private final ArrayList<SpanSection> spanSections;
         private final StringBuilder stringBuilder;
 
-        private class SpanSection {
+        private static class SpanSection {
             private final String text;
             private final int startIndex;
             private final Object[] styles;

@@ -11,62 +11,29 @@
         android:id="@+id/appbarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         android:stateListAnimator="@null"
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/toolbarSize"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            android:layout_height="?actionBarSize"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-        <RelativeLayout
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/toolbarSize"
+            android:layout_height="wrap_content"
+            android:layout_alignWithParentIfMissing="true"
             android:layout_gravity="bottom"
             android:clipChildren="false"
             app:layout_collapseMode="pin"
-            app:layout_scrollFlags="scroll|enterAlways">
-
-            <android.support.design.widget.TabLayout
-                android:id="@+id/tabs"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/toolbarSize"
-                android:layout_alignWithParentIfMissing="true"
-                android:layout_gravity="bottom"
-                android:layout_toStartOf="@id/filterContainer"
-                android:layout_toLeftOf="@id/filterContainer"
-                android:clipChildren="false"
-                app:popupTheme="@style/AppTheme.PopupOverlay"
-                app:tabGravity="center"
-                app:tabIndicatorColor="@color/cards_and_dialogs_color"
-                app:tabIndicatorHeight="3dp"
-                app:tabMode="scrollable" />
-
-            <RelativeLayout
-                android:id="@+id/filterContainer"
-                android:layout_width="@dimen/toolbarSize"
-                android:layout_height="match_parent"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:clipChildren="false">
-
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/filterButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:elevation="2dp"
-                    android:scaleType="centerInside"
-                    android:tooltipText="Filter"
-                    app:elevation="2dp"
-                    app:fabSize="mini"
-                    app:srcCompat="@drawable/ic_filter"
-                    tools:targetApi="o" />
-            </RelativeLayout>
-        </RelativeLayout>
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:tabGravity="center"
+            app:tabIndicatorColor="@color/cards_and_dialogs_color"
+            app:tabIndicatorHeight="3dp"
+            app:tabMode="scrollable" />
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
@@ -91,56 +58,83 @@
         app:layout_anchorGravity="bottom"
         app:layout_behavior="@string/scroll_behavior" />
 
-    <awais.lapism.SearchView
+    <awais.lapism.MaterialSearchView
         android:id="@+id/searchView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/search_behavior2" />
-
-    <!--<ImageView-->
-        <!--android:id="@+id/noInternet"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_margin="20dp"-->
-        <!--android:contentDescription="@null"-->
-        <!--android:padding="@dimen/toolbarSize"-->
-        <!--android:src="@drawable/no_internet"-->
-        <!--android:visibility="gone"-->
-        <!--app:layout_behavior="@string/scroll_behavior"-->
-        <!--app:srcCompat="@drawable/no_internet"-->
-        <!--tools:srcCompat="@drawable/no_internet" />-->
-
-    <!--<com.github.clans.fab.FloatingActionMenu-->
-        <!--android:id="@+id/fabOptions"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_gravity="bottom|end"-->
-        <!--android:scaleType="centerInside"-->
-        <!--app:menu_icon="@drawable/ic_options"-->
-        <!--app:menu_colorNormal="@color/colorAccent"-->
-        <!--app:menu_colorRipple="#afff"-->
-        <!--app:menu_colorPressed="@color/colorAccent"-->
-        <!--app:menu_showShadow="true"-->
-        <!--android:tooltipText="Options"-->
-        <!--app:elevation="2dp"-->
-        <!--app:fabSize="normal"-->
-        <!--android:layout_marginBottom="@dimen/filter_margin_start"-->
-        <!--android:layout_marginRight="@dimen/filter_margin_start"-->
-        <!--android:layout_marginEnd="@dimen/filter_margin_start"-->
-        <!--app:layout_behavior="@string/fab_transformation_sheet_behavior">-->
-
-        <!--<com.github.clans.fab.FloatingActionButton-->
-            <!--android:id="@+id/menu_item"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--app:srcCompat="@drawable/ic_licenses"-->
-            <!--app:fab_size="mini"-->
-            <!--app:fab_label="Menu item 1" />-->
-    <!--</com.github.clans.fab.FloatingActionMenu>-->
+        app:layout_behavior="@string/search_behavior2"
+        app:search_hint="@string/search" />
 
     <include
         layout="@layout/bottom_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom" />
+
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/fabOptions"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom|end"
+        android:paddingEnd="@dimen/options_padding_horizontal"
+        android:paddingRight="@dimen/options_padding_horizontal"
+        android:paddingBottom="@dimen/options_padding_bottom"
+        android:scaleType="centerInside"
+        android:tooltipText="Options"
+        app:elevation="0dp"
+        app:fabSize="normal"
+        app:menu_animationDelayPerItem="0"
+        app:menu_backgroundColor="#17000000"
+        app:menu_colorNormal="@color/colorAccent"
+        app:menu_colorPressed="@color/colorPrimary"
+        app:menu_colorRipple="#66FFFFFF"
+        app:menu_fab_label="@string/options"
+        app:menu_labels_colorNormal="?android:windowBackground"
+        app:menu_labels_colorPressed="?android:windowBackground"
+        app:menu_labels_colorRipple="@color/fab_label_ripple_color"
+        app:menu_labels_ellipsize="end"
+        app:menu_labels_singleLine="true"
+        app:menu_labels_textColor="#757575"
+        app:menu_shadowXOffset="0dp"
+        app:menu_shadowYOffset="2px"
+        app:menu_showShadow="true"
+        tools:ignore="RtlSymmetry,PxUsage">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_colorNormal="@color/mini_fab_color"
+            app:fab_colorPressed="@color/mini_fab_color"
+            app:fab_colorRipple="@color/fab_label_ripple_color"
+            app:fab_label="Scroll to Top"
+            app:fab_shadowRadius="1dp"
+            app:fab_shadowXOffset="0dp"
+            app:fab_shadowYOffset="2px"
+            app:fab_size="mini" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_colorNormal="@color/mini_fab_color"
+            app:fab_colorPressed="@color/mini_fab_color"
+            app:fab_colorRipple="@color/fab_label_ripple_color"
+            app:fab_label="Scroll to Bottom"
+            app:fab_shadowRadius="1dp"
+            app:fab_shadowXOffset="0dp"
+            app:fab_shadowYOffset="2px"
+            app:fab_size="mini" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="0dp"
+            app:fab_colorNormal="@color/mini_fab_color"
+            app:fab_colorPressed="@color/mini_fab_color"
+            app:fab_colorRipple="@color/fab_label_ripple_color"
+            app:fab_label="Filter"
+            app:fab_shadowRadius="1dp"
+            app:fab_shadowXOffset="0dp"
+            app:fab_shadowYOffset="2px"
+            app:fab_size="mini" />
+    </com.github.clans.fab.FloatingActionMenu>
 </android.support.design.widget.CoordinatorLayout>

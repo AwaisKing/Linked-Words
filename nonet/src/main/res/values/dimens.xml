@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="default_banner_height">72dp</dimen>
-    <dimen name="default_banner_text_size">16sp</dimen>
-    <dimen name="default_banner_elevation">8dp</dimen>
-</resources>

@@ -1,79 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.AlertDialogLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="wrap_content"
-    android:gravity="start|top" android:orientation="vertical" >
-
-    <LinearLayout android:id="@+id/topPanel" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:orientation="horizontal"
-        android:paddingTop="10dp" android:paddingLeft="?attr/dialogPreferredPadding"
-        android:paddingRight="?attr/dialogPreferredPadding" >
-
-        <android.support.v7.widget.DialogTitle android:id="@+id/alertTitle"
-            style="?android:attr/windowTitleStyle" android:layout_height="wrap_content"
-            android:ellipsize="end" android:singleLine="true" android:layout_width="0dp"
-            android:layout_weight="1" />
-
-            <Button android:id="@+id/btnCopy" style="?attr/buttonBarButtonStyle"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/copy"/>
-            <Button android:id="@+id/btnSpeak" style="?attr/buttonBarButtonStyle"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/speak"/>
-
-    </LinearLayout>
-
-
-    <LinearLayout android:id="@+id/customPanel" android:layout_width="match_parent"
-        android:layout_height="0dp" android:orientation="vertical"
-        android:layout_weight="1">
-
-        <ListView android:id="@+id/lvDefs" android:layout_width="match_parent"
-            android:layout_height="match_parent" android:cacheColorHint="@color/divider"
-            android:fadingEdgeLength="1dp" android:fadingEdge="vertical"
-            android:requiresFadingEdge="vertical" android:overScrollMode="ifContentScrolls" />
-
-    </LinearLayout>
-
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="start|top"
+    android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/topPanel"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:orientation="vertical" style="?attr/buttonBarStyle">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="?attr/dialogPreferredPadding"
+        android:paddingTop="10dp"
+        android:paddingRight="?attr/dialogPreferredPadding">
 
-        <android.support.v7.widget.ButtonBarLayout android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:gravity="bottom"
-            android:orientation="horizontal" android:paddingLeft="8dp" android:paddingRight="8dp"
-            android:paddingTop="4dp">
-            <Button
+        <android.support.v7.widget.DialogTitle
+            android:id="@+id/alertTitle"
+            style="?android:attr/windowTitleStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:singleLine="true" />
+
+        <Button
+            android:id="@+id/btnCopy"
+            style="?attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/copy" />
+
+        <Button
+            android:id="@+id/btnSpeak"
+            style="?attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/speak" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/customPanel"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <ListView
+            android:id="@+id/lvDefs"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:cacheColorHint="@color/divider"
+            android:fadingEdge="vertical"
+            android:fadingEdgeLength="1dp"
+            android:overScrollMode="ifContentScrolls"
+            android:requiresFadingEdge="vertical" />
+    </LinearLayout>
+
+    <LinearLayout
+        style="?attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.ButtonBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingLeft="8dp"
+            android:paddingTop="4dp"
+            android:paddingRight="8dp">
+
+            <android.support.v7.widget.AppCompatButton
                 android:id="@+id/btnGoogle"
                 style="?attr/buttonBarNeutralButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/google"/>
-            <Button
+                android:layout_gravity="center"
+                android:text="@string/google" />
+
+            <android.support.v7.widget.AppCompatButton
                 android:id="@+id/btnWiki"
                 style="?attr/buttonBarNeutralButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/wikipedia"/>
-            <Button
+                android:layout_gravity="center"
+                android:text="@string/wikipedia" />
+
+            <android.support.v7.widget.AppCompatButton
                 android:id="@+id/btnUrban"
                 style="?attr/buttonBarNeutralButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/urban_dictionary"/>
+                android:layout_gravity="center"
+                android:text="@string/urban_dictionary" />
         </android.support.v7.widget.ButtonBarLayout>
-        <android.support.v7.widget.ButtonBarLayout android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:orientation="horizontal"
-            android:gravity="bottom" android:paddingLeft="8dp" android:paddingRight="8dp"
+
+        <android.support.v7.widget.ButtonBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            android:orientation="horizontal"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
             android:paddingBottom="4dp">
-            <Button
+
+            <android.support.v7.widget.AppCompatButton
                 android:id="@+id/btnSearch"
                 style="?attr/buttonBarPositiveButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/search"/>
+                android:text="@string/search" />
         </android.support.v7.widget.ButtonBarLayout>
-
     </LinearLayout>
-
 </android.support.v7.widget.AlertDialogLayout>

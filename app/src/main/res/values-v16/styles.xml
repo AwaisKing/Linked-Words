@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme" parent="NoTitleAppTheme">
+    <style name="AppTheme" parent="NoTitleAppThemeV16" />
+
+    <style name="NoTitleAppThemeV16" parent="NoTitleAppTheme">
         <item name="android:fontFamily">@font/googlesans_medium</item>
         <item name="fontFamily">@font/googlesans_medium</item>
         <item name="android:typeface">sans</item>

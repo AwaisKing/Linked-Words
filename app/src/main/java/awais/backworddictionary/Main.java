@@ -1,19 +1,24 @@
 package awais.backworddictionary;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
@@ -28,26 +33,30 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.OvershootInterpolator;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
+import awais.backworddictionary.adapters.DictionaryFragmentsAdapter;
+import awais.backworddictionary.adapters.SearchAdapter;
 import awais.backworddictionary.asyncs.SearchAsync;
 import awais.backworddictionary.custom.AdvancedDialog;
 import awais.backworddictionary.custom.MenuCaller;
-import awais.backworddictionary.custom.SearchAdapter;
 import awais.backworddictionary.custom.SearchHistoryTable;
 import awais.backworddictionary.custom.SettingsDialog;
-import awais.backworddictionary.custom.Utils;
 import awais.backworddictionary.custom.WordItem;
+import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.FragmentLoader;
 import awais.backworddictionary.interfaces.MainCheck;
+import awais.lapism.MaterialSearchView;
 import awais.lapism.SearchItem;
-import awais.lapism.SearchView;
 
 public class Main extends AppCompatActivity implements FragmentLoader, MainCheck {
     static { AppCompatDelegate.setCompatVectorFromResourcesEnabled(true); }
@@ -57,17 +66,17 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     public static TextToSpeech tts;
     public static String[] boolsArray;
     public static SharedPreferences sharedPreferences;
-    public ViewPager viewPager;
     public DictionaryFragmentsAdapter fragmentsAdapter;
-    public SearchView mSearchView;
-    private TabLayout tabLayout;
+    private FloatingActionMenu fabOptions;
     private SearchAdapter searchAdapter;
     private SearchHistoryTable mHistoryDatabase;
-    private FloatingActionButton fabFilter;
     private MenuCaller menuCaller;
-//    private ImageView noInternet;
-//    private Snackbar snackbar;
     private AppBarLayout appBarLayout;
+    private Toolbar toolbar;
+    public MaterialSearchView mSearchView;
+    public ViewPager viewPager;
+    private TabLayout tabLayout;
+    private AppBarLayout.LayoutParams toolbarParams;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,72 +89,54 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
         tabLayout = findViewById(R.id.tabs);
         viewPager = findViewById(R.id.viewpager);
-//        noInternet = findViewById(R.id.noInternet);
-        fabFilter = findViewById(R.id.filterButton);
+        fabOptions = findViewById(R.id.fabOptions);
         appBarLayout = findViewById(R.id.appbarLayout);
-        // fabOptions = findViewById(R.id.fabOptions);
+        toolbar = findViewById(R.id.toolbar);
+        toolbarParams = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
 
-//        snackbar = Snackbar.make(viewPager, R.string.no_connection, -2);
-
-//        SnackbarContentLayout contentLayout = (SnackbarContentLayout) ((ViewGroup) snackbar.getView()).getChildAt(0);
-//        Button actionButton = contentLayout.findViewById(R.id.snackbar_action);
-//        actionButton.setVisibility(View.VISIBLE);
-//        actionButton.setText(R.string.settings);
-//        actionButton.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS)));
-//        try {
-//            View snack = (View) contentLayout.getParent();
-//            CoordinatorLayout.LayoutParams snackParams = (CoordinatorLayout.LayoutParams) snack.getLayoutParams();
-//            snackParams.width = CoordinatorLayout.LayoutParams.MATCH_PARENT;
-//            snackParams.gravity = Gravity.FILL_HORIZONTAL | Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
-//            snack.setLayoutParams(snackParams);
-//        } catch (Exception ignored) {}
+        fabOptions.getMenuIconView().setImageDrawable(Utils.getDrawable(this, R.drawable.ic_options));
+        fabOptions.setClosedOnTouchOutside(true);
+        fabAnimation(fabOptions);
+        setFabListeners(fabOptions, v -> {
+            if (fragmentsAdapter == null || viewPager == null) return;
+            int pos = viewPager.getCurrentItem();
+            DictionaryFragment fragment = fragmentsAdapter.getItem(pos);
+            if (fragment != null && fragment.isAdded())
+                switch ((int) v.getTag()) {
+                    case 0: // filter
+                        if (fragment.isFilterOpen()) fragment.hideFilter();
+                        else fragment.showFilter(true, 0);
+                        break;
+                    case 1: // scroll to bottom
+                        fragment.scrollRecyclerView(false);
+                        break;
+                    case 2: // scroll to top
+                        fragment.scrollRecyclerView(true);
+                        break;
+                }
+            fabOptions.close(true);
+        });
 
         menuCaller = new MenuCaller(this);
         setSupportActionBar(findViewById(R.id.toolbar));
 
-        TooltipCompat.setTooltipText(fabFilter, getString(R.string.filter));
-        fabFilter.setOnClickListener(view -> {
-                DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
-                if (fragment != null && fragment.isAdded())
-                    fragment.showFilter(true, fabFilter, 0);
-        });
+        TooltipCompat.setTooltipText(fabOptions, getString(R.string.options));
 
         handleData();
-
-//        setupNoNet();
     }
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        myThread loadFragments = new myThread(true);
-        myThread setupTTS = new myThread(false);
+        myThread loadFragments = new myThread(true, this);
+        myThread setupTTS = new myThread(false, this);
 
         loadFragments.start();
         setupTTS.start();
-        
+
         setSearchView();
     }
-
-//    private void setupNoNet() {
-//        NoNet.monitor(this).configure(NoNet.configure().endpoint("http://api.datamuse.com/words")
-//                .connectedPollFrequency(1).disconnectedPollFrequency(1).build()).callback(connectionStatus -> {
-//
-//            DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
-//            if (connectionStatus != ConnectionStatus.CONNECTED) {
-//                if (fragment == null || fragment.wordsAdapter == null || fragment.wordsAdapter.getItemCount() <= 0)
-//                    connectionTheme(false);
-//            } else {
-//                connectionTheme(true);
-//                if (fragment != null && !Utils.isEmpty(fragment.title) &&
-//                        !fragment.title.equals(getString(R.string.app_name))
-//                        && fragment.wordsAdapter.getItemCount() < 1)
-//                    onSearch(fragment.title);
-//            }
-//
-//        }).snackbar(snackbar);
-//    }
 
     @Override
     public void loadFragments(boolean main) {
@@ -163,7 +154,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         fragmentsAdapter = new DictionaryFragmentsAdapter(getSupportFragmentManager());
         for (int i = 0; i < boolsArray.length; i++)
             if (boolsArray[i].equalsIgnoreCase("true"))
-                fragmentsAdapter.addFrag(new DictionaryFragment(), getString(tabs[i]));
+                fragmentsAdapter.addFragment(new DictionaryFragment(), getString(tabs[i]));
 
         if (tabLayout != null) tabLayout.clearOnTabSelectedListeners();
 
@@ -180,7 +171,8 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 setTitle(R.string.app_name);
                 if (fragmentsAdapter == null) return;
 
-                final DictionaryFragment currentItem = fragmentsAdapter.getItem(tab.getPosition());
+                final int currTab = tab.getPosition();
+                final DictionaryFragment currentItem = fragmentsAdapter.getItem(currTab);
                 final DictionaryFragment prevItem = fragmentsAdapter.getItem(prevTab);
 
                 if (currentItem != null && currentItem.isAdded()) {
@@ -193,19 +185,14 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                                 currentItem.startWords(tab.getText(), prevItem.title);
                                 currentItem.title = prevItem.title;
                             } catch (Exception e) {
-                                if (BuildConfig.DEBUG)
-                                    Log.e("AWAISKING_APP", "", e);
+                                if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
                             }
                         }
                     }
-//                    try {
-//                        if (currentItem.wordsAdapter != null && currentItem.wordsAdapter.getItemCount() > 0)
-//                            connectionTheme(true);
-//                    } catch (Exception ignored) {}
 
                     if (prevItem != null && prevItem.isAdded())
-                        prevItem.showFilter(true, fabFilter, 30);
-                    currentItem.showFilter(false, fabFilter, 0);
+                        prevItem.showFilter(prevItem.isFilterOpen(), 2);
+                    currentItem.showFilter(currentItem.isFilterOpen(), currentItem.isFilterOpen() ? 2 : 0);
                 }
             }
 
@@ -266,6 +253,16 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != MaterialSearchView.SPEECH_REQUEST_CODE
+                || resultCode != Activity.RESULT_OK || data == null) return;
+        ArrayList<String> text = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+        if (mSearchView != null && text != null && text.size() > 0)
+            mSearchView.setQuery(text.get(0), true);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
 
@@ -290,6 +287,12 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        menuCaller.show(item);
+        return super.onOptionsItemSelected(item);
+    }
+
     public void onSearch(String word) {
         try {
             if (fragmentsAdapter != null && viewPager != null) {
@@ -299,8 +302,11 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 if (fragment != null && fragment.isAdded())
                     fragment.startWords(method, word);
             }
-            if (mSearchView != null && mSearchView.isSearchOpen())
+            if (mSearchView != null && mSearchView.isSearchOpen()) {
                 mSearchView.close(false);
+                toolbarParams.setScrollFlags(5);
+                toolbar.setLayoutParams(toolbarParams);
+            }
         } catch (Exception e) {
             if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
         }
@@ -330,12 +336,6 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        menuCaller.show(item);
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public void onBackPressed() {
         if (fragmentsAdapter == null || viewPager == null || fragmentsAdapter.getCount() <= 0)
             super.onBackPressed();
@@ -353,15 +353,12 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         if (mSearchView == null) return;
         mSearchView.bringToFront();
 
-        mSearchView.setVersion(SearchView.VERSION_MENU_ITEM);
-        mSearchView.setVersionMargins(SearchView.VERSION_MARGINS_MENU_ITEM);
-        mSearchView.setHint(R.string.search);
         mSearchView.setShadowColor(ContextCompat.getColor(this, R.color.search_shadow_layout));
 
         mHistoryDatabase = new SearchHistoryTable(this);
         mHistoryDatabase.setHistorySize(8);
 
-        searchAdapter = new SearchAdapter(mHistoryDatabase);
+        searchAdapter = new SearchAdapter(this, mHistoryDatabase);
         searchAdapter.setHasStableIds(true);
         searchAdapter.addOnItemClickListener((View view, int position, String text) -> {
             onSearch(text);
@@ -393,15 +390,16 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         });
         mSearchView.setAdapter(searchAdapter);
 
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        mSearchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             private final Handler handler = new Handler();
             private String text = "";
             private SearchAsync async = new SearchAsync(Main.this);
             private final Runnable textWatch = () -> {
-                if (async.getStatus() == AsyncTask.Status.RUNNING)
-                    async.cancel(true);
-                if (async.getStatus() == AsyncTask.Status.FINISHED)
+                if (async == null) async = new SearchAsync(Main.this);
+                else {
+                    try { async.cancel(true); } catch (Exception ignore) {}
                     async = new SearchAsync(Main.this);
+                }
                 if (!Utils.isEmpty(text)) async.execute(text);
                 else try { async.cancel(true); } catch (Exception ignore) {}
             };
@@ -430,31 +428,27 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             }
         });
 
-        mSearchView.setOnOpenCloseListener(new SearchView.OnOpenCloseListener() {
-            private final Toolbar mToolbar = findViewById(R.id.toolbar);
-            private final AppBarLayout.LayoutParams p = (AppBarLayout.LayoutParams) mToolbar.getLayoutParams();
+        mSearchView.setOnOpenCloseListener(new MaterialSearchView.OnOpenCloseListener() {
+            private final DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
+            private int oldScrollFlag = toolbarParams.getScrollFlags();
 
             @Override
             public boolean onClose() {
-                if (fragmentsAdapter != null) {
-                    DictionaryFragment currentFragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
-                    if (currentFragment != null && currentFragment.isAdded()
-                            && !currentFragment.isFilterOpen())
-                        currentFragment.showFilter(false, fabFilter, 1);
-                }
-                p.setScrollFlags(5);
-                mToolbar.setLayoutParams(p);
+                if (fragment != null && fragment.isAdded() && !fragment.isFilterOpen())
+                    fragment.showFilter(false, 1);
+                toolbarParams.setScrollFlags(oldScrollFlag);
+                toolbar.setLayoutParams(toolbarParams);
                 return false;
             }
 
             @Override
             public boolean onOpen() {
-                DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
                 if (fragment != null && fragment.isAdded())
-                    fragment.showFilter(true, fabFilter, 1);
+                    fragment.showFilter(true, 1);
                 appBarLayout.setExpanded(true, true);
-                p.setScrollFlags(0);
-                mToolbar.setLayoutParams(p);
+                oldScrollFlag = toolbarParams.getScrollFlags();
+                toolbarParams.setScrollFlags(0);
+                toolbar.setLayoutParams(toolbarParams);
                 return false;
             }
         });
@@ -482,62 +476,25 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         mHistoryDatabase.close();
     }
 
-//    private void connectionTheme(boolean isConnected) {
-//        if (isConnected) {
-//            if (noInternet != null) noInternet.setVisibility(View.GONE);
-//            if (viewPager != null) {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-//                    viewPager.setBackground(null);
-//                viewPager.setBackgroundDrawable(null);
-//                viewPager.setBackgroundResource(0);
-//            }
-//
-//            if (appBarLayout != null)
-//                appBarLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-//                getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
-//
-//            int color = getResources().getColor(R.color.colorAccent);
-//            if (fabFilter != null) {
-//                fabFilter.setBackgroundColor(color);
-//                fabFilter.setBackgroundTintList(ColorStateList.valueOf(color));
-//            }
-//        } else {
-//            if (noInternet != null)
-//                noInternet.setVisibility(View.VISIBLE);
-//
-//            int color = getResources().getColor(R.color.noInternet);
-//            if (viewPager != null)
-//                viewPager.setBackgroundColor(color);
-//            if (appBarLayout != null)
-//                appBarLayout.setBackgroundColor(color);
-//
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-//                getWindow().setStatusBarColor(getResources().getColor(R.color.noInternetStatusBar));
-//
-//            color = getResources().getColor(R.color.noInternetAccent);
-//            if (fabFilter != null) {
-//                fabFilter.setBackgroundColor(color);
-//                fabFilter.setBackgroundTintList(ColorStateList.valueOf(color));
-//            }
-//        }
-//    }
-
-    private class myThread extends Thread {
+    private static class myThread extends Thread {
         private final boolean method;
+        private final Main activity;
 
-        myThread(boolean method) { this.method = method; }
+        myThread(boolean method, Main activity) {
+            this.method = method;
+            this.activity = activity;
+        }
 
         @Override
         public void run() {
             if (method) {
                 try {
-                    loadFragments(true);
+                    activity.loadFragments(true);
                 } catch (Exception ignored) {
-                    runOnUiThread(() -> loadFragments(true));
+                    activity.runOnUiThread(() -> activity.loadFragments(true));
                 }
             } else {
-                tts = new TextToSpeech(Main.this, initStatus -> {
+                tts = new TextToSpeech(activity, initStatus -> {
                     if (initStatus == TextToSpeech.SUCCESS) {
                         if (tts.isLanguageAvailable(Locale.US) == TextToSpeech.LANG_AVAILABLE)
                             tts.setLanguage(Locale.US);
@@ -553,32 +510,46 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         }
     }
 
-    public class DictionaryFragmentsAdapter extends FragmentPagerAdapter {
-        private final List<DictionaryFragment> mFragmentList = new ArrayList<>();
-        private final List<String> mFragmentTitleList = new ArrayList<>();
+    private static void fabAnimation(FloatingActionMenu fabOptions) {
+        AnimatorSet set = new AnimatorSet();
+        ImageView fabIcon = fabOptions.getMenuIconView();
+        ObjectAnimator scaleOutX = ObjectAnimator.ofFloat(fabIcon, "scaleX", 1.0f, 0.2f);
+        ObjectAnimator scaleOutY = ObjectAnimator.ofFloat(fabIcon, "scaleY", 1.0f, 0.2f);
+        ObjectAnimator scaleInX = ObjectAnimator.ofFloat(fabIcon, "scaleX", 0.2f, 1.0f);
+        ObjectAnimator scaleInY = ObjectAnimator.ofFloat(fabIcon, "scaleY", 0.2f, 1.0f);
+        scaleOutX.setDuration(200);
+        scaleOutY.setDuration(200);
+        scaleInX.setDuration(200);
+        scaleInY.setDuration(200);
+        scaleInX.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                fabIcon.setImageResource(fabOptions.isOpened() ? R.drawable.ic_close : R.drawable.ic_options);
+            }
+        });
+        set.play(scaleOutX).with(scaleOutY);
+        set.play(scaleInX).with(scaleInY).after(scaleOutX);
+        set.setInterpolator(new OvershootInterpolator(3.17f));
+        fabOptions.setIconToggleAnimatorSet(set);
+    }
 
-        DictionaryFragmentsAdapter(FragmentManager manager) {
-            super(manager);
-        }
+    private static void setFabListeners(FloatingActionMenu fabOptions, View.OnClickListener onClickListener) {
+        if (fabOptions == null) return;
+        int[] resIds = {R.drawable.ic_filter, R.drawable.ic_arrow_down, R.drawable.ic_arrow_up};
+        Context context = fabOptions.getContext();
 
-        @Override
-        public DictionaryFragment getItem(int position) {
-            return mFragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mFragmentList.size();
-        }
-
-        void addFrag(DictionaryFragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
+        int j = 0;
+        for (int i = fabOptions.getChildCount() - 1; i > -1; --i) {
+            View view = fabOptions.getChildAt(i);
+            if (view instanceof com.github.clans.fab.FloatingActionButton) {
+                final FloatingActionButton fab = (FloatingActionButton) view;
+                if (fab.getButtonSize() == 0) continue;
+                Drawable drawable = Utils.getDrawable(context, resIds[j]);
+                drawable.setColorFilter(0xFF2196F3, PorterDuff.Mode.SRC_ATOP);
+                fab.setImageDrawable(drawable);
+                fab.setTag(j++);
+                fab.setOnClickListener(onClickListener);
+            }
         }
     }
 }

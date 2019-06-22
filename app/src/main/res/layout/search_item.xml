@@ -13,7 +13,7 @@
     android:paddingEnd="@dimen/search_key_line"
     android:paddingRight="@dimen/search_key_line">
 
-    <ImageView
+    <android.support.v7.widget.AppCompatImageView
         android:id="@+id/imageView_item_icon_left"
         android:layout_width="@dimen/search_icon"
         android:layout_height="@dimen/search_icon"
@@ -34,10 +34,9 @@
         android:textIsSelectable="false"
         android:textSize="@dimen/search_text_small" />
 
-    <ImageView
+    <android.support.v7.widget.AppCompatImageView
         android:id="@+id/imageView_item_icon_right"
         android:layout_width="@dimen/search_icon"
         android:layout_height="@dimen/search_icon"
         android:contentDescription="@string/search_app_name" />
-
 </LinearLayout>

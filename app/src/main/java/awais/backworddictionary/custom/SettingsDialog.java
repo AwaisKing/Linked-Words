@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
+import awais.backworddictionary.helpers.Utils;
 
 public class SettingsDialog extends Dialog {
     private final int maxWords = Main.sharedPreferences.getInt("maxWords", 80);

@@ -15,7 +15,7 @@ import java.util.List;
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
 
-@SuppressWarnings( {"unused", "WeakerAccess"} )
+@SuppressWarnings( {"unused"} )
 public class HuaweiFix {
     private final Context context;
 
@@ -25,9 +25,8 @@ public class HuaweiFix {
 
     public void check() {
         if("huawei".equalsIgnoreCase(android.os.Build.MANUFACTURER) &&
-                !Main.sharedPreferences.getBoolean("skipProtectedAppsMessage", false)) {
+                !Main.sharedPreferences.getBoolean("skipProtectedAppsMessage", false))
             ifHuaweiAlert();
-        }
     }
 
     private void ifHuaweiAlert() {
@@ -46,8 +45,7 @@ public class HuaweiFix {
 
                 new AlertDialog.Builder(context).setIcon(android.R.drawable.ic_dialog_alert)
                         .setTitle("Huawei Protected Apps").setView(dontShowAgain)
-                        .setMessage(String.format("%s requires to be enabled in 'Protected Apps' to function properly.%n",
-                                context.getResources().getString(R.string.app_name)))
+                        .setMessage(context.getResources().getString(R.string.app_name) + " requires to be enabled in 'Protected Apps' to function properly.")
                         .setPositiveButton("Protected Apps", (dialog, which) -> huaweiProtectedApps())
                         .setNegativeButton(android.R.string.cancel, null).show();
             } else Main.sharedPreferences.edit().putBoolean(saveIfSkip, true).apply();
@@ -72,7 +70,6 @@ public class HuaweiFix {
         try {
             @SuppressLint("WrongConstant") Object userManager = context.getSystemService("user");
             if (userManager == null) return "";
-            //noinspection JavaReflectionMemberAccess
             Method myUserHandleMethod = android.os.Process.class.getMethod("myUserHandle");
             Object myUserHandle = myUserHandleMethod.invoke(android.os.Process.class, (Object[]) null);
             Method getSerialNumberForUser = userManager.getClass().getMethod("getSerialNumberForUser", myUserHandle.getClass());

@@ -19,11 +19,12 @@ import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     private WeakReference<OkHttpClient> client = new WeakReference<>(new OkHttpClient());
     private WeakReference<Call> call;
-    private final MainCheck mainCheck;
+    private MainCheck mainCheck;
 
     public SearchAsync(MainCheck mainCheck) {
         this.mainCheck = mainCheck;
@@ -79,9 +80,11 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
                     .url("http://api.datamuse.com/sug?s=".concat(query)).build()));
             try { response = call.get().execute(); } catch (Exception ignored) {}
 
-            if (response != null && response.code() == 200 && response.body() != null) {
-                arrayList = new Gson().fromJson(response.body().string(),
-                        new TypeToken<List<WordItem>>(){}.getType());
+            if (response != null && response.code() == 200) {
+                ResponseBody body = response.body();
+                if (body != null)
+                    arrayList = new Gson().fromJson(body.string(),
+                            new TypeToken<List<WordItem>>() {}.getType());
                 try { call.get().cancel(); } catch (Exception ignored) {}
             }
         } catch (Exception e) {
@@ -92,8 +95,14 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     }
 
     @Override
+    protected void onCancelled(ArrayList<WordItem> wordItems) {
+        super.onCancelled(wordItems);
+        mainCheck = null;
+    }
+
+    @Override
     protected void onPostExecute(ArrayList<WordItem> result) {
         super.onPostExecute(result);
-        mainCheck.afterSearch(result);
+        if (mainCheck != null) mainCheck.afterSearch(result);
     }
 }

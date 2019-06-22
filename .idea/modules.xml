@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Linked-Words.iml" filepath="$PROJECT_DIR$/Linked-Words.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/nonet/nonet.iml" filepath="$PROJECT_DIR$/nonet/nonet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Linked-Words.iml" filepath="$PROJECT_DIR$/Linked-Words.iml" group="Linked-Words" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="Linked-Words/app" />
     </modules>
   </component>
 </project>
