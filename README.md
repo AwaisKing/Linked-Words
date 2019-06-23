@@ -24,16 +24,15 @@ also you can select if the filter either `contains` the text or `starts` with th
 
 ---
 
-Screenshots [Album: https://imgur.com/a/vfhMCzV]
+Screenshots [Album: https://imgur.com/a/Y4XsKU5]
 -
 <p align="center">
-    <a href=""><img src="https://i.imgur.com/c4d5I50m.png" alt="Screenshot " title="Screenshot "/></a>
-    <a href=""><img src="https://i.imgur.com/97UexFXm.png" alt="Screenshot " title="Screenshot "/></a>
-    <a href=""><img src="https://i.imgur.com/OnXNAYTm.png" alt="Screenshot " title="Screenshot "/></a>
-    <a href=""><img src="https://i.imgur.com/gLMJcPrm.png" alt="Screenshot " title="Screenshot "/></a>
-    <a href=""><img src="https://i.imgur.com/z277HX0m.png" alt="Screenshot " title="Screenshot "/></a>
-    <a href=""><img src="https://i.imgur.com/Sy92wram.png" alt="Screenshot " title="Screenshot "/></a>
-    <a href=""><img src="https://i.imgur.com/0voM0Cam.png" alt="Screenshot " title="Screenshot "/></a>
+    <img src="https://i.imgur.com/o0xAIBJm.png" alt="Screenshot 1" title="Screenshot 1"/>
+    <img src="https://i.imgur.com/ksG8dncm.png" alt="Screenshot 2" title="Screenshot 2"/>
+    <img src="https://i.imgur.com/lURKQnZm.png" alt="Screenshot 3" title="Screenshot 3"/>
+    <img src="https://i.imgur.com/4piTUXqm.png" alt="Screenshot 4" title="Screenshot 4"/>
+    <img src="https://i.imgur.com/ekZAh3lm.png" alt="Screenshot 5" title="Screenshot 5"/>
+    <img src="https://i.imgur.com/e9olSSZm.png" alt="Screenshot 6" title="Screenshot 6"/>
 </p>
 
 ---
@@ -51,7 +50,7 @@ Credits to:
   + [GSON *-* [google/gson]](https://github.com/google/gson) *-* [Apache License 2.0]
   + [SearchView *-* [lapism/SearchView]](https://github.com/lapism/SearchView) *-* [Apache License 2.0]
   + [Chrome Custom Tabs *-* [GoogleChrome/custom-tabs-client]](https://github.com/GoogleChrome/custom-tabs-client) *-* [Apache License 2.0]
-  + [NoNet *-* [keiferstone/nonet]](https://github.com/keiferstone/nonet) *-* [Apache License 2.0]
+  + ~~[NoNet *-* [keiferstone/nonet]](https://github.com/keiferstone/nonet) *-* [Apache License 2.0]~~ **(removed)**
 
 #### Licenses:
   + [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
