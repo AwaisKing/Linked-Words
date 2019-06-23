@@ -31,12 +31,6 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     }
 
     @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        mainCheck.beforeSearch();
-    }
-
-    @Override
     protected void onCancelled() {
         super.onCancelled();
         mainCheck.afterSearch(null);

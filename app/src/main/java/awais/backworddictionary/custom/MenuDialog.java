@@ -6,11 +6,11 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.webkit.WebView;
-import android.widget.TextView;
 
 import awais.backworddictionary.LinkedApp;
 import awais.backworddictionary.R;
@@ -40,11 +40,11 @@ public class MenuDialog extends BottomSheetDialogFragment {
     public void setupDialog(Dialog dialog, int style) {
         super.setupDialog(dialog, style);
         View contentView = View.inflate(getContext(), R.layout.dialog_modal, null);
-        ((TextView) contentView.findViewById(android.R.id.title)).setText(title);
+        ((AppCompatTextView) contentView.findViewById(android.R.id.title)).setText(title);
 
         WebView aboutMessage = contentView.findViewById(R.id.webViewAbout);
 
-        TextView spannableMessage = contentView.findViewById(android.R.id.message);
+        AppCompatTextView spannableMessage = contentView.findViewById(android.R.id.message);
         spannableMessage.setMovementMethod(LinkMovementMethod.getInstance());
 
         if (message == null) return;

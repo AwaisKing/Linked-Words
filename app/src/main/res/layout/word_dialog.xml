@@ -5,7 +5,7 @@
     android:gravity="start|top"
     android:orientation="vertical">
 
-    <LinearLayout
+    <android.support.v7.widget.LinearLayoutCompat
         android:id="@+id/topPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,22 +23,22 @@
             android:ellipsize="end"
             android:singleLine="true" />
 
-        <Button
+        <android.support.v7.widget.AppCompatButton
             android:id="@+id/btnCopy"
             style="?attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/copy" />
 
-        <Button
+        <android.support.v7.widget.AppCompatButton
             android:id="@+id/btnSpeak"
             style="?attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/speak" />
-    </LinearLayout>
+    </android.support.v7.widget.LinearLayoutCompat>
 
-    <LinearLayout
+    <android.support.v7.widget.LinearLayoutCompat
         android:id="@+id/customPanel"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -54,9 +54,9 @@
             android:fadingEdgeLength="1dp"
             android:overScrollMode="ifContentScrolls"
             android:requiresFadingEdge="vertical" />
-    </LinearLayout>
+    </android.support.v7.widget.LinearLayoutCompat>
 
-    <LinearLayout
+    <android.support.v7.widget.LinearLayoutCompat
         style="?attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -112,5 +112,5 @@
                 android:layout_height="wrap_content"
                 android:text="@string/search" />
         </android.support.v7.widget.ButtonBarLayout>
-    </LinearLayout>
+    </android.support.v7.widget.LinearLayoutCompat>
 </android.support.v7.widget.AlertDialogLayout>

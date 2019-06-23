@@ -8,6 +8,8 @@
 
     <dimen name="design_fab_size_mini" tools:override="true">45dp</dimen>
 
+    <dimen name="filter_top_margin">55dp</dimen>
+
     <!-- Lapism SearchView -->
     <dimen name="filter_margin_start">12dp</dimen>
     <dimen name="filter_margin_top">8dp</dimen>

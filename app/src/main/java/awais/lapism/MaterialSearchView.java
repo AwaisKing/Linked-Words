@@ -28,6 +28,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -94,8 +95,8 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     protected ImageView mBackImageView;
     protected ImageView mVoiceImageView;
     protected ImageView mEmptyImageView;
-    protected LinearLayout mFiltersContainer;
-    protected LinearLayout mLinearLayout;
+    protected LinearLayoutCompat mFiltersContainer;
+    protected LinearLayoutCompat mLinearLayout;
     protected CharSequence mOldQueryText;
     protected CharSequence mUserQuery = "";
     protected String mVoiceText = "Speak now";
@@ -429,7 +430,7 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
 
     public void setFilters(@Nullable List<SearchFilter> filters) {
         mFiltersContainer.removeAllViews();
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) mFiltersContainer.getLayoutParams();
+        LinearLayoutCompat.LayoutParams params = (LinearLayoutCompat.LayoutParams) mFiltersContainer.getLayoutParams();
         if (filters == null) {
             mSearchFiltersStates = null;
             params.topMargin = 0;

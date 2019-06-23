@@ -6,7 +6,7 @@
     android:clickable="true"
     android:focusable="true">
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/item_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,7 +19,7 @@
         android:textAlignment="textStart"
         android:textAppearance="?textAppearanceListItem" />
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/sub_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

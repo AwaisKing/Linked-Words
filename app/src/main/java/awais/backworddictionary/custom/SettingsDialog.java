@@ -5,10 +5,10 @@ import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.widget.DialogTitle;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
 
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
@@ -30,7 +30,8 @@ public class SettingsDialog extends Dialog {
         setCancelable(true);
         setCanceledOnTouchOutside(true);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        if (getWindow() != null) getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+        Window window = getWindow();
+        if (window != null) window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         setContentView(R.layout.settings_dialog);
         ((DialogTitle)findViewById(R.id.alertTitle)).setText(R.string.settings);
@@ -40,25 +41,21 @@ public class SettingsDialog extends Dialog {
         numberPicker.setMaxValue(1000);
         numberPicker.setValue(maxWords);
 
-        LinearLayout showAdsLayout = findViewById(R.id.showAds);
+        LinearLayoutCompat showAdsLayout = findViewById(R.id.showAds);
         CheckBox cbShowAds = (CheckBox) showAdsLayout.getChildAt(1);
         cbShowAds.setChecked(showAds);
         showAdsLayout.setOnClickListener(v -> cbShowAds.toggle());
 
-        (findViewById(R.id.btnOK)).setOnClickListener(view -> {
+        findViewById(R.id.btnOK).setOnClickListener(view -> {
             SharedPreferences.Editor sharedEditor = Main.sharedPreferences.edit();
             sharedEditor.putInt("maxWords", numberPicker.getValue());
             sharedEditor.putBoolean("showAds", cbShowAds.isChecked());
-            if (activity instanceof Main) Utils.adsBox(activity);
             sharedEditor.apply();
+            if (activity instanceof Main) Utils.adsBox(activity);
             dismiss();
         });
-        (findViewById(R.id.btnCancel)).setOnClickListener(view -> {
+        findViewById(R.id.btnCancel).setOnClickListener(view -> {
             if (activity instanceof Main) Utils.adsBox(activity);
-//            SharedPreferences.Editor sharedEditor = Main.sharedPreferences.edit();
-//            sharedEditor.putInt("maxWords", maxWords);
-//            sharedEditor.putBoolean("showAds", showAds);
-//            sharedEditor.apply();
             dismiss();
         });
     }

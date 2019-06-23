@@ -125,7 +125,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         recyclerView.setAdapter(wordsAdapter);
 
         topPadding = recyclerView.getPaddingTop();
-        topMargin = Math.round(getResources().getDimension(R.dimen.toolbar_size));
+        topMargin = Math.round(getResources().getDimension(R.dimen.filter_top_margin));
 
         filterView = magicRootView.findViewById(R.id.filterView);
 
@@ -240,6 +240,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                         recyclerView.smoothScrollToPosition(0);
                 }
 
+                if (method == 1) return;
                 final boolean isRefrehing = swipeRefreshLayout.isRefreshing();
                 swipeRefreshLayout.setProgressViewOffset(false, startOffset, expandedEndOffset);
                 if (isRefrehing) swipeRefreshLayout.setRefreshing(true);
@@ -250,6 +251,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
 
             if (recyclerView != null) recyclerView.setPadding(0, topPadding, 0, recyclerView.getPaddingBottom());
 
+            if (method == 1) return;
             final boolean isRefrehing = swipeRefreshLayout.isRefreshing();
             swipeRefreshLayout.setProgressViewOffset(false, startOffset, endOffset);
             if (isRefrehing) swipeRefreshLayout.setRefreshing(true);

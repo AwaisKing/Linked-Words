@@ -33,6 +33,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -96,11 +97,35 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
         fabOptions.getMenuIconView().setImageDrawable(Utils.getDrawable(this, R.drawable.ic_options));
         fabOptions.setClosedOnTouchOutside(true);
+        final ViewGroup.LayoutParams fabParams = fabOptions.getLayoutParams();
+        fabOptions.setOnMenuButtonLongClickListener(v -> {
+            if (fragmentsAdapter == null || viewPager == null) return true;
+            DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
+            if (fragment != null && fragment.isAdded())
+                if (fragment.isFilterOpen()) fragment.hideFilter();
+                else fragment.showFilter(true, 0);
+            return true;
+        });
+        fabOptions.setOnMenuButtonClickListener(v -> {
+            if (!fabOptions.isOpened()) {
+                fabParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                fabParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                fabOptions.setLayoutParams(fabParams);
+            }
+            fabOptions.toggle(true);
+        });
+        fabOptions.setOnMenuToggleListener(opened -> {
+            if (opened) return;
+            fabOptions.postDelayed(() -> {
+                fabParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                fabParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                fabOptions.setLayoutParams(fabParams);
+            }, 300);
+        });
         fabAnimation(fabOptions);
         setFabListeners(fabOptions, v -> {
             if (fragmentsAdapter == null || viewPager == null) return;
-            int pos = viewPager.getCurrentItem();
-            DictionaryFragment fragment = fragmentsAdapter.getItem(pos);
+            DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
             if (fragment != null && fragment.isAdded())
                 switch ((int) v.getTag()) {
                     case 0: // filter
@@ -313,12 +338,6 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     }
 
     @Override
-    public void beforeSearch() {
-        if (searchAdapter != null) searchAdapter.setSuggestionsList(new ArrayList<>());
-        if (mSearchView != null) mSearchView.showProgress();
-    }
-
-    @Override
     public void afterSearch(ArrayList<WordItem> result) {
         if (mSearchView != null && mSearchView.isShowingProgress()) mSearchView.hideProgress();
 
@@ -393,13 +412,8 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         mSearchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             private final Handler handler = new Handler();
             private String text = "";
-            private SearchAsync async = new SearchAsync(Main.this);
             private final Runnable textWatch = () -> {
-                if (async == null) async = new SearchAsync(Main.this);
-                else {
-                    try { async.cancel(true); } catch (Exception ignore) {}
-                    async = new SearchAsync(Main.this);
-                }
+                final SearchAsync async = new SearchAsync(Main.this);
                 if (!Utils.isEmpty(text)) async.execute(text);
                 else try { async.cancel(true); } catch (Exception ignore) {}
             };
@@ -423,7 +437,8 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 if (!Utils.isEmpty(newText)) {
                     try { handler.removeCallbacks(textWatch); } catch (Exception ignored) {}
                     handler.postDelayed(textWatch, 800);
-                }
+                    mSearchView.showProgress();
+                } else mSearchView.hideProgress();
                 return false;
             }
         });
