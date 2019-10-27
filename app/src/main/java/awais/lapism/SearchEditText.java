@@ -1,9 +1,10 @@
 package awais.lapism;
 
 import android.content.Context;
-import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+
+import androidx.appcompat.widget.AppCompatEditText;
 
 public class SearchEditText extends AppCompatEditText {
     private MaterialSearchView mSearchView;
@@ -36,5 +37,4 @@ public class SearchEditText extends AppCompatEditText {
         }
         return super.onKeyPreIme(keyCode, event);
     }
-
 }

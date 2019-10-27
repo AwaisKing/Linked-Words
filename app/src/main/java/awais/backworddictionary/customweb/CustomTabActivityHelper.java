@@ -1,15 +1,15 @@
 package awais.backworddictionary.customweb;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.support.customtabs.CustomTabsIntent;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.browser.customtabs.CustomTabsIntent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,37 +22,40 @@ public class CustomTabActivityHelper {
     private static final String DEV_PACKAGE = "com.chrome.dev";
     private static final String LOCAL_PACKAGE = "com.google.android.apps.chrome";
     private static final String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
+    // todo androidx problems:
+    //      androidx.browser.customtabs.action.CustomTabsService
+    //      android.support.customtabs.action.CustomTabsService
     private static String sPackageNameToUse;
 
-    public static void openCustomTab(Activity activity, CustomTabsIntent customTabsIntent, Uri uri) {
-        String packageName = getPackageNameToUse(activity);
+    public static void openCustomTab(final Context context, final CustomTabsIntent customTabsIntent, final Uri uri) {
+        final String packageName = getPackageNameToUse(context);
 
         if (packageName == null) {
-            Intent intent = new Intent();
+            final Intent intent = new Intent();
             intent.setAction(Intent.ACTION_VIEW);
             intent.setData(uri);
-            activity.startActivity(intent);
+            context.startActivity(intent);
         } else {
             customTabsIntent.intent.setPackage(packageName);
-            customTabsIntent.launchUrl(activity, uri);
+            customTabsIntent.launchUrl(context, uri);
         }
     }
 
     private static String getPackageNameToUse(Context context) {
         if (sPackageNameToUse != null) return sPackageNameToUse;
 
-        PackageManager pm = context.getPackageManager();
+        final PackageManager pm = context.getPackageManager();
 
-        Intent activityIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.wikipedia.com"));
-        ResolveInfo defaultViewHandlerInfo = pm.resolveActivity(activityIntent, 0);
+        final Intent activityIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.wikipedia.com"));
+        final ResolveInfo defaultViewHandlerInfo = pm.resolveActivity(activityIntent, 0);
         String defaultViewHandlerPackageName = null;
         if (defaultViewHandlerInfo != null)
             defaultViewHandlerPackageName = defaultViewHandlerInfo.activityInfo.packageName;
 
-        List<ResolveInfo> resolvedActivityList = pm.queryIntentActivities(activityIntent, 0);
-        List<String> packagesSupportingCustomTabs = new ArrayList<>();
-        for (ResolveInfo info : resolvedActivityList) {
-            Intent serviceIntent = new Intent();
+        final List<ResolveInfo> resolvedActivityList = pm.queryIntentActivities(activityIntent, 0);
+        final List<String> packagesSupportingCustomTabs = new ArrayList<>();
+        for (final ResolveInfo info : resolvedActivityList) {
+            final Intent serviceIntent = new Intent();
             serviceIntent.setAction(ACTION_CUSTOM_TABS_CONNECTION);
             serviceIntent.setPackage(info.activityInfo.packageName);
             if (pm.resolveService(serviceIntent, 0) != null)
@@ -79,11 +82,11 @@ public class CustomTabActivityHelper {
 
     private static boolean hasSpecializedHandlerIntents(Context context, Intent intent) {
         try {
-            PackageManager pm = context.getPackageManager();
-            List<ResolveInfo> handlers = pm.queryIntentActivities(intent, PackageManager.GET_RESOLVED_FILTER);
-            if (handlers == null || handlers.size() == 0) return false;
-            for (ResolveInfo resolveInfo : handlers) {
-                IntentFilter filter = resolveInfo.filter;
+            final PackageManager pm = context.getPackageManager();
+            final List<ResolveInfo> handlers = pm.queryIntentActivities(intent, PackageManager.GET_RESOLVED_FILTER);
+            if (handlers.size() == 0) return false;
+            for (final ResolveInfo resolveInfo : handlers) {
+                final IntentFilter filter = resolveInfo.filter;
                 if (filter == null || filter.countDataAuthorities() == 0
                         || filter.countDataPaths() == 0 || resolveInfo.activityInfo == null)
                     continue;

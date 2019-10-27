@@ -4,15 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -23,12 +15,23 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 
 import awais.backworddictionary.asyncs.WordsAsync;
 import awais.backworddictionary.custom.WordItem;
+import awais.backworddictionary.helpers.Utils;
+import awais.backworddictionary.helpers.WordItemHolder;
 import awais.backworddictionary.interfaces.FilterCheck;
 import awais.backworddictionary.interfaces.FragmentCallback;
 
@@ -44,17 +47,18 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private final boolean[] filterCheck = {true, true, true};
-    public DictionaryWordsAdapter wordsAdapter;
     public String title;
+    DictionaryWordsAdapter wordsAdapter;
 
     private static int startOffset = -120, endOffset, expandedEndOffset, topPadding, topMargin;
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        activity = getActivity() != null ? getActivity() : (Activity) context;
-        if (Main.tts != null) return;
-        Main.tts = new TextToSpeech(activity, initStatus -> {
+
+        this.activity = getActivity() != null ? getActivity() : (Activity) context;
+
+        if (Main.tts == null) Main.tts = new TextToSpeech(activity, initStatus -> {
             if (initStatus == TextToSpeech.SUCCESS) {
                 if (Main.tts.isLanguageAvailable(Locale.US) == TextToSpeech.LANG_AVAILABLE)
                     Main.tts.setLanguage(Locale.US);
@@ -90,13 +94,13 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
     public void onViewCreated(@NonNull View magicRootView, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(magicRootView, savedInstanceState);
 
-        activity = getActivity() != null ? getActivity() : (Activity) getContext();
+        activity = getActivity() == null ? (Activity) getContext() : getActivity();
 
         if (activity != null)
             imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 
         wordList = new ArrayList<>();
-        wordsAdapter = new DictionaryWordsAdapter(getContext(), wordList);
+        wordsAdapter = new DictionaryWordsAdapter(activity, wordList);
         wordsAdapter.setHasStableIds(true);
 
         swipeRefreshLayout = magicRootView.findViewById(R.id.swipe_container);
@@ -107,10 +111,11 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
             swipeRefreshLayout.setRefreshing(true);
 
             if (activity instanceof Main) {
-                Main mainActivity = (Main) activity;
+                final Main mainActivity = (Main) activity;
                 if (mainActivity.mSearchView != null && mainActivity.mSearchView.isSearchOpen())
                     mainActivity.mSearchView.close(true);
-                String title = (String) activity.getTitle();
+
+                final String title = (String) activity.getTitle();
                 if (!title.equals(getResources().getString(R.string.app_name))) mainActivity.onSearch(title);
                 else swipeRefreshLayout.setRefreshing(false);
             }
@@ -129,12 +134,11 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
 
         filterView = magicRootView.findViewById(R.id.filterView);
 
-        ImageView filterBackButton = magicRootView.findViewById(R.id.filterBack);
-        filterBackButton.setOnClickListener(view -> hideFilter());
-        filterSearchEditor = magicRootView.findViewById(R.id.swipeSearch);
+        final ImageView filterBackButton = magicRootView.findViewById(R.id.filterBack);
         filterSearchButton = magicRootView.findViewById(R.id.filterSettings);
         filterSearchButton.setTag("filter");
-        filterSearchEditor.setOnClickListener(view -> toggleKeyboard(true));
+
+        filterSearchEditor = magicRootView.findViewById(R.id.swipeSearch);
         filterSearchEditor.setOnFocusChangeListener((view, b) -> toggleKeyboard(b));
         filterSearchEditor.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence cs, int i, int i1, int i2) {}
@@ -151,48 +155,60 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
                 }
             }
         });
-        filterSearchButton.setOnClickListener(view -> {
-            if (filterSearchButton.getTag() != null && !TextUtils.isEmpty((CharSequence) filterSearchButton.getTag())
-                    && filterSearchButton.getTag().equals("filter")) {
-                filterCheck[0] = Main.sharedPreferences.getBoolean("filterWord", true);
-                filterCheck[1] = Main.sharedPreferences.getBoolean("filterDefinition", false);
-                filterCheck[2] = Main.sharedPreferences.getBoolean("filterContain", false);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                builder.setTitle(getString(R.string.select_filters));
-                builder.setMultiChoiceItems(new String[]{getString(R.string.words), getString(R.string.defs), getString(R.string.contains)}, filterCheck,
-                        (dialogInterface, i, b) -> {
-                            filterCheck[i] = b;
-                            String item = "";
-                            switch (i) {
-                                case 0: item = "filterWord"; break;
-                                case 1: item = "filterDefinition"; break;
-                                case 2: item = "filterContain"; break;
-                            }
-                            Main.sharedPreferences.edit().putBoolean(item, b).apply();
-                        });
-                builder.setNeutralButton(getString(R.string.ok), (dialogInterface, i) -> {
-                    if (wordList.size() > 2)
-                        wordsAdapter.getFilter().filter(filterSearchEditor.getText());
-                    dialogInterface.dismiss();
-                });
-                builder.create().show();
-            } else {
-                filterSearchEditor.setText("");
-                filterSearchButton.setTag("filter");
+        View.OnClickListener onClickListener = view -> {
+            if (view == filterBackButton) hideFilter();
+
+            else if (view == filterSearchEditor) toggleKeyboard(true);
+
+            else if (view == filterSearchButton) {
+                final Object tag = filterSearchButton.getTag();
+
+                if (!Utils.isEmpty((CharSequence) tag) && tag.equals("filter")) {
+                    filterCheck[0] = Main.sharedPreferences.getBoolean("filterWord", true);
+                    filterCheck[1] = Main.sharedPreferences.getBoolean("filterDefinition", false);
+                    filterCheck[2] = Main.sharedPreferences.getBoolean("filterContain", false);
+
+                    new AlertDialog.Builder(activity).setTitle(getString(R.string.select_filters))
+                            .setMultiChoiceItems(new String[] {getString(R.string.words), getString(R.string.defs), getString(R.string.contains)}, filterCheck,
+                                    (dialogInterface, i, b) -> {
+                                        filterCheck[i] = b;
+                                        final String item;
+                                        switch (i) {
+                                            case 0: item = "filterWord"; break;
+                                            case 1: item = "filterDefinition"; break;
+                                            case 2: item = "filterContain"; break;
+                                            default: item = null; break;
+                                        }
+                                        if (!Utils.isEmpty(item))
+                                            Main.sharedPreferences.edit().putBoolean(item, b).apply();
+                                    })
+                            .setNeutralButton(R.string.ok, (dialogInterface, i) -> {
+                                if (wordList.size() > 2)
+                                    wordsAdapter.getFilter().filter(filterSearchEditor.getText());
+                                dialogInterface.dismiss();
+                            }).show();
+                } else {
+                    filterSearchEditor.setText("");
+                    filterSearchButton.setTag("filter");
+                }
             }
-        });
+        };
+
+        filterBackButton.setOnClickListener(onClickListener);
+        filterSearchEditor.setOnClickListener(onClickListener);
+        filterSearchButton.setOnClickListener(onClickListener);
     }
 
-    public void startWords(CharSequence method, String word) {
+    void startWords(String method, String word) {
         if (filterView != null && filterSearchEditor != null) filterSearchEditor.setText("");
-        if (word == null || word.isEmpty() || TextUtils.isEmpty(word)) return;
-        new WordsAsync(this, word, (String) method, this.activity).execute();
+        if (Utils.isEmpty(word)) return;
+        new WordsAsync(this, word, method, this.activity).execute();
     }
 
     @Override
     public void done(ArrayList<WordItem> items, final String word) {
-        wordList = items != null ? items : new ArrayList<>();
+        wordList = items == null ? new ArrayList<>() : items;
 
         swipeRefreshLayout.post(() -> swipeRefreshLayout.setRefreshing(false));
 
@@ -206,6 +222,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
 
     @Override
     public void wordStarted() {
+        if (swipeRefreshLayout == null) return;
         swipeRefreshLayout.post(() -> {
             swipeRefreshLayout.setEnabled(true);
             swipeRefreshLayout.setRefreshing(true);
@@ -258,11 +275,11 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         }
     }
 
-    public void hideFilter() {
+    void hideFilter() {
         showFilter(false, 0);
     }
 
-    public boolean isFilterOpen() {
+    boolean isFilterOpen() {
         return filterView != null && filterView.getVisibility() == View.VISIBLE;
     }
 
@@ -273,7 +290,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         else imm.hideSoftInputFromWindow(filterSearchEditor.getWindowToken(), 1);
     }
 
-    public void scrollRecyclerView(boolean directionUp) {
+    void scrollRecyclerView(boolean directionUp) {
         if (recyclerView == null) return;
         recyclerView.smoothScrollToPosition(directionUp ? 0 : 5000);
     }
@@ -283,6 +300,22 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         if (activity == null) activity = getActivity();
         if (activity != null && activity.getTheme().resolveAttribute(R.attr.actionBarSize, tv, true))
             return TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
-        return swipeRefreshLayout != null ? swipeRefreshLayout.getProgressViewEndOffset() * 2.0f : 250.0f;
+        return swipeRefreshLayout == null ? 250.0f : swipeRefreshLayout.getProgressViewEndOffset() * 2.0f;
+    }
+
+    @SuppressWarnings( "unchecked" )
+    void closeExpanded() {
+        if (wordsAdapter == null) return;
+        wordsAdapter.refreshShowDialogEnabled();
+
+        final LinkedHashSet[] hashSets = wordsAdapter.getHashSets();
+
+        final LinkedHashSet<WordItemHolder> wordHoldersSet = hashSets[1];
+        for (WordItemHolder holder : wordHoldersSet) holder.cardView.setCardBackgroundColor(-1);
+
+        final LinkedHashSet<WordItem> expandedWordsSet = hashSets[0];
+        for (WordItem wordItem : expandedWordsSet) wordItem.setExpanded(false);
+
+        wordsAdapter.notifyDataSetChanged();
     }
 }

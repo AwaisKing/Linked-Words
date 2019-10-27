@@ -1,32 +1,40 @@
 package awais.backworddictionary.customweb;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
 import awais.backworddictionary.R;
 
 public class WebViewActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_webview);
-        String url = getIntent().getStringExtra("extra.url");
-        WebView webView = findViewById(R.id.webview);
-        webView.setWebViewClient(new WebViewClient());
-        WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(getPackageName().startsWith("awais"));
+
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) actionBar.setDisplayHomeAsUpEnabled(true);
+
+        final String url = getIntent().getStringExtra("extra.url");
         setTitle(url);
-        if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        final WebView webView = findViewById(R.id.webview);
+        webView.setWebViewClient(new WebViewClient());
+
+        final WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(getPackageName().startsWith("awais"));
+
         webView.loadUrl(url);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;

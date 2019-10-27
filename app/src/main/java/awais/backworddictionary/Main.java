@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
@@ -15,17 +16,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.TabLayout;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.TooltipCompat;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
@@ -38,9 +28,20 @@ import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.widget.TooltipCompat;
+import androidx.viewpager.widget.ViewPager;
+
 import com.crashlytics.android.Crashlytics;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -67,6 +68,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     public static TextToSpeech tts;
     public static String[] boolsArray;
     public static SharedPreferences sharedPreferences;
+    public static int statusBarHeight = 0;
     public DictionaryFragmentsAdapter fragmentsAdapter;
     private FloatingActionMenu fabOptions;
     private SearchAdapter searchAdapter;
@@ -82,6 +84,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        statusBarHeight = Utils.getStatusBarHeight(getWindow(), getResources());
         Utils.initCrashlytics(this);
         setContentView(R.layout.activity_main);
 
@@ -94,6 +97,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         appBarLayout = findViewById(R.id.appbarLayout);
         toolbar = findViewById(R.id.toolbar);
         toolbarParams = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
+        appBarLayout.setPadding(0, statusBarHeight, 0, 0);
 
         fabOptions.getMenuIconView().setImageDrawable(Utils.getDrawable(this, R.drawable.ic_options));
         fabOptions.setClosedOnTouchOutside(true);
@@ -101,7 +105,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         fabOptions.setOnMenuButtonLongClickListener(v -> {
             if (fragmentsAdapter == null || viewPager == null) return true;
             DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
-            if (fragment != null && fragment.isAdded())
+            if (fragment.isAdded())
                 if (fragment.isFilterOpen()) fragment.hideFilter();
                 else fragment.showFilter(true, 0);
             return true;
@@ -126,7 +130,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         setFabListeners(fabOptions, v -> {
             if (fragmentsAdapter == null || viewPager == null) return;
             DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
-            if (fragment != null && fragment.isAdded())
+            if (fragment.isAdded())
                 switch ((int) v.getTag()) {
                     case 0: // filter
                         if (fragment.isFilterOpen()) fragment.hideFilter();
@@ -154,11 +158,8 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        myThread loadFragments = new myThread(true, this);
-        myThread setupTTS = new myThread(false, this);
-
-        loadFragments.start();
-        setupTTS.start();
+        new myThread(true, this).start(); // load fragments
+        new myThread(false, this).start(); // setup tts
 
         setSearchView();
     }
@@ -179,7 +180,10 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         fragmentsAdapter = new DictionaryFragmentsAdapter(getSupportFragmentManager());
         for (int i = 0; i < boolsArray.length; i++)
             if (boolsArray[i].equalsIgnoreCase("true"))
-                fragmentsAdapter.addFragment(new DictionaryFragment(), getString(tabs[i]));
+                fragmentsAdapter.addFragment(getString(tabs[i]));
+
+        if (fragmentsAdapter.isEmpty())
+            fragmentsAdapter.setFragments(getString(tabs[0]), getString(tabs[1]), getString(tabs[2]), getString(tabs[3]));
 
         if (tabLayout != null) tabLayout.clearOnTabSelectedListeners();
 
@@ -200,14 +204,14 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 final DictionaryFragment currentItem = fragmentsAdapter.getItem(currTab);
                 final DictionaryFragment prevItem = fragmentsAdapter.getItem(prevTab);
 
-                if (currentItem != null && currentItem.isAdded()) {
+                if (currentItem.isAdded()) {
                     if (!Utils.isEmpty(currentItem.title))
                         setTitle(currentItem.title);
                     else {
                         if (prevItem.title != null && !prevItem.title.isEmpty()) {
                             try {
                                 currentItem.wordsAdapter.updateList(new ArrayList<>());
-                                currentItem.startWords(tab.getText(), prevItem.title);
+                                currentItem.startWords(String.valueOf(tab.getText()), prevItem.title);
                                 currentItem.title = prevItem.title;
                             } catch (Exception e) {
                                 if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
@@ -215,7 +219,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                         }
                     }
 
-                    if (prevItem != null && prevItem.isAdded())
+                    if (prevItem.isAdded())
                         prevItem.showFilter(prevItem.isFilterOpen(), 2);
                     currentItem.showFilter(currentItem.isFilterOpen(), currentItem.isFilterOpen() ? 2 : 0);
                 }
@@ -234,40 +238,29 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     }
 
     private void handleData() {
-        Intent thisIntent = getIntent();
-        if (thisIntent == null) return;
+        final Intent intent = getIntent();
+        if (intent == null) return;
 
-        Bundle bundle = thisIntent.getExtras();
-        String action = thisIntent.getAction();
-        String type = thisIntent.getType();
-        if (bundle == null || action == null || type == null) return;
+        final Bundle bundle = intent.getExtras();
+        if (bundle == null) return;
 
-        Handler handler = new Handler();
-        //        if (getMainLooper() != null) handler = new Handler(getMainLooper());
-        //        else handler = new Handler();
+        final Handler handler = new Handler();
+        final String[] str = new String[1];
 
-        if (action.equals(Intent.ACTION_SEND) && type.equals("text/plain")) {
-            if (bundle.containsKey(Intent.EXTRA_TEXT)) {
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        onSearch(bundle.getString(Intent.EXTRA_TEXT));
-                        handler.removeCallbacks(this);
-                    }
-                }, 400);
+        if (bundle.containsKey(Intent.EXTRA_TEXT) && "text/plain".equals(intent.getType())
+                && Intent.ACTION_SEND.equals(intent.getAction()))
+            str[0] = bundle.getString(Intent.EXTRA_TEXT);
+        else if (bundle.containsKey("query"))
+            str[0] = bundle.getString("query");
+
+        if (str[0] == null) return;
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                onSearch(str[0]);
+                handler.removeCallbacks(this);
             }
-            return;
-        }
-
-        if (bundle.containsKey("query")) {
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    onSearch(bundle.getString("query"));
-                    handler.removeCallbacks(this);
-                }
-            }, 400);
-        }
+        }, 400);
     }
 
     @Override
@@ -313,7 +306,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         menuCaller.show(item);
         return super.onOptionsItemSelected(item);
     }
@@ -323,13 +316,14 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             if (fragmentsAdapter != null && viewPager != null) {
                 final int pagerCurrentItem = viewPager.getCurrentItem();
                 final CharSequence method = fragmentsAdapter.getPageTitle(pagerCurrentItem);
-                DictionaryFragment fragment = fragmentsAdapter.getItem(pagerCurrentItem);
-                if (fragment != null && fragment.isAdded())
-                    fragment.startWords(method, word);
+                final DictionaryFragment fragment = fragmentsAdapter.getItem(pagerCurrentItem);
+                if (fragment.isAdded())
+                    fragment.startWords("" + method, word);
             }
             if (mSearchView != null && mSearchView.isSearchOpen()) {
                 mSearchView.close(false);
-                toolbarParams.setScrollFlags(5);
+                toolbarParams.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL |
+                        AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
                 toolbar.setLayoutParams(toolbarParams);
             }
         } catch (Exception e) {
@@ -344,7 +338,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         if (result == null || result.isEmpty() || mSearchView == null || searchAdapter == null)
             return;
 
-        ArrayList<SearchItem> suggestionsList = new ArrayList<>();
+        final ArrayList<SearchItem> suggestionsList = new ArrayList<>();
         for (WordItem item : result)
             suggestionsList.add(new SearchItem(item.getWord()));
 
@@ -354,14 +348,21 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         mSearchView.showSuggestions();
     }
 
+    public void closeExpanded() {
+        if (fragmentsAdapter == null) return;
+        for (int i = 0; i < fragmentsAdapter.getCount(); ++i) {
+            final DictionaryFragment fragment = fragmentsAdapter.getItem(i);
+            if (fragment.isAdded()) fragment.closeExpanded();
+        }
+    }
+
     @Override
     public void onBackPressed() {
         if (fragmentsAdapter == null || viewPager == null || fragmentsAdapter.getCount() <= 0)
             super.onBackPressed();
         else {
-            DictionaryFragment dictionaryFragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
-            if (dictionaryFragment != null && dictionaryFragment.isAdded()
-                    && dictionaryFragment.isFilterOpen())
+            final DictionaryFragment dictionaryFragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
+            if (dictionaryFragment.isAdded() && dictionaryFragment.isFilterOpen())
                 dictionaryFragment.hideFilter();
             else super.onBackPressed();
         }
@@ -372,39 +373,38 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         if (mSearchView == null) return;
         mSearchView.bringToFront();
 
-        mSearchView.setShadowColor(ContextCompat.getColor(this, R.color.search_shadow_layout));
-
         mHistoryDatabase = new SearchHistoryTable(this);
-        mHistoryDatabase.setHistorySize(8);
 
-        searchAdapter = new SearchAdapter(this, mHistoryDatabase);
-        searchAdapter.setHasStableIds(true);
-        searchAdapter.addOnItemClickListener((View view, int position, String text) -> {
+        searchAdapter = new SearchAdapter(this, mHistoryDatabase, (view, position, text) -> {
             onSearch(text);
             addHistoryItem(text);
-        });
-        searchAdapter.addOnItemLongClickListener((view, position, text) -> {
-            AlertDialog alertDialog = new AlertDialog.Builder(Main.this).create();
-            alertDialog.setTitle(getString(R.string.remove_recent));
-            alertDialog.setMessage(getString(R.string.confirm_remove, text));
-            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.yes), (dialog, which) -> {
-                deleteHistoryItem(text);
+        }, (view, position, text) -> {
+
+            final DialogInterface.OnClickListener btnListener = (dialog, which) -> {
+                if (which == DialogInterface.BUTTON_POSITIVE) deleteHistoryItem(text);
                 dialog.dismiss();
-            });
-            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.no), (dialog, which) -> dialog.dismiss());
-            alertDialog.show();
-            TextView tvMessage = alertDialog.findViewById(android.R.id.message);
-            if (tvMessage != null) {
-                tvMessage.setTypeface(LinkedApp.fontRegular);
-                String tvMessageText = tvMessage.getText().toString();
-                SpannableStringBuilder messageSpan = new SpannableStringBuilder(tvMessageText);
-                int spanStart = tvMessageText.indexOf('"');
-                int spanEnd = tvMessageText.lastIndexOf('"');
-                messageSpan.setSpan(new StyleSpan(Typeface.BOLD), spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                messageSpan.delete(spanStart, spanStart + 1);
-                messageSpan.delete(spanEnd - 1, spanEnd);
-                tvMessage.setText(messageSpan);
-            }
+            };
+
+            final AlertDialog alertDialog = new AlertDialog.Builder(Main.this)
+                    .setTitle(R.string.remove_recent)
+                    .setMessage(getString(R.string.confirm_remove, text))
+                    .setPositiveButton(R.string.yes, btnListener)
+                    .setNegativeButton(R.string.no, btnListener).show();
+
+            final TextView tvMessage = alertDialog.findViewById(android.R.id.message);
+            if (tvMessage == null) return true;
+
+            tvMessage.setTypeface(LinkedApp.fontRegular);
+
+            final String tvMessageText = "" + tvMessage.getText();
+            if (Utils.isEmpty(tvMessageText)) return true;
+            final SpannableStringBuilder messageSpan = new SpannableStringBuilder(tvMessageText);
+            final int spanStart = tvMessageText.indexOf('"');
+            final int spanEnd = tvMessageText.lastIndexOf('"');
+            messageSpan.setSpan(new StyleSpan(Typeface.BOLD), spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            messageSpan.delete(spanStart, spanStart + 1);
+            messageSpan.delete(spanEnd - 1, spanEnd);
+            tvMessage.setText(messageSpan);
             return true;
         });
         mSearchView.setAdapter(searchAdapter);
@@ -412,10 +412,18 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         mSearchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             private final Handler handler = new Handler();
             private String text = "";
+            private SearchAsync prevAsync;
             private final Runnable textWatch = () -> {
                 final SearchAsync async = new SearchAsync(Main.this);
-                if (!Utils.isEmpty(text)) async.execute(text);
-                else try { async.cancel(true); } catch (Exception ignore) {}
+                if (!Utils.isEmpty(text)) {
+                    if (prevAsync != null)
+                        try { prevAsync.cancel(true); } catch (Exception ignore) {}
+                    async.execute(text);
+                    prevAsync = async;
+                } else {
+                    try { prevAsync.cancel(true); } catch (Exception ignore) {}
+                    try { async.cancel(true); } catch (Exception ignore) {}
+                }
             };
 
             @Override
@@ -432,39 +440,40 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {
+            public void onQueryTextChange(String newText) {
                 text = newText;
                 if (!Utils.isEmpty(newText)) {
                     try { handler.removeCallbacks(textWatch); } catch (Exception ignored) {}
                     handler.postDelayed(textWatch, 800);
                     mSearchView.showProgress();
                 } else mSearchView.hideProgress();
-                return false;
             }
         });
 
         mSearchView.setOnOpenCloseListener(new MaterialSearchView.OnOpenCloseListener() {
-            private final DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
+            private DictionaryFragment fragment;
             private int oldScrollFlag = toolbarParams.getScrollFlags();
 
             @Override
-            public boolean onClose() {
-                if (fragment != null && fragment.isAdded() && !fragment.isFilterOpen())
+            public void onClose() {
+                fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
+
+                if (fragment.isAdded() && !fragment.isFilterOpen())
                     fragment.showFilter(false, 1);
                 toolbarParams.setScrollFlags(oldScrollFlag);
                 toolbar.setLayoutParams(toolbarParams);
-                return false;
             }
 
             @Override
-            public boolean onOpen() {
-                if (fragment != null && fragment.isAdded())
+            public void onOpen() {
+                fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
+
+                if (fragment.isAdded())
                     fragment.showFilter(true, 1);
                 appBarLayout.setExpanded(true, true);
                 oldScrollFlag = toolbarParams.getScrollFlags();
                 toolbarParams.setScrollFlags(0);
                 toolbar.setLayoutParams(toolbarParams);
-                return false;
             }
         });
     }
@@ -525,13 +534,15 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         }
     }
 
-    private static void fabAnimation(FloatingActionMenu fabOptions) {
-        AnimatorSet set = new AnimatorSet();
-        ImageView fabIcon = fabOptions.getMenuIconView();
-        ObjectAnimator scaleOutX = ObjectAnimator.ofFloat(fabIcon, "scaleX", 1.0f, 0.2f);
-        ObjectAnimator scaleOutY = ObjectAnimator.ofFloat(fabIcon, "scaleY", 1.0f, 0.2f);
-        ObjectAnimator scaleInX = ObjectAnimator.ofFloat(fabIcon, "scaleX", 0.2f, 1.0f);
-        ObjectAnimator scaleInY = ObjectAnimator.ofFloat(fabIcon, "scaleY", 0.2f, 1.0f);
+    private static void fabAnimation(@NonNull FloatingActionMenu fabOptions) {
+        final AnimatorSet set = new AnimatorSet();
+        final ImageView fabIcon = fabOptions.getMenuIconView();
+
+        final ObjectAnimator scaleOutX = ObjectAnimator.ofFloat(fabIcon, "scaleX", 1.0f, 0.2f);
+        final ObjectAnimator scaleOutY = ObjectAnimator.ofFloat(fabIcon, "scaleY", 1.0f, 0.2f);
+        final ObjectAnimator scaleInX = ObjectAnimator.ofFloat(fabIcon, "scaleX", 0.2f, 1.0f);
+        final ObjectAnimator scaleInY = ObjectAnimator.ofFloat(fabIcon, "scaleY", 0.2f, 1.0f);
+
         scaleOutX.setDuration(200);
         scaleOutY.setDuration(200);
         scaleInX.setDuration(200);
@@ -545,22 +556,26 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         set.play(scaleOutX).with(scaleOutY);
         set.play(scaleInX).with(scaleInY).after(scaleOutX);
         set.setInterpolator(new OvershootInterpolator(3.17f));
+
         fabOptions.setIconToggleAnimatorSet(set);
     }
 
     private static void setFabListeners(FloatingActionMenu fabOptions, View.OnClickListener onClickListener) {
         if (fabOptions == null) return;
-        int[] resIds = {R.drawable.ic_filter, R.drawable.ic_arrow_down, R.drawable.ic_arrow_up};
-        Context context = fabOptions.getContext();
+
+        final int[] resIds = {R.drawable.ic_filter, R.drawable.ic_arrow_down, R.drawable.ic_arrow_up};
+        final Context context = fabOptions.getContext();
 
         int j = 0;
         for (int i = fabOptions.getChildCount() - 1; i > -1; --i) {
-            View view = fabOptions.getChildAt(i);
-            if (view instanceof com.github.clans.fab.FloatingActionButton) {
+            final View view = fabOptions.getChildAt(i);
+            if (view instanceof FloatingActionButton) {
                 final FloatingActionButton fab = (FloatingActionButton) view;
                 if (fab.getButtonSize() == 0) continue;
-                Drawable drawable = Utils.getDrawable(context, resIds[j]);
+
+                final Drawable drawable = Utils.getDrawable(context, resIds[j]);
                 drawable.setColorFilter(0xFF2196F3, PorterDuff.Mode.SRC_ATOP);
+
                 fab.setImageDrawable(drawable);
                 fab.setTag(j++);
                 fab.setOnClickListener(onClickListener);

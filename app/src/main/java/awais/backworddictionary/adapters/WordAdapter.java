@@ -1,13 +1,14 @@
 package awais.backworddictionary.adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 
 import java.util.ArrayList;
 
@@ -17,13 +18,13 @@ import awais.backworddictionary.R;
 public class WordAdapter extends ArrayAdapter<String[]> {
     private final ArrayList<String[]> items;
     private final SearchAdapter.OnItemClickListener onItemClickListener;
-    private final boolean isDialog;
+    private final boolean isExpanded;
     private int topMargin = 0, subSize = 20;
 
-    public WordAdapter(Context context, boolean isDialog, ArrayList<String[]> items,
+    public WordAdapter(Context context, boolean isExpanded, ArrayList<String[]> items,
             SearchAdapter.OnItemClickListener onItemClickListener) {
         super(context, R.layout.word_dialog_item, items);
-        this.isDialog = isDialog;
+        this.isExpanded = isExpanded;
         this.items = items;
         this.onItemClickListener  = onItemClickListener;
     }
@@ -32,7 +33,7 @@ public class WordAdapter extends ArrayAdapter<String[]> {
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         View row = convertView;
-        Holder viewHolder;
+        final Holder viewHolder;
 
         if (row == null) {
             row = LayoutInflater.from(getContext()).inflate(R.layout.word_dialog_item, parent, false);
@@ -47,31 +48,30 @@ public class WordAdapter extends ArrayAdapter<String[]> {
             row.setTag(viewHolder);
         } else viewHolder = (Holder) row.getTag();
 
-        String[] wordItem = items.get(position);
+        final String[] wordItem = items.get(position);
 
         if (viewHolder.tvWord != null) viewHolder.tvWord.setText(wordItem[1]);
 
         if (viewHolder.tvSub != null)
-            if (!isDialog && wordItem[0] != null && !wordItem[0].isEmpty()) {
-                String itemSub = '[' + wordItem[0] + ']';
+            if (!isExpanded && wordItem[0] != null && !wordItem[0].isEmpty()) {
+                final String itemSub = '[' + wordItem[0] + ']';
                 viewHolder.tvSub.setText(itemSub);
                 viewHolder.tvSub.setVisibility(View.VISIBLE);
             } else {
-                if (isDialog && viewHolder.tvWord != null)
+                if (isExpanded && viewHolder.tvWord != null)
                     viewHolder.tvWord.setPadding(ViewCompat.getPaddingStart(viewHolder.tvWord), subSize,
                             ViewCompat.getPaddingEnd(viewHolder.tvWord), subSize + topMargin);
                 viewHolder.tvSub.setVisibility(View.GONE);
             }
 
-        View finalRow = row;
-        if (onItemClickListener != null)
-            row.setOnClickListener(view -> onItemClickListener.onItemClick(
-                    finalRow, getPosition(wordItem), wordItem[1]));
+        final View finalRow = row;
+        if (onItemClickListener != null) row.setOnClickListener(v ->
+                onItemClickListener.onItemClick(finalRow, getPosition(wordItem), wordItem[1]));
 
-        return row;
+        return finalRow;
     }
 
-    private class Holder {
+    private static class Holder {
         TextView tvWord;
         TextView tvSub;
     }

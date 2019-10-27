@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="@dimen/search_view_margin_text"
     android:layout_marginBottom="8dp"
     android:orientation="vertical">
 
-    <android.support.v7.widget.DialogTitle
+    <androidx.appcompat.widget.DialogTitle
         android:id="@+id/alertTitle"
         style="?android:attr/windowTitleStyle"
         android:layout_width="match_parent"
@@ -21,7 +21,7 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <android.support.v7.widget.LinearLayoutCompat
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/checkboxContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,7 +33,7 @@
             android:orientation="vertical"
             android:paddingBottom="@dimen/filter_margin_start">
 
-            <android.support.v7.widget.AppCompatCheckBox
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/rbReverse"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
                 android:text="@string/reverse_related"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <android.support.v7.widget.AppCompatCheckBox
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/rbSoundsLike"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -51,7 +51,7 @@
                 android:text="@string/sounds_like"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <android.support.v7.widget.AppCompatCheckBox
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/rbSpelledLike"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -60,7 +60,7 @@
                 android:text="@string/spelled_like"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <android.support.v7.widget.AppCompatCheckBox
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/rbSynonym"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -69,7 +69,7 @@
                 android:text="@string/synonyms"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <android.support.v7.widget.AppCompatCheckBox
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/rbAntonym"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
                 android:text="@string/antonyms"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <android.support.v7.widget.AppCompatCheckBox
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/rbTrigger"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -87,7 +87,7 @@
                 android:text="@string/triggers"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <android.support.v7.widget.AppCompatCheckBox
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/rbPartOf"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -96,7 +96,7 @@
                 android:text="@string/part_of"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <android.support.v7.widget.AppCompatCheckBox
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/rbComprise"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -105,7 +105,7 @@
                 android:text="@string/comprises"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <android.support.v7.widget.AppCompatCheckBox
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/rbRhymes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -114,7 +114,7 @@
                 android:text="@string/rhymes"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <android.support.v7.widget.AppCompatCheckBox
+            <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/rbHomophones"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -122,16 +122,16 @@
                 android:padding="6dp"
                 android:text="@string/homophones"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
-        </android.support.v7.widget.LinearLayoutCompat>
+        </androidx.appcompat.widget.LinearLayoutCompat>
     </ScrollView>
 
-    <android.support.v7.widget.LinearLayoutCompat
+    <androidx.appcompat.widget.LinearLayoutCompat
         style="?attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <android.support.v7.widget.ButtonBarLayout
+        <androidx.appcompat.widget.ButtonBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="bottom|end"
@@ -140,19 +140,19 @@
             android:paddingTop="4dp"
             android:paddingRight="8dp">
 
-            <android.support.v7.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnOK"
                 style="?attr/buttonBarPositiveButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/ok" />
 
-            <android.support.v7.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnCancel"
                 style="?attr/buttonBarNegativeButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/cancel" />
-        </android.support.v7.widget.ButtonBarLayout>
-    </android.support.v7.widget.LinearLayoutCompat>
-</android.support.v7.widget.LinearLayoutCompat>
+        </androidx.appcompat.widget.ButtonBarLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</androidx.appcompat.widget.LinearLayoutCompat>

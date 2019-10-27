@@ -3,13 +3,12 @@ package awais.backworddictionary.asyncs;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.List;
 
 import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.custom.WordItem;
@@ -31,12 +30,6 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     }
 
     @Override
-    protected void onCancelled() {
-        super.onCancelled();
-        mainCheck.afterSearch(null);
-    }
-
-    @Override
     protected ArrayList<WordItem> doInBackground(String... params) {
         String query;
         try {
@@ -47,7 +40,7 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
                     .replaceAll("&", "%26");
         }
 
-        ArrayList<WordItem> arrayList = new ArrayList<>();
+        final ArrayList<WordItem> arrayList = new ArrayList<>();
 
         Response response = null;
         try {
@@ -75,10 +68,14 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
             try { response = call.get().execute(); } catch (Exception ignored) {}
 
             if (response != null && response.code() == 200) {
-                ResponseBody body = response.body();
-                if (body != null)
-                    arrayList = new Gson().fromJson(body.string(),
-                            new TypeToken<List<WordItem>>() {}.getType());
+                final ResponseBody body = response.body();
+                if (body != null) {
+                    final JSONArray jsonArray = new JSONArray(body.string());
+                    for (int i = 0; i < jsonArray.length(); ++i) {
+                        final JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        arrayList.add(new WordItem(jsonObject.getString("word"), 0, null, null));
+                    }
+                }
                 try { call.get().cancel(); } catch (Exception ignored) {}
             }
         } catch (Exception e) {
@@ -86,6 +83,12 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
         }
         if (response != null) try { response.close(); } catch (Exception ignored) {}
         return arrayList;
+    }
+
+    @Override
+    protected void onCancelled() {
+        super.onCancelled();
+        mainCheck.afterSearch(null);
     }
 
     @Override

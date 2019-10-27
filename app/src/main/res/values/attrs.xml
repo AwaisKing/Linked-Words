@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <declare-styleable name="MaxHeightRecyclerView">
+        <attr name="maxHeight" format="integer" />
+    </declare-styleable>
+
     <declare-styleable name="MaterialSearchView">
         <attr name="search_height" format="integer" />
         <attr name="search_version" format="enum">

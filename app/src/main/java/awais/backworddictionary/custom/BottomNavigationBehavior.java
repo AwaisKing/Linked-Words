@@ -1,14 +1,14 @@
 package awais.backworddictionary.custom;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 import android.view.View;
 
-@SuppressWarnings( {"unused"} )
+import androidx.annotation.NonNull;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.view.ViewCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 public class BottomNavigationBehavior extends CoordinatorLayout.Behavior<View> {
     public BottomNavigationBehavior(Context context, AttributeSet attrs) {
         super(context, attrs);

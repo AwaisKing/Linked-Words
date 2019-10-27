@@ -5,18 +5,19 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 class SearchDivider extends RecyclerView.ItemDecoration {
     private Drawable divider;
     private int dividerHeight;
     private int dividerWidth;
 
-    SearchDivider(Context context) {
-        final TypedArray a = context.obtainStyledAttributes(null, new int[]{android.R.attr.listDivider});
+    SearchDivider(@NonNull Context context) {
+        final TypedArray a = context.obtainStyledAttributes(null, new int[] {android.R.attr.listDivider});
         setDivider(a.getDrawable(0));
         a.recycle();
     }
@@ -78,9 +79,7 @@ class SearchDivider extends RecyclerView.ItemDecoration {
             final View child = parent.getChildAt(i);
             final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
             final int position = params.getViewLayoutPosition();
-            if (position == 0) {
-                continue;
-            }
+            if (position == 0) continue;
             if (vertical) {
                 top = child.getTop() - params.topMargin - size;
                 bottom = top + size;
@@ -93,10 +92,9 @@ class SearchDivider extends RecyclerView.ItemDecoration {
         }
     }
 
-    private int getOrientation(RecyclerView parent) {
+    private int getOrientation(@NonNull RecyclerView parent) {
         final RecyclerView.LayoutManager lm = parent.getLayoutManager();
         if (lm instanceof LinearLayoutManager) return ((LinearLayoutManager) lm).getOrientation();
         throw new IllegalStateException("Use only with a LinearLayoutManager!");
     }
-
 }

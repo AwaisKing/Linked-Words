@@ -2,22 +2,36 @@ package awais.backworddictionary;
 
 import android.graphics.Typeface;
 import android.os.Build;
-import android.support.multidex.MultiDexApplication;
-import android.support.v4.content.res.ResourcesCompat;
+
+import androidx.core.content.res.ResourcesCompat;
+import androidx.multidex.MultiDexApplication;
 
 import awais.backworddictionary.helpers.Utils;
 
 public class LinkedApp extends MultiDexApplication {
-    public static Typeface fontRegular, fontMedium, fontBold;
+    public static Typeface fontRegular, fontMedium;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        Typeface fontBold;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            fontRegular = getResources().getFont(R.font.googlesans_regular);
-            fontMedium = getResources().getFont(R.font.googlesans_medium);
-            fontBold = getResources().getFont(R.font.googlesans_bold);
+            try {
+                fontRegular = getResources().getFont(R.font.googlesans_regular);
+            } catch (Exception e) {
+                fontRegular = ResourcesCompat.getFont(this, R.font.googlesans_regular);
+            }
+            try {
+                fontMedium = getResources().getFont(R.font.googlesans_medium);
+            } catch (Exception e) {
+                fontMedium = ResourcesCompat.getFont(this, R.font.googlesans_medium);
+            }
+            try {
+                fontBold = getResources().getFont(R.font.googlesans_bold);
+            } catch (Exception e) {
+                fontBold = ResourcesCompat.getFont(this, R.font.googlesans_bold);
+            }
         } else {
             fontRegular = ResourcesCompat.getFont(this, R.font.googlesans_regular);
             fontMedium = ResourcesCompat.getFont(this, R.font.googlesans_medium);

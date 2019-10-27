@@ -1,13 +1,10 @@
 package awais.backworddictionary.custom;
 
-import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.BulletSpan;
@@ -17,6 +14,10 @@ import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.view.MenuItem;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabsIntent;
 
 import java.util.ArrayList;
 
@@ -36,24 +37,32 @@ public class MenuCaller {
         new Menuer().execute(act);
     }
 
-    public void show(MenuItem item) {
+    public void show(@NonNull MenuItem item) {
         menuDialog.setTitle(item.getTitle());
         switch (item.getItemId()) {
-            case R.id.mExamples: menuDialog.setMessage(examplesSpan); break;
-            case R.id.mHelp: menuDialog.setMessage(helpSpan); break;
-            case R.id.mLicenses: menuDialog.setMessage(licensesSpan);
-                menuDialog.setTitle(activity.getString(R.string._credits));break;
-            case R.id.mAbout: menuDialog.setMessage("aboutHere"); break;
+            case R.id.mExamples:
+                menuDialog.setMessage(examplesSpan);
+                break;
+            case R.id.mHelp:
+                menuDialog.setMessage(helpSpan);
+                break;
+            case R.id.mLicenses:
+                menuDialog.setTitle(activity.getString(R.string._credits));
+                menuDialog.setMessage(licensesSpan);
+                break;
+            case R.id.mAbout:
+                menuDialog.setMessage("aboutHere");
+                break;
         }
         menuDialog.show(activity.getSupportFragmentManager(), menuDialog.getTag());
     }
 
     private static class Menuer extends AsyncTask<Object, Void, Void> {
         @Override
-        protected Void doInBackground(Object... params) {
-            Activity activity = (Activity) params[0];
+        protected Void doInBackground(@NonNull Object... params) {
+            final Context activity = (Context) params[0];
 
-            SpanBuilder examplesBuilder = new SpanBuilder();
+            final SpanBuilder examplesBuilder = new SpanBuilder();
             // XXX EXAMPLES
             examplesBuilder.append(activity.getString(R.string.finding_help) + ":\n", new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121), new StyleSpan(Typeface.BOLD));
             examplesBuilder.append("person who makes gold\n", new BulletSpan(26, 0xFF212121));
@@ -75,7 +84,7 @@ public class MenuCaller {
             examplesSpan = examplesBuilder.build();
 
             // XXX HELP
-            SpanBuilder helpBuilder = new SpanBuilder();
+            final SpanBuilder helpBuilder = new SpanBuilder();
             helpBuilder.append(activity.getString(R.string.reverse)+ ":\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
             helpBuilder.append(activity.getString(R.string.reverse_help) + "\n\n", new BulletSpan(26, 0xFF212121));
             helpBuilder.append(activity.getString(R.string.sounds_like) + ":\n", new RelativeSizeSpan(1.1f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(0xFF212121));
@@ -106,7 +115,7 @@ public class MenuCaller {
             helpSpan = helpBuilder.build();
 
             // XXX LICENSES
-            SpanBuilder licensesBuilder = new SpanBuilder();
+            final SpanBuilder licensesBuilder = new SpanBuilder();
             licensesBuilder.append("App Icon:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121));
             licensesBuilder.append("Android Asset Studio - Launcher icon generator\n\n", new BulletSpan(26, 0xFF212121), new ClickableSpan() {
                 @Override
@@ -125,11 +134,11 @@ public class MenuCaller {
                 }});
             licensesBuilder.append("Libraries:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121));
             licensesBuilder.append("OkHttp3 [Apache License 2.0]\n", new BulletSpan(26, 0xFF212121));
-            licensesBuilder.append("GSON [Apache License 2.0]\n", new BulletSpan(26, 0xFF212121));
             licensesBuilder.append("SearchView [Apache License 2.0]\n", new BulletSpan(26, 0xFF212121));
             licensesBuilder.append("NoNet [Apache License 2.0]\n", new BulletSpan(26, 0xFF212121));
             licensesBuilder.append("Chrome Custom Tabs [Apache License 2.0]\n", new BulletSpan(26, 0xFF212121));
-            // licensesBuilder.append("Expandable FAB [Apache License 2.0]\n\n", new BulletSpan(26, 0xFF212121));
+            licensesBuilder.append("Expandable FAB [Apache License 2.0]\n\n", new BulletSpan(26, 0xFF212121));
+
             licensesBuilder.append("License:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.1f), new ForegroundColorSpan(0xFF212121));
             licensesBuilder.append("Apache License 2.0", new BulletSpan(26, 0xFF212121), new ClickableSpan() {
                 @Override
@@ -153,21 +162,22 @@ public class MenuCaller {
             private final int startIndex;
             private final Object[] styles;
 
-            private SpanSection(String text, int startIndex, Object... styles){
+            private SpanSection(String text, int startIndex, Object... styles) {
                 this.styles = styles;
                 this.text = text;
                 this.startIndex = startIndex;
             }
-            private void apply(SpannableStringBuilder spanStringBuilder){
+
+            private void apply(SpannableStringBuilder spanStringBuilder) {
                 if (spanStringBuilder == null) return;
-                for (Object style : styles)
+                for (final Object style : styles)
                     spanStringBuilder.setSpan(style, startIndex, startIndex + text.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             }
         }
 
         SpanBuilder() {
-            stringBuilder = new StringBuilder();
-            spanSections = new ArrayList<>();
+            this.stringBuilder = new StringBuilder();
+            this.spanSections = new ArrayList<>();
         }
 
         void append(String text, Object... styles) {
@@ -176,8 +186,9 @@ public class MenuCaller {
             stringBuilder.append(text);
         }
 
+        @NonNull
         SpannableStringBuilder build() {
-            SpannableStringBuilder ssb = new SpannableStringBuilder(stringBuilder);
+            final SpannableStringBuilder ssb = new SpannableStringBuilder(stringBuilder);
             for (SpanSection section : spanSections) section.apply(ssb);
             return ssb;
         }

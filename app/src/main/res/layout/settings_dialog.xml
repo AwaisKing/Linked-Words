@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="@dimen/search_view_margin_text"
@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/filter_margin_start"
     android:paddingRight="@dimen/filter_margin_start">
 
-    <android.support.v7.widget.DialogTitle
+    <androidx.appcompat.widget.DialogTitle
         android:id="@+id/alertTitle"
         style="?android:attr/windowTitleStyle"
         android:layout_width="match_parent"
@@ -18,58 +18,82 @@
         android:ellipsize="end"
         android:singleLine="true" />
 
-    <android.support.v7.widget.LinearLayoutCompat
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/toolbar_size"
-        android:layout_marginEnd="@dimen/toolbar_size"
+        android:layout_marginStart="@dimen/search_height"
+        android:layout_marginEnd="@dimen/search_height"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.85"
+            android:layout_weight="1.3"
             android:text="@string/max_words" />
 
-        <awais.backworddictionary.custom.NumberPicker
+        <NumberPicker
             android:id="@+id/numberPicker"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
-    </android.support.v7.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <android.support.v7.widget.LinearLayoutCompat
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/showAds"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/toolbar_size"
+        android:layout_marginStart="@dimen/search_height"
         android:layout_marginTop="@dimen/filter_margin_start"
-        android:layout_marginEnd="@dimen/toolbar_size"
+        android:layout_marginEnd="@dimen/search_height"
         android:clickable="true"
         android:focusable="true"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_weight="3"
             android:text="@string/show_ads" />
 
-        <android.support.v7.widget.AppCompatCheckBox
+        <androidx.appcompat.widget.AppCompatCheckBox
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
-    </android.support.v7.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <android.support.v7.widget.LinearLayoutCompat
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/showWordDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/search_height"
+        android:layout_marginTop="@dimen/filter_margin_start"
+        android:layout_marginEnd="@dimen/search_height"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="@string/show_dialog" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
         style="?attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <android.support.v7.widget.ButtonBarLayout
+        <androidx.appcompat.widget.ButtonBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="bottom|end"
@@ -78,19 +102,19 @@
             android:paddingTop="4dp"
             android:paddingRight="8dp">
 
-            <android.support.v7.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnOK"
                 style="?attr/buttonBarPositiveButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/ok" />
 
-            <android.support.v7.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnCancel"
                 style="?attr/buttonBarNegativeButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/cancel" />
-        </android.support.v7.widget.ButtonBarLayout>
-    </android.support.v7.widget.LinearLayoutCompat>
-</android.support.v7.widget.LinearLayoutCompat>
+        </androidx.appcompat.widget.ButtonBarLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</androidx.appcompat.widget.LinearLayoutCompat>

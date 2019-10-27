@@ -1,10 +1,13 @@
 package awais.backworddictionary.helpers;
 
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 
 import awais.backworddictionary.R;
 
@@ -13,7 +16,9 @@ public class WordItemHolder extends RecyclerView.ViewHolder {
     public final TextView subtext;
     public final CardView cardView;
     public final ImageView overflow;
-
+    public final ListView lvExpandedDefs;
+    public final ImageView ivExpandedSearch;
+    public final LinearLayoutCompat expandableMenu;
 
     public WordItemHolder(View view) {
         super(view);
@@ -21,5 +26,8 @@ public class WordItemHolder extends RecyclerView.ViewHolder {
         subtext = view.findViewById(R.id.subText);
         overflow = view.findViewById(R.id.overflow);
         cardView = view.findViewById(R.id.card_view);
+        lvExpandedDefs = view.findViewById(R.id.lvExpandedDefs);
+        ivExpandedSearch = view.findViewById(R.id.ivExpandedSearch);
+        expandableMenu = view.findViewById(R.id.expandableMenu);
     }
 }

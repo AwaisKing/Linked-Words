@@ -2,21 +2,24 @@ package awais.lapism;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.util.Property;
 import android.view.animation.AccelerateDecelerateInterpolator;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.graphics.drawable.DrawerArrowDrawable;
 
 class SearchArrowDrawable extends DrawerArrowDrawable {
     static final float STATE_ARROW = 0.0f;
     static final float STATE_HAMBURGER = 1.0f;
     private static final Property<SearchArrowDrawable, Float> PROGRESS = new Property<SearchArrowDrawable, Float>(Float.class, "progress") {
         @Override
-        public void set(SearchArrowDrawable object, Float value) {
+        public void set(@NonNull SearchArrowDrawable object, Float value) {
             object.setProgress(value);
         }
 
+        @NonNull
         @Override
-        public Float get(SearchArrowDrawable object) {
+        public Float get(@NonNull SearchArrowDrawable object) {
             return object.getProgress();
         }
     };
@@ -27,15 +30,10 @@ class SearchArrowDrawable extends DrawerArrowDrawable {
     }
 
     void animate(float state, int duration) {
-        ObjectAnimator anim;
-        if (state == STATE_ARROW) {
-            anim = ObjectAnimator.ofFloat(this, PROGRESS, state, STATE_HAMBURGER);
-        } else {
-            anim = ObjectAnimator.ofFloat(this, PROGRESS, state, STATE_ARROW);
-        }
+        final ObjectAnimator anim = ObjectAnimator.ofFloat(this, PROGRESS, state,
+                state == STATE_ARROW ? STATE_HAMBURGER : STATE_ARROW);
         anim.setInterpolator(new AccelerateDecelerateInterpolator());
         anim.setDuration(duration);
         anim.start();
     }
-
 }

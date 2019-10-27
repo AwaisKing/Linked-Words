@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.AlertDialogLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.AlertDialogLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="start|top"
     android:orientation="vertical">
 
-    <android.support.v7.widget.LinearLayoutCompat
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/topPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,7 +14,7 @@
         android:paddingTop="10dp"
         android:paddingRight="?attr/dialogPreferredPadding">
 
-        <android.support.v7.widget.DialogTitle
+        <androidx.appcompat.widget.DialogTitle
             android:id="@+id/alertTitle"
             style="?android:attr/windowTitleStyle"
             android:layout_width="0dp"
@@ -23,22 +23,22 @@
             android:ellipsize="end"
             android:singleLine="true" />
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnCopy"
             style="?attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/copy" />
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnSpeak"
             style="?attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/speak" />
-    </android.support.v7.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <android.support.v7.widget.LinearLayoutCompat
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/customPanel"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -54,15 +54,15 @@
             android:fadingEdgeLength="1dp"
             android:overScrollMode="ifContentScrolls"
             android:requiresFadingEdge="vertical" />
-    </android.support.v7.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
-    <android.support.v7.widget.LinearLayoutCompat
+    <androidx.appcompat.widget.LinearLayoutCompat
         style="?attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <android.support.v7.widget.ButtonBarLayout
+        <androidx.appcompat.widget.ButtonBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -71,7 +71,7 @@
             android:paddingTop="4dp"
             android:paddingRight="8dp">
 
-            <android.support.v7.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnGoogle"
                 style="?attr/buttonBarNeutralButtonStyle"
                 android:layout_width="wrap_content"
@@ -79,7 +79,7 @@
                 android:layout_gravity="center"
                 android:text="@string/google" />
 
-            <android.support.v7.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnWiki"
                 style="?attr/buttonBarNeutralButtonStyle"
                 android:layout_width="wrap_content"
@@ -87,16 +87,16 @@
                 android:layout_gravity="center"
                 android:text="@string/wikipedia" />
 
-            <android.support.v7.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnUrban"
                 style="?attr/buttonBarNeutralButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/urban_dictionary" />
-        </android.support.v7.widget.ButtonBarLayout>
+        </androidx.appcompat.widget.ButtonBarLayout>
 
-        <android.support.v7.widget.ButtonBarLayout
+        <androidx.appcompat.widget.ButtonBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="bottom"
@@ -105,12 +105,27 @@
             android:paddingRight="8dp"
             android:paddingBottom="4dp">
 
-            <android.support.v7.widget.AppCompatButton
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnSearch"
                 style="?attr/buttonBarPositiveButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/search" />
-        </android.support.v7.widget.ButtonBarLayout>
-    </android.support.v7.widget.LinearLayoutCompat>
-</android.support.v7.widget.AlertDialogLayout>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnClose"
+                style="?attr/buttonBarPositiveButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/close" />
+        </androidx.appcompat.widget.ButtonBarLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</androidx.appcompat.widget.AlertDialogLayout>

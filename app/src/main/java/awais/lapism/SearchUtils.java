@@ -2,7 +2,8 @@ package awais.lapism;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.v4.view.ViewCompat;
+
+import androidx.core.view.ViewCompat;
 
 class SearchUtils {
 //    public static boolean isRTL() {

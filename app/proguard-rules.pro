@@ -3,7 +3,7 @@
 -printmapping proguardMapping.txt
 -optimizations !code/simplification/cast,!field/*,!class/merging/*
 -keepattributes *Annotation*,Exceptions
--keepattributes InnerClasses
+-keepattributes InnerClasses,LineNumberTable
 #-keepattributes Signature,LineNumberTable,SourceFile
 
 -dontwarn android.webkit.WebView

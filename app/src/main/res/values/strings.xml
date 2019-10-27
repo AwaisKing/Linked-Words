@@ -19,11 +19,12 @@
     <string name="cancel">Cancel</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="close">Close</string>
 
-    <!--<string name="no_connection">Not connected to internet.</string>-->
     <string name="filter_settings">Filter Settings</string>
     <string name="max_words">Max Words</string>
     <string name="show_ads">Show Ads</string>
+    <string name="show_dialog">Show Definition Dialog</string>
 
     <string name="reverse_related">Reverse/Related</string>
     <string name="reverse">Reverse</string>
@@ -74,12 +75,11 @@
     <string name="rhymes_help">find words which perfectly rhyme with given word</string>
     <string name="homophones_help">find words which sound exactly alike</string>
 
-    <string name="scroll_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
+    <string name="scroll_behavior" translatable="false">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
     <string name="bottom_behavior" translatable="false">awais.backworddictionary.custom.BottomNavigationBehavior</string>
     <string name="no_definition_found">No definition found…</string>
 
     <!-- Lapism SearchView -->
-    <string name="search_app_name">Search View</string>
-    <string name="search_behavior" translatable="false" tools:keep="@string/search_behavior">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
+    <string name="search_behavior" translatable="false" tools:keep="@string/search_behavior">@string/scroll_behavior</string>
     <string name="search_behavior2" translatable="false" tools:keep="@string/search_behavior2">awais.lapism.SearchBehavior</string>
 </resources>

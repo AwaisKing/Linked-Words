@@ -3,12 +3,13 @@ package awais.backworddictionary.custom;
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.support.v7.widget.DialogTitle;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Toast;
+
+import androidx.appcompat.widget.DialogTitle;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,25 +34,28 @@ public class AdvancedDialog extends Dialog implements CompoundButton.OnCheckedCh
         super.onCreate(savedInstanceState);
         setCancelable(true);
         setCanceledOnTouchOutside(true);
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        if (getWindow() != null) getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+        final Window window = getWindow();
+        if (window != null) window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
+
         setContentView(R.layout.advanced_dialog);
 
-        ((DialogTitle)findViewById(R.id.alertTitle)).setText(R.string.advance);
+        ((DialogTitle) findViewById(R.id.alertTitle)).setText(R.string.advance);
 
-        ViewGroup container = findViewById(R.id.checkboxContainer);
+        final ViewGroup container = findViewById(R.id.checkboxContainer);
 
-        CheckBox cbReverse     = (CheckBox) container.getChildAt(0);
-        CheckBox cbSoundsLike  = (CheckBox) container.getChildAt(1);
-        CheckBox cbSpelledLike = (CheckBox) container.getChildAt(2);
-        CheckBox cbSynonyms    = (CheckBox) container.getChildAt(3);
-        CheckBox cbAntonyms    = (CheckBox) container.getChildAt(4);
-        CheckBox cbTriggers    = (CheckBox) container.getChildAt(5);
-        CheckBox cbPartOf      = (CheckBox) container.getChildAt(6);
-        CheckBox cbComprises   = (CheckBox) container.getChildAt(7);
-        CheckBox cbRhymes      = (CheckBox) container.getChildAt(8);
-        CheckBox cbHomophones  = (CheckBox) container.getChildAt(9);
+        final CheckBox cbReverse     = (CheckBox) container.getChildAt(0);
+        final CheckBox cbSoundsLike  = (CheckBox) container.getChildAt(1);
+        final CheckBox cbSpelledLike = (CheckBox) container.getChildAt(2);
+        final CheckBox cbSynonyms    = (CheckBox) container.getChildAt(3);
+        final CheckBox cbAntonyms    = (CheckBox) container.getChildAt(4);
+        final CheckBox cbTriggers    = (CheckBox) container.getChildAt(5);
+        final CheckBox cbPartOf      = (CheckBox) container.getChildAt(6);
+        final CheckBox cbComprises   = (CheckBox) container.getChildAt(7);
+        final CheckBox cbRhymes      = (CheckBox) container.getChildAt(8);
+        final CheckBox cbHomophones  = (CheckBox) container.getChildAt(9);
 
         bools = Main.sharedPreferences.getString("tabs", "[true, true, true, true, false, false, false, false, false, false]");
         checkBoxes = Arrays.asList(new CheckBox[] {cbReverse, cbSoundsLike, cbSpelledLike,
@@ -85,7 +89,8 @@ public class AdvancedDialog extends Dialog implements CompoundButton.OnCheckedCh
     @Override
     public void show() {
         super.show();
-        if (getWindow() != null) getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+        final Window window = getWindow();
+        if (window != null) window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
     }
 
@@ -103,18 +108,21 @@ public class AdvancedDialog extends Dialog implements CompoundButton.OnCheckedCh
     }
 
     private void disableUnused() {
-        for (int i=0; i<enabledChecks.length; i++) checkBoxes.get(i).setEnabled(enabledChecks[i]);
+        for (int i = 0; i < enabledChecks.length; i++)
+            checkBoxes.get(i).setEnabled(enabledChecks[i]);
     }
 
     private void enableAll() {
-        for (int i=0; i<enabledChecks.length; i++) checkBoxes.get(i).setEnabled(true);
+        for (int i = 0; i < enabledChecks.length; i++)
+            checkBoxes.get(i).setEnabled(true);
     }
 
     private void loadChecks() {
-        bools = bools.substring(1, bools.length()-1);
-        String[] boolsArray = bools.split(", ");
+        bools = bools.substring(1, bools.length() - 1);
+        final String[] boolsArray = bools.split(", ");
+
         int count = 0;
-        for (int i=0; i<boolsArray.length; i++) {
+        for (int i = 0; i < boolsArray.length; i++) {
             boolean parsed = Boolean.parseBoolean(boolsArray[i]);
             checkBoxes.get(i).setChecked(parsed);
             enabledChecks[i] = parsed;

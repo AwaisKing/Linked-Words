@@ -4,12 +4,11 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.List;
 
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
@@ -37,7 +36,7 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
             this.method = "ml";
             return;
         }
-        String[] methodsList = new String[] {
+        final String[] methodsList = new String[] {
                 context.getResources().getString(R.string.reverse),
                 context.getResources().getString(R.string.sounds_like),
                 context.getResources().getString(R.string.spelled_like),
@@ -82,7 +81,7 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
                     .replaceAll("&", "%26");
         }
 
-        int wordsCount = Main.sharedPreferences.getInt("maxWords", 80);
+        final int wordsCount = Main.sharedPreferences.getInt("maxWords", 80);
 
         builder.url("https://api.datamuse.com/words?md=pds&max=".concat(String.valueOf(wordsCount))
                 .concat("&").concat(method).concat("=").concat(query));
@@ -92,10 +91,33 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
         try {
             response = client.newCall(builder.build()).execute();
             if (response.code() == 200) {
-                ResponseBody body = response.body();
-                if (body != null)
-                    wordItemsList = new Gson().fromJson(body.string(),
-                            new TypeToken<List<WordItem>>() {}.getType());
+                final ResponseBody body = response.body();
+                if (body != null) {
+                    final JSONArray jsonArray = new JSONArray(body.string());
+
+                    for (int i = 0; i < jsonArray.length(); ++i) {
+                        final JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                        final String word = jsonObject.getString("word");
+                        final int numSyllables = jsonObject.getInt("numSyllables");
+                        String[] tagsString = null;
+                        String[][] defsString = null;
+
+                        if (jsonObject.has("tags")) {
+                            final JSONArray tags = jsonObject.getJSONArray("tags");
+                            tagsString = new String[tags.length()];
+                            for (int j = 0; j < tags.length(); ++j)
+                                tagsString[j] = tags.getString(j);
+                        }
+                        if (jsonObject.has("defs")) {
+                            final JSONArray defs = jsonObject.getJSONArray("defs");
+                            defsString = new String[defs.length()][2];
+                            for (int j = 0; j < defs.length(); ++j)
+                                defsString[j] = defs.getString(j).split("\t");
+                        }
+                        wordItemsList.add(new WordItem(word, numSyllables, tagsString, defsString));
+                    }
+                }
             }
         } catch (Exception e) { Log.e("AWAISKING_APP", "", e); }
 
@@ -110,18 +132,4 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
             fragmentCallback.done(wordItems, word);
         super.onPostExecute(wordItems);
     }
-
-/*
-        This might work if other method doesn't
-*/
-//    private int getResId(String string, Context context) {
-//        Field[] fields = R.string.class.getFields();
-//        for (Field field : fields) {
-//            if (field.getName().startsWith("abc_")) continue;
-//            int resId = context.getResources().getIdentifier(field.getName(), "string", context.getPackageName());
-//            if (resId == 0) continue;
-//            if (context.getString(resId).equals(string)) return resId;
-//        }
-//        return  0;
-//    }
 }

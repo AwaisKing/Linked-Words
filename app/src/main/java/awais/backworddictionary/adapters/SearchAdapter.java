@@ -3,8 +3,6 @@ package awais.backworddictionary.adapters;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -15,6 +13,9 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,38 +28,32 @@ import awais.lapism.MaterialSearchView;
 import awais.lapism.SearchItem;
 
 public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implements Filterable {
-    private final SearchHistoryTable mHistoryDatabase;
+    private final Filter filter;
     private final LayoutInflater mLayoutInflater;
+    private final SearchHistoryTable mHistoryDatabase;
+    private final SearchAdapter.OnItemClickListener mItemClickListener;
+    private final SearchAdapter.OnItemLongClickListener mItemLongClickListener;
     private List<SearchItem> mSuggestionsList = new ArrayList<>();
     private List<SearchItem> mResultList = new ArrayList<>();
-    private SearchAdapter.OnItemClickListener mItemClickListener;
-    private SearchAdapter.OnItemLongClickListener mItemLongClickListener;
     private String key = "";
 
-    public SearchAdapter(Context context, SearchHistoryTable table) {
-        mLayoutInflater = LayoutInflater.from(context);
-        mHistoryDatabase = table;
-        getFilter().filter("");
-    }
-
-    public void setSuggestionsList(List<SearchItem> suggestionsList) {
-        mSuggestionsList = suggestionsList;
-        mResultList = suggestionsList;
-    }
-
-    @Override
-    public Filter getFilter() {
-        return new Filter() {
+    public SearchAdapter(Context context, SearchHistoryTable table, OnItemClickListener clickListener,
+            OnItemLongClickListener longClickListener) {
+        this.mLayoutInflater = LayoutInflater.from(context);
+        this.mHistoryDatabase = table;
+        this.mItemClickListener = clickListener;
+        this.mItemLongClickListener = longClickListener;
+        this.filter = new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
-                FilterResults filterResults = new FilterResults();
+                final FilterResults filterResults = new FilterResults();
 
                 if (!TextUtils.isEmpty(constraint)) {
                     key = constraint.toString().toLowerCase(Locale.getDefault());
 
-                    List<SearchItem> results = new ArrayList<>();
-                    List<SearchItem> history = new ArrayList<>();
-                    List<SearchItem> databaseAllItems = mHistoryDatabase.getAllItems(null);
+                    final List<SearchItem> results = new ArrayList<>();
+                    final List<SearchItem> history = new ArrayList<>();
+                    final List<SearchItem> databaseAllItems = mHistoryDatabase.getAllItems(null);
 
                     if (!databaseAllItems.isEmpty()) history.addAll(databaseAllItems);
                     history.addAll(mSuggestionsList);
@@ -85,7 +80,7 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
                         if (object instanceof SearchItem) dataSet.add((SearchItem) object);
                 } else {
                     if (key.isEmpty()) {
-                        List<SearchItem> allItems = mHistoryDatabase.getAllItems(null);
+                        final List<SearchItem> allItems = mHistoryDatabase.getAllItems(null);
                         if (!allItems.isEmpty()) dataSet = allItems;
                     }
                 }
@@ -93,6 +88,17 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
                 setData(dataSet);
             }
         };
+        filter.filter("");
+    }
+
+    public void setSuggestionsList(List<SearchItem> suggestionsList) {
+        this.mSuggestionsList = suggestionsList;
+        this.mResultList = suggestionsList;
+    }
+
+    @Override
+    public Filter getFilter() {
+        return filter;
     }
 
     public void setData(List<SearchItem> data) {
@@ -100,8 +106,8 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
             mResultList = data;
             notifyDataSetChanged();
         } else {
-            int previousSize = mResultList.size();
-            int nextSize = data.size();
+            final int previousSize = mResultList.size();
+            final int nextSize = data.size();
             mResultList = data;
             if (previousSize == nextSize) notifyItemRangeChanged(0, previousSize);
             else if (previousSize > nextSize) {
@@ -117,7 +123,6 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
         }
     }
 
-    // ---------------------------------------------------------------------------------------------
     @NonNull
     @Override
     public ResultViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, int viewType) {
@@ -132,25 +137,24 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
 
     @Override
     public void onBindViewHolder(@NonNull ResultViewHolder viewHolder, int position) {
-        SearchItem item = mResultList.get(position);
+        final SearchItem item = mResultList.get(position);
 
         viewHolder.icon_left.setImageResource(item.get_icon());
         viewHolder.icon_left.setColorFilter(MaterialSearchView.getIconColor(), PorterDuff.Mode.SRC_IN);
         viewHolder.text.setTypeface((Typeface.create(MaterialSearchView.getTextFont(), MaterialSearchView.getTextStyle())));
         viewHolder.text.setTextColor(MaterialSearchView.getTextColor());
 
-        String itemText = item.get_text().toString();
-        String itemTextLower = itemText.toLowerCase(Locale.getDefault());
+        final String itemText = item.get_text().toString();
+        final String itemTextLower = itemText.toLowerCase(Locale.getDefault());
 
         if (itemTextLower.contains(key) && !key.isEmpty()) {
-            SpannableString s = new SpannableString(itemText);
+            final SpannableString s = new SpannableString(itemText);
             s.setSpan(new ForegroundColorSpan(MaterialSearchView.getTextHighlightColor()),
                     itemTextLower.indexOf(key), itemTextLower.indexOf(key) + key.length(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             viewHolder.text.setText(s, TextView.BufferType.SPANNABLE);
-        } else {
+        } else
             viewHolder.text.setText(item.get_text());
-        }
     }
 
     @Override
@@ -161,14 +165,6 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
     @Override
     public int getItemViewType(int position) {
         return position;
-    }
-
-    public void addOnItemClickListener(SearchAdapter.OnItemClickListener listener) {
-        mItemClickListener = listener;
-    }
-
-    public void addOnItemLongClickListener(SearchAdapter.OnItemLongClickListener listener) {
-        mItemLongClickListener = listener;
     }
 
     public interface OnItemClickListener {
