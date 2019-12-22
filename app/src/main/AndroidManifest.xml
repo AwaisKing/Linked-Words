@@ -71,8 +71,7 @@
 
         <activity
             android:name=".customweb.WebViewActivity"
-            android:parentActivityName=".Main"
-            tools:targetApi="jelly_bean">
+            android:parentActivityName=".Main">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Main" />

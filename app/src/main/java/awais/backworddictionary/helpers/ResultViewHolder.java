@@ -11,14 +11,14 @@ import awais.backworddictionary.adapters.SearchAdapter;
 
 public abstract class ResultViewHolder extends RecyclerView.ViewHolder {
     public final TextView text;
-    public final ImageView icon_left;
+    public final ImageView icon;
 
     protected ResultViewHolder(View view, SearchAdapter.OnItemClickListener itemClickListener,
-            SearchAdapter.OnItemLongClickListener longClickListener) {
+                               SearchAdapter.OnItemLongClickListener longClickListener) {
         super(view);
 
-        this.icon_left = view.findViewById(R.id.imageView_item_icon_left);
-        this.text = view.findViewById(R.id.textView_item_text);
+        this.icon = view.findViewById(R.id.searchItemIcon);
+        this.text = view.findViewById(R.id.searchItemText);
 
         if (itemClickListener != null)
             view.setOnClickListener(v -> itemClickListener.onItemClick(v, positionFix(), String.valueOf(text.getText())));
@@ -27,11 +27,11 @@ public abstract class ResultViewHolder extends RecyclerView.ViewHolder {
             view.setOnLongClickListener(v -> longClickListener.onItemLongClick(v, positionFix(), String.valueOf(text.getText())));
     }
 
-    protected abstract int getItemCount();
+    protected abstract int getItemsCount();
 
     private int positionFix() {
         int ofPos = getLayoutPosition();
-        final int count = getItemCount(), layoutPosition = getLayoutPosition(), adapterPosition = getAdapterPosition();
+        final int count = getItemsCount(), layoutPosition = getLayoutPosition(), adapterPosition = getAdapterPosition();
 
         if (layoutPosition <= count && adapterPosition > count)
             ofPos = layoutPosition;

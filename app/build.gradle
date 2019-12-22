@@ -6,10 +6,12 @@ android {
 
     defaultConfig {
         applicationId 'awais.backworddictionary'
-        minSdkVersion 14
+
+        minSdkVersion 16
         targetSdkVersion 29
-        versionCode 104
-        versionName '10.4'
+
+        versionCode 105
+        versionName '10.5'
 
         multiDexEnabled true
 
@@ -34,25 +36,22 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'com.android.support.constraint:constraint-layout:2.0.0-beta3'
-    implementation 'androidx.dynamicanimation:dynamicanimation:1.1.0-alpha02'
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.google.android.material:material:1.2.0-alpha01'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0-rc01'
-    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation('androidx.multidex:multidex:2.0.1') { transitive true }
+    implementation('androidx.dynamicanimation:dynamicanimation:1.1.0-alpha03') { transitive true }
+    implementation('androidx.appcompat:appcompat:1.1.0') { transitive true }
+    implementation('androidx.legacy:legacy-support-v4:1.0.0') { transitive true }
+    implementation('com.google.android.material:material:1.2.0-alpha03') { transitive true }
+    implementation('androidx.recyclerview:recyclerview:1.2.0-alpha01') { transitive true }
+    implementation('androidx.cardview:cardview:1.0.0') { transitive true }
 
-    //noinspection GradleDependency         because 17.0.0 needs minSdk >= 16
-    implementation 'com.google.firebase:firebase-core:16.0.9'
-    //noinspection GradleDependency         because 18.0.0 needs minSdk >= 16
-    implementation 'com.google.firebase:firebase-ads:17.2.1'
-    implementation 'com.google.firebase:firebase-crash:16.2.1'
-    implementation('com.crashlytics.sdk.android:crashlytics:2.10.1') { transitive = true }
+    implementation('com.google.firebase:firebase-core:17.2.1') { transitive true }
+    implementation('com.google.firebase:firebase-ads:18.3.0') { transitive true }
+    implementation('com.google.firebase:firebase-crash:16.2.1') { transitive true }
+    implementation('com.crashlytics.sdk.android:crashlytics:2.10.1') { transitive true }
 
-    implementation 'androidx.browser:browser:1.2.0-alpha09'
-    implementation 'com.squareup.okhttp3:okhttp:3.12.3'
-    implementation 'com.github.clans:fab:1.6.4'
+    implementation('androidx.browser:browser:1.2.0') { transitive true }
+    implementation('com.squareup.okhttp3:okhttp:3.14.4') { transitive true }
+    implementation('com.github.clans:fab:1.6.4') { transitive true }
 }
 
 apply plugin: 'com.google.gms.google-services'

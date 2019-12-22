@@ -8,8 +8,6 @@ import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.util.Log;
 import android.view.Menu;
@@ -20,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatDrawableManager;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.core.content.ContextCompat;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.ads.AdRequest;
@@ -76,17 +75,16 @@ public class Utils {
         } else activity.findViewById(R.id.adLayout).setVisibility(View.GONE);
     }
 
-    public static boolean isConnectedToInternet(@NonNull Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (cm == null) return false;
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnected();
-    }
-
-    @SuppressLint( "RestrictedApi" )
+    @SuppressLint("RestrictedApi")
     public static Drawable getDrawable(Context context, int resId) {
-        if (drawableManager == null) drawableManager = AppCompatDrawableManager.get();
-        return drawableManager.getDrawable(context, resId);
+        Drawable drawable;
+        try {
+            if (drawableManager == null) drawableManager = AppCompatDrawableManager.get();
+            drawable = drawableManager.getDrawable(context, resId);
+        } catch (Exception e) {
+            drawable = ContextCompat.getDrawable(context, resId);
+        }
+        return drawable;
     }
 
     public static int getStatusBarHeight(Window window, Resources resources) {

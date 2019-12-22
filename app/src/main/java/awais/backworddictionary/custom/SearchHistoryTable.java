@@ -36,15 +36,12 @@ public class SearchHistoryTable {
         if (db == null || !db.isOpen()) return;
 
         final ContentValues values = new ContentValues();
-        final boolean isTextAvailable = checkText(item.get_text().toString());
-
-        if (!isTextAvailable) {
-            values.put("_text", item.get_text().toString());
-            db.insert("search_history", null, values);
+        if (checkText(item.getText().toString())) {
+            values.put("_id", getLastItemId() + 1);
+            db.update("search_history", values, "_id = ?", new String[]{Integer.toString(getItemId(item))});
         } else {
-            final int lastItemId = getLastItemId();
-            values.put("_id", lastItemId + 1);
-            db.update("search_history", values, "_id = ?", new String[] {Integer.toString(getItemId(item))});
+            values.put("_text", item.getText().toString());
+            db.insert("search_history", null, values);
         }
     }
 
@@ -52,15 +49,15 @@ public class SearchHistoryTable {
         final List<SearchItem> list = new ArrayList<>();
         if (db == null || !db.isOpen()) return list;
 
-        final Cursor cursor = db.rawQuery(databaseKey == null ?
+        try (Cursor cursor = db.rawQuery(databaseKey == null ?
                 "SELECT * FROM search_history ORDER BY _id DESC LIMIT " + HISTORY_SIZE :
-                "SELECT * FROM search_history WHERE _text = " + databaseKey, null);
+                "SELECT * FROM search_history WHERE _text = " + databaseKey, null)) {
 
-        if (cursor.moveToFirst())
-            do
-                list.add(new SearchItem(R.drawable.ic_history_black_24dp, cursor.getString(1)));
-            while (cursor.moveToNext());
-        cursor.close();
+            if (cursor.moveToFirst())
+                do
+                    list.add(new SearchItem(R.drawable.ic_history, cursor.getString(1)));
+                while (cursor.moveToNext());
+        }
 
         return list;
     }
@@ -69,38 +66,41 @@ public class SearchHistoryTable {
         if (db == null || !db.isOpen()) return;
 
         if (key == null) db.delete("search_history", null, null);
-        else db.delete("search_history", "_text = ?", new String[] {key});
+        else db.delete("search_history", "_text = ?", new String[]{key});
     }
 
-    public int getItemsCount() {
-        if (db == null || !db.isOpen()) return -1;
-
-        final Cursor cursor = db.rawQuery("SELECT * FROM search_history;", null);
-        final int count = cursor.getCount();
-        cursor.close();
-        return count;
-    }
+    //public int getItemsCount() {
+    //    if (db == null || !db.isOpen()) return -1;
+    //
+    //    final Cursor cursor = db.rawQuery("SELECT * FROM search_history;", null);
+    //    final int count = cursor.getCount();
+    //    cursor.close();
+    //    return count;
+    //}
 
     private int getItemId(@NonNull SearchItem item) {
-        final Cursor res = db.rawQuery("SELECT _id FROM search_history WHERE _text = ?;", new String[] {item.get_text().toString()});
-        res.moveToFirst();
-        final int id = res.getInt(0);
-        res.close();
+        final int id;
+        try (Cursor res = db.rawQuery("SELECT _id FROM search_history WHERE _text = ?;", new String[]{item.getText().toString()})) {
+            res.moveToFirst();
+            id = res.getInt(0);
+        }
         return id;
     }
 
     private int getLastItemId() {
-        final Cursor res = db.rawQuery("SELECT _id FROM search_history", null);
-        int count = 0;
-        if (res.moveToLast()) count = res.getInt(0);
-        res.close();
+        int count;
+        try (Cursor res = db.rawQuery("SELECT _id FROM search_history", null)) {
+            count = 0;
+            if (res.moveToLast()) count = res.getInt(0);
+        }
         return count;
     }
 
     private boolean checkText(String text) {
-        final Cursor cursor = db.rawQuery("SELECT _text FROM search_history WHERE _text = ?;", new String[] {text});
-        final boolean ret = cursor.moveToFirst();
-        cursor.close();
+        final boolean ret;
+        try (Cursor cursor = db.rawQuery("SELECT _text FROM search_history WHERE _text = ?;", new String[]{text})) {
+            ret = cursor.moveToFirst();
+        }
         return ret;
     }
 

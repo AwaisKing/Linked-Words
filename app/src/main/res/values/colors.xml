@@ -16,14 +16,8 @@
     <color name="progress4">#1E70EB</color>
 
     <!-- Lapism SearchView -->
-    <color name="search_dark_background">#ff303030</color>
-    <color name="search_dark_hint">#80ffffff</color>
-    <color name="search_dark_icon">#b3ffffff</color>
-    <color name="search_dark_text">@android:color/white</color>
-    <color name="search_dark_text_highlight">#62ffffff</color>
     <color name="search_light_background">#fffafafa</color>
     <color name="search_light_hint">#80000000</color>
     <color name="search_light_icon">#8a000000</color>
     <color name="search_light_text">#de000000</color>
-    <color name="search_light_text_highlight">#62000000</color>
 </resources>

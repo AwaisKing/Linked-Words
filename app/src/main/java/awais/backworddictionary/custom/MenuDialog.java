@@ -67,9 +67,9 @@ class MenuDialog extends BottomSheetDialogFragment {
         dialog.setContentView(contentView);
 
         final CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) ((View) contentView.getParent()).getLayoutParams();
-        final CoordinatorLayout.Behavior behavior = layoutParams.getBehavior();
+        final CoordinatorLayout.Behavior<?> behavior = layoutParams.getBehavior();
         if (behavior instanceof BottomSheetBehavior)
-            ((BottomSheetBehavior) behavior).addBottomSheetCallback(mBottomSheetBehaviorCallback);
+            ((BottomSheetBehavior<?>) behavior).addBottomSheetCallback(mBottomSheetBehaviorCallback);
 
         return dialog;
     }

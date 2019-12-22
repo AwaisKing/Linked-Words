@@ -50,7 +50,6 @@ Credits to:
   + [GSON *-* [google/gson]](https://github.com/google/gson) *-* [Apache License 2.0]
   + [SearchView *-* [lapism/SearchView]](https://github.com/lapism/SearchView) *-* [Apache License 2.0]
   + [Chrome Custom Tabs *-* [GoogleChrome/custom-tabs-client]](https://github.com/GoogleChrome/custom-tabs-client) *-* [Apache License 2.0]
-  + ~~[NoNet *-* [keiferstone/nonet]](https://github.com/keiferstone/nonet) *-* [Apache License 2.0]~~ **(removed)**
 
 #### Licenses:
   + [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)

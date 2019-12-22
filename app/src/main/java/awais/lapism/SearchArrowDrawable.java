@@ -26,14 +26,13 @@ class SearchArrowDrawable extends DrawerArrowDrawable {
 
     SearchArrowDrawable(Context context) {
         super(context);
-        // mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     }
 
-    void animate(float state, int duration) {
+    void animate(float state) {
         final ObjectAnimator anim = ObjectAnimator.ofFloat(this, PROGRESS, state,
                 state == STATE_ARROW ? STATE_HAMBURGER : STATE_ARROW);
         anim.setInterpolator(new AccelerateDecelerateInterpolator());
-        anim.setDuration(duration);
+        anim.setDuration(317);
         anim.start();
     }
 }

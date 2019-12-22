@@ -40,10 +40,9 @@
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/scroll_behavior" />
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 
     <View
-        android:id="@+id/shadow"
         android:layout_width="match_parent"
         android:layout_height="4dp"
         android:background="@drawable/elevation_top"
@@ -62,7 +61,7 @@
         android:id="@+id/searchView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/search_behavior2"
+        app:layout_behavior="awais.lapism.SearchBehavior"
         app:search_hint="@string/search" />
 
     <include

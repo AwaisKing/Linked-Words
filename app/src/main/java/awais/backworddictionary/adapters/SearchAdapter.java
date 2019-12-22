@@ -2,10 +2,8 @@ package awais.backworddictionary.adapters;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
-import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,42 +22,43 @@ import java.util.Locale;
 import awais.backworddictionary.R;
 import awais.backworddictionary.custom.SearchHistoryTable;
 import awais.backworddictionary.helpers.ResultViewHolder;
+import awais.backworddictionary.helpers.Utils;
 import awais.lapism.MaterialSearchView;
 import awais.lapism.SearchItem;
 
 public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implements Filterable {
     private final Filter filter;
-    private final LayoutInflater mLayoutInflater;
-    private final SearchHistoryTable mHistoryDatabase;
-    private final SearchAdapter.OnItemClickListener mItemClickListener;
-    private final SearchAdapter.OnItemLongClickListener mItemLongClickListener;
-    private List<SearchItem> mSuggestionsList = new ArrayList<>();
-    private List<SearchItem> mResultList = new ArrayList<>();
+    private final LayoutInflater layoutInflater;
+    private final SearchHistoryTable historyDatabase;
+    private final SearchAdapter.OnItemClickListener clickListener;
+    private final SearchAdapter.OnItemLongClickListener longClickListener;
+    private List<SearchItem> suggestionsList = new ArrayList<>();
+    private List<SearchItem> resultList = new ArrayList<>();
     private String key = "";
 
     public SearchAdapter(Context context, SearchHistoryTable table, OnItemClickListener clickListener,
-            OnItemLongClickListener longClickListener) {
-        this.mLayoutInflater = LayoutInflater.from(context);
-        this.mHistoryDatabase = table;
-        this.mItemClickListener = clickListener;
-        this.mItemLongClickListener = longClickListener;
+                         OnItemLongClickListener longClickListener) {
+        this.layoutInflater = LayoutInflater.from(context);
+        this.historyDatabase = table;
+        this.clickListener = clickListener;
+        this.longClickListener = longClickListener;
         this.filter = new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 final FilterResults filterResults = new FilterResults();
 
-                if (!TextUtils.isEmpty(constraint)) {
+                if (!Utils.isEmpty(constraint)) {
                     key = constraint.toString().toLowerCase(Locale.getDefault());
 
                     final List<SearchItem> results = new ArrayList<>();
                     final List<SearchItem> history = new ArrayList<>();
-                    final List<SearchItem> databaseAllItems = mHistoryDatabase.getAllItems(null);
+                    final List<SearchItem> databaseAllItems = historyDatabase.getAllItems(null);
 
                     if (!databaseAllItems.isEmpty()) history.addAll(databaseAllItems);
-                    history.addAll(mSuggestionsList);
+                    history.addAll(suggestionsList);
 
                     for (SearchItem item : history)
-                        if (item.get_text().toString().toLowerCase(Locale.getDefault()).contains(key))
+                        if (item.getText().toString().toLowerCase(Locale.getDefault()).contains(key))
                             results.add(item);
 
                     if (results.size() > 0) {
@@ -76,13 +75,11 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
                 List<SearchItem> dataSet = new ArrayList<>();
 
                 if (results.count > 0) {
-                    for (Object object : (ArrayList) results.values)
+                    for (Object object : (ArrayList<?>) results.values)
                         if (object instanceof SearchItem) dataSet.add((SearchItem) object);
-                } else {
-                    if (key.isEmpty()) {
-                        final List<SearchItem> allItems = mHistoryDatabase.getAllItems(null);
-                        if (!allItems.isEmpty()) dataSet = allItems;
-                    }
+                } else if (key.isEmpty()) {
+                    final List<SearchItem> allItems = historyDatabase.getAllItems(null);
+                    if (!allItems.isEmpty()) dataSet = allItems;
                 }
 
                 setData(dataSet);
@@ -92,8 +89,8 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
     }
 
     public void setSuggestionsList(List<SearchItem> suggestionsList) {
-        this.mSuggestionsList = suggestionsList;
-        this.mResultList = suggestionsList;
+        this.suggestionsList = suggestionsList;
+        this.resultList = suggestionsList;
     }
 
     @Override
@@ -102,13 +99,13 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
     }
 
     public void setData(List<SearchItem> data) {
-        if (mResultList.size() == 0) {
-            mResultList = data;
+        if (resultList.size() == 0) {
+            resultList = data;
             notifyDataSetChanged();
         } else {
-            final int previousSize = mResultList.size();
+            final int previousSize = resultList.size();
             final int nextSize = data.size();
-            mResultList = data;
+            resultList = data;
             if (previousSize == nextSize) notifyItemRangeChanged(0, previousSize);
             else if (previousSize > nextSize) {
                 if (nextSize == 0) notifyItemRangeRemoved(0, previousSize);
@@ -126,40 +123,37 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
     @NonNull
     @Override
     public ResultViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, int viewType) {
-        return new ResultViewHolder(mLayoutInflater.inflate(R.layout.search_item, parent, false),
-                mItemClickListener, mItemLongClickListener) {
+        return new ResultViewHolder(layoutInflater.inflate(R.layout.search_item, parent, false),
+                clickListener, longClickListener) {
             @Override
-            public int getItemCount() {
-                return SearchAdapter.this.getItemCount();
+            public int getItemsCount() {
+                return getItemCount();
             }
         };
     }
 
     @Override
     public void onBindViewHolder(@NonNull ResultViewHolder viewHolder, int position) {
-        final SearchItem item = mResultList.get(position);
+        final SearchItem item = resultList.get(position);
 
-        viewHolder.icon_left.setImageResource(item.get_icon());
-        viewHolder.icon_left.setColorFilter(MaterialSearchView.getIconColor(), PorterDuff.Mode.SRC_IN);
-        viewHolder.text.setTypeface((Typeface.create(MaterialSearchView.getTextFont(), MaterialSearchView.getTextStyle())));
-        viewHolder.text.setTextColor(MaterialSearchView.getTextColor());
+        viewHolder.icon.setImageResource(item.getIcon());
+        viewHolder.icon.setColorFilter(MaterialSearchView.mIconColor, PorterDuff.Mode.SRC_IN);
 
-        final String itemText = item.get_text().toString();
+        final String itemText = item.getText().toString();
         final String itemTextLower = itemText.toLowerCase(Locale.getDefault());
 
         if (itemTextLower.contains(key) && !key.isEmpty()) {
             final SpannableString s = new SpannableString(itemText);
-            s.setSpan(new ForegroundColorSpan(MaterialSearchView.getTextHighlightColor()),
-                    itemTextLower.indexOf(key), itemTextLower.indexOf(key) + key.length(),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            final int keyIndex = itemTextLower.indexOf(key);
+            s.setSpan(new ForegroundColorSpan(0xA72196F3), keyIndex, keyIndex + key.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             viewHolder.text.setText(s, TextView.BufferType.SPANNABLE);
         } else
-            viewHolder.text.setText(item.get_text());
+            viewHolder.text.setText(item.getText());
     }
 
     @Override
     public int getItemCount() {
-        return mResultList.size();
+        return resultList.size();
     }
 
     @Override

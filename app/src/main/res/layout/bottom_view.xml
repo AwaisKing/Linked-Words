@@ -11,7 +11,7 @@
         android:layout_gravity="bottom"
         android:orientation="vertical"
         android:visibility="gone"
-        app:layout_behavior="@string/bottom_behavior">
+        app:layout_behavior="awais.backworddictionary.custom.BottomNavigationBehavior">
 
         <View
             android:layout_width="match_parent"

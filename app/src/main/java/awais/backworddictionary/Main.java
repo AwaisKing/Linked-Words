@@ -151,6 +151,8 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
         TooltipCompat.setTooltipText(fabOptions, getString(R.string.options));
 
+        setSearchView();
+
         handleData();
     }
 
@@ -160,8 +162,6 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
         new myThread(true, this).start(); // load fragments
         new myThread(false, this).start(); // setup tts
-
-        setSearchView();
     }
 
     @Override
@@ -379,7 +379,6 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             onSearch(text);
             addHistoryItem(text);
         }, (view, position, text) -> {
-
             final DialogInterface.OnClickListener btnListener = (dialog, which) -> {
                 if (which == DialogInterface.BUTTON_POSITIVE) deleteHistoryItem(text);
                 dialog.dismiss();
@@ -436,7 +435,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                         Crashlytics.logException(e);
                     }
                 onSearch(query);
-                return true;
+                return query != null || BuildConfig.DEBUG;
             }
 
             @Override
@@ -456,6 +455,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
             @Override
             public void onClose() {
+                if (viewPager == null || toolbar == null || fragmentsAdapter == null) return;
                 fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
 
                 if (fragment.isAdded() && !fragment.isFilterOpen())
@@ -466,6 +466,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
             @Override
             public void onOpen() {
+                if (viewPager == null || toolbar == null || fragmentsAdapter == null) return;
                 fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
 
                 if (fragment.isAdded())

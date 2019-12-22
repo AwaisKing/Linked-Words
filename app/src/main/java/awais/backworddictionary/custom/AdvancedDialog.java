@@ -97,8 +97,8 @@ public class AdvancedDialog extends Dialog implements CompoundButton.OnCheckedCh
     @Override
     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
         enabledChecks[checkBoxes.indexOf(compoundButton)] = b;
-        if (getResult() == 4) disableUnused();
-        else enableAll();
+//        if (getResult() == 4) disableUnused();
+//        else enableAll();
     }
 
     private int getResult() {
@@ -107,28 +107,28 @@ public class AdvancedDialog extends Dialog implements CompoundButton.OnCheckedCh
         return count;
     }
 
-    private void disableUnused() {
-        for (int i = 0; i < enabledChecks.length; i++)
-            checkBoxes.get(i).setEnabled(enabledChecks[i]);
-    }
+//    private void disableUnused() {
+//        for (int i = 0; i < enabledChecks.length; i++)
+//            checkBoxes.get(i).setEnabled(enabledChecks[i]);
+//    }
 
-    private void enableAll() {
-        for (int i = 0; i < enabledChecks.length; i++)
-            checkBoxes.get(i).setEnabled(true);
-    }
+//    private void enableAll() {
+//        for (int i = 0; i < enabledChecks.length; i++)
+//            checkBoxes.get(i).setEnabled(true);
+//    }
 
     private void loadChecks() {
         bools = bools.substring(1, bools.length() - 1);
         final String[] boolsArray = bools.split(", ");
 
-        int count = 0;
+//        int count = 0;
         for (int i = 0; i < boolsArray.length; i++) {
             boolean parsed = Boolean.parseBoolean(boolsArray[i]);
             checkBoxes.get(i).setChecked(parsed);
             enabledChecks[i] = parsed;
-            if (parsed) ++count;
+            //if (parsed) ++count;
         }
-        if (count == 4) disableUnused();
-        else enableAll();
+//        if (count == 4) disableUnused();
+//        else enableAll();
     }
 }

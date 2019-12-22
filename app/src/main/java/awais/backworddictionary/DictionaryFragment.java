@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -32,10 +31,9 @@ import awais.backworddictionary.asyncs.WordsAsync;
 import awais.backworddictionary.custom.WordItem;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.helpers.WordItemHolder;
-import awais.backworddictionary.interfaces.FilterCheck;
 import awais.backworddictionary.interfaces.FragmentCallback;
 
-public class DictionaryFragment extends Fragment implements FragmentCallback, FilterCheck {
+public class DictionaryFragment extends Fragment implements FragmentCallback {
     private List<WordItem> wordList;
     private RecyclerView recyclerView;
     private Activity activity;
@@ -237,8 +235,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
      * @param showFilter either to show or hide filter
      * @param method     no idea what this is. i really forgot.
      */
-    @Override
-    public void showFilter(boolean showFilter, int method) {
+    void showFilter(boolean showFilter, int method) {
         if (filterView == null) return;
 
         if (showFilter) {
@@ -303,19 +300,15 @@ public class DictionaryFragment extends Fragment implements FragmentCallback, Fi
         return swipeRefreshLayout == null ? 250.0f : swipeRefreshLayout.getProgressViewEndOffset() * 2.0f;
     }
 
-    @SuppressWarnings( "unchecked" )
     void closeExpanded() {
         if (wordsAdapter == null) return;
         wordsAdapter.refreshShowDialogEnabled();
 
-        final LinkedHashSet[] hashSets = wordsAdapter.getHashSets();
+        for (WordItemHolder holder : wordsAdapter.holdersHashSet)
+            holder.cardView.setCardBackgroundColor(-1);
 
-        final LinkedHashSet<WordItemHolder> wordHoldersSet = hashSets[1];
-        for (WordItemHolder holder : wordHoldersSet) holder.cardView.setCardBackgroundColor(-1);
-
-        final LinkedHashSet<WordItem> expandedWordsSet = hashSets[0];
-        for (WordItem wordItem : expandedWordsSet) wordItem.setExpanded(false);
-
+        for (WordItem wordItem : wordsAdapter.expandedHashSet)
+            wordItem.setExpanded(false);
         wordsAdapter.notifyDataSetChanged();
     }
 }

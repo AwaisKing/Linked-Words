@@ -3,7 +3,7 @@
 
     <style name="AppTheme" parent="NoTitleAppThemeV21" />
 
-    <style name="NoTitleAppThemeV21" parent="NoTitleAppThemeV16">
+    <style name="NoTitleAppThemeV21" parent="NoTitleAppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="colorPrimary">@color/colorPrimary</item>

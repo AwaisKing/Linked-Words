@@ -1,29 +1,27 @@
 -optimizationpasses 5
--dontskipnonpubliclibraryclassmembers
 -printmapping proguardMapping.txt
 -optimizations !code/simplification/cast,!field/*,!class/merging/*
 -keepattributes *Annotation*,Exceptions
 -keepattributes InnerClasses,LineNumberTable
 #-keepattributes Signature,LineNumberTable,SourceFile
 
--dontwarn android.webkit.WebView
-
 -keep class **.R$* { public static final int *; }
+-keep class **$Properties
 
--keepclassmembers,allowshrinking, class awais.backworddictionary.custom.WordItem { private *; }
+-keepclassmembers,allowshrinking class awais.backworddictionary.custom.WordItem { private *; }
 
--keep,allowshrinking, public class android.webkit.**
+-keep,allowshrinking public class android.webkit.*
 -keep public class * extends android.app.Service
 -keep public class * extends android.content.ContentProvider
 -keep public class * extends android.content.BroadcastReceiver
--keep,allowshrinking, public class * extends android.support.multidex.MultiDexApplication
+-keep,allowshrinking public class * extends androidx.multidex.MultiDexApplication
 
--keep,allowshrinking, class * implements java.lang.annotation.Annotation
+-keep,allowshrinking class * implements java.lang.annotation.Annotation
 -keep public class * implements android.os.IInterface
 -keep public class * implements android.os.Parcelable {
     public static final android.os.Parcelable$Creator *;
 }
--keepclassmembernames,allowshrinking, public class * implements java.io.Serializable {
+-keepclassmembernames,allowshrinking public class * implements java.io.Serializable {
     static final long serialVersionUID;
     private static final java.io.ObjectStreamField[] serialPersistentFields;
     private void writeObject(java.io.ObjectOutputStream);
@@ -36,13 +34,13 @@
     public <init>(android.content.Context, android.util.AttributeSet);
     public <init>(android.content.Context, android.util.AttributeSet, int);
 }
--keepclassmembernames,allowshrinking, public class * extends android.widget.NumberPicker {
+-keepclassmembernames,allowshrinking public class * extends android.widget.NumberPicker {
     public <init>(android.content.Context);
     public <init>(android.content.Context, android.util.AttributeSet);
     public <init>(android.content.Context, android.util.AttributeSet, int);
 }
--keepclassmembers,allowshrinking, class * extends android.webkit.WebViewClient {
-    public void *(android.webkit.WebView, jav.lang.String);
+-keepclassmembers,allowshrinking class * extends android.webkit.WebViewClient {
+    public void *(android.webkit.WebView, java.lang.String);
     public void *(android.webkit.WebView, java.lang.String, android.graphics.Bitmap);
     public boolean *(android.webkit.WebView, java.lang.String);
 }
@@ -50,13 +48,24 @@
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
+-keep public class java.nio.* { *; }
+-keep public class * implements androidx.versionedparcelable.VersionedParcelable {
+    <init>();
+}
 
+-dontwarn rx.*
+-dontwarn okio.**
+-dontwarn org.apache.**
+-dontwarn java.lang.invoke.*
+-dontwarn com.squareup.okhttp3.**
+-dontwarn android.webkit.WebView
+
+#noinspection ShrinkerUnresolvedReference
 ################## GOOGLE ##################
 -keep class com.google.gson.** { *; }
 -keep class com.google.** { *; }
 -keep class com.google.gson.stream.** { *; }
 -keep class com.google.gson.examples.android.model.** { *; }
--keep class **$Properties
 
 -keep class com.android.volley.** { *; }
 -keep class com.android.volley.toolbox.** { *; }
@@ -68,14 +77,3 @@
 
 ################## OTHERS ##################
 -keep class com.squareup.okhttp3.** { *; }
-
--dontwarn rx.*
--dontwarn okio.**
--dontwarn org.apache.**
--dontwarn com.squareup.okhttp3.**
-
--keep public class java.nio.* { *; }
--keep public class * implements androidx.versionedparcelable.VersionedParcelable {
-    <init>();
-}
--dontwarn java.lang.invoke.*

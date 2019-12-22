@@ -4,26 +4,27 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import awais.backworddictionary.R;
 
-@SuppressWarnings("unused")
 public class SearchItem implements Parcelable {
-    public static final Creator CREATOR = new Creator() {
+    public static final Creator<SearchItem> CREATOR = new Creator<SearchItem>() {
+        @NonNull
         public SearchItem createFromParcel(Parcel source) {
             return new SearchItem(source);
         }
 
+        @NonNull
         public SearchItem[] newArray(int size) {
             return new SearchItem[size];
         }
     };
-    private int icon;
-    private CharSequence text;
-
-    public SearchItem() {}
+    private final int icon;
+    private final CharSequence text;
 
     public SearchItem(CharSequence text) {
-        this(R.drawable.ic_search_black_24dp, text);
+        this(R.drawable.ic_search, text);
     }
 
     public SearchItem(int icon, CharSequence text) {
@@ -31,32 +32,26 @@ public class SearchItem implements Parcelable {
         this.text = text;
     }
 
-    private SearchItem(Parcel in) {
+    private SearchItem(@NonNull Parcel in) {
         this.icon = in.readInt();
         this.text = in.readParcelable(CharSequence.class.getClassLoader());
     }
 
-    public int get_icon() {
+    public int getIcon() {
         return this.icon;
     }
 
-    public void set_icon(int icon) {
-        this.icon = icon;
-    }
-
-    public CharSequence get_text() {
+    public CharSequence getText() {
         return this.text;
     }
 
-    public void set_text(CharSequence text) {
-        this.text = text;
-    }
-
+    @Override
     public int describeContents() {
         return 0;
     }
 
-    public void writeToParcel(Parcel dest, int flags) {
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(this.icon);
         TextUtils.writeToParcel(this.text, dest, flags);
     }

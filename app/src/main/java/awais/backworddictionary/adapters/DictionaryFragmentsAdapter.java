@@ -10,8 +10,8 @@ import java.util.List;
 import awais.backworddictionary.DictionaryFragment;
 
 public class DictionaryFragmentsAdapter extends FragmentStatePagerAdapter {
+    private final List<DictionaryFragment> mFragmentList = new ArrayList<>();
     public final List<String> mFragmentTitleList = new ArrayList<>();
-    public final List<DictionaryFragment> mFragmentList = new ArrayList<>();
 
     public DictionaryFragmentsAdapter(FragmentManager manager) {
         super(manager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);

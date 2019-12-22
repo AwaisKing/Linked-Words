@@ -9,9 +9,9 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingLeft="?attr/dialogPreferredPadding"
-        android:paddingTop="10dp"
+        android:paddingTop="?attr/dialogPreferredPadding"
         android:paddingRight="?attr/dialogPreferredPadding"
-        android:paddingBottom="6dp">
+        android:paddingBottom="10dp">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@android:id/title"

@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name" translatable="false">Linked Words</string>
 
     <string name="copy">Copy</string>
@@ -75,11 +75,5 @@
     <string name="rhymes_help">find words which perfectly rhyme with given word</string>
     <string name="homophones_help">find words which sound exactly alike</string>
 
-    <string name="scroll_behavior" translatable="false">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
-    <string name="bottom_behavior" translatable="false">awais.backworddictionary.custom.BottomNavigationBehavior</string>
     <string name="no_definition_found">No definition found…</string>
-
-    <!-- Lapism SearchView -->
-    <string name="search_behavior" translatable="false" tools:keep="@string/search_behavior">@string/scroll_behavior</string>
-    <string name="search_behavior2" translatable="false" tools:keep="@string/search_behavior2">awais.lapism.SearchBehavior</string>
 </resources>

@@ -43,9 +43,4 @@ public class MaxHeightRecyclerView extends RecyclerView {
                 MeasureSpec.AT_MOST);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
-
-    public void setMaxHeightDp(int maxHeightDp) {
-        this.maxHeightDp = maxHeightDp;
-        invalidate();
-    }
 }

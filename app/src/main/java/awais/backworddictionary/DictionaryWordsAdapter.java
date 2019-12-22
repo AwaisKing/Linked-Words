@@ -28,12 +28,12 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
     private final Context context;
     private final View.OnClickListener onClickListener;
     private final SearchAdapter.OnItemClickListener itemClickListener;
-    private final LinkedHashSet<WordItemHolder> holdersHashSet = new LinkedHashSet<>();
-    private final LinkedHashSet<WordItem> expandedHashSet = new LinkedHashSet<>();
     private final String[] noItemFound;
     private final Filter filter;
     private boolean isShowDialogEnabled;
     private List<?> filterList;
+    final LinkedHashSet<WordItemHolder> holdersHashSet = new LinkedHashSet<>();
+    final LinkedHashSet<WordItem> expandedHashSet = new LinkedHashSet<>();
 
     DictionaryWordsAdapter(@NonNull Context context, List<WordItem> wordList) {
         this.context = context;
@@ -216,9 +216,5 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
 
     void refreshShowDialogEnabled() {
         this.isShowDialogEnabled = Main.sharedPreferences.getBoolean("showDialog", false);
-    }
-
-    LinkedHashSet[] getHashSets() {
-        return new LinkedHashSet[] {expandedHashSet, holdersHashSet};
     }
 }

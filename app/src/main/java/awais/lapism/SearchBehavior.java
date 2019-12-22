@@ -1,38 +1,38 @@
 package awais.lapism;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.view.ViewCompat;
 
 import com.google.android.material.appbar.AppBarLayout;
 
 import awais.backworddictionary.Main;
 
 public class SearchBehavior extends CoordinatorLayout.Behavior<MaterialSearchView> {
-    public SearchBehavior() {}
-
     public SearchBehavior(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
     @Override
     public boolean layoutDependsOn(@NonNull CoordinatorLayout parent, @NonNull MaterialSearchView child, @NonNull View dependency) {
-        boolean isAppBar = dependency instanceof AppBarLayout;
-        if (isAppBar) {
-            ViewCompat.setElevation(child, ViewCompat.getElevation(dependency));
-            ViewCompat.setZ(child, ViewCompat.getZ(dependency) + 10);
+        final boolean isAppBar = dependency instanceof AppBarLayout;
+        if (isAppBar && Build.VERSION.SDK_INT >= 21) {
+            child.setElevation(dependency.getElevation());
+            child.setZ(dependency.getZ() + 10);
         }
         return isAppBar;
     }
 
     @Override
     public boolean onDependentViewChanged(@NonNull CoordinatorLayout parent, @NonNull MaterialSearchView child, @NonNull View dependency) {
-        boolean isAppBar = dependency instanceof AppBarLayout;
-        if (isAppBar) child.setTranslationY(dependency.getY() + Main.statusBarHeight);
-        return isAppBar;
+        if (dependency instanceof AppBarLayout) {
+            child.setTranslationY(dependency.getY() + Main.statusBarHeight);
+            return true;
+        }
+        return false;
     }
 }
