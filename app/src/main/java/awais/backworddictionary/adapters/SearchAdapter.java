@@ -36,8 +36,8 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
     private List<SearchItem> resultList = new ArrayList<>();
     private String key = "";
 
-    public SearchAdapter(Context context, SearchHistoryTable table, OnItemClickListener clickListener,
-                         OnItemLongClickListener longClickListener) {
+    public SearchAdapter(final Context context, final SearchHistoryTable table, final OnItemClickListener clickListener,
+                         final OnItemLongClickListener longClickListener) {
         this.layoutInflater = LayoutInflater.from(context);
         this.historyDatabase = table;
         this.clickListener = clickListener;
@@ -71,11 +71,11 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
             }
 
             @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
+            protected void publishResults(final CharSequence constraint, final FilterResults results) {
                 List<SearchItem> dataSet = new ArrayList<>();
 
                 if (results.count > 0) {
-                    for (Object object : (ArrayList<?>) results.values)
+                    for (final Object object : (ArrayList<?>) results.values)
                         if (object instanceof SearchItem) dataSet.add((SearchItem) object);
                 } else if (key.isEmpty()) {
                     final List<SearchItem> allItems = historyDatabase.getAllItems(null);
@@ -88,7 +88,7 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
         filter.filter("");
     }
 
-    public void setSuggestionsList(List<SearchItem> suggestionsList) {
+    public void setSuggestionsList(final List<SearchItem> suggestionsList) {
         this.suggestionsList = suggestionsList;
         this.resultList = suggestionsList;
     }
@@ -98,7 +98,7 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
         return filter;
     }
 
-    public void setData(List<SearchItem> data) {
+    public void setData(final List<SearchItem> data) {
         if (resultList.size() == 0) {
             resultList = data;
             notifyDataSetChanged();
@@ -122,7 +122,7 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
 
     @NonNull
     @Override
-    public ResultViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, int viewType) {
+    public ResultViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         return new ResultViewHolder(layoutInflater.inflate(R.layout.search_item, parent, false),
                 clickListener, longClickListener) {
             @Override
@@ -133,7 +133,7 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ResultViewHolder viewHolder, int position) {
+    public void onBindViewHolder(@NonNull final ResultViewHolder viewHolder, final int position) {
         final SearchItem item = resultList.get(position);
 
         viewHolder.icon.setImageResource(item.getIcon());
@@ -157,15 +157,15 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
     }
 
     @Override
-    public int getItemViewType(int position) {
+    public int getItemViewType(final int position) {
         return position;
     }
 
     public interface OnItemClickListener {
-        void onItemClick(View view, int position, String text);
+        void onItemClick(final View view, final int position, final String text);
     }
 
     public interface OnItemLongClickListener {
-        boolean onItemLongClick(View view, int position, String text);
+        boolean onItemLongClick(final View view, int position, final String text);
     }
 }

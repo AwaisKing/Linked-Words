@@ -13,20 +13,20 @@ public class DictionaryFragmentsAdapter extends FragmentStatePagerAdapter {
     private final List<DictionaryFragment> mFragmentList = new ArrayList<>();
     public final List<String> mFragmentTitleList = new ArrayList<>();
 
-    public DictionaryFragmentsAdapter(FragmentManager manager) {
+    public DictionaryFragmentsAdapter(final FragmentManager manager) {
         super(manager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
     }
 
-    public void addFragment(String title) {
+    public void addFragment(final String title) {
         mFragmentList.add(new DictionaryFragment());
         mFragmentTitleList.add(title);
     }
 
-    public void setFragments(@NonNull String... titles) {
+    public void setFragments(@NonNull final String... titles) {
         mFragmentList.clear();
         mFragmentTitleList.clear();
 
-        for (String title : titles) {
+        for (final String title : titles) {
             mFragmentList.add(new DictionaryFragment());
             mFragmentTitleList.add(title);
         }
@@ -38,7 +38,7 @@ public class DictionaryFragmentsAdapter extends FragmentStatePagerAdapter {
 
     @NonNull
     @Override
-    public DictionaryFragment getItem(int position) {
+    public DictionaryFragment getItem(final int position) {
         return mFragmentList.get(position);
     }
 
@@ -48,7 +48,7 @@ public class DictionaryFragmentsAdapter extends FragmentStatePagerAdapter {
     }
 
     @Override
-    public CharSequence getPageTitle(int position) {
+    public CharSequence getPageTitle(final int position) {
         return mFragmentTitleList.get(position);
     }
 }

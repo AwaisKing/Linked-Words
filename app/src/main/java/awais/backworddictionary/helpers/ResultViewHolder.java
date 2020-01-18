@@ -13,8 +13,8 @@ public abstract class ResultViewHolder extends RecyclerView.ViewHolder {
     public final TextView text;
     public final ImageView icon;
 
-    protected ResultViewHolder(View view, SearchAdapter.OnItemClickListener itemClickListener,
-                               SearchAdapter.OnItemLongClickListener longClickListener) {
+    protected ResultViewHolder(final View view, final SearchAdapter.OnItemClickListener itemClickListener,
+                               final SearchAdapter.OnItemLongClickListener longClickListener) {
         super(view);
 
         this.icon = view.findViewById(R.id.searchItemIcon);

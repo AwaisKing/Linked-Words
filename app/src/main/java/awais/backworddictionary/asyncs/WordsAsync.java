@@ -25,11 +25,10 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     private final String method;
     private final OkHttpClient client = new OkHttpClient();
     private final Request.Builder builder = new Request.Builder();
+    private final FragmentCallback fragmentCallback;
     private Response response = null;
 
-    private final FragmentCallback fragmentCallback;
-
-    public WordsAsync(FragmentCallback fragmentCallback, String word, String method, Context context) {
+    public WordsAsync(final FragmentCallback fragmentCallback, final String word, final String method, final Context context) {
         this.fragmentCallback = fragmentCallback;
         this.word = word;
         if (context == null) {
@@ -63,12 +62,11 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
 
     @Override
     protected void onPreExecute() {
-        super.onPreExecute();
         if (fragmentCallback != null) fragmentCallback.wordStarted();
     }
 
     @Override
-    protected ArrayList<WordItem> doInBackground(String... params) {
+    protected ArrayList<WordItem> doInBackground(final String... params) {
         if (wordItemsList == null) wordItemsList = new ArrayList<>();
         else wordItemsList.clear();
 
@@ -127,9 +125,8 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     }
 
     @Override
-    protected void onPostExecute(ArrayList<WordItem> wordItems) {
+    protected void onPostExecute(final ArrayList<WordItem> wordItems) {
         if (fragmentCallback != null)
             fragmentCallback.done(wordItems, word);
-        super.onPostExecute(wordItems);
     }
 }

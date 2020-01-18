@@ -3,9 +3,10 @@
     <color name="colorPrimary">#007EE5</color>
     <color name="colorPrimaryDark">#0072CF</color>
     <color name="colorAccent">#2196F3</color>
+    <color name="navbar_color">@android:color/white</color>
 
     <color name="divider">#BDBDBD</color>
-    <color name="cards_and_dialogs_color">@android:color/white</color>
+    <color name="cards_back_color">@android:color/white</color>
 
     <color name="mini_fab_color">@android:color/white</color>
     <color name="fab_label_ripple_color">#33000000</color>
@@ -15,9 +16,13 @@
     <color name="progress3">@color/colorPrimaryDark</color>
     <color name="progress4">#1E70EB</color>
 
+    <color name="shadow_color">#50000000</color>
+
     <!-- Lapism SearchView -->
-    <color name="search_light_background">#fffafafa</color>
-    <color name="search_light_hint">#80000000</color>
-    <color name="search_light_icon">#8a000000</color>
-    <color name="search_light_text">#de000000</color>
+    <color name="search_background">#fffafafa</color>
+    <color name="search_hint">#80000000</color>
+    <color name="search_icon">#8a000000</color>
+    <color name="search_text">#de000000</color>
+
+    <color name="helper_color">#212121</color>
 </resources>

@@ -12,9 +12,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import awais.backworddictionary.R;
 
-public class WebViewActivity extends AppCompatActivity {
+public final class WebViewActivity extends AppCompatActivity {
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_webview);
 
@@ -34,7 +34,7 @@ public class WebViewActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;

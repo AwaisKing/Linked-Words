@@ -16,30 +16,30 @@ import awais.backworddictionary.LinkedApp;
 import awais.backworddictionary.R;
 
 public class WordAdapter extends ArrayAdapter<String[]> {
-    private final ArrayList<String[]> items;
-    private final SearchAdapter.OnItemClickListener onItemClickListener;
     private final boolean isExpanded;
+    private final ArrayList<String[]> items;
+    private final LayoutInflater layoutInflater;
+    private final SearchAdapter.OnItemClickListener onItemClickListener;
     private int topMargin = 0, subSize = 20;
 
-    public WordAdapter(Context context, boolean isExpanded, ArrayList<String[]> items,
+    public WordAdapter(final Context context, final boolean isExpanded, final ArrayList<String[]> items,
             SearchAdapter.OnItemClickListener onItemClickListener) {
         super(context, R.layout.word_dialog_item, items);
-        this.isExpanded = isExpanded;
+        this.layoutInflater = LayoutInflater.from(context);
         this.items = items;
+        this.isExpanded = isExpanded;
         this.onItemClickListener  = onItemClickListener;
     }
 
     @NonNull
     @Override
-    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+    public View getView(final int position, final View convertView, @NonNull final ViewGroup parent) {
         View row = convertView;
         final Holder viewHolder;
 
         if (row == null) {
-            row = LayoutInflater.from(getContext()).inflate(R.layout.word_dialog_item, parent, false);
-            viewHolder = new Holder();
-            viewHolder.tvWord = row.findViewById(R.id.item_text);
-            viewHolder.tvSub = row.findViewById(R.id.sub_text);
+            row = layoutInflater.inflate(R.layout.word_dialog_item, parent, false);
+            viewHolder = new Holder(row.findViewById(R.id.item_text), row.findViewById(R.id.sub_text));
             viewHolder.tvSub.measure(0, 0);
             topMargin = ((ViewGroup.MarginLayoutParams) viewHolder.tvSub.getLayoutParams()).topMargin;
             subSize = viewHolder.tvSub.getMeasuredHeight() / 2;
@@ -72,7 +72,11 @@ public class WordAdapter extends ArrayAdapter<String[]> {
     }
 
     private static class Holder {
-        TextView tvWord;
-        TextView tvSub;
+        private final TextView tvWord, tvSub;
+
+        public Holder(final TextView tvWord, final TextView tvSub) {
+            this.tvWord = tvWord;
+            this.tvSub = tvSub;
+        }
     }
 }

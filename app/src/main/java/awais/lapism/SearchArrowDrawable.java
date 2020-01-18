@@ -13,22 +13,22 @@ class SearchArrowDrawable extends DrawerArrowDrawable {
     static final float STATE_HAMBURGER = 1.0f;
     private static final Property<SearchArrowDrawable, Float> PROGRESS = new Property<SearchArrowDrawable, Float>(Float.class, "progress") {
         @Override
-        public void set(@NonNull SearchArrowDrawable object, Float value) {
+        public void set(@NonNull final SearchArrowDrawable object, final Float value) {
             object.setProgress(value);
         }
 
         @NonNull
         @Override
-        public Float get(@NonNull SearchArrowDrawable object) {
+        public Float get(@NonNull final SearchArrowDrawable object) {
             return object.getProgress();
         }
     };
 
-    SearchArrowDrawable(Context context) {
+    SearchArrowDrawable(final Context context) {
         super(context);
     }
 
-    void animate(float state) {
+    void animate(final float state) {
         final ObjectAnimator anim = ObjectAnimator.ofFloat(this, PROGRESS, state,
                 state == STATE_ARROW ? STATE_HAMBURGER : STATE_ARROW);
         anim.setInterpolator(new AccelerateDecelerateInterpolator());

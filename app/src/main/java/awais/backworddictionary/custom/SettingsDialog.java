@@ -22,13 +22,13 @@ public class SettingsDialog extends Dialog {
     private final boolean showDialog = Main.sharedPreferences.getBoolean("showDialog", false);
     private final Activity activity;
 
-    public SettingsDialog(Activity act) {
+    public SettingsDialog(final Activity act) {
         super(act, R.style.Dialog);
         activity = act;
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setCancelable(true);

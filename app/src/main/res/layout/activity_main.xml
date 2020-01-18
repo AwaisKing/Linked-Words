@@ -31,7 +31,7 @@
             app:layout_collapseMode="pin"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             app:tabGravity="center"
-            app:tabIndicatorColor="@color/cards_and_dialogs_color"
+            app:tabIndicatorColor="@android:color/white"
             app:tabIndicatorHeight="3dp"
             app:tabMode="scrollable" />
     </com.google.android.material.appbar.AppBarLayout>

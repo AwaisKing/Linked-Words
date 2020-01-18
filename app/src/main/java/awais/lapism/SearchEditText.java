@@ -9,24 +9,24 @@ import androidx.appcompat.widget.AppCompatEditText;
 public class SearchEditText extends AppCompatEditText {
     private MaterialSearchView mSearchView;
 
-    public SearchEditText(Context context) {
+    public SearchEditText(final Context context) {
         super(context);
     }
 
-    public SearchEditText(Context context, AttributeSet attrs) {
+    public SearchEditText(final Context context, final AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public SearchEditText(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SearchEditText(final Context context, final AttributeSet attrs, final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    void setSearchView(MaterialSearchView searchView) {
+    void setSearchView(final MaterialSearchView searchView) {
         mSearchView = searchView;
     }
 
     @Override
-    public boolean onKeyPreIme(int keyCode, KeyEvent event) {
+    public boolean onKeyPreIme(final int keyCode, final KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP &&
                 mSearchView != null && mSearchView.isSearchOpen()) {
             mSearchView.close(true);

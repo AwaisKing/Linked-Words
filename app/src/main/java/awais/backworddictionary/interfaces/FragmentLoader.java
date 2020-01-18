@@ -1,5 +1,5 @@
 package awais.backworddictionary.interfaces;
 
 public interface FragmentLoader {
-    void loadFragments(boolean main);
+    void loadFragments(final boolean main);
 }

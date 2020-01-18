@@ -46,14 +46,14 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
                 view.getTag() instanceof String ? (String) view.getTag() : null);
 
         this.itemClickListener = (view, pos, text) -> {
-            String str = String.valueOf(text);
+            final String str = String.valueOf(text);
             if (str.isEmpty() || str.equals(context.getString(R.string.no_definition_found))) return;
             Utils.copyText(context, str.replaceAll("^(.*)\\t", ""));
         };
 
         this.filter = new Filter() {
             @Override
-            protected FilterResults performFiltering(CharSequence charSequence) {
+            protected FilterResults performFiltering(final CharSequence charSequence) {
                 final FilterResults results = new FilterResults();
                 results.values = wordList;
                 if (Utils.isEmpty(charSequence)) return results;
@@ -68,7 +68,7 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
                 }
 
                 final List<WordItem> filteredList = new ArrayList<>();
-                for (WordItem mWord : wordList) {
+                for (final WordItem mWord : wordList) {
                     final String word = mWord.getWord().toLowerCase();
                     final String[][] defs = mWord.getDefs();
                     final String searchVal = String.valueOf(charSequence);
@@ -81,7 +81,7 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
                             continue;
                         }
                         if (defs != null) {
-                            for (String[] rawDef : defs) {
+                            for (final String[] rawDef : defs) {
                                 if (contains ? rawDef[1].contains(searchVal) : rawDef[1].startsWith(searchVal)) {
                                     filteredList.add(mWord);
                                     break;
@@ -91,7 +91,7 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
                     } else if (showWords) {
                         if (wordBool) filteredList.add(mWord);
                     } else if (defs != null) {
-                        for (String[] rawDef : defs) {
+                        for (final String[] rawDef : defs) {
                             if (contains ? rawDef[1].contains(searchVal) : rawDef[1].startsWith(searchVal)) {
                                 filteredList.add(mWord);
                                 break;
@@ -115,51 +115,27 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
 
     @NonNull
     @Override
-    public WordItemHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+    public WordItemHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, final int viewType) {
         return new WordItemHolder(LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.word_item, viewGroup, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull WordItemHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final WordItemHolder holder, final int position) {
         final WordItem wordItem = (WordItem) filterList.get(position);
         holdersHashSet.add(holder);
 
         final boolean wordItemExpanded = wordItem.isExpanded();
         holder.expandableMenu.setVisibility(wordItemExpanded ? View.VISIBLE : View.GONE);
-        holder.ivExpandedSearch.setVisibility(wordItemExpanded ? View.VISIBLE : View.GONE);
+        //holder.ivExpandedSearch.setVisibility(wordItemExpanded ? View.VISIBLE : View.GONE);
         holder.setIsRecyclable(!wordItemExpanded);
 
-        final int wordItemSyllables = wordItem.getNumSyllables();
-        final String[] wordItemTags = wordItem.getTags();
         final String[][] wordItemDefs = wordItem.getDefs();
         final String wordItemWord = wordItem.getWord();
 
-        holder.word.setText(wordItemWord);
         holder.overflow.setTag(position);
-
-        final StringBuilder tagsBuilder = new StringBuilder();
-        if (wordItemTags != null && wordItemTags.length > 0) {
-            tagsBuilder.insert(0, "tags:");
-            for (String tag : wordItemTags) {
-                if (tag.equals("syn")) tagsBuilder.insert(5, " [synonym]");
-                if (tag.equals("prop")) tagsBuilder.insert(5, " [proper]");
-                if (tag.equals("n")) tagsBuilder.append(" noun,");
-                if (tag.equals("adj")) tagsBuilder.append(" adjective,");
-                if (tag.equals("v")) tagsBuilder.append(" verb,");
-                if (tag.equals("adv")) tagsBuilder.append(" adverb,");
-            }
-        }
-
-        // remove last , (comma) from tags
-        final int lastCharIndex = tagsBuilder.length() - 1;
-        if (lastCharIndex > 1 && tagsBuilder.charAt(lastCharIndex) == ',')
-            tagsBuilder.deleteCharAt(lastCharIndex);
-
-        tagsBuilder.append(wordItemTags != null && wordItemTags.length > 0 && wordItemSyllables > 0 ? '\n' : '\0')
-                .append("syllables: ").append(wordItemSyllables);
-
-        holder.subtext.setText(String.valueOf(tagsBuilder));
+        holder.word.setText(wordItemWord);
+        holder.subtext.setText(wordItem.getParsedTags());
 
         final ArrayList<String[]> defsList = new ArrayList<>();
         if (wordItemDefs == null)
@@ -183,7 +159,7 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
                 final boolean itemExpanded = wordItem.isExpanded();
 
                 holder.expandableMenu.setVisibility(itemExpanded ? View.GONE : View.VISIBLE);
-                holder.ivExpandedSearch.setVisibility(itemExpanded ? View.GONE : View.VISIBLE);
+                //holder.ivExpandedSearch.setVisibility(itemExpanded ? View.GONE : View.VISIBLE);
 
                 if (itemExpanded) expandedHashSet.remove(wordItem);
                 else expandedHashSet.add(wordItem);
@@ -209,7 +185,7 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
         return filterList.size();
     }
 
-    void updateList(List<WordItem> list){
+    void updateList(final List<WordItem> list){
         filterList = list;
         notifyDataSetChanged();
     }

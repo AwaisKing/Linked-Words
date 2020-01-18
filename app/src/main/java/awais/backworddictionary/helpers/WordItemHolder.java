@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import awais.backworddictionary.R;
 
-public class WordItemHolder extends RecyclerView.ViewHolder {
+public final class WordItemHolder extends RecyclerView.ViewHolder {
     public final TextView word;
     public final TextView subtext;
     public final CardView cardView;
@@ -20,7 +20,7 @@ public class WordItemHolder extends RecyclerView.ViewHolder {
     public final ImageView ivExpandedSearch;
     public final LinearLayoutCompat expandableMenu;
 
-    public WordItemHolder(View view) {
+    public WordItemHolder(final View view) {
         super(view);
         word = view.findViewById(R.id.word);
         subtext = view.findViewById(R.id.subText);

@@ -29,7 +29,7 @@
         android:layout_weight="1"
         android:gravity="start|center_vertical"
         android:maxLines="1"
-        android:textColor="@color/search_light_text"
+        android:textColor="@color/search_text"
         android:textIsSelectable="false"
         android:textSize="@dimen/search_text_small" />
 

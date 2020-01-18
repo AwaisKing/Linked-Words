@@ -25,12 +25,12 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     private WeakReference<Call> call;
     private MainCheck mainCheck;
 
-    public SearchAsync(MainCheck mainCheck) {
+    public SearchAsync(final MainCheck mainCheck) {
         this.mainCheck = mainCheck;
     }
 
     @Override
-    protected ArrayList<WordItem> doInBackground(String... params) {
+    protected ArrayList<WordItem> doInBackground(final String... params) {
         String query;
         try {
             query = URLEncoder.encode(params[0], "UTF-8");
@@ -87,19 +87,16 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
 
     @Override
     protected void onCancelled() {
-        super.onCancelled();
         mainCheck.afterSearch(null);
     }
 
     @Override
-    protected void onCancelled(ArrayList<WordItem> wordItems) {
-        super.onCancelled(wordItems);
+    protected void onCancelled(final ArrayList<WordItem> wordItems) {
         mainCheck = null;
     }
 
     @Override
-    protected void onPostExecute(ArrayList<WordItem> result) {
-        super.onPostExecute(result);
+    protected void onPostExecute(final ArrayList<WordItem> result) {
         if (mainCheck != null) mainCheck.afterSearch(result);
     }
 }

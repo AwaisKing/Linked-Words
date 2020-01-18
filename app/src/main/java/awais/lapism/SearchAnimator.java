@@ -13,11 +13,13 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 
+import androidx.annotation.NonNull;
+
 import awais.backworddictionary.R;
 
-class SearchAnimator {
-    static void fadeIn(View view) {
-        Animation anim = new AlphaAnimation(0.0f, 1.0f);
+final class SearchAnimator {
+    static void fadeIn(@NonNull final View view) {
+        final Animation anim = new AlphaAnimation(0.0f, 1.0f);
         anim.setInterpolator(new AccelerateDecelerateInterpolator());
         anim.setDuration(317);
 
@@ -25,8 +27,8 @@ class SearchAnimator {
         view.setVisibility(View.VISIBLE);
     }
 
-    static void fadeOut(View view) {
-        Animation anim = new AlphaAnimation(1.0f, 0.0f);
+    static void fadeOut(@NonNull final View view) {
+        final Animation anim = new AlphaAnimation(1.0f, 0.0f);
         anim.setInterpolator(new AccelerateDecelerateInterpolator());
         anim.setDuration(317);
 
@@ -35,9 +37,8 @@ class SearchAnimator {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    static void revealOpen(View view, int cx, int duration, Context context, final SearchEditText editText,
+    static void revealOpen(final View view, int cx, final int duration, final Context context, final SearchEditText editText,
                            final boolean shouldClearOnOpen, final MaterialSearchView.OnOpenCloseListener listener) {
-
         if (cx <= 0) {
             int padding = context.getResources().getDimensionPixelSize(R.dimen.search_reveal);
             cx = SearchUtils.isRtlLayout(context) ? padding : view.getWidth() - padding;
@@ -47,24 +48,24 @@ class SearchAnimator {
 
         if (cx == 0 || cy == 0) return;
 
-        Point displaySize = new Point();
-        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        final Point displaySize = new Point();
+        final WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         if (windowManager == null) return;
         windowManager.getDefaultDisplay().getSize(displaySize);
         float finalRadius = (float) Math.hypot(Math.max(cx, displaySize.x - cx), cy);
 
-        Animator anim = ViewAnimationUtils.createCircularReveal(view, cx, cy, 0.0f, finalRadius);
+        final Animator anim = ViewAnimationUtils.createCircularReveal(view, cx, cy, 0.0f, finalRadius);
         anim.setInterpolator(new AccelerateDecelerateInterpolator());
         anim.setDuration(duration);
 
         anim.addListener(new AnimatorListenerAdapter() {
             @Override
-            public void onAnimationStart(Animator animation) {
+            final public void onAnimationStart(Animator animation) {
                 if (listener != null) listener.onOpen();
             }
 
             @Override
-            public void onAnimationEnd(Animator animation) {
+            final public void onAnimationEnd(Animator animation) {
                 if (shouldClearOnOpen && editText.length() > 0 && editText.getText() != null)
                     editText.getText().clear();
                 editText.requestFocus();
@@ -76,9 +77,8 @@ class SearchAnimator {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    static void revealClose(final View view, int cx, int duration, Context context, final SearchEditText editText,
+    static void revealClose(final View view, int cx, final int duration, final Context context, final SearchEditText editText,
                             final boolean shouldClearOnClose, final MaterialSearchView searchView, final MaterialSearchView.OnOpenCloseListener listener) {
-
         if (cx <= 0) {
             int padding = context.getResources().getDimensionPixelSize(R.dimen.search_reveal);
             cx = SearchUtils.isRtlLayout(context) ? padding : view.getWidth() - padding;
@@ -88,25 +88,25 @@ class SearchAnimator {
 
         if (cx == 0 || cy == 0) return;
 
-        Point displaySize = new Point();
-        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        final Point displaySize = new Point();
+        final WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         if (windowManager == null) return;
         windowManager.getDefaultDisplay().getSize(displaySize);
         float initialRadius = (float) Math.hypot(Math.max(cx, displaySize.x - cx), cy);
 
-        Animator anim = ViewAnimationUtils.createCircularReveal(view, cx, cy, initialRadius, 0.0f);
+        final Animator anim = ViewAnimationUtils.createCircularReveal(view, cx, cy, initialRadius, 0.0f);
         anim.setInterpolator(new AccelerateDecelerateInterpolator());
         anim.setDuration(duration);
         anim.addListener(new AnimatorListenerAdapter() {
             @Override
-            public void onAnimationStart(Animator animation) {
+            public void onAnimationStart(final Animator animation) {
                 if (shouldClearOnClose && editText.length() > 0 && editText.getText() != null)
                     editText.getText().clear();
                 editText.clearFocus();
             }
 
             @Override
-            public void onAnimationEnd(Animator animation) {
+            public void onAnimationEnd(final Animator animation) {
                 view.setVisibility(View.GONE);
                 searchView.setVisibility(View.GONE);
                 if (listener != null) listener.onClose();
@@ -115,24 +115,23 @@ class SearchAnimator {
         anim.start();
     }
 
-    static void fadeOpen(View view, final SearchEditText editText,
-                         final MaterialSearchView.OnOpenCloseListener listener) {
-        Animation anim = new AlphaAnimation(0.0f, 1.0f);
+    static void fadeOpen(@NonNull final View view, final SearchEditText editText, final MaterialSearchView.OnOpenCloseListener listener) {
+        final Animation anim = new AlphaAnimation(0.0f, 1.0f);
         anim.setInterpolator(new AccelerateDecelerateInterpolator());
         anim.setDuration(317);
         anim.setAnimationListener(new Animation.AnimationListener() {
             @Override
-            public void onAnimationStart(Animation animation) {
+            public void onAnimationStart(final Animation animation) {
                 if (listener != null) listener.onOpen();
             }
 
             @Override
-            public void onAnimationEnd(Animation animation) {
+            public void onAnimationEnd(final Animation animation) {
                 editText.requestFocus();
             }
 
             @Override
-            public void onAnimationRepeat(Animation animation) {}
+            public void onAnimationRepeat(final Animation animation) {}
         });
 
         view.setAnimation(anim);
@@ -146,19 +145,19 @@ class SearchAnimator {
         anim.setDuration(317);
         anim.setAnimationListener(new Animation.AnimationListener() {
             @Override
-            public void onAnimationStart(Animation animation) {
+            public void onAnimationStart(final Animation animation) {
                 editText.clearFocus();
             }
 
             @Override
-            public void onAnimationEnd(Animation animation) {
+            public void onAnimationEnd(final Animation animation) {
                 view.setVisibility(View.GONE);
                 searchView.setVisibility(View.GONE);
                 if (listener != null) listener.onClose();
             }
 
             @Override
-            public void onAnimationRepeat(Animation animation) {}
+            public void onAnimationRepeat(final Animation animation) {}
         });
 
         view.setAnimation(anim);

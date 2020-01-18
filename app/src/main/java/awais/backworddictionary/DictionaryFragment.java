@@ -51,7 +51,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
     private static int startOffset = -120, endOffset, expandedEndOffset, topPadding, topMargin;
 
     @Override
-    public void onAttach(@NonNull Context context) {
+    public void onAttach(@NonNull final Context context) {
         super.onAttach(context);
 
         this.activity = getActivity() != null ? getActivity() : (Activity) context;
@@ -78,20 +78,18 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    public void onActivityCreated(@Nullable final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         activity = getActivity();
     }
 
     @Nullable @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,@Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container,@Nullable final Bundle savedInstanceState) {
         return inflater.inflate(R.layout.dictionary_view, container, false);
     }
 
     @Override
-    public void onViewCreated(@NonNull View magicRootView, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(magicRootView, savedInstanceState);
-
+    public void onViewCreated(@NonNull final View magicRootView, @Nullable final Bundle savedInstanceState) {
         activity = getActivity() == null ? (Activity) getContext() : getActivity();
 
         if (activity != null)
@@ -139,11 +137,11 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
         filterSearchEditor = magicRootView.findViewById(R.id.swipeSearch);
         filterSearchEditor.setOnFocusChangeListener((view, b) -> toggleKeyboard(b));
         filterSearchEditor.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence cs, int i, int i1, int i2) {}
-            @Override public void onTextChanged(CharSequence cs, int i, int i1, int i2) {
+            @Override public void beforeTextChanged(final CharSequence cs, final int i, final int i1, final int i2) {}
+            @Override public void onTextChanged(final CharSequence cs, final int i, final int i1, final int i2) {
                 if (wordList.size() > 2) wordsAdapter.getFilter().filter(cs);
             }
-            @Override public void afterTextChanged(Editable editable) {
+            @Override public void afterTextChanged(final Editable editable) {
                 if (editable.length() > 0) {
                     filterSearchButton.setImageResource(R.drawable.ic_clear);
                     filterSearchButton.setTag("clear");
@@ -154,11 +152,9 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
             }
         });
 
-        View.OnClickListener onClickListener = view -> {
+        final View.OnClickListener onClickListener = view -> {
             if (view == filterBackButton) hideFilter();
-
             else if (view == filterSearchEditor) toggleKeyboard(true);
-
             else if (view == filterSearchButton) {
                 final Object tag = filterSearchButton.getTag();
 
@@ -198,14 +194,14 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
         filterSearchButton.setOnClickListener(onClickListener);
     }
 
-    void startWords(String method, String word) {
+    void startWords(final String method, final String word) {
         if (filterView != null && filterSearchEditor != null) filterSearchEditor.setText("");
         if (Utils.isEmpty(word)) return;
         new WordsAsync(this, word, method, this.activity).execute();
     }
 
     @Override
-    public void done(ArrayList<WordItem> items, final String word) {
+    public void done(final ArrayList<WordItem> items, final String word) {
         wordList = items == null ? new ArrayList<>() : items;
 
         swipeRefreshLayout.post(() -> swipeRefreshLayout.setRefreshing(false));
@@ -235,21 +231,22 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
      * @param showFilter either to show or hide filter
      * @param method     no idea what this is. i really forgot.
      */
-    void showFilter(boolean showFilter, int method) {
+    void showFilter(final boolean showFilter, final int method) {
         if (filterView == null) return;
 
         if (showFilter) {
             if (method == 0 || method == 2) {
                 filterView.setVisibility(View.VISIBLE);
-                if (method == 0 && filterSearchEditor != null) filterSearchEditor.requestFocus();
-            } else if (method == 30)
-                filterView.setVisibility(View.GONE);
+                if (method == 0 && filterSearchEditor != null)
+                    filterSearchEditor.requestFocus();
+            }
 
             if (recyclerView != null) {
                 if (method == 0)
                     recyclerView.setPadding(0, topMargin, 0, recyclerView.getPaddingBottom());
+
                 if (wordsAdapter != null && wordsAdapter.getItemCount() > 5) {
-                    LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                    final LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
                     if (manager != null && manager.findFirstVisibleItemPosition() <= 3)
                         recyclerView.smoothScrollToPosition(0);
                 }
@@ -260,10 +257,11 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
                 if (isRefrehing) swipeRefreshLayout.setRefreshing(true);
             }
         } else {
-            if (method == 0 || method == 2) filterView.setVisibility(View.GONE);
-            else if (method == 30) filterView.setVisibility(View.VISIBLE);
+            if (method == 0 || method == 2)
+                filterView.setVisibility(View.GONE);
 
-            if (recyclerView != null) recyclerView.setPadding(0, topPadding, 0, recyclerView.getPaddingBottom());
+            if (recyclerView != null)
+                recyclerView.setPadding(0, topPadding, 0, recyclerView.getPaddingBottom());
 
             if (method == 1) return;
             final boolean isRefrehing = swipeRefreshLayout.isRefreshing();
@@ -280,14 +278,14 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
         return filterView != null && filterView.getVisibility() == View.VISIBLE;
     }
 
-    private void toggleKeyboard(boolean show) {
+    private void toggleKeyboard(final boolean show) {
         if (imm == null) imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm == null) return;
         if (show) imm.showSoftInput(filterSearchEditor, 1);
         else imm.hideSoftInputFromWindow(filterSearchEditor.getWindowToken(), 1);
     }
 
-    void scrollRecyclerView(boolean directionUp) {
+    void scrollRecyclerView(final boolean directionUp) {
         if (recyclerView == null) return;
         recyclerView.smoothScrollToPosition(directionUp ? 0 : 5000);
     }
@@ -296,7 +294,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
         TypedValue tv = new TypedValue();
         if (activity == null) activity = getActivity();
         if (activity != null && activity.getTheme().resolveAttribute(R.attr.actionBarSize, tv, true))
-            return TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+            return TypedValue.complexToDimensionPixelSize(tv.data, activity.getResources().getDisplayMetrics());
         return swipeRefreshLayout == null ? 250.0f : swipeRefreshLayout.getProgressViewEndOffset() * 2.0f;
     }
 
@@ -304,10 +302,10 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
         if (wordsAdapter == null) return;
         wordsAdapter.refreshShowDialogEnabled();
 
-        for (WordItemHolder holder : wordsAdapter.holdersHashSet)
+        for (final WordItemHolder holder : wordsAdapter.holdersHashSet)
             holder.cardView.setCardBackgroundColor(-1);
 
-        for (WordItem wordItem : wordsAdapter.expandedHashSet)
+        for (final WordItem wordItem : wordsAdapter.expandedHashSet)
             wordItem.setExpanded(false);
         wordsAdapter.notifyDataSetChanged();
     }

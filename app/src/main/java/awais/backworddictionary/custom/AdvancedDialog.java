@@ -24,13 +24,13 @@ public class AdvancedDialog extends Dialog implements CompoundButton.OnCheckedCh
     private final boolean[] enabledChecks = {true, true, true, true, false, false, false, false, false, false};
     private String bools;
 
-    public AdvancedDialog(Activity act) {
+    public AdvancedDialog(final Activity act) {
         super(act, R.style.Dialog);
         this.fragmentLoader = (FragmentLoader) act;
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setCancelable(true);
         setCanceledOnTouchOutside(true);
@@ -95,7 +95,7 @@ public class AdvancedDialog extends Dialog implements CompoundButton.OnCheckedCh
     }
 
     @Override
-    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+    public void onCheckedChanged(final CompoundButton compoundButton, final boolean b) {
         enabledChecks[checkBoxes.indexOf(compoundButton)] = b;
 //        if (getResult() == 4) disableUnused();
 //        else enableAll();

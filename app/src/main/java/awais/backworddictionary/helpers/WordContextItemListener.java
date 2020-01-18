@@ -20,20 +20,19 @@ import awais.backworddictionary.customweb.CustomTabActivityHelper;
 
 import static awais.backworddictionary.Main.tts;
 
-class WordContextItemListener implements PopupMenu.OnMenuItemClickListener {
+final class WordContextItemListener implements PopupMenu.OnMenuItemClickListener {
     private final int[] colors = new int[] {0xFF4888F2, 0xFF333333, 0xFF3B496B};
     private final CustomTabsIntent.Builder customTabsIntent = new CustomTabsIntent.Builder();
     private final String currentWord;
     private final Context context;
 
-    WordContextItemListener(Context context, @NonNull CharSequence word) {
+    WordContextItemListener(final Context context, @NonNull final CharSequence word) {
         this.context = context;
         this.currentWord = word.toString();
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem menuItem) {
-
+    public boolean onMenuItemClick(final MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.action_copy:
                 Utils.copyText(context, currentWord);

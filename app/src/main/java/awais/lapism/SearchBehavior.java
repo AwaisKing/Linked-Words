@@ -18,7 +18,7 @@ public class SearchBehavior extends CoordinatorLayout.Behavior<MaterialSearchVie
     }
 
     @Override
-    public boolean layoutDependsOn(@NonNull CoordinatorLayout parent, @NonNull MaterialSearchView child, @NonNull View dependency) {
+    public boolean layoutDependsOn(@NonNull final CoordinatorLayout parent, @NonNull final MaterialSearchView child, @NonNull final View dependency) {
         final boolean isAppBar = dependency instanceof AppBarLayout;
         if (isAppBar && Build.VERSION.SDK_INT >= 21) {
             child.setElevation(dependency.getElevation());
@@ -28,7 +28,7 @@ public class SearchBehavior extends CoordinatorLayout.Behavior<MaterialSearchVie
     }
 
     @Override
-    public boolean onDependentViewChanged(@NonNull CoordinatorLayout parent, @NonNull MaterialSearchView child, @NonNull View dependency) {
+    public boolean onDependentViewChanged(@NonNull final CoordinatorLayout parent, @NonNull final MaterialSearchView child, @NonNull final View dependency) {
         if (dependency instanceof AppBarLayout) {
             child.setTranslationY(dependency.getY() + Main.statusBarHeight);
             return true;

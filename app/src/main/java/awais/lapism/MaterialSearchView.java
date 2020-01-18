@@ -33,9 +33,11 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -66,15 +68,15 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     private float mIsSearchArrowHamburgerState = SearchArrowDrawable.STATE_HAMBURGER;
     private InputMethodManager imm;
 
-    public MaterialSearchView(Context context) {
+    public MaterialSearchView(final Context context) {
         this(context, null);
     }
 
-    public MaterialSearchView(Context context, @Nullable AttributeSet attrs) {
+    public MaterialSearchView(final Context context, @Nullable final AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public MaterialSearchView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public MaterialSearchView(final Context context, @Nullable final AttributeSet attrs, final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mContext = context;
         imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -82,14 +84,14 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public MaterialSearchView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public MaterialSearchView(final Context context, @Nullable final AttributeSet attrs, final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         mContext = context;
         imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         initView();
     }
 
-    private void setIconColor(@ColorInt int color) {
+    private void setIconColor(@ColorInt final int color) {
         mIconColor = color;
         final ColorFilter colorFilter = new PorterDuffColorFilter(mIconColor, PorterDuff.Mode.SRC_IN);
         mBackImageView.setColorFilter(colorFilter);
@@ -98,7 +100,7 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     }
 
     private void initView() {
-        LayoutInflater.from(mContext).inflate((R.layout.search_view), this, true);
+        LayoutInflater.from(mContext).inflate(R.layout.search_view, this, true);
 
         mCardView = findViewById(R.id.cardView);
 
@@ -112,7 +114,7 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
         mDividerView.setVisibility(View.GONE);
 
         mShadowView = findViewById(R.id.view_shadow);
-        mShadowView.setBackgroundColor(0x50000000);
+        mShadowView.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.shadow_color, null));
         mShadowView.setOnClickListener(this);
         mShadowView.setVisibility(View.GONE);
 
@@ -173,8 +175,8 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
         params.setMargins(leftRight, top, leftRight, bottom);
         mCardView.setLayoutParams(params);
 
-        setBackgroundColor(ContextCompat.getColor(mContext, R.color.search_light_background));
-        setIconColor(ContextCompat.getColor(mContext, R.color.search_light_icon));
+        setBackgroundColor(ContextCompat.getColor(mContext, R.color.search_background));
+        setIconColor(ContextCompat.getColor(mContext, R.color.search_icon));
 
         mVoice = isVoiceAvailable();
         if (mVoice && mSearchEditText != null) mSearchEditText.setPrivateImeOptions("nm");
@@ -183,7 +185,7 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
         mVoice = true;
     }
 
-    public void setQuery(CharSequence query, boolean submit) {
+    public void setQuery(final CharSequence query, final boolean submit) {
         setQueryWithoutSubmitting(query);
 
         if (!Utils.isEmpty(mUserQuery)) {
@@ -194,24 +196,24 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
         if (submit && !Utils.isEmpty(query)) onSubmitQuery();
     }
 
-    public void setAdapter(RecyclerView.Adapter<?> adapter) {
+    public void setAdapter(final RecyclerView.Adapter<?> adapter) {
         mAdapter = adapter;
         mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
-    public void setBackgroundColor(@ColorInt int color) {
+    public void setBackgroundColor(@ColorInt final int color) {
         mCardView.setCardBackgroundColor(color);
     }
 
     @Override
-    public void setElevation(float elevation) {
+    public void setElevation(final float elevation) {
         mCardView.setMaxCardElevation(elevation);
         mCardView.setCardElevation(elevation);
         invalidate();
     }
 
-    public void open(boolean animate, MenuItem menuItem) {
+    public void open(final boolean animate, final MenuItem menuItem) {
         setVisibility(View.VISIBLE);
 
         if (animate) {
@@ -234,7 +236,7 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
         }
     }
 
-    public void close(boolean animate) {
+    public void close(final boolean animate) {
         if (animate) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 SearchAnimator.revealClose(mCardView, mMenuItemCx, mAnimationDuration, mContext,
@@ -251,22 +253,16 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
 
     private void addFocus() {
         mIsSearchOpen = true;
-
         setArrow();
-
         SearchAnimator.fadeIn(mShadowView);
-
         showSuggestions();
         showKeyboard();
     }
 
     private void removeFocus() {
         mIsSearchOpen = false;
-
         setHamburger();
-
         SearchAnimator.fadeOut(mShadowView);
-
         hideSuggestions();
         hideKeyboard();
     }
@@ -346,7 +342,7 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
         mIsSearchArrowHamburgerState = SearchArrowDrawable.STATE_HAMBURGER;
     }
 
-    private void getMenuItemPosition(int menuItemId) {
+    private void getMenuItemPosition(final int menuItemId) {
         if (mMenuItemView != null) mMenuItemCx = getCenterX(mMenuItemView);
         ViewParent viewParent = getParent();
         while (viewParent instanceof View) {
@@ -384,17 +380,16 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     }
 
     private void onSubmitQuery() {
-        CharSequence query = mSearchEditText.getText();
+        final CharSequence query = mSearchEditText.getText();
         if (query == null || TextUtils.getTrimmedLength(query) <= 0) return;
         if (mOnQueryChangeListener == null || !mOnQueryChangeListener.onQueryTextSubmit(query.toString()))
             mSearchEditText.setText(query);
     }
 
-    private void onSearchTextChanged(CharSequence newText) {
-        CharSequence text = mSearchEditText.getText();
-        mUserQuery = text;
+    private void onSearchTextChanged(final CharSequence newText) {
+        mUserQuery = mSearchEditText.getText();
 
-        if (mAdapter instanceof Filterable) ((Filterable) mAdapter).getFilter().filter(text);
+        if (mAdapter instanceof Filterable) ((Filterable) mAdapter).getFilter().filter(mUserQuery);
 
         if (mOnQueryChangeListener != null && !TextUtils.equals(newText, mOldQueryText))
             mOnQueryChangeListener.onQueryTextChange(newText.toString());
@@ -405,14 +400,14 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
         if (mVoice) mVoiceImageView.setVisibility(isTextEmpty ? View.VISIBLE : View.GONE);
     }
 
-    private int getCenterX(View view) {
+    private int getCenterX(@NonNull final View view) {
         int[] location = new int[2];
         view.getLocationOnScreen(location);
         return location[0] + view.getWidth() / 2;
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(final View v) {
         if (v == mVoiceImageView) onVoiceClicked();
         else if (v == mShadowView) close(true);
         else if (v == mBackImageView) {
@@ -436,7 +431,7 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     }
 
     @Override
-    protected void onRestoreInstanceState(Parcelable state) {
+    protected void onRestoreInstanceState(final Parcelable state) {
         if (!(state instanceof SavedState)) {
             super.onRestoreInstanceState(state);
             return;
@@ -453,17 +448,17 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
         requestLayout();
     }
 
-    public void setOnQueryTextListener(OnQueryTextListener listener) {
+    public void setOnQueryTextListener(final OnQueryTextListener listener) {
         mOnQueryChangeListener = listener;
     }
 
-    public void setOnOpenCloseListener(OnOpenCloseListener listener) {
+    public void setOnOpenCloseListener(final OnOpenCloseListener listener) {
         mOnOpenCloseListener = listener;
     }
 
     public interface OnQueryTextListener {
-        boolean onQueryTextSubmit(String query);
-        void onQueryTextChange(String newText);
+        boolean onQueryTextSubmit(final String query);
+        void onQueryTextChange(final String newText);
     }
 
     public interface OnOpenCloseListener {
@@ -474,30 +469,30 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     private static class SavedState extends BaseSavedState {
         public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
             @Override
-            public SavedState createFromParcel(Parcel in) {
+            public SavedState createFromParcel(final Parcel in) {
                 return new SavedState(in);
             }
 
             @Override
-            public SavedState[] newArray(int size) {
+            public SavedState[] newArray(final int size) {
                 return new SavedState[size];
             }
         };
         private String query;
         private boolean isSearchOpen;
 
-        SavedState(Parcelable superState) {
+        SavedState(final Parcelable superState) {
             super(superState);
         }
 
-        SavedState(Parcel source) {
+        SavedState(final Parcel source) {
             super(source);
             this.query = source.readString();
             this.isSearchOpen = source.readInt() == 1;
         }
 
         @Override
-        public void writeToParcel(Parcel out, int flags) {
+        public void writeToParcel(final Parcel out, final int flags) {
             super.writeToParcel(out, flags);
             out.writeString(query);
             out.writeInt(isSearchOpen ? 1 : 0);

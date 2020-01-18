@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="NoTitleAppTheme" parent="Base.Theme.AppCompat.Light">
+    <style name="NoTitleAppTheme" parent="Theme.AppCompat.DayNight">
         <item name="windowActionBar">false</item>
         <item name="windowActionBarOverlay">true</item>
         <item name="windowNoTitle">true</item>
@@ -9,6 +9,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
+        <item name="bottomSheetDialogTheme">@style/BottomSheetDialog</item>
         <item name="coordinatorLayoutStyle">@style/Widget.Support.CoordinatorLayout</item>
         <item name="floatingActionButtonStyle">@style/Widget.Design.FloatingActionButton</item>
         <item name="tabStyle">@style/AppTabLayout</item>
@@ -22,13 +23,20 @@
     <style name="AppTheme" parent="NoTitleAppTheme" />
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.DayNight" />
 
     <style name="CardViewStyle" parent="Base.CardView">
-        <item name="cardBackgroundColor">@android:color/white</item>
+        <item name="cardBackgroundColor">@color/cards_back_color</item>
     </style>
 
-    <style name="Dialog" parent="Theme.AppCompat.Light.DialogWhenLarge">
+    <style name="BottomSheetDialog" parent="Theme.AppCompat.DayNight.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@style/Animation.Design.BottomSheetDialog</item>
+        <item name="bottomSheetStyle">@style/Widget.Design.BottomSheet.Modal</item>
+    </style>
+
+    <style name="Dialog" parent="Theme.AppCompat.DayNight.DialogWhenLarge"> <!--Theme.AppCompat.Light.DialogWhenLarge-->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>

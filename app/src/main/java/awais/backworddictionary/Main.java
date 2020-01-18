@@ -61,8 +61,9 @@ import awais.lapism.MaterialSearchView;
 import awais.lapism.SearchItem;
 
 public class Main extends AppCompatActivity implements FragmentLoader, MainCheck {
-    static { AppCompatDelegate.setCompatVectorFromResourcesEnabled(true); }
-
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
     private static final int[] tabs = {R.string.reverse, R.string.sounds_like, R.string.spelled_like, R.string.synonyms, R.string.antonyms,
             R.string.triggers, R.string.part_of, R.string.comprises, R.string.rhymes, R.string.homophones};
     public static TextToSpeech tts;
@@ -82,7 +83,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     private AppBarLayout.LayoutParams toolbarParams;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         statusBarHeight = Utils.getStatusBarHeight(getWindow(), getResources());
         Utils.initCrashlytics(this);
@@ -91,6 +92,8 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         sharedPreferences = getSharedPreferences("settings", MODE_PRIVATE);
         Utils.adsBox(this);
 
+        menuCaller = new MenuCaller(this);
+
         tabLayout = findViewById(R.id.tabs);
         viewPager = findViewById(R.id.viewpager);
         fabOptions = findViewById(R.id.fabOptions);
@@ -98,6 +101,8 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         toolbar = findViewById(R.id.toolbar);
         toolbarParams = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
         appBarLayout.setPadding(0, statusBarHeight, 0, 0);
+
+        setSupportActionBar(toolbar);
 
         fabOptions.getMenuIconView().setImageDrawable(Utils.getDrawable(this, R.drawable.ic_options));
         fabOptions.setClosedOnTouchOutside(true);
@@ -145,10 +150,6 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 }
             fabOptions.close(true);
         });
-
-        menuCaller = new MenuCaller(this);
-        setSupportActionBar(findViewById(R.id.toolbar));
-
         TooltipCompat.setTooltipText(fabOptions, getString(R.string.options));
 
         setSearchView();
@@ -157,7 +158,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     }
 
     @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+    protected void onPostCreate(@Nullable final Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
         new myThread(true, this).start(); // load fragments
@@ -165,7 +166,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     }
 
     @Override
-    public void loadFragments(boolean main) {
+    public void loadFragments(final boolean main) {
         if (!main) {
             finish();
             startActivity(new Intent(this, Main.class));
@@ -226,15 +227,11 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) { prevTab = tab.getPosition(); }
+            public void onTabUnselected(final TabLayout.Tab tab) { prevTab = tab.getPosition(); }
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            public void onTabReselected(final TabLayout.Tab tab) {}
         });
-    }
-
-    public int getItemPosition(String item) {
-        return fragmentsAdapter.mFragmentTitleList.indexOf(item);
     }
 
     private void handleData() {
@@ -264,18 +261,18 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
+    protected void onNewIntent(final Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
         handleData();
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode != MaterialSearchView.SPEECH_REQUEST_CODE
                 || resultCode != Activity.RESULT_OK || data == null) return;
-        ArrayList<String> text = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+        final ArrayList<String> text = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
         if (mSearchView != null && text != null && text.size() > 0)
             mSearchView.setQuery(text.get(0), true);
     }
@@ -284,34 +281,56 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
 
-        menu.findItem(R.id.mAdvance).setOnMenuItemClickListener(item -> {
-            new AdvancedDialog(this).show();
-            return true;
-        });
+        final MenuItem.OnMenuItemClickListener clickListener = item -> {
+            switch (item.getItemId()) {
+                case R.id.mAdvance:
+                    new AdvancedDialog(this).show();
+                    break;
 
-        menu.findItem(R.id.mSearch).setOnMenuItemClickListener(item -> {
-            if (mSearchView != null) {
-                mSearchView.open(true, item);
-                mSearchView.bringToFront();
+                case R.id.mSearch:
+                    if (mSearchView != null) {
+                        mSearchView.open(true, item);
+                        mSearchView.bringToFront();
+                    }
+                    break;
+
+                case R.id.mSettings:
+                    new SettingsDialog(Main.this).show();
+                    break;
             }
             return true;
-        });
+        };
 
-        menu.findItem(R.id.mSettings).setOnMenuItemClickListener(item -> {
-            new SettingsDialog(Main.this).show();
-            return true;
-        });
-
+        menu.findItem(R.id.mAdvance).setOnMenuItemClickListener(clickListener);
+        menu.findItem(R.id.mSearch).setOnMenuItemClickListener(clickListener);
+        menu.findItem(R.id.mSettings).setOnMenuItemClickListener(clickListener);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
         menuCaller.show(item);
         return super.onOptionsItemSelected(item);
     }
 
-    public void onSearch(String word) {
+    @Override
+    public void afterSearch(final ArrayList<WordItem> result) {
+        if (mSearchView != null && mSearchView.isShowingProgress()) mSearchView.hideProgress();
+
+        if (result == null || result.isEmpty() || mSearchView == null || searchAdapter == null)
+            return;
+
+        final ArrayList<SearchItem> suggestionsList = new ArrayList<>();
+        for (final WordItem item : result)
+            suggestionsList.add(new SearchItem(item.getWord()));
+
+        searchAdapter.setData(suggestionsList);
+        searchAdapter.setSuggestionsList(suggestionsList);
+        searchAdapter.notifyDataSetChanged();
+        mSearchView.showSuggestions();
+    }
+
+    public void onSearch(final String word) {
         try {
             if (fragmentsAdapter != null && viewPager != null) {
                 final int pagerCurrentItem = viewPager.getCurrentItem();
@@ -320,6 +339,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 if (fragment.isAdded())
                     fragment.startWords("" + method, word);
             }
+
             if (mSearchView != null && mSearchView.isSearchOpen()) {
                 mSearchView.close(false);
                 toolbarParams.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL |
@@ -329,23 +349,6 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         } catch (Exception e) {
             if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
         }
-    }
-
-    @Override
-    public void afterSearch(ArrayList<WordItem> result) {
-        if (mSearchView != null && mSearchView.isShowingProgress()) mSearchView.hideProgress();
-
-        if (result == null || result.isEmpty() || mSearchView == null || searchAdapter == null)
-            return;
-
-        final ArrayList<SearchItem> suggestionsList = new ArrayList<>();
-        for (WordItem item : result)
-            suggestionsList.add(new SearchItem(item.getWord()));
-
-        searchAdapter.setData(suggestionsList);
-        searchAdapter.setSuggestionsList(suggestionsList);
-        searchAdapter.notifyDataSetChanged();
-        mSearchView.showSuggestions();
     }
 
     public void closeExpanded() {
@@ -358,14 +361,40 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
     @Override
     public void onBackPressed() {
-        if (fragmentsAdapter == null || viewPager == null || fragmentsAdapter.getCount() <= 0)
-            super.onBackPressed();
-        else {
+        if (fragmentsAdapter != null && viewPager != null && fragmentsAdapter.getCount() > 0) {
             final DictionaryFragment dictionaryFragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
-            if (dictionaryFragment.isAdded() && dictionaryFragment.isFilterOpen())
+            if (dictionaryFragment.isAdded() && dictionaryFragment.isFilterOpen()) {
                 dictionaryFragment.hideFilter();
-            else super.onBackPressed();
+                return;
+            }
         }
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mHistoryDatabase.open();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mHistoryDatabase.close();
+    }
+
+    private void addHistoryItem(final CharSequence query) {
+        mHistoryDatabase.addItem(new SearchItem(query));
+        searchAdapter.getFilter().filter("");
+    }
+
+    private void deleteHistoryItem(@NonNull final String query) {
+        mHistoryDatabase.clearDatabase(query);
+        searchAdapter.getFilter().filter("");
+    }
+
+    public int getItemPosition(final String item) {
+        return fragmentsAdapter.mFragmentTitleList.indexOf(item);
     }
 
     private void setSearchView() {
@@ -426,7 +455,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             };
 
             @Override
-            public boolean onQueryTextSubmit(String query) {
+            public boolean onQueryTextSubmit(final String query) {
                 try { handler.removeCallbacks(textWatch); } catch (Exception ignored) {}
                 if (mHistoryDatabase != null && !Utils.isEmpty(query))
                     try {
@@ -439,7 +468,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             }
 
             @Override
-            public void onQueryTextChange(String newText) {
+            public void onQueryTextChange(final String newText) {
                 text = newText;
                 if (!Utils.isEmpty(newText)) {
                     try { handler.removeCallbacks(textWatch); } catch (Exception ignored) {}
@@ -479,29 +508,56 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         });
     }
 
-    private void addHistoryItem(CharSequence query) {
-        mHistoryDatabase.addItem(new SearchItem(query));
-        searchAdapter.getFilter().filter("");
+    private static void fabAnimation(@NonNull final FloatingActionMenu fabOptions) {
+        final AnimatorSet set = new AnimatorSet();
+        final ImageView fabIcon = fabOptions.getMenuIconView();
+
+        final ObjectAnimator scaleOutX = ObjectAnimator.ofFloat(fabIcon, "scaleX", 1.0f, 0.2f);
+        final ObjectAnimator scaleOutY = ObjectAnimator.ofFloat(fabIcon, "scaleY", 1.0f, 0.2f);
+        final ObjectAnimator scaleInX = ObjectAnimator.ofFloat(fabIcon, "scaleX", 0.2f, 1.0f);
+        final ObjectAnimator scaleInY = ObjectAnimator.ofFloat(fabIcon, "scaleY", 0.2f, 1.0f);
+
+        scaleOutX.setDuration(200);
+        scaleOutY.setDuration(200);
+        scaleInX.setDuration(200);
+        scaleInY.setDuration(200);
+        scaleInX.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                fabIcon.setImageResource(fabOptions.isOpened() ? R.drawable.ic_close : R.drawable.ic_options);
+            }
+        });
+        set.play(scaleOutX).with(scaleOutY);
+        set.play(scaleInX).with(scaleInY).after(scaleOutX);
+        set.setInterpolator(new OvershootInterpolator(3.17f));
+
+        fabOptions.setIconToggleAnimatorSet(set);
     }
 
-    private void deleteHistoryItem(@NonNull String query) {
-        mHistoryDatabase.clearDatabase(query);
-        searchAdapter.getFilter().filter("");
+    private static void setFabListeners(final FloatingActionMenu fabOptions, final View.OnClickListener onClickListener) {
+        if (fabOptions == null) return;
+
+        final int[] resIds = {R.drawable.ic_filter, R.drawable.ic_arrow_down, R.drawable.ic_arrow_up};
+        final Context context = fabOptions.getContext();
+
+        int j = 0;
+        for (int i = fabOptions.getChildCount() - 1; i > -1; --i) {
+            final View view = fabOptions.getChildAt(i);
+            if (view instanceof FloatingActionButton) {
+                final FloatingActionButton fab = (FloatingActionButton) view;
+                if (fab.getButtonSize() == 0) continue;
+
+                final Drawable drawable = Utils.getDrawable(context, resIds[j]);
+                drawable.setColorFilter(0xFF2196F3, PorterDuff.Mode.SRC_ATOP);
+
+                fab.setImageDrawable(drawable);
+                fab.setTag(j++);
+                fab.setOnClickListener(onClickListener);
+            }
+        }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mHistoryDatabase.open();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mHistoryDatabase.close();
-    }
-
-    private static class myThread extends Thread {
+    private final static class myThread extends Thread {
         private final boolean method;
         private final Main activity;
 
@@ -531,55 +587,6 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                             tts.setLanguage(Locale.ENGLISH);
                     }
                 });
-            }
-        }
-    }
-
-    private static void fabAnimation(@NonNull FloatingActionMenu fabOptions) {
-        final AnimatorSet set = new AnimatorSet();
-        final ImageView fabIcon = fabOptions.getMenuIconView();
-
-        final ObjectAnimator scaleOutX = ObjectAnimator.ofFloat(fabIcon, "scaleX", 1.0f, 0.2f);
-        final ObjectAnimator scaleOutY = ObjectAnimator.ofFloat(fabIcon, "scaleY", 1.0f, 0.2f);
-        final ObjectAnimator scaleInX = ObjectAnimator.ofFloat(fabIcon, "scaleX", 0.2f, 1.0f);
-        final ObjectAnimator scaleInY = ObjectAnimator.ofFloat(fabIcon, "scaleY", 0.2f, 1.0f);
-
-        scaleOutX.setDuration(200);
-        scaleOutY.setDuration(200);
-        scaleInX.setDuration(200);
-        scaleInY.setDuration(200);
-        scaleInX.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                fabIcon.setImageResource(fabOptions.isOpened() ? R.drawable.ic_close : R.drawable.ic_options);
-            }
-        });
-        set.play(scaleOutX).with(scaleOutY);
-        set.play(scaleInX).with(scaleInY).after(scaleOutX);
-        set.setInterpolator(new OvershootInterpolator(3.17f));
-
-        fabOptions.setIconToggleAnimatorSet(set);
-    }
-
-    private static void setFabListeners(FloatingActionMenu fabOptions, View.OnClickListener onClickListener) {
-        if (fabOptions == null) return;
-
-        final int[] resIds = {R.drawable.ic_filter, R.drawable.ic_arrow_down, R.drawable.ic_arrow_up};
-        final Context context = fabOptions.getContext();
-
-        int j = 0;
-        for (int i = fabOptions.getChildCount() - 1; i > -1; --i) {
-            final View view = fabOptions.getChildAt(i);
-            if (view instanceof FloatingActionButton) {
-                final FloatingActionButton fab = (FloatingActionButton) view;
-                if (fab.getButtonSize() == 0) continue;
-
-                final Drawable drawable = Utils.getDrawable(context, resIds[j]);
-                drawable.setColorFilter(0xFF2196F3, PorterDuff.Mode.SRC_ATOP);
-
-                fab.setImageDrawable(drawable);
-                fab.setTag(j++);
-                fab.setOnClickListener(onClickListener);
             }
         }
     }

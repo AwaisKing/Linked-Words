@@ -39,7 +39,7 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
     private final CustomTabsIntent.Builder customTabsIntent;
     private final int[] colors;
 
-    public WordDialog(Context context, String word, ArrayList<String[]> defs, SearchAdapter.OnItemClickListener itemClickListener) {
+    public WordDialog(final Context context, final String word, final ArrayList<String[]> defs, final SearchAdapter.OnItemClickListener itemClickListener) {
         super(context, R.style.Dialog);
         this.context = context;
         this.word = word;
@@ -59,7 +59,7 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setCancelable(true);
@@ -95,7 +95,7 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
     }
 
     @Override
-    public void onClick(@NonNull View v) {
+    public void onClick(@NonNull final View v) {
         switch (v.getId()) {
             case R.id.btnCopy:
                 Utils.copyText(context, word);

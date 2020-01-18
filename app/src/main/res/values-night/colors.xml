@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#505050</color>
+    <color name="colorPrimaryDark">#353535</color>
+    <color name="colorAccent">#E3E3E3</color> <!-- BFBFBF -->
+    <color name="navbar_color">#474747</color>
+
+    <color name="cards_back_color">#555555</color>
+    <color name="mini_fab_color">#505050</color>
+    <color name="shadow_color">#A9000000</color>
+
+    <!-- Lapism SearchView -->
+    <color name="search_background">#353535</color>
+    <color name="search_hint">#80ffffff</color>
+    <color name="search_icon">#8affffff</color>
+    <color name="search_text">#deffffff</color>
+
+    <color name="helper_color">#fff</color>
+</resources>

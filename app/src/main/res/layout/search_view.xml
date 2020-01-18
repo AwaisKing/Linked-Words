@@ -60,8 +60,8 @@
                     android:inputType="textNoSuggestions"
                     android:maxLines="1"
                     android:privateImeOptions="nm"
-                    android:textColor="@color/search_light_text"
-                    android:textColorHint="@color/search_light_hint"
+                    android:textColor="@color/search_text"
+                    android:textColorHint="@color/search_hint"
                     android:textSize="@dimen/search_text_medium"
                     android:windowSoftInputMode="stateAlwaysHidden">
 

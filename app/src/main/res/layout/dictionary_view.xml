@@ -63,7 +63,6 @@
                     android:clickable="true"
                     android:contentDescription="@string/filter_settings"
                     android:focusable="true"
-                    android:foreground="?selectableItemBackgroundBorderless"
                     android:padding="6dp"
                     app:srcCompat="@drawable/ic_back" />
 
@@ -72,7 +71,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@android:color/white"
+                    android:background="@null"
                     android:focusable="true"
                     android:focusableInTouchMode="true"
                     android:gravity="center_vertical"
@@ -97,7 +96,6 @@
                     android:clickable="true"
                     android:contentDescription="@string/filter_settings"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackgroundBorderless"
                     android:padding="6dp"
                     app:srcCompat="@drawable/ic_settings" />
             </androidx.appcompat.widget.LinearLayoutCompat>

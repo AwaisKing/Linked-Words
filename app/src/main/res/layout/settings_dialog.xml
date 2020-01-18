@@ -10,7 +10,7 @@
 
     <androidx.appcompat.widget.DialogTitle
         android:id="@+id/alertTitle"
-        style="?android:attr/windowTitleStyle"
+        style="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/search_view_margin_text"

@@ -1,6 +1,7 @@
 package awais.backworddictionary.custom;
 
 import android.app.Dialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
@@ -18,36 +19,37 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import awais.backworddictionary.LinkedApp;
 import awais.backworddictionary.R;
 
-class MenuDialog extends BottomSheetDialogFragment {
+public class MenuDialog extends BottomSheetDialogFragment {
     private final BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
         @Override
-        public void onStateChanged(@NonNull View bottomSheet, int newState) {
+        public void onStateChanged(@NonNull final View bottomSheet, final int newState) {
             if (newState == BottomSheetBehavior.STATE_HIDDEN) dismiss();
         }
 
         @Override
-        public void onSlide(@NonNull View bottomSheet, float slideOffset) {}
+        public void onSlide(@NonNull final View bottomSheet, final float slideOffset) {}
     };
     private CharSequence title = "";
     private Object message;
 
-    void setTitle(CharSequence title) {
+    void setTitle(final CharSequence title) {
         this.title = title;
     }
 
-    void setMessage(Object message) {
+    void setMessage(final Object message) {
         this.message = message;
     }
 
     @NonNull
     @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+    public Dialog onCreateDialog(@Nullable final Bundle savedInstanceState) {
         final Dialog dialog = super.onCreateDialog(savedInstanceState);
 
         final View contentView = View.inflate(getContext(), R.layout.dialog_modal, null);
         ((AppCompatTextView) contentView.findViewById(android.R.id.title)).setText(title);
 
         final WebView aboutMessage = contentView.findViewById(R.id.webViewAbout);
+        aboutMessage.setBackgroundColor(Color.TRANSPARENT);
 
         final AppCompatTextView spannableMessage = contentView.findViewById(android.R.id.message);
         spannableMessage.setMovementMethod(LinkMovementMethod.getInstance());

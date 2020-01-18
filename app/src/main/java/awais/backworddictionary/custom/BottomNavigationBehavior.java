@@ -9,6 +9,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.ViewCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+@SuppressWarnings("unused")
 public class BottomNavigationBehavior extends CoordinatorLayout.Behavior<View> {
     public BottomNavigationBehavior(Context context, AttributeSet attrs) {
         super(context, attrs);

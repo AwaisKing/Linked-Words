@@ -35,7 +35,7 @@ public class FadeAnimator extends SimpleItemAnimator {
         setSupportsChangeAnimations(false);
     }
 
-    private static void cleanup(@NonNull View v) {
+    private static void cleanup(@NonNull final View v) {
         v.setAlpha(1);
         v.setScaleY(1);
         v.setScaleX(1);
@@ -85,18 +85,18 @@ public class FadeAnimator extends SimpleItemAnimator {
                         final ViewPropertyAnimatorCompat animation = ViewCompat.animate(moveInfo.holder.itemView);
                         animation.setDuration(getMoveDuration()).setListener(new ViewPropertyAnimatorListener() {
                             @Override
-                            public void onAnimationStart(View view) {
+                            public void onAnimationStart(final View view) {
                                 dispatchMoveStarting(moveInfo.holder);
                             }
 
                             @Override
-                            public void onAnimationCancel(View view) {
+                            public void onAnimationCancel(final View view) {
                                 if (deltaX != 0) view.setTranslationX(0);
                                 if (deltaY != 0) view.setTranslationY(0);
                             }
 
                             @Override
-                            public void onAnimationEnd(View view) {
+                            public void onAnimationEnd(final View view) {
                                 animation.setListener(null);
                                 dispatchMoveFinished(moveInfo.holder);
                                 mMoveAnimations.remove(moveInfo.holder);
@@ -130,12 +130,12 @@ public class FadeAnimator extends SimpleItemAnimator {
                             oldViewAnim.translationX(changeInfo.toX - changeInfo.fromX).translationY(changeInfo.toY - changeInfo.fromY)
                                     .alpha(0).setListener(new ViewPropertyAnimatorListener() {
                                 @Override
-                                public void onAnimationStart(View view) {
+                                public void onAnimationStart(final View view) {
                                     dispatchChangeStarting(changeInfo.oldHolder, true);
                                 }
 
                                 @Override
-                                public void onAnimationEnd(View view) {
+                                public void onAnimationEnd(final View view) {
                                     oldViewAnim.setListener(null);
                                     view.setAlpha(1);
                                     view.setTranslationX(0);
@@ -146,7 +146,7 @@ public class FadeAnimator extends SimpleItemAnimator {
                                 }
 
                                 @Override
-                                public void onAnimationCancel(View view) {}
+                                public void onAnimationCancel(final View view) {}
                             }).start();
                         }
                         if (newView != null) {
@@ -156,12 +156,12 @@ public class FadeAnimator extends SimpleItemAnimator {
                             newViewAnimation.translationX(0).translationY(0).setDuration(getChangeDuration()).alpha(1)
                                     .setListener(new ViewPropertyAnimatorListener() {
                                         @Override
-                                        public void onAnimationStart(View view) {
+                                        public void onAnimationStart(final View view) {
                                             dispatchChangeStarting(changeInfo.newHolder, false);
                                         }
 
                                         @Override
-                                        public void onAnimationEnd(View view) {
+                                        public void onAnimationEnd(final View view) {
                                             newViewAnimation.setListener(null);
                                             newView.setAlpha(1);
                                             newView.setTranslationX(0);
@@ -172,7 +172,7 @@ public class FadeAnimator extends SimpleItemAnimator {
                                         }
 
                                         @Override
-                                        public void onAnimationCancel(View view) {}
+                                        public void onAnimationCancel(final View view) {}
                                     }).start();
                         }
                     }
@@ -230,7 +230,7 @@ public class FadeAnimator extends SimpleItemAnimator {
     }
 
     @Override
-    public boolean animateMove(@NonNull final ViewHolder holder, int fromX, int fromY, int toX, int toY) {
+    public boolean animateMove(@NonNull final ViewHolder holder, int fromX, int fromY, final int toX, final int toY) {
         fromX += holder.itemView.getTranslationX();
         fromY += holder.itemView.getTranslationY();
         endAnimation(holder);
@@ -251,7 +251,7 @@ public class FadeAnimator extends SimpleItemAnimator {
     }
 
     @Override
-    public boolean animateChange(ViewHolder oldHolder, ViewHolder newHolder, int fromX, int fromY, int toX, int toY) {
+    public boolean animateChange(final ViewHolder oldHolder, final ViewHolder newHolder, final int fromX, final int fromY, final int toX, final int toY) {
         if (oldHolder == newHolder) {
             // Don't know how to run change animations when the same view holder is re-used.
             // run a move animation to handle position changes.
@@ -282,7 +282,7 @@ public class FadeAnimator extends SimpleItemAnimator {
     }
 
     @Override
-    public void endAnimation(@NonNull ViewHolder item) {
+    public void endAnimation(@NonNull final ViewHolder item) {
         ViewCompat.animate(item.itemView).cancel();
 
         // TODO if some other animations are chained to end, how do we cancel them as well?
@@ -440,12 +440,12 @@ public class FadeAnimator extends SimpleItemAnimator {
         dispatchAnimationsFinished();
     }
 
-    private void endChangeAnimationIfNecessary(@NonNull ChangeInfo changeInfo) {
+    private void endChangeAnimationIfNecessary(@NonNull final ChangeInfo changeInfo) {
         if (changeInfo.oldHolder != null) endChangeAnimationIfNecessary(changeInfo, changeInfo.oldHolder);
         if (changeInfo.newHolder != null) endChangeAnimationIfNecessary(changeInfo, changeInfo.newHolder);
     }
 
-    private boolean endChangeAnimationIfNecessary(@NonNull ChangeInfo changeInfo, ViewHolder item) {
+    private boolean endChangeAnimationIfNecessary(@NonNull final ChangeInfo changeInfo, final ViewHolder item) {
         boolean oldItem = false;
 
         if (changeInfo.newHolder == item) changeInfo.newHolder = null;
@@ -462,7 +462,7 @@ public class FadeAnimator extends SimpleItemAnimator {
         return true;
     }
 
-    private void endChangeAnimation(@NonNull List<ChangeInfo> infoList, ViewHolder item) {
+    private void endChangeAnimation(@NonNull final List<ChangeInfo> infoList, final ViewHolder item) {
         for (int i = infoList.size() - 1; i >= 0; i--) {
             final ChangeInfo changeInfo = infoList.get(i);
             if (endChangeAnimationIfNecessary(changeInfo, item) &&
@@ -475,19 +475,19 @@ public class FadeAnimator extends SimpleItemAnimator {
         if (!isRunning()) dispatchAnimationsFinished();
     }
 
-    private void cancelAll(@NonNull List<ViewHolder> viewHolders) {
+    private void cancelAll(@NonNull final List<ViewHolder> viewHolders) {
         for (int i = viewHolders.size() - 1; i >= 0; i--)
             ViewCompat.animate(viewHolders.get(i).itemView).cancel();
     }
 
-    private static class MoveInfo {
+    private final static class MoveInfo {
         private final ViewHolder holder;
         private final int fromX;
         private final int fromY;
         private final int toX;
         private final int toY;
 
-        private MoveInfo(ViewHolder holder, int fromX, int fromY, int toX, int toY) {
+        private MoveInfo(final ViewHolder holder, final int fromX, final int fromY, final int toX, final int toY) {
             this.holder = holder;
             this.fromX = fromX;
             this.fromY = fromY;
@@ -496,17 +496,17 @@ public class FadeAnimator extends SimpleItemAnimator {
         }
     }
 
-    private static class ChangeInfo {
+    private final static class ChangeInfo {
         private ViewHolder oldHolder, newHolder;
         private int fromX, fromY, toX, toY;
 
-        private ChangeInfo(ViewHolder oldHolder, ViewHolder newHolder) {
+        private ChangeInfo(final ViewHolder oldHolder, final ViewHolder newHolder) {
             this.oldHolder = oldHolder;
             this.newHolder = newHolder;
         }
 
-        private ChangeInfo(ViewHolder oldHolder, ViewHolder newHolder, int fromX, int fromY, int toX,
-                int toY) {
+        private ChangeInfo(final ViewHolder oldHolder, final ViewHolder newHolder, final int fromX, final int fromY, final int toX,
+                final int toY) {
             this(oldHolder, newHolder);
             this.fromX = fromX;
             this.fromY = fromY;
@@ -522,7 +522,7 @@ public class FadeAnimator extends SimpleItemAnimator {
         }
     }
 
-    private class DefaultAddVpaListener implements ViewPropertyAnimatorListener {
+    private final class DefaultAddVpaListener implements ViewPropertyAnimatorListener {
         private final RecyclerView.ViewHolder mViewHolder;
 
         DefaultAddVpaListener(final RecyclerView.ViewHolder holder) {
@@ -530,17 +530,17 @@ public class FadeAnimator extends SimpleItemAnimator {
         }
 
         @Override
-        public void onAnimationStart(View view) {
+        public void onAnimationStart(final View view) {
             dispatchAddStarting(mViewHolder);
         }
 
         @Override
-        public void onAnimationCancel(View view) {
+        public void onAnimationCancel(final View view) {
             cleanup(view);
         }
 
         @Override
-        public void onAnimationEnd(View view) {
+        public void onAnimationEnd(final View view) {
             cleanup(view);
             dispatchAddFinished(mViewHolder);
             mAddAnimations.remove(mViewHolder);
@@ -556,17 +556,17 @@ public class FadeAnimator extends SimpleItemAnimator {
         }
 
         @Override
-        public void onAnimationStart(View view) {
+        public void onAnimationStart(final View view) {
             dispatchRemoveStarting(mViewHolder);
         }
 
         @Override
-        public void onAnimationCancel(View view) {
+        public void onAnimationCancel(final View view) {
             cleanup(view);
         }
 
         @Override
-        public void onAnimationEnd(View view) {
+        public void onAnimationEnd(final View view) {
             cleanup(view);
             dispatchRemoveFinished(mViewHolder);
             mRemoveAnimations.remove(mViewHolder);

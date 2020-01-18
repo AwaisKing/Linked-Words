@@ -16,7 +16,7 @@
 
         <androidx.appcompat.widget.DialogTitle
             android:id="@+id/alertTitle"
-            style="?android:attr/windowTitleStyle"
+            style="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -49,11 +49,12 @@
             android:id="@+id/lvDefs"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:cacheColorHint="@color/divider"
-            android:fadingEdge="vertical"
-            android:fadingEdgeLength="1dp"
+            android:cacheColorHint="@android:color/transparent"
+            android:divider="@color/divider"
+            android:dividerHeight="1dp"
             android:overScrollMode="ifContentScrolls"
-            android:requiresFadingEdge="vertical" />
+            android:requiresFadingEdge="vertical"
+            android:smoothScrollbar="true" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.appcompat.widget.LinearLayoutCompat

@@ -16,7 +16,8 @@ import java.util.List;
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
 
-class HuaweiFix {
+@SuppressWarnings("unused")
+final class HuaweiFix {
     private final Context context;
 
     public HuaweiFix(@NonNull Context context) {
@@ -52,7 +53,7 @@ class HuaweiFix {
         } else Main.sharedPreferences.edit().putBoolean("skipProtectedAppsMessage", true).apply();
     }
 
-    private boolean isCallable(Intent intent) {
+    private boolean isCallable(final Intent intent) {
         final List<ResolveInfo> list = context.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
         return list.size() > 0;
     }

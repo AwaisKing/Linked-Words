@@ -14,12 +14,12 @@ import java.util.List;
 import awais.backworddictionary.R;
 import awais.lapism.SearchItem;
 
-public class SearchHistoryTable {
+public final class SearchHistoryTable {
     private final static int HISTORY_SIZE = 8;
     private final SearchHistoryDatabase dbHelper;
     private SQLiteDatabase db;
 
-    public SearchHistoryTable(Context mContext) {
+    public SearchHistoryTable(final Context mContext) {
         dbHelper = new SearchHistoryDatabase(mContext);
         open();
     }
@@ -32,7 +32,7 @@ public class SearchHistoryTable {
         if (db != null && db.isOpen()) dbHelper.close();
     }
 
-    public void addItem(SearchItem item) {
+    public void addItem(final SearchItem item) {
         if (db == null || !db.isOpen()) return;
 
         final ContentValues values = new ContentValues();
@@ -45,7 +45,7 @@ public class SearchHistoryTable {
         }
     }
 
-    public List<SearchItem> getAllItems(String databaseKey) {
+    public List<SearchItem> getAllItems(final String databaseKey) {
         final List<SearchItem> list = new ArrayList<>();
         if (db == null || !db.isOpen()) return list;
 
@@ -62,7 +62,7 @@ public class SearchHistoryTable {
         return list;
     }
 
-    public void clearDatabase(String key) {
+    public void clearDatabase(final String key) {
         if (db == null || !db.isOpen()) return;
 
         if (key == null) db.delete("search_history", null, null);
@@ -78,7 +78,7 @@ public class SearchHistoryTable {
     //    return count;
     //}
 
-    private int getItemId(@NonNull SearchItem item) {
+    private int getItemId(@NonNull final SearchItem item) {
         final int id;
         try (Cursor res = db.rawQuery("SELECT _id FROM search_history WHERE _text = ?;", new String[]{item.getText().toString()})) {
             res.moveToFirst();
@@ -96,7 +96,7 @@ public class SearchHistoryTable {
         return count;
     }
 
-    private boolean checkText(String text) {
+    private boolean checkText(final String text) {
         final boolean ret;
         try (Cursor cursor = db.rawQuery("SELECT _text FROM search_history WHERE _text = ?;", new String[]{text})) {
             ret = cursor.moveToFirst();
@@ -104,7 +104,7 @@ public class SearchHistoryTable {
         return ret;
     }
 
-    private static class SearchHistoryDatabase extends SQLiteOpenHelper {
+    private final static class SearchHistoryDatabase extends SQLiteOpenHelper {
         SearchHistoryDatabase(Context context) {
             super(context, "search_history_database.db", null, 4);
         }

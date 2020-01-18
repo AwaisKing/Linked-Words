@@ -16,7 +16,7 @@ import java.util.List;
 
 import awais.backworddictionary.BuildConfig;
 
-public class CustomTabActivityHelper {
+public final class CustomTabActivityHelper {
     private static final String STABLE_PACKAGE = "com.android.chrome";
     private static final String BETA_PACKAGE = "com.chrome.beta";
     private static final String DEV_PACKAGE = "com.chrome.dev";
@@ -41,7 +41,7 @@ public class CustomTabActivityHelper {
         }
     }
 
-    private static String getPackageNameToUse(Context context) {
+    private static String getPackageNameToUse(final Context context) {
         if (sPackageNameToUse != null) return sPackageNameToUse;
 
         final PackageManager pm = context.getPackageManager();
@@ -80,7 +80,7 @@ public class CustomTabActivityHelper {
         return sPackageNameToUse;
     }
 
-    private static boolean hasSpecializedHandlerIntents(Context context, Intent intent) {
+    private static boolean hasSpecializedHandlerIntents(final Context context, final Intent intent) {
         try {
             final PackageManager pm = context.getPackageManager();
             final List<ResolveInfo> handlers = pm.queryIntentActivities(intent, PackageManager.GET_RESOLVED_FILTER);

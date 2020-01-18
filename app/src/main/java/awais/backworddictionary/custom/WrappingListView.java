@@ -9,20 +9,20 @@ import android.widget.ListView;
  * https://stackoverflow.com/questions/18997729/listview-same-height-as-content
  **/
 public class WrappingListView extends ListView {
-    public WrappingListView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public WrappingListView(Context context) {
+    public WrappingListView(final Context context) {
         super(context);
     }
 
-    public WrappingListView(Context context, AttributeSet attrs, int defStyle) {
+    public WrappingListView(final Context context, final AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public WrappingListView(final Context context, final AttributeSet attrs, final int defStyle) {
         super(context, attrs, defStyle);
     }
 
     @Override
-    public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    public void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(Integer.MAX_VALUE >> 2, MeasureSpec.AT_MOST));
     }
 }

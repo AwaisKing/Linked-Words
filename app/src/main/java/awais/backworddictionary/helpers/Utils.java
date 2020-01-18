@@ -37,12 +37,18 @@ import io.fabric.sdk.android.Fabric;
 
 import static awais.backworddictionary.Main.boolsArray;
 
-public class Utils {
+public final class Utils {
     private static AppCompatDrawableManager drawableManager;
 
-    // thanks to weston
-    // source: https://stackoverflow.com/questions/2711858/is-it-possible-to-set-a-custom-font-for-entire-of-application/16883281#16883281
-    public static void setDefaultFont(String typefaceName, Typeface fontTypeface) {
+    public static boolean isEmpty(final String str) {
+        return str == null || str.length() <= 0 || str.trim().isEmpty() || str.trim().equals("");
+    }
+
+    /**
+     * thanks to weston
+     * https://stackoverflow.com/questions/2711858/is-it-possible-to-set-a-custom-font-for-entire-of-application/16883281#16883281
+     */
+    public static void setDefaultFont(final String typefaceName, final Typeface fontTypeface) {
         try {
             final Field staticField = Typeface.class.getDeclaredField(typefaceName);
             staticField.setAccessible(true);
@@ -50,15 +56,11 @@ public class Utils {
         } catch (Exception ignored) {}
     }
 
-    public static boolean isEmpty(String str) {
-        return str == null || str.length() <= 0 || str.trim().isEmpty() || str.trim().equals("");
-    }
-
-    public static boolean isEmpty(CharSequence sequence) {
+    public static boolean isEmpty(final CharSequence sequence) {
         return sequence == null || sequence.length() <= 0 || sequence == "" || sequence.equals("");
     }
 
-    public static void initCrashlytics(Activity activity) {
+    public static void initCrashlytics(final Activity activity) {
         GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(activity)
             .addOnCompleteListener(task -> {
                 if (!task.isSuccessful() || BuildConfig.DEBUG) return;
@@ -66,7 +68,7 @@ public class Utils {
             });
     }
 
-    public static void adsBox(Activity activity) {
+    public static void adsBox(final Activity activity) {
         if (Main.sharedPreferences.getBoolean("showAds", true)) {
             MobileAds.initialize(activity, activity.getResources().getString(R.string.appid));
             AdView adView = activity.findViewById(R.id.adView);
@@ -76,7 +78,7 @@ public class Utils {
     }
 
     @SuppressLint("RestrictedApi")
-    public static Drawable getDrawable(Context context, int resId) {
+    public static Drawable getDrawable(final Context context, final int resId) {
         Drawable drawable;
         try {
             if (drawableManager == null) drawableManager = AppCompatDrawableManager.get();
@@ -87,7 +89,7 @@ public class Utils {
         return drawable;
     }
 
-    public static int getStatusBarHeight(Window window, Resources resources) {
+    public static int getStatusBarHeight(final Window window, final Resources resources) {
         if (Build.VERSION.SDK_INT != 19 || window == null || resources == null) return 0;
 
         final Rect rectangle = new Rect();
@@ -103,7 +105,7 @@ public class Utils {
                 statusBarHeight1 == 0 ? statusBarHeight2 : statusBarHeight1;
     }
 
-    public static void copyText(Context context, String stringToCopy) {
+    public static void copyText(final Context context, final String stringToCopy) {
         try {
             final android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
             if (clipboard != null) {
@@ -125,7 +127,7 @@ public class Utils {
         }
     }
 
-    public static void showPopupMenu(@NonNull View view, @NonNull WordItem wordItem) {
+    public static void showPopupMenu(@NonNull final View view, @NonNull final WordItem wordItem) {
         final Context context = view.getContext();
 
         final PopupMenu popup = new PopupMenu(context, view);
@@ -134,7 +136,7 @@ public class Utils {
         popup.show();
     }
 
-    public static void showPopupMenu(Dialog dialog, Context context, View view, String word) {
+    public static void showPopupMenu(final Dialog dialog, final Context context, final View view, final String word) {
         if (word == null || context == null || view == null) return;
 
         final PopupMenu popup = new PopupMenu(context, view);
