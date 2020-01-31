@@ -16,6 +16,7 @@ import android.view.Window;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatDrawableManager;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
@@ -26,7 +27,11 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.GoogleApiAvailability;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.Main;
@@ -38,12 +43,32 @@ import io.fabric.sdk.android.Fabric;
 import static awais.backworddictionary.Main.boolsArray;
 
 public final class Utils {
+    public static final int[] CUSTOM_TAB_COLORS = new int[]{0xFF4888F2, 0xFF333333, 0xFF3B496B};
     private static AppCompatDrawableManager drawableManager;
 
     public static boolean isEmpty(final String str) {
         return str == null || str.length() <= 0 || str.trim().isEmpty() || str.trim().equals("");
     }
 
+    @Nullable
+    public static String getResponse(final String url) throws Exception {
+        final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+
+        final int responseCode = connection.getResponseCode();
+        if (responseCode >= 200 && responseCode <= 299) {
+            try (final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                final StringBuilder response = new StringBuilder();
+
+                String currentLine;
+                while ((currentLine = reader.readLine()) != null)
+                    response.append(currentLine);
+
+                return response.toString();
+            }
+        }
+
+        return null;
+    }
     /**
      * thanks to weston
      * https://stackoverflow.com/questions/2711858/is-it-possible-to-set-a-custom-font-for-entire-of-application/16883281#16883281

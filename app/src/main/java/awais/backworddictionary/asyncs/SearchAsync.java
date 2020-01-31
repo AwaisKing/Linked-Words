@@ -6,23 +6,15 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.custom.WordItem;
+import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.MainCheck;
-import okhttp3.Cache;
-import okhttp3.Call;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
-    private WeakReference<OkHttpClient> client = new WeakReference<>(new OkHttpClient());
-    private WeakReference<Call> call;
     private MainCheck mainCheck;
 
     public SearchAsync(final MainCheck mainCheck) {
@@ -40,48 +32,24 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
                     .replaceAll("&", "%26");
         }
 
-        final ArrayList<WordItem> arrayList = new ArrayList<>();
+        ArrayList<WordItem> arrayList = new ArrayList<>(0);
 
-        Response response = null;
         try {
-            if (client == null)
-                client = new WeakReference<>(new OkHttpClient());
+            final String response = Utils.getResponse("http://api.datamuse.com/sug?s=" + query);
 
-            OkHttpClient okHttpClient = client.get();
+            if (response != null) {
+                final JSONArray jsonArray = new JSONArray(response);
+                arrayList = new ArrayList<>(jsonArray.length());
 
-            if (okHttpClient != null) {
-                try {
-                    okHttpClient.dispatcher().cancelAll();
-                    okHttpClient.connectionPool().evictAll();
-                    Cache cache = okHttpClient.cache();
-                    if (cache != null) cache.close();
-                } catch (Exception ignored) {}
-            }
-
-            if (call != null && call.get() != null)
-                try { call.get().cancel(); } catch (Exception ignored) {}
-
-            if (okHttpClient == null) okHttpClient = new OkHttpClient();
-
-            call = new WeakReference<>(okHttpClient.newCall(new Request.Builder()
-                    .url("http://api.datamuse.com/sug?s=".concat(query)).build()));
-            try { response = call.get().execute(); } catch (Exception ignored) {}
-
-            if (response != null && response.code() == 200) {
-                final ResponseBody body = response.body();
-                if (body != null) {
-                    final JSONArray jsonArray = new JSONArray(body.string());
-                    for (int i = 0; i < jsonArray.length(); ++i) {
-                        final JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        arrayList.add(new WordItem(jsonObject.getString("word"), 0, null, null));
-                    }
+                for (int i = 0; i < jsonArray.length(); ++i) {
+                    final JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    arrayList.add(new WordItem(jsonObject.getString("word"), 0, null, null));
                 }
-                try { call.get().cancel(); } catch (Exception ignored) {}
             }
         } catch (Exception e) {
             if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
         }
-        if (response != null) try { response.close(); } catch (Exception ignored) {}
+
         return arrayList;
     }
 

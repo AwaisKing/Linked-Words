@@ -2,17 +2,17 @@ package awais.backworddictionary.custom;
 
 public final class WordItem {
     private final String word;
-    private final int numSyllables;
-    private final String[] tags;
+//    private final int numSyllables;
+//    private final String[] tags;
     private final String[][] defs;
     private final String parsedTags;
     private boolean expanded;
 
     public WordItem(final String word, final int numSyllables, final String[] tags, final String[][] defs) {
         this.word = word;
-        this.numSyllables = numSyllables;
-        this.tags = tags;
         this.defs = defs;
+//        this.numSyllables = numSyllables;
+//        this.tags = tags;
 
         final StringBuilder tagsBuilder = new StringBuilder();
         if (tags != null && tags.length > 0) {
@@ -41,17 +41,17 @@ public final class WordItem {
         return word;
     }
 
-    public String[] getTags() {
-        return tags;
-    }
-
     public String getParsedTags() {
         return parsedTags;
     }
 
-    public int getNumSyllables() {
-        return numSyllables;
-    }
+//    public String[] getTags() {
+//        return tags;
+//    }
+
+//    public int getNumSyllables() {
+//        return numSyllables;
+//    }
 
     public String[][] getDefs() {
         return defs;

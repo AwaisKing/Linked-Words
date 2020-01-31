@@ -17,7 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import awais.backworddictionary.adapters.SearchAdapter;
-import awais.backworddictionary.adapters.WordAdapter;
+import awais.backworddictionary.adapters.DefinitionsAdapter;
 import awais.backworddictionary.custom.WordDialog;
 import awais.backworddictionary.custom.WordItem;
 import awais.backworddictionary.helpers.Utils;
@@ -26,7 +26,7 @@ import awais.backworddictionary.interfaces.DictionaryWordsItemListener;
 
 class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implements Filterable {
     private final Context context;
-    private final View.OnClickListener onClickListener;
+    private final View.OnClickListener onClickListener, onWordItemClickListener;
     private final SearchAdapter.OnItemClickListener itemClickListener;
     private final String[] noItemFound;
     private final Filter filter;
@@ -36,9 +36,9 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
     final LinkedHashSet<WordItem> expandedHashSet = new LinkedHashSet<>();
 
     DictionaryWordsAdapter(@NonNull Context context, List<WordItem> wordList) {
+        this.noItemFound = new String[] {"", context.getString(R.string.no_definition_found)};
         this.context = context;
         this.filterList = wordList;
-        this.noItemFound = new String[] {"", context.getString(R.string.no_definition_found)};
 
         refreshShowDialogEnabled();
 
@@ -49,6 +49,30 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
             final String str = String.valueOf(text);
             if (str.isEmpty() || str.equals(context.getString(R.string.no_definition_found))) return;
             Utils.copyText(context, str.replaceAll("^(.*)\\t", ""));
+        };
+
+        this.onWordItemClickListener = view -> {
+            final Object tag = view.getTag();
+            if (tag instanceof TagItemHolder) {
+                final TagItemHolder itemHolder = (TagItemHolder) tag;
+                final WordItem wordItem = itemHolder.wordItem;
+
+                if (isShowDialogEnabled || itemHolder.defsList.size() > 5)
+                    new WordDialog(context, wordItem.getWord(), itemHolder.defsList, itemClickListener).show();
+                else {
+                    final boolean itemExpanded = wordItem.isExpanded();
+
+                    itemHolder.expandableMenu.setVisibility(itemExpanded ? View.GONE : View.VISIBLE);
+                    //holder.ivExpandedSearch.setVisibility(itemExpanded ? View.GONE : View.VISIBLE);
+
+                    if (itemExpanded) expandedHashSet.remove(wordItem);
+                    else expandedHashSet.add(wordItem);
+
+                    wordItem.setExpanded(!itemExpanded);
+
+                    //itemHolder.holder.setIsRecyclable(itemExpanded);
+                }
+            }
         };
 
         this.filter = new Filter() {
@@ -67,7 +91,7 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
                     return results;
                 }
 
-                final List<WordItem> filteredList = new ArrayList<>();
+                final ArrayList<WordItem> filteredList = new ArrayList<>(wordList.size() / 2);
                 for (final WordItem mWord : wordList) {
                     final String word = mWord.getWord().toLowerCase();
                     final String[][] defs = mWord.getDefs();
@@ -127,8 +151,7 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
 
         final boolean wordItemExpanded = wordItem.isExpanded();
         holder.expandableMenu.setVisibility(wordItemExpanded ? View.VISIBLE : View.GONE);
-        //holder.ivExpandedSearch.setVisibility(wordItemExpanded ? View.VISIBLE : View.GONE);
-        holder.setIsRecyclable(!wordItemExpanded);
+        //holder.setIsRecyclable(!wordItemExpanded);
 
         final String[][] wordItemDefs = wordItem.getDefs();
         final String wordItemWord = wordItem.getWord();
@@ -143,7 +166,7 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
         else
             defsList.addAll(Arrays.asList(wordItemDefs));
 
-        holder.lvExpandedDefs.setAdapter(new WordAdapter(context, true, defsList, itemClickListener));
+        holder.lvExpandedDefs.setAdapter(new DefinitionsAdapter(context, true, defsList, itemClickListener));
 
         holder.ivExpandedSearch.setTag(wordItem.getWord());
         holder.ivExpandedSearch.setOnClickListener(onClickListener);
@@ -152,22 +175,8 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
         holder.overflow.setOnClickListener(itemListener);
         holder.cardView.setOnLongClickListener(itemListener);
 
-        holder.cardView.setOnClickListener(view -> {
-            if (isShowDialogEnabled || defsList.size() > 5)
-                new WordDialog(context, wordItemWord, defsList, itemClickListener).show();
-            else {
-                final boolean itemExpanded = wordItem.isExpanded();
-
-                holder.expandableMenu.setVisibility(itemExpanded ? View.GONE : View.VISIBLE);
-                //holder.ivExpandedSearch.setVisibility(itemExpanded ? View.GONE : View.VISIBLE);
-
-                if (itemExpanded) expandedHashSet.remove(wordItem);
-                else expandedHashSet.add(wordItem);
-
-                wordItem.setExpanded(!itemExpanded);
-                holder.setIsRecyclable(!itemExpanded);
-            }
-        });
+        holder.cardView.setTag(new TagItemHolder(holder.expandableMenu, wordItem, defsList));
+        holder.cardView.setOnClickListener(onWordItemClickListener);
     }
 
     @Override
@@ -192,5 +201,17 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
 
     void refreshShowDialogEnabled() {
         this.isShowDialogEnabled = Main.sharedPreferences.getBoolean("showDialog", false);
+    }
+
+    private static class TagItemHolder {
+        private final View expandableMenu;
+        private final WordItem wordItem;
+        private final ArrayList<String[]> defsList;
+
+        private TagItemHolder(final View expandableMenu, final WordItem wordItem, final ArrayList<String[]> defsList) {
+            this.expandableMenu = expandableMenu;
+            this.wordItem = wordItem;
+            this.defsList = defsList;
+        }
     }
 }

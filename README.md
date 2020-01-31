@@ -46,7 +46,7 @@ Credits to:
   + [Datamuse Words Database API](https://www.datamuse.com/api/)
 
 #### Libraries:
-  + [OkHttp3 *-* [square/okhttp]](https://github.com/square/okhttp) *-* [Apache License 2.0]
+  + ~~[OkHttp3 *-* [square/okhttp]](https://github.com/square/okhttp) *-* [Apache License 2.0]~~ **(removed)**
   + [GSON *-* [google/gson]](https://github.com/google/gson) *-* [Apache License 2.0]
   + [SearchView *-* [lapism/SearchView]](https://github.com/lapism/SearchView) *-* [Apache License 2.0]
   + [Chrome Custom Tabs *-* [GoogleChrome/custom-tabs-client]](https://github.com/GoogleChrome/custom-tabs-client) *-* [Apache License 2.0]

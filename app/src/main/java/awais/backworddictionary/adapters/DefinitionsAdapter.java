@@ -15,15 +15,15 @@ import java.util.ArrayList;
 import awais.backworddictionary.LinkedApp;
 import awais.backworddictionary.R;
 
-public class WordAdapter extends ArrayAdapter<String[]> {
+public class DefinitionsAdapter extends ArrayAdapter<String[]> {
     private final boolean isExpanded;
     private final ArrayList<String[]> items;
     private final LayoutInflater layoutInflater;
     private final SearchAdapter.OnItemClickListener onItemClickListener;
     private int topMargin = 0, subSize = 20;
 
-    public WordAdapter(final Context context, final boolean isExpanded, final ArrayList<String[]> items,
-            SearchAdapter.OnItemClickListener onItemClickListener) {
+    public DefinitionsAdapter(final Context context, final boolean isExpanded, final ArrayList<String[]> items,
+                              final SearchAdapter.OnItemClickListener onItemClickListener) {
         super(context, R.layout.word_dialog_item, items);
         this.layoutInflater = LayoutInflater.from(context);
         this.items = items;

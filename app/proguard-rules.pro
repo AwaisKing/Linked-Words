@@ -57,23 +57,19 @@
 -dontwarn okio.**
 -dontwarn org.apache.**
 -dontwarn java.lang.invoke.*
--dontwarn com.squareup.okhttp3.**
 -dontwarn android.webkit.WebView
 
 #noinspection ShrinkerUnresolvedReference
 ################## GOOGLE ##################
--keep class com.google.gson.** { *; }
--keep class com.google.** { *; }
--keep class com.google.gson.stream.** { *; }
--keep class com.google.gson.examples.android.model.** { *; }
-
--keep class com.android.volley.** { *; }
--keep class com.android.volley.toolbox.** { *; }
--keep class com.android.volley.Response$* { *; }
--keep class com.android.volley.Request$* { *; }
--keep class com.android.volley.RequestQueue$* { *; }
--keep class com.android.volley.toolbox.HurlStack$* { *; }
--keep class com.android.volley.toolbox.ImageLoader$* { *; }
-
-################## OTHERS ##################
--keep class com.squareup.okhttp3.** { *; }
+#-keep class com.google.gson.** { *; }
+#-keep class com.google.** { *; }
+#-keep class com.google.gson.stream.** { *; }
+#-keep class com.google.gson.examples.android.model.** { *; }
+#
+#-keep class com.android.volley.** { *; }
+#-keep class com.android.volley.toolbox.** { *; }
+#-keep class com.android.volley.Response$* { *; }
+#-keep class com.android.volley.Request$* { *; }
+#-keep class com.android.volley.RequestQueue$* { *; }
+#-keep class com.android.volley.toolbox.HurlStack$* { *; }
+#-keep class com.android.volley.toolbox.ImageLoader$* { *; }

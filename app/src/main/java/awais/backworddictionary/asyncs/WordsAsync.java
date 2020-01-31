@@ -13,20 +13,14 @@ import java.util.ArrayList;
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
 import awais.backworddictionary.custom.WordItem;
+import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.FragmentCallback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     private ArrayList<WordItem> wordItemsList = new ArrayList<>();
     private final String word;
     private final String method;
-    private final OkHttpClient client = new OkHttpClient();
-    private final Request.Builder builder = new Request.Builder();
     private final FragmentCallback fragmentCallback;
-    private Response response = null;
 
     public WordsAsync(final FragmentCallback fragmentCallback, final String word, final String method, final Context context) {
         this.fragmentCallback = fragmentCallback;
@@ -67,7 +61,7 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
 
     @Override
     protected ArrayList<WordItem> doInBackground(final String... params) {
-        if (wordItemsList == null) wordItemsList = new ArrayList<>();
+        if (wordItemsList == null) wordItemsList = new ArrayList<>(0);
         else wordItemsList.clear();
 
         String query;
@@ -81,45 +75,38 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
 
         final int wordsCount = Main.sharedPreferences.getInt("maxWords", 80);
 
-        builder.url("https://api.datamuse.com/words?md=pds&max=".concat(String.valueOf(wordsCount))
-                .concat("&").concat(method).concat("=").concat(query));
-
-        try { if (response != null) response.close(); } catch (Exception ignored) {}
-
         try {
-            response = client.newCall(builder.build()).execute();
-            if (response.code() == 200) {
-                final ResponseBody body = response.body();
-                if (body != null) {
-                    final JSONArray jsonArray = new JSONArray(body.string());
+           final String body = Utils.getResponse("https://api.datamuse.com/words?md=pds&max=" + wordsCount + "&" + method + "=" + query);
+            if (body != null) {
+                final JSONArray jsonArray = new JSONArray(body);
+                wordItemsList = new ArrayList<>(jsonArray.length());
 
-                    for (int i = 0; i < jsonArray.length(); ++i) {
-                        final JSONObject jsonObject = jsonArray.getJSONObject(i);
+                for (int i = 0; i < jsonArray.length(); ++i) {
+                    final JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                        final String word = jsonObject.getString("word");
-                        final int numSyllables = jsonObject.getInt("numSyllables");
-                        String[] tagsString = null;
-                        String[][] defsString = null;
+                    final String word = jsonObject.getString("word");
+                    final int numSyllables = jsonObject.getInt("numSyllables");
+                    String[] tagsString = null;
+                    String[][] defsString = null;
 
-                        if (jsonObject.has("tags")) {
-                            final JSONArray tags = jsonObject.getJSONArray("tags");
-                            tagsString = new String[tags.length()];
-                            for (int j = 0; j < tags.length(); ++j)
-                                tagsString[j] = tags.getString(j);
-                        }
-                        if (jsonObject.has("defs")) {
-                            final JSONArray defs = jsonObject.getJSONArray("defs");
-                            defsString = new String[defs.length()][2];
-                            for (int j = 0; j < defs.length(); ++j)
-                                defsString[j] = defs.getString(j).split("\t");
-                        }
-                        wordItemsList.add(new WordItem(word, numSyllables, tagsString, defsString));
+                    if (jsonObject.has("tags")) {
+                        final JSONArray tags = jsonObject.getJSONArray("tags");
+                        tagsString = new String[tags.length()];
+                        for (int j = 0; j < tags.length(); ++j)
+                            tagsString[j] = tags.getString(j);
                     }
+                    if (jsonObject.has("defs")) {
+                        final JSONArray defs = jsonObject.getJSONArray("defs");
+                        defsString = new String[defs.length()][2];
+                        for (int j = 0; j < defs.length(); ++j)
+                            defsString[j] = defs.getString(j).split("\t");
+                    }
+                    wordItemsList.add(new WordItem(word, numSyllables, tagsString, defsString));
                 }
             }
-        } catch (Exception e) { Log.e("AWAISKING_APP", "", e); }
-
-        if (response != null) response.close();
+        } catch (Exception e) {
+            Log.e("AWAISKING_APP", "", e);
+        }
 
         return wordItemsList;
     }

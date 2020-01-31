@@ -5,7 +5,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -25,19 +24,18 @@ import java.util.List;
 
 import awais.backworddictionary.R;
 import awais.backworddictionary.adapters.SearchAdapter;
-import awais.backworddictionary.adapters.WordAdapter;
+import awais.backworddictionary.adapters.DefinitionsAdapter;
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
 import awais.backworddictionary.helpers.Utils;
 
 import static awais.backworddictionary.Main.tts;
 
 public class WordDialog extends Dialog implements android.view.View.OnClickListener {
-    private final Context context;
     private final String word;
+    private final Context context;
     private final ArrayList<String[]> defs;
     private final SearchAdapter.OnItemClickListener itemClickListener;
     private final CustomTabsIntent.Builder customTabsIntent;
-    private final int[] colors;
 
     public WordDialog(final Context context, final String word, final ArrayList<String[]> defs, final SearchAdapter.OnItemClickListener itemClickListener) {
         super(context, R.style.Dialog);
@@ -46,8 +44,6 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
         this.defs = defs;
         this.itemClickListener = itemClickListener;
         this.customTabsIntent = new CustomTabsIntent.Builder();
-        this.colors = new int[] {Color.parseColor("#4888f2"), Color.parseColor("#333333"),
-                Color.parseColor("#3b496b")};
     }
 
     @Override
@@ -75,7 +71,7 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
         ((DialogTitle) findViewById(R.id.alertTitle)).setText(word);
 
         final ListView lvDefs = findViewById(R.id.lvDefs);
-        lvDefs.setAdapter(new WordAdapter(context, false, defs, itemClickListener));
+        lvDefs.setAdapter(new DefinitionsAdapter(context, false, defs, itemClickListener));
 
         final Button copy = findViewById(R.id.btnCopy);
         final Button speak = findViewById(R.id.btnSpeak);
@@ -114,9 +110,9 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
                     intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
                     context.startActivity(intent);
                 } catch (Exception e) {
-                    customTabsIntent.setToolbarColor(colors[0]);
+                    customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[0]);
                     CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
-                            Uri.parse("https://google.com/search?q=define+".concat(wordRawGoogle)));
+                            Uri.parse("https://google.com/search?q=define+" + wordRawGoogle));
                 }
                 break;
 
@@ -124,24 +120,26 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
                 String wordRawWiki = word.replace(" ", "_").replace("\\s", "_");
                 try { wordRawWiki = String.valueOf(new URL(wordRawWiki)); } catch (Exception ignored) {}
 
-                final Intent intent1 = new Intent();
-                intent1.setAction(Intent.ACTION_VIEW);
-                intent1.setPackage("org.wikipedia");
-                intent1.setData(Uri.parse("https://en.wikipedia.org/wiki/".concat(wordRawWiki)));
+                final Uri wordWikiUri = Uri.parse("https://en.wikipedia.org/wiki/" + wordRawWiki);
 
-                final List<ResolveInfo> resInfo1 = context.getPackageManager().queryIntentActivities(intent1, 0);
-                if (resInfo1.size() > 0) context.startActivity(intent1);
+                final Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setPackage("org.wikipedia");
+                intent.setData(wordWikiUri);
+
+                final List<ResolveInfo> resInfo = context.getPackageManager().queryIntentActivities(intent, 0);
+                if (resInfo.size() > 0) context.startActivity(intent);
                 else {
-                    customTabsIntent.setToolbarColor(colors[1]);
+                    customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[1]);
                     CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
-                            Uri.parse("https://en.wikipedia.org/wiki/".concat(wordRawWiki)));
+                            wordWikiUri);
                 }
                 break;
 
             case R.id.btnUrban:
-                customTabsIntent.setToolbarColor(colors[2]);
+                customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[2]);
                 CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
-                        Uri.parse("http://www.urbandictionary.com/define.php?term=".concat(word)));
+                        Uri.parse("http://www.urbandictionary.com/define.php?term=" + word));
                 break;
 
             case R.id.btnSearch:
