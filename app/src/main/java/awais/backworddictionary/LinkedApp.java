@@ -5,21 +5,19 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.util.Log;
 
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.multidex.MultiDexApplication;
 
 import awais.backworddictionary.helpers.Utils;
 
 public class LinkedApp extends MultiDexApplication {
-    static {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-    }
     public static Typeface fontRegular, fontMedium;
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        Utils.setSharedPrefs(this);
 
         Typeface fontBold = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

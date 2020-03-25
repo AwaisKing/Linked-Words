@@ -8,7 +8,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import androidx.annotation.NonNull;
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable;
 
-class SearchArrowDrawable extends DrawerArrowDrawable {
+public class SearchArrowDrawable extends DrawerArrowDrawable {
     static final float STATE_ARROW = 0.0f;
     static final float STATE_HAMBURGER = 1.0f;
     private static final Property<SearchArrowDrawable, Float> PROGRESS = new Property<SearchArrowDrawable, Float>(Float.class, "progress") {

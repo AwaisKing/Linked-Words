@@ -25,6 +25,10 @@
     <string name="max_words">Max Words</string>
     <string name="show_ads">Show Ads</string>
     <string name="show_dialog">Show Definition Dialog</string>
+    <string name="app_theme">App Theme</string>
+    <string name="theme_auto">Follow Device Mode</string>
+    <string name="theme_dark">Always Dark</string>
+    <string name="theme_light">Always Light</string>
 
     <string name="reverse_related">Reverse/Related</string>
     <string name="reverse">Reverse</string>

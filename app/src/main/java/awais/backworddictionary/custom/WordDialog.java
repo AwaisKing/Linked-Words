@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.view.View;
@@ -23,8 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import awais.backworddictionary.R;
-import awais.backworddictionary.adapters.SearchAdapter;
 import awais.backworddictionary.adapters.DefinitionsAdapter;
+import awais.backworddictionary.adapters.SearchAdapter;
 import awais.backworddictionary.customweb.CustomTabActivityHelper;
 import awais.backworddictionary.helpers.Utils;
 
@@ -34,8 +35,8 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
     private final String word;
     private final Context context;
     private final ArrayList<String[]> defs;
-    private final SearchAdapter.OnItemClickListener itemClickListener;
     private final CustomTabsIntent.Builder customTabsIntent;
+    private final SearchAdapter.OnItemClickListener itemClickListener;
 
     public WordDialog(final Context context, final String word, final ArrayList<String[]> defs, final SearchAdapter.OnItemClickListener itemClickListener) {
         super(context, R.style.Dialog);
@@ -98,7 +99,16 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
                 return;
 
             case R.id.btnSpeak:
-                if (tts != null) tts.speak(word, TextToSpeech.QUEUE_FLUSH, null);
+                if (tts != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                        tts.speak(word, TextToSpeech.QUEUE_FLUSH, null, null);
+                    else
+                        tts.speak(word, TextToSpeech.QUEUE_FLUSH, null); // todo change deprecated
+                }
+                return;
+
+            case R.id.btnSearch:
+                Utils.showPopupMenu(this, context, v, word);
                 return;
 
             case R.id.btnGoogle:
@@ -141,11 +151,6 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
                 CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
                         Uri.parse("http://www.urbandictionary.com/define.php?term=" + word));
                 break;
-
-            case R.id.btnSearch:
-                Utils.showPopupMenu(this, context, v, word);
-                return;
-            default: break;
         }
         dismiss();
     }

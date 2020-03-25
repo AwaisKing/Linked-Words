@@ -22,62 +22,73 @@ public final class CustomTabActivityHelper {
     private static final String DEV_PACKAGE = "com.chrome.dev";
     private static final String LOCAL_PACKAGE = "com.google.android.apps.chrome";
     private static final String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
-    // todo androidx problems:
-    //      androidx.browser.customtabs.action.CustomTabsService
-    //      android.support.customtabs.action.CustomTabsService
-    private static String sPackageNameToUse;
+    private static final String ACTION_CUSTOM_TABS_CONNECTION_ANDROID_X = "androidx.browser.customtabs.action.CustomTabsService";
+    private static String packageNameToUse;
 
     public static void openCustomTab(final Context context, final CustomTabsIntent customTabsIntent, final Uri uri) {
         final String packageName = getPackageNameToUse(context);
 
-        if (packageName == null) {
-            final Intent intent = new Intent();
-            intent.setAction(Intent.ACTION_VIEW);
-            intent.setData(uri);
-            context.startActivity(intent);
-        } else {
+        if (packageName == null) context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
+        else {
             customTabsIntent.intent.setPackage(packageName);
             customTabsIntent.launchUrl(context, uri);
         }
     }
 
     private static String getPackageNameToUse(final Context context) {
-        if (sPackageNameToUse != null) return sPackageNameToUse;
+        if (packageNameToUse != null) return packageNameToUse;
 
         final PackageManager pm = context.getPackageManager();
 
         final Intent activityIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.wikipedia.com"));
         final ResolveInfo defaultViewHandlerInfo = pm.resolveActivity(activityIntent, 0);
-        String defaultViewHandlerPackageName = null;
+
+        String defaultBrowser = null;
         if (defaultViewHandlerInfo != null)
-            defaultViewHandlerPackageName = defaultViewHandlerInfo.activityInfo.packageName;
+            defaultBrowser = defaultViewHandlerInfo.activityInfo.packageName;
+
+        final ArrayList<String> customTabBrowsersList = new ArrayList<>();
 
         final List<ResolveInfo> resolvedActivityList = pm.queryIntentActivities(activityIntent, 0);
-        final List<String> packagesSupportingCustomTabs = new ArrayList<>();
         for (final ResolveInfo info : resolvedActivityList) {
-            final Intent serviceIntent = new Intent();
-            serviceIntent.setAction(ACTION_CUSTOM_TABS_CONNECTION);
-            serviceIntent.setPackage(info.activityInfo.packageName);
-            if (pm.resolveService(serviceIntent, 0) != null)
-                packagesSupportingCustomTabs.add(info.activityInfo.packageName);
+            final String packageName = info.activityInfo.packageName;
+            final Intent serviceIntent = new Intent(ACTION_CUSTOM_TABS_CONNECTION).setPackage(packageName);
+
+            ResolveInfo resolveInfo = pm.resolveService(serviceIntent, 0);
+            if (resolveInfo == null) {
+                serviceIntent.setAction(ACTION_CUSTOM_TABS_CONNECTION_ANDROID_X);
+                resolveInfo = pm.resolveService(serviceIntent, 0);
+            }
+
+            if (resolveInfo != null) customTabBrowsersList.add(packageName);
         }
 
-        if (packagesSupportingCustomTabs.isEmpty()) sPackageNameToUse = null;
-        else if (packagesSupportingCustomTabs.size() == 1)
-            sPackageNameToUse = packagesSupportingCustomTabs.get(0);
-        else if (!TextUtils.isEmpty(defaultViewHandlerPackageName)
-                && !hasSpecializedHandlerIntents(context, activityIntent)
-                && packagesSupportingCustomTabs.contains(defaultViewHandlerPackageName))
-            sPackageNameToUse = defaultViewHandlerPackageName;
-        else if (packagesSupportingCustomTabs.contains(STABLE_PACKAGE))
-            sPackageNameToUse = STABLE_PACKAGE;
-        else if (packagesSupportingCustomTabs.contains(BETA_PACKAGE))
-            sPackageNameToUse = BETA_PACKAGE;
-        else if (packagesSupportingCustomTabs.contains(DEV_PACKAGE))
-            sPackageNameToUse = DEV_PACKAGE;
-        else if (packagesSupportingCustomTabs.contains(LOCAL_PACKAGE))
-            sPackageNameToUse = LOCAL_PACKAGE;
-        return sPackageNameToUse;
+        if (customTabBrowsersList.isEmpty()) packageNameToUse = null;
+        else if (customTabBrowsersList.size() == 1)
+            packageNameToUse = customTabBrowsersList.get(0);
+        else if (!TextUtils.isEmpty(defaultBrowser) && !hasSpecializedHandlerIntents(context, activityIntent) && customTabBrowsersList.contains(defaultBrowser))
+            packageNameToUse = defaultBrowser;
+        else {
+            for (final String browser : customTabBrowsersList) {
+                if (STABLE_PACKAGE.equals(browser)) {
+                    packageNameToUse = STABLE_PACKAGE;
+                    break;
+                }
+                if (BETA_PACKAGE.equals(browser)) {
+                    packageNameToUse = BETA_PACKAGE;
+                    break;
+                }
+                if (DEV_PACKAGE.equals(browser)) {
+                    packageNameToUse = DEV_PACKAGE;
+                    break;
+                }
+                if (LOCAL_PACKAGE.equals(browser)) {
+                    packageNameToUse = LOCAL_PACKAGE;
+                    break;
+                }
+            }
+        }
+        return packageNameToUse;
     }
 
     private static boolean hasSpecializedHandlerIntents(final Context context, final Intent intent) {

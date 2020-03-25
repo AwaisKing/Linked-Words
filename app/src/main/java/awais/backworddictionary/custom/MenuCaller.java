@@ -92,7 +92,7 @@ public class MenuCaller {
 
             // XXX HELP
             final SpanBuilder helpBuilder = new SpanBuilder();
-            helpBuilder.append(context.getString(R.string.reverse)+ ":\n", relativeSizeSpan, styleSpan, foregroundColorSpan);
+            helpBuilder.append(context.getString(R.string.reverse) + ":\n", relativeSizeSpan, styleSpan, foregroundColorSpan);
             helpBuilder.append(context.getString(R.string.reverse_help) + "\n\n", bulletSpan);
             helpBuilder.append(context.getString(R.string.sounds_like) + ":\n", relativeSizeSpan, styleSpan, foregroundColorSpan);
             helpBuilder.append(context.getString(R.string.sounds_like_help) + "\n\n", bulletSpan);
@@ -104,7 +104,8 @@ public class MenuCaller {
                     customTabsIntent.setToolbarColor(0xFFFFC400);
                     CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
                             Uri.parse("https://www.onelook.com/?c=faq#patterns"));
-                }});
+                }
+            });
             helpBuilder.append(context.getString(R.string.synonyms) + ":\n", relativeSizeSpan, styleSpan, foregroundColorSpan);
             helpBuilder.append(context.getString(R.string.synonym_help) + "\n\n", bulletSpan);
             helpBuilder.append(context.getString(R.string.antonyms) + ":\n", relativeSizeSpan, styleSpan, foregroundColorSpan);
@@ -130,7 +131,8 @@ public class MenuCaller {
                     customTabsIntent.setToolbarColor(0xFF607D8B);
                     CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
                             Uri.parse("https://romannurik.github.io/AndroidAssetStudio/"));
-                }});
+                }
+            });
             licensesBuilder.append("Dictionary API:\n", styleSpan, relativeSizeSpan, foregroundColorSpan);
             licensesBuilder.append("Datamuse API\n\n", bulletSpan, new ClickableSpan() {
                 @Override
@@ -138,7 +140,8 @@ public class MenuCaller {
                     customTabsIntent.setToolbarColor(0xFF006FCC);
                     CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
                             Uri.parse("https://www.datamuse.com/api/"));
-                }});
+                }
+            });
             licensesBuilder.append("Libraries:\n", styleSpan, relativeSizeSpan, foregroundColorSpan);
             //licensesBuilder.append("OkHttp3 [Apache License 2.0]\n", new BulletSpan(26, helpColor));
             licensesBuilder.append("SearchView [Apache License 2.0]\n", bulletSpan);
@@ -152,7 +155,8 @@ public class MenuCaller {
                     customTabsIntent.setToolbarColor(0xFFCB2533);
                     CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
                             Uri.parse("https://www.apache.org/licenses/LICENSE-2.0"));
-                }});
+                }
+            });
             licensesSpan = licensesBuilder.build();
 
             return null;
@@ -175,9 +179,10 @@ public class MenuCaller {
             }
 
             private void apply(final SpannableStringBuilder spanStringBuilder) {
-                if (spanStringBuilder == null) return;
-                for (final Object style : styles)
-                    spanStringBuilder.setSpan(style, startIndex, startIndex + text.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+                if (spanStringBuilder != null) {
+                    for (final Object style : styles)
+                        spanStringBuilder.setSpan(style, startIndex, startIndex + text.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+                }
             }
         }
 

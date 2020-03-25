@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.view.MenuItem;
 
@@ -22,30 +23,35 @@ import static awais.backworddictionary.Main.tts;
 
 final class WordContextItemListener implements PopupMenu.OnMenuItemClickListener {
     private final CustomTabsIntent.Builder customTabsIntent = new CustomTabsIntent.Builder();
-    private final String currentWord;
     private final Context context;
+    private final String word;
 
     WordContextItemListener(final Context context, @NonNull final CharSequence word) {
         this.context = context;
-        this.currentWord = word.toString();
+        this.word = word.toString();
     }
 
     @Override
     public boolean onMenuItemClick(final MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.action_copy:
-                Utils.copyText(context, currentWord);
+                Utils.copyText(context, word);
                 return true;
 
             case R.id.action_speak:
-                tts.speak(currentWord, TextToSpeech.QUEUE_FLUSH, null);
+                if (tts != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                        tts.speak(word, TextToSpeech.QUEUE_FLUSH, null, null);
+                    else
+                        tts.speak(word, TextToSpeech.QUEUE_FLUSH, null); // todo change deprecated
+                }
                 return true;
 
             case R.id.action_google:
-                final String wordRawGoogle = currentWord.replaceAll(" ", "+").replaceAll("\\s", "+");
+                final String wordRawGoogle = word.replaceAll(" ", "+").replaceAll("\\s", "+");
                 try {
                     final Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
-                    intent.putExtra(SearchManager.QUERY, currentWord);
+                    intent.putExtra(SearchManager.QUERY, word);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
                     context.startActivity(intent);
@@ -57,7 +63,7 @@ final class WordContextItemListener implements PopupMenu.OnMenuItemClickListener
                 return true;
 
             case R.id.action_wiki:
-                String wordRawWiki = currentWord.replaceAll(" ", "_").replaceAll("\\s", "_");
+                String wordRawWiki = word.replaceAll(" ", "_").replaceAll("\\s", "_");
                 try { wordRawWiki = String.valueOf(new URL(wordRawWiki)); } catch (Exception ignored) {}
 
                 final Uri wordWikiUri = Uri.parse("https://en.wikipedia.org/wiki/" + wordRawWiki);
@@ -79,7 +85,7 @@ final class WordContextItemListener implements PopupMenu.OnMenuItemClickListener
             case R.id.action_urban:
                 customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[2]);
                 CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
-                        Uri.parse("http://www.urbandictionary.com/define.php?term=" + currentWord));
+                        Uri.parse("http://www.urbandictionary.com/define.php?term=" + word));
                 return true;
         }
 

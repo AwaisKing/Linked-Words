@@ -2,6 +2,13 @@
 <lint>
     <issue id="IconLocation">
         <ignore path="src/main/res/drawable/dialog_back.9.png" />
-        <ignore path="src/main/res/drawable/no_internet.9.png" />
+        <ignore path="src/main/res/drawable/lw.png" />
+        <ignore path="src/main/res/drawable/ms.png" />
+        <ignore path="src/main/res/drawable/adm.png" />
+        <ignore path="src/main/res/drawable/qdb.png" />
+        <ignore path="src/main/res/drawable/rev.png" />
+        <ignore path="src/main/res/drawable/vdz.png" />
+        <ignore path="src/main/res/drawable/revl.png" />
+        <ignore path="src/main/res/drawable/tesv.png" />
     </issue>
 </lint>

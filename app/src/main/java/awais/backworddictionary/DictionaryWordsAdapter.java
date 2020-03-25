@@ -16,10 +16,11 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import awais.backworddictionary.adapters.SearchAdapter;
 import awais.backworddictionary.adapters.DefinitionsAdapter;
+import awais.backworddictionary.adapters.SearchAdapter;
 import awais.backworddictionary.custom.WordDialog;
 import awais.backworddictionary.custom.WordItem;
+import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.helpers.WordItemHolder;
 import awais.backworddictionary.interfaces.DictionaryWordsItemListener;
@@ -36,7 +37,7 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
     final LinkedHashSet<WordItem> expandedHashSet = new LinkedHashSet<>();
 
     DictionaryWordsAdapter(@NonNull Context context, List<WordItem> wordList) {
-        this.noItemFound = new String[] {"", context.getString(R.string.no_definition_found)};
+        this.noItemFound = new String[]{"", context.getString(R.string.no_definition_found)};
         this.context = context;
         this.filterList = wordList;
 
@@ -47,8 +48,9 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
 
         this.itemClickListener = (view, pos, text) -> {
             final String str = String.valueOf(text);
-            if (str.isEmpty() || str.equals(context.getString(R.string.no_definition_found))) return;
-            Utils.copyText(context, str.replaceAll("^(.*)\\t", ""));
+            if (!Utils.isEmpty(str) && !str.equals(context.getString(R.string.no_definition_found))) {
+                Utils.copyText(context, str.replaceAll("^(.*)\\t", ""));
+            }
         };
 
         this.onWordItemClickListener = view -> {
@@ -82,18 +84,18 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
                 results.values = wordList;
                 if (Utils.isEmpty(charSequence)) return results;
 
-                final boolean showWords = Main.sharedPreferences.getBoolean("filterWord", true);
-                final boolean showDefs = Main.sharedPreferences.getBoolean("filterDefinition", false);
-                final boolean contains = Main.sharedPreferences.getBoolean("filterContain", false);
+                final boolean showWords = SettingsHelper.isFilterWords();
+                final boolean showDefs = SettingsHelper.isFilterDefinition();
+                final boolean contains = SettingsHelper.isFilterContains();
 
                 if (!showDefs && !showWords) {
                     Toast.makeText(context, context.getString(R.string.select_filter_first), Toast.LENGTH_SHORT).show();
                     return results;
                 }
 
-                final ArrayList<WordItem> filteredList = new ArrayList<>(wordList.size() / 2);
+                final ArrayList<WordItem> filteredList = new ArrayList<>(wordList.size() >> 1);
                 for (final WordItem mWord : wordList) {
-                    final String word = mWord.getWord().toLowerCase();
+                    final String word = mWord.getWord().toLowerCase(Utils.defaultLocale);
                     final String[][] defs = mWord.getDefs();
                     final String searchVal = String.valueOf(charSequence);
 
@@ -194,13 +196,13 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
         return filterList.size();
     }
 
-    void updateList(final List<WordItem> list){
+    void updateList(final List<WordItem> list) {
         filterList = list;
         notifyDataSetChanged();
     }
 
     void refreshShowDialogEnabled() {
-        this.isShowDialogEnabled = Main.sharedPreferences.getBoolean("showDialog", false);
+        this.isShowDialogEnabled = SettingsHelper.showDialog();
     }
 
     private static class TagItemHolder {

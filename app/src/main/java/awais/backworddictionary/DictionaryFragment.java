@@ -29,6 +29,7 @@ import java.util.Locale;
 
 import awais.backworddictionary.asyncs.WordsAsync;
 import awais.backworddictionary.custom.WordItem;
+import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.helpers.WordItemHolder;
 import awais.backworddictionary.interfaces.FragmentCallback;
@@ -37,8 +38,6 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
     private List<WordItem> wordList;
     private RecyclerView recyclerView;
     private Activity activity;
-    private InputMethodManager imm;
-
     private EditText filterSearchEditor;
     private ImageView filterSearchButton;
     private FrameLayout filterView;
@@ -92,10 +91,10 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
     public void onViewCreated(@NonNull final View magicRootView, @Nullable final Bundle savedInstanceState) {
         activity = getActivity() == null ? (Activity) getContext() : getActivity();
 
-        if (activity != null)
-            imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (Utils.inputMethodManager == null &&activity != null)
+            Utils.inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 
-        wordList = new ArrayList<>();
+        wordList = new ArrayList<>(0);
         wordsAdapter = new DictionaryWordsAdapter(activity, wordList);
         wordsAdapter.setHasStableIds(true);
 
@@ -108,8 +107,8 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
 
             if (activity instanceof Main) {
                 final Main mainActivity = (Main) activity;
-                if (mainActivity.mSearchView != null && mainActivity.mSearchView.isSearchOpen())
-                    mainActivity.mSearchView.close(true);
+                if (mainActivity.searchView != null && mainActivity.searchView.isSearchOpen())
+                    mainActivity.searchView.close(true);
 
                 final String title = (String) activity.getTitle();
                 if (!title.equals(getResources().getString(R.string.app_name))) mainActivity.onSearch(title);
@@ -159,23 +158,17 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
                 final Object tag = filterSearchButton.getTag();
 
                 if (!Utils.isEmpty((CharSequence) tag) && tag.equals("filter")) {
-                    filterCheck[0] = Main.sharedPreferences.getBoolean("filterWord", true);
-                    filterCheck[1] = Main.sharedPreferences.getBoolean("filterDefinition", false);
-                    filterCheck[2] = Main.sharedPreferences.getBoolean("filterContain", false);
+                    filterCheck[0] = SettingsHelper.isFilterWords();
+                    filterCheck[1] = SettingsHelper.isFilterDefinition();
+                    filterCheck[2] = SettingsHelper.isFilterContains();
 
                     new AlertDialog.Builder(activity).setTitle(getString(R.string.select_filters))
-                            .setMultiChoiceItems(new String[] {getString(R.string.words), getString(R.string.defs), getString(R.string.contains)}, filterCheck,
-                                    (dialogInterface, i, b) -> {
-                                        filterCheck[i] = b;
-                                        final String item;
-                                        switch (i) {
-                                            case 0: item = "filterWord"; break;
-                                            case 1: item = "filterDefinition"; break;
-                                            case 2: item = "filterContain"; break;
-                                            default: item = null; break;
-                                        }
-                                        if (!Utils.isEmpty(item))
-                                            Main.sharedPreferences.edit().putBoolean(item, b).apply();
+                            .setMultiChoiceItems(new String[]{getString(R.string.words), getString(R.string.defs), getString(R.string.contains)}, filterCheck,
+                                    (dialogInterface, i, checked) -> {
+                                        filterCheck[i] = checked;
+                                        if (i == 0) SettingsHelper.setFilter("filterWord", checked);
+                                        else if (i == 1) SettingsHelper.setFilter("filterDefinition", checked);
+                                        else if (i == 2) SettingsHelper.setFilter("filterContain", checked);
                                     })
                             .setNeutralButton(R.string.ok, (dialogInterface, i) -> {
                                 if (wordList.size() > 2)
@@ -196,8 +189,8 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
 
     void startWords(final String method, final String word) {
         if (filterView != null && filterSearchEditor != null) filterSearchEditor.setText("");
-        if (Utils.isEmpty(word)) return;
-        new WordsAsync(this, word, method, this.activity).execute();
+        if (!Utils.isEmpty(word))
+            new WordsAsync(this, word, method, this.activity).execute();
     }
 
     @Override
@@ -216,62 +209,66 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
 
     @Override
     public void wordStarted() {
-        if (swipeRefreshLayout == null) return;
-        swipeRefreshLayout.post(() -> {
-            swipeRefreshLayout.setEnabled(true);
-            swipeRefreshLayout.setRefreshing(true);
-        });
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.post(() -> {
+                swipeRefreshLayout.setEnabled(true);
+                swipeRefreshLayout.setRefreshing(true);
+            });
+        }
+    }
+
+    public enum FilterMethod {
+        DO_NOTHING, RECYCLER_PADDING, RECYCLER_NO_PADDING,
     }
 
     /**
      * DO NOT CHANGE ANYTHING HERE, I STILL DON'T HAVE
      * ANY IDEA WHAT IS METHOD ABOUT, PLEASE FORGIVE ME.
      * I ASK FOR FORGIVENESS GOD. I SWEAR.
-     * 21st June 2019, i think i got a little clue now.
+     * 14th March 2020, still a little clue, trying to make it work with enums
      * @param showFilter either to show or hide filter
      * @param method     no idea what this is. i really forgot.
      */
-    void showFilter(final boolean showFilter, final int method) {
-        if (filterView == null) return;
+    void showFilter(final boolean showFilter, final FilterMethod method) {
+        if (filterView != null) {
+            final boolean isRefrehing = swipeRefreshLayout.isRefreshing();
+            final boolean isMethod0 = method == FilterMethod.RECYCLER_PADDING;
+            final boolean isMethod2 = method == FilterMethod.RECYCLER_NO_PADDING;
 
-        if (showFilter) {
-            if (method == 0 || method == 2) {
-                filterView.setVisibility(View.VISIBLE);
-                if (method == 0 && filterSearchEditor != null)
-                    filterSearchEditor.requestFocus();
-            }
-
-            if (recyclerView != null) {
-                if (method == 0)
-                    recyclerView.setPadding(0, topMargin, 0, recyclerView.getPaddingBottom());
-
-                if (wordsAdapter != null && wordsAdapter.getItemCount() > 5) {
-                    final LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                    if (manager != null && manager.findFirstVisibleItemPosition() <= 3)
-                        recyclerView.smoothScrollToPosition(0);
+            if (showFilter) {
+                if (isMethod0 || isMethod2) {
+                    filterView.setVisibility(View.VISIBLE);
+                    if (isMethod0 && filterSearchEditor != null)
+                        filterSearchEditor.requestFocus();
                 }
 
-                if (method == 1) return;
-                final boolean isRefrehing = swipeRefreshLayout.isRefreshing();
-                swipeRefreshLayout.setProgressViewOffset(false, startOffset, expandedEndOffset);
+                if (recyclerView != null) {
+                    if (isMethod0) recyclerView.setPadding(0, topMargin, 0, recyclerView.getPaddingBottom());
+
+                    final LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                    final boolean managerNotNull = manager != null;
+
+                    final boolean canScroll = wordsAdapter != null && wordsAdapter.getItemCount() > 5 || managerNotNull && manager.getItemCount() > 5;
+                    if (canScroll && managerNotNull && manager.findFirstVisibleItemPosition() <= 3)
+                        recyclerView.smoothScrollToPosition(0);
+                }
+            } else {
+                if (isMethod0 || isMethod2)
+                    filterView.setVisibility(View.GONE);
+
+                if (recyclerView != null)
+                    recyclerView.setPadding(0, topPadding, 0, recyclerView.getPaddingBottom());
+            }
+
+            if (method != FilterMethod.DO_NOTHING) {
+                swipeRefreshLayout.setProgressViewOffset(false, startOffset, showFilter ? expandedEndOffset : endOffset);
                 if (isRefrehing) swipeRefreshLayout.setRefreshing(true);
             }
-        } else {
-            if (method == 0 || method == 2)
-                filterView.setVisibility(View.GONE);
-
-            if (recyclerView != null)
-                recyclerView.setPadding(0, topPadding, 0, recyclerView.getPaddingBottom());
-
-            if (method == 1) return;
-            final boolean isRefrehing = swipeRefreshLayout.isRefreshing();
-            swipeRefreshLayout.setProgressViewOffset(false, startOffset, endOffset);
-            if (isRefrehing) swipeRefreshLayout.setRefreshing(true);
         }
     }
 
     void hideFilter() {
-        showFilter(false, 0);
+        showFilter(false, FilterMethod.RECYCLER_PADDING);
     }
 
     boolean isFilterOpen() {
@@ -279,34 +276,34 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
     }
 
     private void toggleKeyboard(final boolean show) {
-        if (imm == null) imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm == null) return;
-        if (show) imm.showSoftInput(filterSearchEditor, 1);
-        else imm.hideSoftInputFromWindow(filterSearchEditor.getWindowToken(), 1);
+        if (Utils.inputMethodManager != null) {
+            if (show) Utils.inputMethodManager.showSoftInput(filterSearchEditor, 1);
+            else Utils.inputMethodManager.hideSoftInputFromWindow(filterSearchEditor.getWindowToken(), 1);
+        }
     }
 
     void scrollRecyclerView(final boolean directionUp) {
-        if (recyclerView == null) return;
-        recyclerView.smoothScrollToPosition(directionUp ? 0 : 5000);
+        if (recyclerView != null) recyclerView.smoothScrollToPosition(directionUp ? 0 : 5000);
     }
 
     private float getExpandedOffset() {
-        TypedValue tv = new TypedValue();
+        final TypedValue tv = new TypedValue();
         if (activity == null) activity = getActivity();
         if (activity != null && activity.getTheme().resolveAttribute(R.attr.actionBarSize, tv, true))
-            return TypedValue.complexToDimensionPixelSize(tv.data, activity.getResources().getDisplayMetrics());
-        return swipeRefreshLayout == null ? 250.0f : swipeRefreshLayout.getProgressViewEndOffset() * 2.0f;
+            return TypedValue.complexToDimensionPixelSize(tv.data, Utils.displayMetrics);
+        return swipeRefreshLayout == null ? 250f : swipeRefreshLayout.getProgressViewEndOffset() * 2f;
     }
 
     void closeExpanded() {
-        if (wordsAdapter == null) return;
-        wordsAdapter.refreshShowDialogEnabled();
+        if (wordsAdapter != null) {
+            wordsAdapter.refreshShowDialogEnabled();
 
-        for (final WordItemHolder holder : wordsAdapter.holdersHashSet)
-            holder.cardView.setCardBackgroundColor(-1);
+            for (final WordItemHolder holder : wordsAdapter.holdersHashSet)
+                holder.cardView.setCardBackgroundColor(-1);
 
-        for (final WordItem wordItem : wordsAdapter.expandedHashSet)
-            wordItem.setExpanded(false);
-        wordsAdapter.notifyDataSetChanged();
+            for (final WordItem wordItem : wordsAdapter.expandedHashSet)
+                wordItem.setExpanded(false);
+            wordsAdapter.notifyDataSetChanged();
+        }
     }
 }

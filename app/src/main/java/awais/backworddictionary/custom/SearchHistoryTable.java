@@ -33,15 +33,15 @@ public final class SearchHistoryTable {
     }
 
     public void addItem(final SearchItem item) {
-        if (db == null || !db.isOpen()) return;
-
-        final ContentValues values = new ContentValues();
-        if (checkText(item.getText().toString())) {
-            values.put("_id", getLastItemId() + 1);
-            db.update("search_history", values, "_id = ?", new String[]{Integer.toString(getItemId(item))});
-        } else {
-            values.put("_text", item.getText().toString());
-            db.insert("search_history", null, values);
+        if (db != null && db.isOpen()) {
+            final ContentValues values = new ContentValues();
+            if (checkText(item.getText().toString())) {
+                values.put("_id", getLastItemId() + 1);
+                db.update("search_history", values, "_id = ?", new String[]{Integer.toString(getItemId(item))});
+            } else {
+                values.put("_text", item.getText().toString());
+                db.insert("search_history", null, values);
+            }
         }
     }
 
@@ -63,10 +63,10 @@ public final class SearchHistoryTable {
     }
 
     public void clearDatabase(final String key) {
-        if (db == null || !db.isOpen()) return;
-
-        if (key == null) db.delete("search_history", null, null);
-        else db.delete("search_history", "_text = ?", new String[]{key});
+        if (db != null && db.isOpen()) {
+            if (key == null) db.delete("search_history", null, null);
+            else db.delete("search_history", "_text = ?", new String[]{key});
+        }
     }
 
     //public int getItemsCount() {

@@ -1,6 +1,7 @@
 package awais.backworddictionary.asyncs;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -10,9 +11,9 @@ import org.json.JSONObject;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
-import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
 import awais.backworddictionary.custom.WordItem;
+import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.FragmentCallback;
 
@@ -25,33 +26,33 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     public WordsAsync(final FragmentCallback fragmentCallback, final String word, final String method, final Context context) {
         this.fragmentCallback = fragmentCallback;
         this.word = word;
-        if (context == null) {
+        if (context != null) {
+            final Resources resources = context.getResources();
+            final String[] methodsList = new String[]{
+                    resources.getString(R.string.reverse),
+                    resources.getString(R.string.sounds_like),
+                    resources.getString(R.string.spelled_like),
+                    resources.getString(R.string.synonyms),
+                    resources.getString(R.string.antonyms),
+                    resources.getString(R.string.triggers),
+                    resources.getString(R.string.part_of),
+                    resources.getString(R.string.comprises),
+                    resources.getString(R.string.homophones),
+                    resources.getString(R.string.rhymes)
+            };
+            if (methodsList[0].equals(method)) this.method = "ml";
+            else if (methodsList[1].equals(method)) this.method = "sl";
+            else if (methodsList[2].equals(method)) this.method = "sp";
+            else if (methodsList[3].equals(method)) this.method = "rel_syn";
+            else if (methodsList[4].equals(method)) this.method = "rel_ant";
+            else if (methodsList[5].equals(method)) this.method = "rel_trg";
+            else if (methodsList[6].equals(method)) this.method = "rel_par";
+            else if (methodsList[7].equals(method)) this.method = "rel_com";
+            else if (methodsList[8].equals(method)) this.method = "rel_hom";
+            else if (methodsList[9].equals(method)) this.method = "rel_rhy";
+            else this.method = "ml";
+        } else
             this.method = "ml";
-            return;
-        }
-        final String[] methodsList = new String[] {
-                context.getResources().getString(R.string.reverse),
-                context.getResources().getString(R.string.sounds_like),
-                context.getResources().getString(R.string.spelled_like),
-                context.getResources().getString(R.string.synonyms),
-                context.getResources().getString(R.string.antonyms),
-                context.getResources().getString(R.string.triggers),
-                context.getResources().getString(R.string.part_of),
-                context.getResources().getString(R.string.comprises),
-                context.getResources().getString(R.string.homophones),
-                context.getResources().getString(R.string.rhymes)
-        };
-        if (methodsList[0].equals(method))      this.method = "ml";
-        else if (methodsList[1].equals(method)) this.method = "sl";
-        else if (methodsList[2].equals(method)) this.method = "sp";
-        else if (methodsList[3].equals(method)) this.method = "rel_syn";
-        else if (methodsList[4].equals(method)) this.method = "rel_ant";
-        else if (methodsList[5].equals(method)) this.method = "rel_trg";
-        else if (methodsList[6].equals(method)) this.method = "rel_par";
-        else if (methodsList[7].equals(method)) this.method = "rel_com";
-        else if (methodsList[8].equals(method)) this.method = "rel_hom";
-        else if (methodsList[9].equals(method)) this.method = "rel_rhy";
-        else                                    this.method = "ml";
     }
 
     @Override
@@ -73,10 +74,9 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
                     .replaceAll("&", "%26");
         }
 
-        final int wordsCount = Main.sharedPreferences.getInt("maxWords", 80);
-
         try {
-           final String body = Utils.getResponse("https://api.datamuse.com/words?md=pds&max=" + wordsCount + "&" + method + "=" + query);
+            final int wordsCount = SettingsHelper.getMaxWords();
+            final String body = Utils.getResponse("https://api.datamuse.com/words?md=pds&max=" + wordsCount + "&" + method + "=" + query);
             if (body != null) {
                 final JSONArray jsonArray = new JSONArray(body);
                 wordItemsList = new ArrayList<>(jsonArray.length());

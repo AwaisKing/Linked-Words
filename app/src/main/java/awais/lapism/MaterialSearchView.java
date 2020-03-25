@@ -50,7 +50,6 @@ import awais.backworddictionary.helpers.Utils;
 public class MaterialSearchView extends FrameLayout implements View.OnClickListener {
     public static final int SPEECH_REQUEST_CODE = 4000;
     public static int mIconColor = Color.BLACK;
-    private final int mAnimationDuration = 317;
     private final Context mContext;
     private SearchArrowDrawable mSearchArrow = null;
     private RecyclerView.Adapter<?> mAdapter = null;
@@ -66,7 +65,6 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     private int mMenuItemCx = -1;
     private boolean mIsSearchOpen = false, mVoice = false;
     private float mIsSearchArrowHamburgerState = SearchArrowDrawable.STATE_HAMBURGER;
-    private InputMethodManager imm;
 
     public MaterialSearchView(final Context context) {
         this(context, null);
@@ -79,7 +77,8 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     public MaterialSearchView(final Context context, @Nullable final AttributeSet attrs, final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mContext = context;
-        imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (Utils.inputMethodManager == null)
+            Utils.inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         initView();
     }
 
@@ -87,7 +86,8 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     public MaterialSearchView(final Context context, @Nullable final AttributeSet attrs, final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         mContext = context;
-        imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (Utils.inputMethodManager == null)
+            Utils.inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         initView();
     }
 
@@ -223,8 +223,7 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
                     @Override
                     public void onGlobalLayout() {
                         mCardView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        SearchAnimator.revealOpen(mCardView, mMenuItemCx, mAnimationDuration, mContext, mSearchEditText,
-                                false, mOnOpenCloseListener);
+                        SearchAnimator.revealOpen(mCardView, mMenuItemCx, mContext, mSearchEditText, mOnOpenCloseListener);
                     }
                 });
             } else SearchAnimator.fadeOpen(mCardView, mSearchEditText,
@@ -239,8 +238,8 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     public void close(final boolean animate) {
         if (animate) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                SearchAnimator.revealClose(mCardView, mMenuItemCx, mAnimationDuration, mContext,
-                        mSearchEditText, false, this, mOnOpenCloseListener);
+                SearchAnimator.revealClose(mCardView, mMenuItemCx, mContext,
+                        mSearchEditText, this, mOnOpenCloseListener);
             else SearchAnimator.fadeClose(mCardView, mSearchEditText,
                     this, mOnOpenCloseListener);
         } else {
@@ -268,17 +267,19 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     }
 
     public void showSuggestions() {
-        if (mAdapter == null) return;
-        if (mAdapter.getItemCount() > 0) mDividerView.setVisibility(View.VISIBLE);
-        mRecyclerView.setVisibility(View.VISIBLE);
-        SearchAnimator.fadeIn(mRecyclerView);
+        if (mAdapter != null) {
+            if (mAdapter.getItemCount() > 0) mDividerView.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.VISIBLE);
+            SearchAnimator.fadeIn(mRecyclerView);
+        }
     }
 
     private void hideSuggestions() {
-        if (mAdapter == null) return;
-        mDividerView.setVisibility(View.GONE);
-        mRecyclerView.setVisibility(View.GONE);
-        SearchAnimator.fadeOut(mRecyclerView);
+        if (mAdapter != null) {
+            mDividerView.setVisibility(View.GONE);
+            mRecyclerView.setVisibility(View.GONE);
+            SearchAnimator.fadeOut(mRecyclerView);
+        }
     }
 
     public boolean isSearchOpen() {
@@ -286,18 +287,15 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     }
 
     private void showKeyboard() {
-        if (isInEditMode()) return;
-        if (imm == null) imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm == null) return;
-        imm.showSoftInput(mSearchEditText, 0);
-        imm.showSoftInput(this, 0);
+        if (!isInEditMode() && Utils.inputMethodManager != null) {
+            Utils.inputMethodManager.showSoftInput(mSearchEditText, 0);
+            Utils.inputMethodManager.showSoftInput(this, 0);
+        }
     }
 
     private void hideKeyboard() {
-        if (isInEditMode()) return;
-        if (imm == null) imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm == null) return;
-        imm.hideSoftInputFromWindow(getWindowToken(), 0);
+        if (!isInEditMode() && Utils.inputMethodManager != null)
+            Utils.inputMethodManager.hideSoftInputFromWindow(getWindowToken(), 0);
     }
 
     public void showProgress() {
@@ -329,17 +327,19 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     }
 
     private void setArrow() {
-        if (mSearchArrow == null) return;
-        mSearchArrow.setVerticalMirror(false);
-        mSearchArrow.animate(SearchArrowDrawable.STATE_ARROW);
-        mIsSearchArrowHamburgerState = SearchArrowDrawable.STATE_ARROW;
+        if (mSearchArrow != null) {
+            mSearchArrow.setVerticalMirror(false);
+            mSearchArrow.animate(SearchArrowDrawable.STATE_ARROW);
+            mIsSearchArrowHamburgerState = SearchArrowDrawable.STATE_ARROW;
+        }
     }
 
     private void setHamburger() {
-        if (mSearchArrow == null) return;
-        mSearchArrow.setVerticalMirror(true);
-        mSearchArrow.animate(SearchArrowDrawable.STATE_HAMBURGER);
-        mIsSearchArrowHamburgerState = SearchArrowDrawable.STATE_HAMBURGER;
+        if (mSearchArrow != null) {
+            mSearchArrow.setVerticalMirror(true);
+            mSearchArrow.animate(SearchArrowDrawable.STATE_HAMBURGER);
+            mIsSearchArrowHamburgerState = SearchArrowDrawable.STATE_HAMBURGER;
+        }
     }
 
     private void getMenuItemPosition(final int menuItemId) {
@@ -381,8 +381,8 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
 
     private void onSubmitQuery() {
         final CharSequence query = mSearchEditText.getText();
-        if (query == null || TextUtils.getTrimmedLength(query) <= 0) return;
-        if (mOnQueryChangeListener == null || !mOnQueryChangeListener.onQueryTextSubmit(query.toString()))
+        if (query != null && TextUtils.getTrimmedLength(query) > 0 &&
+                (mOnQueryChangeListener == null || !mOnQueryChangeListener.onQueryTextSubmit(query.toString())))
             mSearchEditText.setText(query);
     }
 
@@ -401,9 +401,9 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
     }
 
     private int getCenterX(@NonNull final View view) {
-        int[] location = new int[2];
+        final int[] location = new int[2];
         view.getLocationOnScreen(location);
-        return location[0] + view.getWidth() / 2;
+        return location[0] + (view.getWidth() >> 1);
     }
 
     @Override
@@ -432,20 +432,19 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
 
     @Override
     protected void onRestoreInstanceState(final Parcelable state) {
-        if (!(state instanceof SavedState)) {
+        if (state instanceof SavedState) {
+            final SavedState ss = (SavedState) state;
+            if (ss.isSearchOpen) {
+                open(true, null);
+                setQueryWithoutSubmitting(ss.query);
+                mSearchEditText.requestFocus();
+            }
+
+            super.onRestoreInstanceState(ss.getSuperState());
+            requestLayout();
+        } else {
             super.onRestoreInstanceState(state);
-            return;
         }
-
-        final SavedState ss = (SavedState) state;
-        if (ss.isSearchOpen) {
-            open(true, null);
-            setQueryWithoutSubmitting(ss.query);
-            mSearchEditText.requestFocus();
-        }
-
-        super.onRestoreInstanceState(ss.getSuperState());
-        requestLayout();
     }
 
     public void setOnQueryTextListener(final OnQueryTextListener listener) {

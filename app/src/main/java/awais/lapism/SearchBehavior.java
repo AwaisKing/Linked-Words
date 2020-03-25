@@ -10,7 +10,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.google.android.material.appbar.AppBarLayout;
 
-import awais.backworddictionary.Main;
+import awais.backworddictionary.helpers.Utils;
 
 public class SearchBehavior extends CoordinatorLayout.Behavior<MaterialSearchView> {
     public SearchBehavior(Context context, AttributeSet attrs) {
@@ -30,7 +30,7 @@ public class SearchBehavior extends CoordinatorLayout.Behavior<MaterialSearchVie
     @Override
     public boolean onDependentViewChanged(@NonNull final CoordinatorLayout parent, @NonNull final MaterialSearchView child, @NonNull final View dependency) {
         if (dependency instanceof AppBarLayout) {
-            child.setTranslationY(dependency.getY() + Main.statusBarHeight);
+            child.setTranslationY(dependency.getY() + Utils.statusBarHeight);
             return true;
         }
         return false;

@@ -1,13 +1,15 @@
 package awais.lapism;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Build;
 
+import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 
 final class SearchUtils {
 //    public static boolean isRTL() {
-//        return isRTL(Locale.getDefault());
+//        return isRTL(Utils.defaultLocale);
 //    }
 
     /*if (isRTL()) {
@@ -24,9 +26,10 @@ final class SearchUtils {
 //                directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC;
 //    }
 
-    static boolean isRtlLayout(final Context context) {
+    static boolean isRtlLayout(@Nullable final Context context) {
+        final Resources res = context != null ? context.getResources() : Resources.getSystem();
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 &&
-                context.getResources().getConfiguration().getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
+                res.getConfiguration().getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
     }
 
 //    public static boolean isLandscapeMode(Context context) {

@@ -26,15 +26,16 @@ also you can select if the filter either `contains` the text or `starts` with th
 
 ---
 
-Screenshots [Album: https://imgur.com/a/Y4XsKU5]
+Screenshots [Album][1]
 -
 <p align="center">
-    <img src="https://i.imgur.com/o0xAIBJm.png" alt="Screenshot 1" title="Screenshot 1"/>
-    <img src="https://i.imgur.com/ksG8dncm.png" alt="Screenshot 2" title="Screenshot 2"/>
-    <img src="https://i.imgur.com/lURKQnZm.png" alt="Screenshot 3" title="Screenshot 3"/>
-    <img src="https://i.imgur.com/4piTUXqm.png" alt="Screenshot 4" title="Screenshot 4"/>
-    <img src="https://i.imgur.com/ekZAh3lm.png" alt="Screenshot 5" title="Screenshot 5"/>
-    <img src="https://i.imgur.com/e9olSSZm.png" alt="Screenshot 6" title="Screenshot 6"/>
+    <img src="https://i.imgur.com/YUiKu9Im.png" alt="Screenshot 1" title="Screenshot 1"/>
+    <img src="https://i.imgur.com/l7IBDrJm.png" alt="Screenshot 2" title="Screenshot 2"/>
+    <img src="https://i.imgur.com/jkJDu54m.png" alt="Screenshot 3" title="Screenshot 3"/>
+    <img src="https://i.imgur.com/uUpu4Wsm.png" alt="Screenshot 4" title="Screenshot 4"/>
+    <img src="https://i.imgur.com/w9alZiWm.png" alt="Screenshot 5" title="Screenshot 5"/>
+    <img src="https://i.imgur.com/qC9n7pZm.png" alt="Screenshot 6" title="Screenshot 6"/>
+    <img src="https://i.imgur.com/5hgGiLPm.png" alt="Screenshot 7" title="Screenshot 7"/>
 </p>
 
 ---
@@ -42,16 +43,21 @@ Screenshots [Album: https://imgur.com/a/Y4XsKU5]
 Credits to:
 -
 #### App Icon:
-  + [Android Asset Studio](https://romannurik.github.io/AndroidAssetStudio/icons-launcher.html)
+  + [Android Asset Studio][2]
 
 #### Dictionary API:
-  + [Datamuse Words Database API](https://www.datamuse.com/api/)
+  + [Datamuse Words Database API][3]
 
 #### Libraries:
-  + ~~[OkHttp3 *-* [square/okhttp]](https://github.com/square/okhttp) *-* [Apache License 2.0]~~ **(removed)**
-  + [GSON *-* [google/gson]](https://github.com/google/gson) *-* [Apache License 2.0]
-  + [SearchView *-* [lapism/SearchView]](https://github.com/lapism/SearchView) *-* [Apache License 2.0]
-  + [Chrome Custom Tabs *-* [GoogleChrome/custom-tabs-client]](https://github.com/GoogleChrome/custom-tabs-client) *-* [Apache License 2.0]
+  + ~~[OkHttp3 *-* [square/okhttp]](https://github.com/square/okhttp) *-* [Apache License 2.0][4]~~ **(removed)**
+  + ~~[GSON *-* [google/gson]](https://github.com/google/gson) *-* [Apache License 2.0][4]~~ **(removed)**
+  + [SearchView *-* [lapism/SearchView]](https://github.com/lapism/SearchView) *-* [Apache License 2.0][4]
+  + [Chrome Custom Tabs *-* [GoogleChrome/custom-tabs-client]](https://github.com/GoogleChrome/custom-tabs-client) *-* [Apache License 2.0][4]
 
 #### Licenses:
-  + [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+  + [Apache License 2.0][1]
+
+[1]:https://imgur.com/a/55zEAKS
+[2]:https://romannurik.github.io/AndroidAssetStudio/icons-launcher.html
+[3]:https://www.datamuse.com/api/
+[4]:https://www.apache.org/licenses/LICENSE-2.0

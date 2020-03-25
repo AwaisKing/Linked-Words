@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import awais.backworddictionary.R;
 import awais.backworddictionary.custom.SearchHistoryTable;
@@ -36,6 +35,7 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
     private List<SearchItem> resultList = new ArrayList<>();
     private String key = "";
 
+
     public SearchAdapter(final Context context, final SearchHistoryTable table, final OnItemClickListener clickListener,
                          final OnItemLongClickListener longClickListener) {
         this.layoutInflater = LayoutInflater.from(context);
@@ -44,11 +44,11 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
         this.longClickListener = longClickListener;
         this.filter = new Filter() {
             @Override
-            protected FilterResults performFiltering(CharSequence constraint) {
+            protected FilterResults performFiltering(final CharSequence constraint) {
                 final FilterResults filterResults = new FilterResults();
 
                 if (!Utils.isEmpty(constraint)) {
-                    key = constraint.toString().toLowerCase(Locale.getDefault());
+                    key = constraint.toString().toLowerCase(Utils.defaultLocale);
 
                     final List<SearchItem> results = new ArrayList<>();
                     final List<SearchItem> history = new ArrayList<>();
@@ -57,8 +57,8 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
                     if (!databaseAllItems.isEmpty()) history.addAll(databaseAllItems);
                     history.addAll(suggestionsList);
 
-                    for (SearchItem item : history)
-                        if (item.getText().toString().toLowerCase(Locale.getDefault()).contains(key))
+                    for (final SearchItem item : history)
+                        if (item.getText().toString().toLowerCase(Utils.defaultLocale).contains(key))
                             results.add(item);
 
                     if (results.size() > 0) {
@@ -140,7 +140,7 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
         viewHolder.icon.setColorFilter(MaterialSearchView.mIconColor, PorterDuff.Mode.SRC_IN);
 
         final String itemText = item.getText().toString();
-        final String itemTextLower = itemText.toLowerCase(Locale.getDefault());
+        final String itemTextLower = itemText.toLowerCase(Utils.defaultLocale);
 
         if (itemTextLower.contains(key) && !key.isEmpty()) {
             final SpannableString s = new SpannableString(itemText);
