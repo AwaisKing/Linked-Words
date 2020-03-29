@@ -29,13 +29,13 @@ also you can select if the filter either `contains` the text or `starts` with th
 Screenshots [Album][1]
 -
 <p align="center">
-    <img src="https://i.imgur.com/YUiKu9Im.png" alt="Screenshot 1" title="Screenshot 1"/>
-    <img src="https://i.imgur.com/l7IBDrJm.png" alt="Screenshot 2" title="Screenshot 2"/>
-    <img src="https://i.imgur.com/jkJDu54m.png" alt="Screenshot 3" title="Screenshot 3"/>
-    <img src="https://i.imgur.com/uUpu4Wsm.png" alt="Screenshot 4" title="Screenshot 4"/>
-    <img src="https://i.imgur.com/w9alZiWm.png" alt="Screenshot 5" title="Screenshot 5"/>
-    <img src="https://i.imgur.com/qC9n7pZm.png" alt="Screenshot 6" title="Screenshot 6"/>
-    <img src="https://i.imgur.com/5hgGiLPm.png" alt="Screenshot 7" title="Screenshot 7"/>
+    <a href="https://i.imgur.com/YUiKu9I.png"><img src="https://i.imgur.com/YUiKu9Im.png" alt="Screenshot 1" title="Screenshot 1"/></a>
+    <a href="https://i.imgur.com/l7IBDrJ.png"><img src="https://i.imgur.com/l7IBDrJm.png" alt="Screenshot 2" title="Screenshot 2"/></a>
+    <a href="https://i.imgur.com/jkJDu54.png"><img src="https://i.imgur.com/jkJDu54m.png" alt="Screenshot 3" title="Screenshot 3"/></a>
+    <a href="https://i.imgur.com/uUpu4Ws.png"><img src="https://i.imgur.com/uUpu4Wsm.png" alt="Screenshot 4" title="Screenshot 4"/></a>
+    <a href="https://i.imgur.com/w9alZiW.png"><img src="https://i.imgur.com/w9alZiWm.png" alt="Screenshot 5" title="Screenshot 5"/></a>
+    <a href="https://i.imgur.com/qC9n7pZ.png"><img src="https://i.imgur.com/qC9n7pZm.png" alt="Screenshot 6" title="Screenshot 6"/></a>
+    <a href="https://i.imgur.com/5hgGiLP.png"><img src="https://i.imgur.com/5hgGiLPm.png" alt="Screenshot 7" title="Screenshot 7"/></a>
 </p>
 
 ---
