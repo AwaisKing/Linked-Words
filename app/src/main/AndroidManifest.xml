@@ -35,36 +35,26 @@
             android:theme="@style/AppTheme">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
+
+                <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
 
-            <!-- App Indexing -->
+            <!-- Search Intent Filter -->
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data
-                    android:host="rerolledgeek.blogspot.com"
-                    android:scheme="http" />
-                <data android:scheme="https" />
-            </intent-filter>
-
-            <!-- Search Intent Filter -->
-            <intent-filter>
                 <action android:name="android.intent.action.WEB_SEARCH" />
                 <action android:name="android.intent.action.SEARCH" />
                 <action android:name="com.google.android.gms.actions.SEARCH_ACTION" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
 
             <!-- Search Intent Filter -->
             <intent-filter>
-                <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
+
+                <action android:name="android.intent.action.SEND" />
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>

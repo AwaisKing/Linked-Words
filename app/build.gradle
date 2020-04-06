@@ -10,8 +10,8 @@ android {
         minSdkVersion 16
         targetSdkVersion 29
 
-        versionCode 108
-        versionName '10.8'
+        versionCode 109
+        versionName '10.9'
 
         multiDexEnabled true
 
@@ -67,10 +67,10 @@ dependencies {
     implementation('androidx.appcompat:appcompat:1.1.0@aar') { transitive true }
     implementation('androidx.legacy:legacy-support-v4:1.0.0@aar') { transitive true }
     implementation('com.google.android.material:material:1.2.0-alpha05@aar') { transitive true }
-    implementation('androidx.recyclerview:recyclerview:1.2.0-alpha01@aar') { transitive true }
+    implementation('androidx.recyclerview:recyclerview:1.2.0-alpha02@aar') { transitive true }
     implementation('androidx.cardview:cardview:1.0.0@aar') { transitive true }
 
-    implementation('com.google.firebase:firebase-core:17.2.3@aar') { transitive true }
+    implementation('com.google.firebase:firebase-core:17.3.0@aar') { transitive true }
     implementation('com.google.firebase:firebase-ads:19.0.1@aar') { transitive true }
     implementation('com.google.firebase:firebase-crash:16.2.1@aar') { transitive true }
     implementation('com.crashlytics.sdk.android:crashlytics:2.10.1@aar') { transitive true }
