@@ -1,4 +1,4 @@
-package awais.backworddictionary.helpers;
+package awais.backworddictionary.adapters.holders;
 
 import android.view.View;
 import android.widget.ImageView;
@@ -30,19 +30,14 @@ public abstract class ResultViewHolder extends RecyclerView.ViewHolder {
     protected abstract int getItemsCount();
 
     private int positionFix() {
-        int ofPos = getLayoutPosition();
-        final int count = getItemsCount(), layoutPosition = getLayoutPosition(), adapterPosition = getAdapterPosition();
+        final int count = getItemsCount(), layoutPosition = getLayoutPosition(), adapterPosition = getBindingAdapterPosition();
 
-        if (layoutPosition <= count && adapterPosition > count)
-            ofPos = layoutPosition;
-        else if (layoutPosition > count && adapterPosition <= count)
-            ofPos = adapterPosition;
-        else if (layoutPosition > count && adapterPosition > count) {
-            if (layoutPosition > adapterPosition)
-                ofPos = adapterPosition;
-            else if (layoutPosition < adapterPosition)
-                ofPos = layoutPosition;
-        }
+        final int ofPos;
+        if (layoutPosition > count) {
+            if (adapterPosition <= count) ofPos = adapterPosition;
+            else ofPos = Math.min(layoutPosition, adapterPosition);
+        } else if (adapterPosition <= count) ofPos = adapterPosition;
+        else ofPos = layoutPosition;
 
         return ofPos > count ? count - 1 : ofPos;
     }

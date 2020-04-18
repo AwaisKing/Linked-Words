@@ -9,7 +9,7 @@
 -keep class **.R$* { public static final int *; }
 -keep class **$Properties
 
-#-keepclassmembers,allowshrinking class awais.backworddictionary.custom.WordItem { private *; }
+#-keepclassmembers,allowshrinking class awais.backworddictionary.adapters.holders.WordItem { private *; }
 
 -keep,allowshrinking public class android.webkit.*
 #-keep public class * extends android.app.Service

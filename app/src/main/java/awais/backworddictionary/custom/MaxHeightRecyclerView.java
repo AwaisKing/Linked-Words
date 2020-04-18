@@ -38,7 +38,6 @@ public class MaxHeightRecyclerView extends RecyclerView {
 
     @Override
     protected void onMeasure(final int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(Math.round(maxHeightDp * Utils.displayMetrics.density),
-                MeasureSpec.AT_MOST));
+        super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(Utils.dpToPx(maxHeightDp), MeasureSpec.AT_MOST));
     }
 }

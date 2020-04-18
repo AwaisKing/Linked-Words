@@ -41,8 +41,9 @@ import java.util.Locale;
 import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
-import awais.backworddictionary.custom.Listener;
-import awais.backworddictionary.custom.WordItem;
+import awais.backworddictionary.adapters.holders.WordItem;
+import awais.backworddictionary.helpers.other.Listener;
+import awais.backworddictionary.interfaces.WordContextItemListener;
 import io.fabric.sdk.android.Fabric;
 
 import static awais.backworddictionary.Main.tabBoolsArray;
@@ -64,8 +65,8 @@ public final class Utils {
     public static String getResponse(final String url) throws Exception {
         final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 
-        final int responseCode = connection.getResponseCode();
-        if (responseCode == 200 || responseCode == 201 || responseCode == 202) {
+        String result = null;
+        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
             try (final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                 final StringBuilder response = new StringBuilder();
 
@@ -73,11 +74,17 @@ public final class Utils {
                 while ((currentLine = reader.readLine()) != null)
                     response.append(currentLine);
 
-                return response.toString();
+                result = response.toString();
+            } finally {
+                connection.disconnect();
             }
         }
 
-        return null;
+        return result;
+    }
+
+    public static int dpToPx(final float dp) {
+        return Math.round(dp * displayMetrics.density);
     }
 
     /**
@@ -89,7 +96,9 @@ public final class Utils {
             final Field staticField = Typeface.class.getDeclaredField(typefaceName);
             if (!staticField.isAccessible()) staticField.setAccessible(true);
             staticField.set(null, fontTypeface);
-        } catch (Exception ignored) {}
+        } catch (final Exception e) {
+            Log.e("AWAISKING_APP", "", e);
+        }
     }
 
     public static boolean isEmpty(final CharSequence cs) {

@@ -16,4 +16,5 @@
     <color name="search_text">#deffffff</color>
 
     <color name="helper_color">#fff</color>
+    <color name="floating_background">#3A000000</color>
 </resources>

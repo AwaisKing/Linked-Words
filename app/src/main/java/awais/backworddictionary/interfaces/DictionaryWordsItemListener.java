@@ -2,7 +2,7 @@ package awais.backworddictionary.interfaces;
 
 import android.view.View;
 
-import awais.backworddictionary.custom.WordItem;
+import awais.backworddictionary.adapters.holders.WordItem;
 import awais.backworddictionary.helpers.Utils;
 
 public final class DictionaryWordsItemListener implements View.OnLongClickListener, View.OnClickListener {

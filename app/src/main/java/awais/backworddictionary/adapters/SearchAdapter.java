@@ -20,7 +20,7 @@ import java.util.List;
 
 import awais.backworddictionary.R;
 import awais.backworddictionary.custom.SearchHistoryTable;
-import awais.backworddictionary.helpers.ResultViewHolder;
+import awais.backworddictionary.adapters.holders.ResultViewHolder;
 import awais.backworddictionary.helpers.Utils;
 import awais.lapism.MaterialSearchView;
 import awais.lapism.SearchItem;

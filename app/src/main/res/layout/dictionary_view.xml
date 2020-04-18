@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:card_view="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -41,28 +40,25 @@
         android:visibility="gone">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/filterCard"
+            style="@style/CardView.Light"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="2dp"
-            card_view:cardBackgroundColor="@android:color/white"
-            card_view:cardCornerRadius="2dp">
+            android:theme="@style/Theme.AppCompat.Light"
+            app:cardCornerRadius="2dp">
 
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
-                card_view:ignore="UnusedAttribute">
+                android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/filterBack"
-                    style="?attr/selectableItemBackgroundBorderless"
+                    style="?selectableItemBackgroundBorderless"
                     android:layout_width="48dp"
                     android:layout_height="match_parent"
                     android:background="?selectableItemBackgroundBorderless"
-                    android:clickable="true"
                     android:contentDescription="@string/filter_settings"
-                    android:focusable="true"
                     android:padding="6dp"
                     app:srcCompat="@drawable/ic_back" />
 
@@ -89,15 +85,14 @@
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/filterSettings"
-                    style="?attr/selectableItemBackgroundBorderless"
+                    style="?selectableItemBackgroundBorderless"
                     android:layout_width="48dp"
                     android:layout_height="match_parent"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
+                    android:background="?selectableItemBackgroundBorderless"
                     android:contentDescription="@string/filter_settings"
-                    android:focusable="true"
                     android:padding="6dp"
-                    app:srcCompat="@drawable/ic_settings" />
+                    app:srcCompat="@drawable/ic_settings"
+                    app:tint="#5A5A5A" />
             </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.cardview.widget.CardView>
     </FrameLayout>

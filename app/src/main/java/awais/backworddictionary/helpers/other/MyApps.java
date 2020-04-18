@@ -1,4 +1,4 @@
-package awais.backworddictionary.helpers;
+package awais.backworddictionary.helpers.other;
 
 import android.app.Activity;
 import android.content.Context;

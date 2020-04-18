@@ -1,4 +1,4 @@
-package awais.backworddictionary.customweb;
+package awais.backworddictionary.helpers.other;
 
 import android.os.Bundle;
 import android.view.MenuItem;

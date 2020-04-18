@@ -44,7 +44,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import awais.backworddictionary.R;
-import awais.backworddictionary.helpers.FadeAnimator;
 import awais.backworddictionary.helpers.Utils;
 
 public class MaterialSearchView extends FrameLayout implements View.OnClickListener {

@@ -1,4 +1,4 @@
-package awais.backworddictionary.helpers;
+package awais.backworddictionary.interfaces;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -17,22 +17,23 @@ import java.net.URL;
 import java.util.List;
 
 import awais.backworddictionary.R;
-import awais.backworddictionary.customweb.CustomTabActivityHelper;
+import awais.backworddictionary.helpers.Utils;
+import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
 
 import static awais.backworddictionary.Main.tts;
 
-final class WordContextItemListener implements PopupMenu.OnMenuItemClickListener {
+public final class WordContextItemListener implements PopupMenu.OnMenuItemClickListener {
     private final CustomTabsIntent.Builder customTabsIntent = new CustomTabsIntent.Builder();
     private final Context context;
     private final String word;
 
-    WordContextItemListener(final Context context, @NonNull final CharSequence word) {
+    public WordContextItemListener(final Context context, @NonNull final CharSequence word) {
         this.context = context;
         this.word = word.toString();
     }
 
     @Override
-    public boolean onMenuItemClick(final MenuItem menuItem) {
+    public boolean onMenuItemClick(@NonNull final MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.action_copy:
                 Utils.copyText(context, word);
@@ -85,7 +86,7 @@ final class WordContextItemListener implements PopupMenu.OnMenuItemClickListener
             case R.id.action_urban:
                 customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[2]);
                 CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
-                        Uri.parse("http://www.urbandictionary.com/define.php?term=" + word));
+                        Uri.parse("https://www.urbandictionary.com/define.php?term=" + word));
                 return true;
         }
 

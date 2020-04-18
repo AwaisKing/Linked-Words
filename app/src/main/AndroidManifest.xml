@@ -6,8 +6,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <!--    <uses-sdk tools:overrideLibrary="android.support.customtabs" />-->
-
     <application
         android:name=".LinkedApp"
         android:allowBackup="true"
@@ -60,7 +58,7 @@
         </activity>
 
         <activity
-            android:name=".customweb.WebViewActivity"
+            android:name=".helpers.other.WebViewActivity"
             android:parentActivityName=".Main">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

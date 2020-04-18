@@ -1,4 +1,4 @@
-package awais.backworddictionary.customweb;
+package awais.backworddictionary.helpers.other;
 
 import android.content.Context;
 import android.content.Intent;
@@ -40,7 +40,7 @@ public final class CustomTabActivityHelper {
 
         final PackageManager pm = context.getPackageManager();
 
-        final Intent activityIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.wikipedia.com"));
+        final Intent activityIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.wikipedia.com"));
         final ResolveInfo defaultViewHandlerInfo = pm.resolveActivity(activityIntent, 0);
 
         String defaultBrowser = null;

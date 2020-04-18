@@ -1,9 +1,7 @@
-package awais.backworddictionary.custom;
+package awais.backworddictionary.adapters.holders;
 
 public final class WordItem {
     private final String word;
-//    private final int numSyllables;
-//    private final String[] tags;
     private final String[][] defs;
     private final String parsedTags;
     private boolean expanded;
@@ -11,8 +9,6 @@ public final class WordItem {
     public WordItem(final String word, final int numSyllables, final String[] tags, final String[][] defs) {
         this.word = word;
         this.defs = defs;
-//        this.numSyllables = numSyllables;
-//        this.tags = tags;
 
         final StringBuilder tagsBuilder = new StringBuilder();
         if (tags != null && tags.length > 0) {
@@ -44,14 +40,6 @@ public final class WordItem {
     public String getParsedTags() {
         return parsedTags;
     }
-
-//    public String[] getTags() {
-//        return tags;
-//    }
-
-//    public int getNumSyllables() {
-//        return numSyllables;
-//    }
 
     public String[][] getDefs() {
         return defs;

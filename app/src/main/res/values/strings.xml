@@ -51,7 +51,11 @@
 
     <string name="select_filters">Select the filters</string>
     <string name="select_filter_first">Select a filter first.</string>
+
     <string name="options">More Options</string>
+    <string name="scroll_to_top">Scroll to Top</string>
+    <string name="scroll_to_bottom">Scroll to Bottom</string>
+    <string name="filter">Filter</string>
 
     <string name="_credits">Licenses &amp; Credits</string>
     <string name="copied_clipboard">Copied to clipboard.</string>

@@ -1,4 +1,4 @@
-package awais.backworddictionary.custom;
+package awais.backworddictionary.helpers.other;
 
 import android.view.View;
 import com.google.android.gms.ads.AdListener;

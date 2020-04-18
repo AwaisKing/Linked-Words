@@ -1,4 +1,4 @@
-package awais.backworddictionary.custom;
+package awais.backworddictionary.dialogs;
 
 import android.app.Activity;
 import android.app.Dialog;

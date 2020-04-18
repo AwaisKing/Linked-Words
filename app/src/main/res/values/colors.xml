@@ -25,4 +25,5 @@
     <color name="search_text">#de000000</color>
 
     <color name="helper_color">#212121</color>
+    <color name="floating_background">#18000000</color>
 </resources>

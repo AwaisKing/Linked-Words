@@ -1,4 +1,4 @@
-package awais.backworddictionary.custom;
+package awais.backworddictionary.dialogs;
 
 import android.app.Dialog;
 import android.app.SearchManager;
@@ -26,7 +26,7 @@ import java.util.List;
 import awais.backworddictionary.R;
 import awais.backworddictionary.adapters.DefinitionsAdapter;
 import awais.backworddictionary.adapters.SearchAdapter;
-import awais.backworddictionary.customweb.CustomTabActivityHelper;
+import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
 import awais.backworddictionary.helpers.Utils;
 
 import static awais.backworddictionary.Main.tts;
@@ -149,7 +149,7 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
             case R.id.btnUrban:
                 customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[2]);
                 CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
-                        Uri.parse("http://www.urbandictionary.com/define.php?term=" + word));
+                        Uri.parse("https://www.urban" + "dictionary.com/define.php?term=" + word));
                 break;
         }
         dismiss();

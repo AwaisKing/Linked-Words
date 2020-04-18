@@ -1,9 +1,5 @@
 package awais.backworddictionary;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,9 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.OvershootInterpolator;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -39,8 +33,6 @@ import androidx.appcompat.widget.TooltipCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import com.crashlytics.android.Crashlytics;
-import com.github.clans.fab.FloatingActionButton;
-import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.tabs.TabLayout;
 
@@ -51,16 +43,18 @@ import awais.backworddictionary.DictionaryFragment.FilterMethod;
 import awais.backworddictionary.adapters.DictionaryFragmentsAdapter;
 import awais.backworddictionary.adapters.SearchAdapter;
 import awais.backworddictionary.asyncs.SearchAsync;
-import awais.backworddictionary.custom.AdvancedDialog;
-import awais.backworddictionary.custom.MenuCaller;
+import awais.backworddictionary.dialogs.AdvancedDialog;
+import awais.backworddictionary.helpers.MenuHelper;
 import awais.backworddictionary.custom.SearchHistoryTable;
-import awais.backworddictionary.custom.SettingsDialog;
-import awais.backworddictionary.custom.WordItem;
-import awais.backworddictionary.helpers.MyApps;
+import awais.backworddictionary.dialogs.SettingsDialog;
+import awais.backworddictionary.adapters.holders.WordItem;
+import awais.backworddictionary.helpers.other.MyApps;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.FragmentLoader;
 import awais.backworddictionary.interfaces.MainCheck;
+import awais.clans.FloatingActionButton;
+import awais.clans.FloatingActionMenu;
 import awais.lapism.MaterialSearchView;
 import awais.lapism.SearchItem;
 
@@ -75,7 +69,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     public static TextToSpeech tts;
     private Toolbar toolbar;
     private TabLayout tabLayout;
-    private MenuCaller menuCaller;
+    private MenuHelper menuHelper;
     private AppBarLayout appBarLayout;
     private SearchAdapter searchAdapter;
     private FloatingActionMenu fabOptions;
@@ -99,7 +93,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         Utils.adsBox(this);
 
         Utils.inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-        menuCaller = new MenuCaller(this);
+        menuHelper = new MenuHelper(this);
 
         tabLayout = findViewById(R.id.tabs);
         viewPager = findViewById(R.id.viewpager);
@@ -111,35 +105,29 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
         setSupportActionBar(toolbar);
 
-        fabOptions.getMenuIconView().setImageDrawable(Utils.getDrawable(this, R.drawable.ic_options));
-        fabOptions.setClosedOnTouchOutside(true);
         final ViewGroup.LayoutParams fabParams = fabOptions.getLayoutParams();
-        fabOptions.setOnMenuButtonLongClickListener(v -> {
+        fabOptions.setLongClickListener(v -> {
             if (fragmentsAdapter == null || viewPager == null) return true;
             DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
             if (fragment.isAdded())
                 if (fragment.isFilterOpen()) fragment.hideFilter();
                 else fragment.showFilter(true, FilterMethod.RECYCLER_PADDING);
             return true;
-        });
-        fabOptions.setOnMenuButtonClickListener(v -> {
+        }).setMenuButtonClickListener(v -> {
             if (!fabOptions.isOpened()) {
                 fabParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
                 fabParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
                 fabOptions.setLayoutParams(fabParams);
             }
-            fabOptions.toggle(true);
-        });
-        fabOptions.setOnMenuToggleListener(opened -> {
+            fabOptions.toggle();
+        }).setMenuToggleListener(opened -> {
             if (!opened) {
-                fabOptions.postDelayed(() -> {
-                    fabParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-                    fabParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
-                    fabOptions.setLayoutParams(fabParams);
-                }, 300);
+                fabParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                fabParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                fabOptions.setLayoutParams(fabParams);
             }
         });
-        fabAnimation(fabOptions);
+
         setFabListeners(fabOptions, v -> {
             if (fragmentsAdapter != null && viewPager != null) {
                 final DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
@@ -156,13 +144,12 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                             fragment.scrollRecyclerView(true);
                             break;
                     }
-                fabOptions.close(true);
+                fabOptions.close();
             }
         });
+
         TooltipCompat.setTooltipText(fabOptions, getString(R.string.options));
-
         setSearchView();
-
         handleData();
     }
 
@@ -314,7 +301,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
 
     @Override
     public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
-        menuCaller.show(item);
+        menuHelper.show(item);
         return super.onOptionsItemSelected(item);
     }
 
@@ -530,32 +517,6 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         }
     }
 
-    private static void fabAnimation(@NonNull final FloatingActionMenu fabOptions) {
-        final AnimatorSet set = new AnimatorSet();
-        final ImageView fabIcon = fabOptions.getMenuIconView();
-
-        final ObjectAnimator scaleOutX = ObjectAnimator.ofFloat(fabIcon, "scaleX", 1.0f, 0.2f);
-        final ObjectAnimator scaleOutY = ObjectAnimator.ofFloat(fabIcon, "scaleY", 1.0f, 0.2f);
-        final ObjectAnimator scaleInX = ObjectAnimator.ofFloat(fabIcon, "scaleX", 0.2f, 1.0f);
-        final ObjectAnimator scaleInY = ObjectAnimator.ofFloat(fabIcon, "scaleY", 0.2f, 1.0f);
-
-        scaleOutX.setDuration(200);
-        scaleOutY.setDuration(200);
-        scaleInX.setDuration(200);
-        scaleInY.setDuration(200);
-        scaleInX.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                fabIcon.setImageResource(fabOptions.isOpened() ? R.drawable.ic_close : R.drawable.ic_options);
-            }
-        });
-        set.play(scaleOutX).with(scaleOutY);
-        set.play(scaleInX).with(scaleInY).after(scaleOutX);
-        set.setInterpolator(new OvershootInterpolator(3.17f));
-
-        fabOptions.setIconToggleAnimatorSet(set);
-    }
-
     private static void setFabListeners(final FloatingActionMenu fabOptions, final View.OnClickListener onClickListener) {
         if (fabOptions != null) {
             final int[] resIds = {R.drawable.ic_filter, R.drawable.ic_arrow_down, R.drawable.ic_arrow_up};
@@ -566,14 +527,14 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 final View view = fabOptions.getChildAt(i);
                 if (view instanceof FloatingActionButton) {
                     final FloatingActionButton fab = (FloatingActionButton) view;
-                    if (fab.getButtonSize() == 0) continue;
+                    if (fab.getButtonSize() == FloatingActionButton.SIZE_MINI) {
+                        final Drawable drawable = Utils.getDrawable(context, resIds[j]);
+                        drawable.setColorFilter(new PorterDuffColorFilter(0xFF2196F3, PorterDuff.Mode.SRC_ATOP));
 
-                    final Drawable drawable = Utils.getDrawable(context, resIds[j]);
-                    drawable.setColorFilter(new PorterDuffColorFilter(0xFF2196F3, PorterDuff.Mode.SRC_ATOP));
-
-                    fab.setImageDrawable(drawable);
-                    fab.setTag(j++);
-                    fab.setOnClickListener(onClickListener);
+                        fab.setImageDrawable(drawable);
+                        fab.setTag(j++);
+                        fab.setOnClickListener(onClickListener);
+                    }
                 }
             }
         }

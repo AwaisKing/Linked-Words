@@ -18,14 +18,14 @@ import java.util.List;
 
 import awais.backworddictionary.adapters.DefinitionsAdapter;
 import awais.backworddictionary.adapters.SearchAdapter;
-import awais.backworddictionary.custom.WordDialog;
-import awais.backworddictionary.custom.WordItem;
+import awais.backworddictionary.dialogs.WordDialog;
+import awais.backworddictionary.adapters.holders.WordItem;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
-import awais.backworddictionary.helpers.WordItemHolder;
+import awais.backworddictionary.adapters.holders.WordItemViewHolder;
 import awais.backworddictionary.interfaces.DictionaryWordsItemListener;
 
-class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implements Filterable {
+class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemViewHolder> implements Filterable {
     private final Context context;
     private final View.OnClickListener onClickListener, onWordItemClickListener;
     private final SearchAdapter.OnItemClickListener itemClickListener;
@@ -33,7 +33,7 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
     private final Filter filter;
     private boolean isShowDialogEnabled;
     private List<?> filterList;
-    final LinkedHashSet<WordItemHolder> holdersHashSet = new LinkedHashSet<>();
+    final LinkedHashSet<WordItemViewHolder> holdersHashSet = new LinkedHashSet<>();
     final LinkedHashSet<WordItem> expandedHashSet = new LinkedHashSet<>();
 
     DictionaryWordsAdapter(@NonNull Context context, List<WordItem> wordList) {
@@ -125,6 +125,7 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
                         }
                     }
                 }
+                filteredList.trimToSize();
                 filterList = filteredList;
                 results.values = filteredList;
                 return results;
@@ -141,13 +142,13 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemHolder> implem
 
     @NonNull
     @Override
-    public WordItemHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, final int viewType) {
-        return new WordItemHolder(LayoutInflater.from(viewGroup.getContext())
+    public WordItemViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, final int viewType) {
+        return new WordItemViewHolder(LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.word_item, viewGroup, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final WordItemHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final WordItemViewHolder holder, final int position) {
         final WordItem wordItem = (WordItem) filterList.get(position);
         holdersHashSet.add(holder);
 

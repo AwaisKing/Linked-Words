@@ -28,10 +28,10 @@ import java.util.List;
 import java.util.Locale;
 
 import awais.backworddictionary.asyncs.WordsAsync;
-import awais.backworddictionary.custom.WordItem;
+import awais.backworddictionary.adapters.holders.WordItem;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
-import awais.backworddictionary.helpers.WordItemHolder;
+import awais.backworddictionary.adapters.holders.WordItemViewHolder;
 import awais.backworddictionary.interfaces.FragmentCallback;
 
 public class DictionaryFragment extends Fragment implements FragmentCallback {
@@ -298,7 +298,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
         if (wordsAdapter != null) {
             wordsAdapter.refreshShowDialogEnabled();
 
-            for (final WordItemHolder holder : wordsAdapter.holdersHashSet)
+            for (final WordItemViewHolder holder : wordsAdapter.holdersHashSet)
                 holder.cardView.setCardBackgroundColor(-1);
 
             for (final WordItem wordItem : wordsAdapter.expandedHashSet)

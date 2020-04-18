@@ -1,4 +1,4 @@
-package awais.backworddictionary.helpers;
+package awais.lapism;
 
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FadeAnimator extends SimpleItemAnimator {
-    private static final boolean DEBUG = false;
     private final Interpolator mInterpolator = new DecelerateInterpolator();
     private final ArrayList<ViewHolder> mPendingAdditions = new ArrayList<>();
     private final ArrayList<ViewHolder> mChangeAnimations = new ArrayList<>();
@@ -194,7 +193,7 @@ public class FadeAnimator extends SimpleItemAnimator {
                         for (final ViewHolder holder : additions) {
                             ViewCompat.animate(holder.itemView).alpha(1).setDuration(getAddDuration())
                                     .setInterpolator(mInterpolator).setListener(new DefaultAddVpaListener(holder))
-                                    .setStartDelay(Math.abs(holder.getAdapterPosition() * getAddDuration() >> 2)).start();
+                                    .setStartDelay(Math.abs(holder.getBindingAdapterPosition() * getAddDuration() >> 2)).start();
                             mAddAnimations.add(holder);
                         }
                         additions.clear();
@@ -336,17 +335,10 @@ public class FadeAnimator extends SimpleItemAnimator {
             }
         }
 
-        if (mRemoveAnimations.remove(item) && DEBUG)
-            throw new IllegalStateException("after animation is cancelled, item should not be in mRemoveAnimations list");
-
-        if (mAddAnimations.remove(item) && DEBUG)
-            throw new IllegalStateException("after animation is cancelled, item should not be in mAddAnimations list");
-
-        if (mChangeAnimations.remove(item) && DEBUG)
-            throw new IllegalStateException("after animation is cancelled, item should not be in mChangeAnimations list");
-
-        if (mMoveAnimations.remove(item) && DEBUG)
-            throw new IllegalStateException("after animation is cancelled, item should not be in mMoveAnimations list");
+        mRemoveAnimations.remove(item);
+        mAddAnimations.remove(item);
+        mChangeAnimations.remove(item);
+        mMoveAnimations.remove(item);
 
         dispatchFinishedWhenDone();
     }
@@ -506,7 +498,7 @@ public class FadeAnimator extends SimpleItemAnimator {
         }
 
         private ChangeInfo(final ViewHolder oldHolder, final ViewHolder newHolder, final int fromX, final int fromY, final int toX,
-                final int toY) {
+                           final int toY) {
             this(oldHolder, newHolder);
             this.fromX = fromX;
             this.fromY = fromY;

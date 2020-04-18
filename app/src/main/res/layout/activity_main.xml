@@ -70,73 +70,35 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom" />
 
-    <com.github.clans.fab.FloatingActionMenu
+    <awais.clans.FloatingActionMenu
         android:id="@+id/fabOptions"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="bottom|end"
         android:paddingEnd="@dimen/options_padding_horizontal"
         android:paddingRight="@dimen/options_padding_horizontal"
         android:paddingBottom="@dimen/options_padding_bottom"
         android:scaleType="centerInside"
-        android:tooltipText="Options"
+        android:tooltipText="@string/options"
         android:windowSoftInputMode="adjustPan"
         app:elevation="0dp"
-        app:fabSize="normal"
         app:layout_anchor="@id/viewpager"
         app:layout_anchorGravity="end|bottom"
-        app:menu_animationDelayPerItem="0"
-        app:menu_backgroundColor="#17000000"
-        app:menu_colorNormal="@color/colorAccent"
-        app:menu_colorPressed="@color/colorPrimary"
-        app:menu_colorRipple="#66FFFFFF"
-        app:menu_fab_label="@string/options"
-        app:menu_labels_colorNormal="?android:windowBackground"
-        app:menu_labels_colorPressed="?android:windowBackground"
-        app:menu_labels_colorRipple="@color/fab_label_ripple_color"
-        app:menu_labels_ellipsize="end"
-        app:menu_labels_singleLine="true"
-        app:menu_labels_textColor="#757575"
-        app:menu_shadowXOffset="0dp"
-        app:menu_shadowYOffset="2px"
-        app:menu_showShadow="true"
-        tools:ignore="RtlSymmetry,PxUsage">
+        tools:ignore="RtlSymmetry">
 
-        <com.github.clans.fab.FloatingActionButton
+        <awais.clans.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:fab_colorNormal="@color/mini_fab_color"
-            app:fab_colorPressed="@color/mini_fab_color"
-            app:fab_colorRipple="@color/fab_label_ripple_color"
-            app:fab_label="Scroll to Top"
-            app:fab_shadowRadius="1dp"
-            app:fab_shadowXOffset="0dp"
-            app:fab_shadowYOffset="2px"
-            app:fab_size="mini" />
+            android:text="@string/scroll_to_top" />
 
-        <com.github.clans.fab.FloatingActionButton
+        <awais.clans.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:fab_colorNormal="@color/mini_fab_color"
-            app:fab_colorPressed="@color/mini_fab_color"
-            app:fab_colorRipple="@color/fab_label_ripple_color"
-            app:fab_label="Scroll to Bottom"
-            app:fab_shadowRadius="1dp"
-            app:fab_shadowXOffset="0dp"
-            app:fab_shadowYOffset="2px"
-            app:fab_size="mini" />
+            android:text="@string/scroll_to_bottom" />
 
-        <com.github.clans.fab.FloatingActionButton
+        <awais.clans.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="0dp"
-            app:fab_colorNormal="@color/mini_fab_color"
-            app:fab_colorPressed="@color/mini_fab_color"
-            app:fab_colorRipple="@color/fab_label_ripple_color"
-            app:fab_label="Filter"
-            app:fab_shadowRadius="1dp"
-            app:fab_shadowXOffset="0dp"
-            app:fab_shadowYOffset="2px"
-            app:fab_size="mini" />
-    </com.github.clans.fab.FloatingActionMenu>
+            android:text="@string/filter" />
+    </awais.clans.FloatingActionMenu>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
