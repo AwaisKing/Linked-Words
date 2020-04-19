@@ -88,17 +88,20 @@
         <awais.clans.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/scroll_to_top" />
+            android:text="@string/scroll_to_top"
+            app:srcCompat="@drawable/ic_arrow_up" />
 
         <awais.clans.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/scroll_to_bottom" />
+            android:text="@string/scroll_to_bottom"
+            app:srcCompat="@drawable/ic_arrow_down" />
 
         <awais.clans.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="0dp"
-            android:text="@string/filter" />
+            android:text="@string/filter"
+            app:srcCompat="@drawable/ic_filter" />
     </awais.clans.FloatingActionMenu>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

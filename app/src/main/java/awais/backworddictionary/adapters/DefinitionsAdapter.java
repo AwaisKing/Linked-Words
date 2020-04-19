@@ -14,21 +14,22 @@ import java.util.ArrayList;
 
 import awais.backworddictionary.LinkedApp;
 import awais.backworddictionary.R;
+import awais.backworddictionary.interfaces.SearchAdapterClickListener;
 
 public class DefinitionsAdapter extends ArrayAdapter<String[]> {
     private final boolean isExpanded;
     private final ArrayList<String[]> items;
     private final LayoutInflater layoutInflater;
-    private final SearchAdapter.OnItemClickListener onItemClickListener;
+    private final SearchAdapterClickListener searchAdapterClickListener;
     private int topMargin = 0, subSize = 20;
 
     public DefinitionsAdapter(final Context context, final boolean isExpanded, final ArrayList<String[]> items,
-                              final SearchAdapter.OnItemClickListener onItemClickListener) {
+                              final SearchAdapterClickListener searchAdapterClickListener) {
         super(context, R.layout.word_dialog_item, items);
         this.layoutInflater = LayoutInflater.from(context);
         this.items = items;
         this.isExpanded = isExpanded;
-        this.onItemClickListener  = onItemClickListener;
+        this.searchAdapterClickListener = searchAdapterClickListener;
     }
 
     @NonNull
@@ -65,8 +66,8 @@ public class DefinitionsAdapter extends ArrayAdapter<String[]> {
             }
 
         final View finalRow = row;
-        if (onItemClickListener != null) row.setOnClickListener(v ->
-                onItemClickListener.onItemClick(finalRow, getPosition(wordItem), wordItem[1]));
+        if (searchAdapterClickListener != null) row.setOnClickListener(v ->
+                searchAdapterClickListener.onItemClick(wordItem[1]));
 
         return finalRow;
     }

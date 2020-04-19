@@ -9,6 +9,7 @@ import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Xfermode;
 import android.graphics.drawable.ColorDrawable;
@@ -32,6 +33,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.content.res.ResourcesCompat;
 
+import java.lang.ref.WeakReference;
+
 import awais.backworddictionary.R;
 import awais.backworddictionary.helpers.Utils;
 
@@ -40,6 +43,7 @@ public class FloatingActionButton extends AppCompatImageButton implements View.O
     public static final int SIZE_MINI = 1;
     static final int shadowRadius = Utils.dpToPx(1), shadowYOffset = Utils.dpToPx(2), iconSize = Utils.dpToPx(24f);
     private static final Xfermode PORTER_DUFF_CLEAR = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
+    private static OnMenuToggleListener menuToggleListener;
     private final GestureDetector gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDown(final MotionEvent e) {
@@ -63,11 +67,10 @@ public class FloatingActionButton extends AppCompatImageButton implements View.O
     private OnClickListener clickListener;
     private StateListDrawable backgroundDrawable;
     private Animation showAnimation, hideAnimation;
+    private static WeakReference<FloatingActionMenu> floatingActionMenu;
     private int colorNormal, colorPressed;
     private float originalX = -1, originalY = -1;
     private boolean shouldUpdateButtonPosition, buttonPositionSaved;
-    private OnMenuToggleListener menuToggleListener;
-    private FloatingActionMenu floatingActionMenu;
     int fabSize = SIZE_MINI;
 
     public FloatingActionButton(@NonNull final Context context) {
@@ -81,16 +84,17 @@ public class FloatingActionButton extends AppCompatImageButton implements View.O
     public FloatingActionButton(@NonNull final Context context, @Nullable final AttributeSet attrs, final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
+        resources = context.getResources();
+
         if (attrs != null) {
             for (int i = 0; i < attrs.getAttributeCount(); ++i) {
                 if ("text".equals(attrs.getAttributeName(i))) {
-                    labelText = attrs.getAttributeValue(i);
+                    final int strValue = attrs.getAttributeResourceValue(i, 0);
+                    if (strValue != 0) labelText = resources.getString(strValue);
                     break;
                 }
             }
         }
-
-        resources = context.getResources();
 
         colorNormal = ResourcesCompat.getColor(resources, R.color.mini_fab_color, null);
         colorPressed = ResourcesCompat.getColor(resources, R.color.fab_label_ripple_color, null);
@@ -102,8 +106,7 @@ public class FloatingActionButton extends AppCompatImageButton implements View.O
             @Override
             public void onAnimationEnd(final Animation animation) {
                 final boolean isShown = animation == showAnimation;
-
-                if (floatingActionMenu != null) floatingActionMenu.setOpened(isShown);
+                if (floatingActionMenu != null && floatingActionMenu.get() != null) floatingActionMenu.get().setOpened(isShown);
                 if (menuToggleListener != null) menuToggleListener.onMenuToggle(isShown);
             }
 
@@ -162,6 +165,8 @@ public class FloatingActionButton extends AppCompatImageButton implements View.O
 
     void updateBackground() {
         final Drawable iconDrawable = getIconDrawable();
+        if (fabSize == SIZE_MINI) iconDrawable.setColorFilter(new PorterDuffColorFilter(0xFF2196F3, PorterDuff.Mode.SRC_ATOP));
+
         final LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{
                 new Shadow(),
                 createFillDrawable(),
@@ -267,17 +272,17 @@ public class FloatingActionButton extends AppCompatImageButton implements View.O
     }
 
     @Override
-    public Drawable getDrawable() {
-        return iconDrawable;
-    }
-
-    @Override
     public void setImageResource(final int resId) {
         final Drawable drawable = ResourcesCompat.getDrawable(resources, resId, null);
         if (iconDrawable != drawable) {
             iconDrawable = drawable;
             updateBackground();
         }
+    }
+
+    @Override
+    public Drawable getDrawable() {
+        return iconDrawable;
     }
 
     @Override
@@ -291,10 +296,6 @@ public class FloatingActionButton extends AppCompatImageButton implements View.O
         this.clickListener = clickListener;
         final View label = (View) getTag(R.id.fab_label);
         if (label != null) label.setOnClickListener(this);
-    }
-
-    public int getButtonSize() {
-        return fabSize;
     }
 
     public boolean isHidden() {
@@ -403,9 +404,9 @@ public class FloatingActionButton extends AppCompatImageButton implements View.O
         }
     }
 
-    public void setMenuToggleListener(final OnMenuToggleListener listener, final FloatingActionMenu floatingActionMenu) {
-        this.menuToggleListener = listener;
-        this.floatingActionMenu = floatingActionMenu;
+    public void setMenuToggleListener(final OnMenuToggleListener listener, final FloatingActionMenu actionMenu) {
+        floatingActionMenu = new WeakReference<>(actionMenu);
+        if (listener != null && menuToggleListener == null) menuToggleListener = listener;
     }
 
     public interface OnMenuToggleListener {

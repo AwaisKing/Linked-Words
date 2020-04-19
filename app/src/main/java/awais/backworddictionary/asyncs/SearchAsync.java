@@ -10,7 +10,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import awais.backworddictionary.BuildConfig;
-import awais.backworddictionary.custom.WordItem;
+import awais.backworddictionary.adapters.holders.WordItem;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.MainCheck;
 
@@ -35,7 +35,7 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
         ArrayList<WordItem> arrayList = new ArrayList<>(0);
 
         try {
-            final String response = Utils.getResponse("http://api.datamuse.com/sug?s=" + query);
+            final String response = Utils.getResponse("https://api.data" + "muse.com/sug?s=" + query);
 
             if (response != null) {
                 final JSONArray jsonArray = new JSONArray(response);

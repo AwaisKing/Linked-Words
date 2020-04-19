@@ -25,9 +25,9 @@ import java.util.List;
 
 import awais.backworddictionary.R;
 import awais.backworddictionary.adapters.DefinitionsAdapter;
-import awais.backworddictionary.adapters.SearchAdapter;
-import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
 import awais.backworddictionary.helpers.Utils;
+import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
+import awais.backworddictionary.interfaces.SearchAdapterClickListener;
 
 import static awais.backworddictionary.Main.tts;
 
@@ -36,9 +36,9 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
     private final Context context;
     private final ArrayList<String[]> defs;
     private final CustomTabsIntent.Builder customTabsIntent;
-    private final SearchAdapter.OnItemClickListener itemClickListener;
+    private final SearchAdapterClickListener itemClickListener;
 
-    public WordDialog(final Context context, final String word, final ArrayList<String[]> defs, final SearchAdapter.OnItemClickListener itemClickListener) {
+    public WordDialog(final Context context, final String word, final ArrayList<String[]> defs, final SearchAdapterClickListener itemClickListener) {
         super(context, R.style.Dialog);
         this.context = context;
         this.word = word;

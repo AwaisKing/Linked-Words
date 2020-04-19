@@ -35,6 +35,7 @@ import android.widget.Toast;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView.OnQueryTextListener;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
@@ -452,11 +453,6 @@ public class MaterialSearchView extends FrameLayout implements View.OnClickListe
 
     public void setOnOpenCloseListener(final OnOpenCloseListener listener) {
         mOnOpenCloseListener = listener;
-    }
-
-    public interface OnQueryTextListener {
-        boolean onQueryTextSubmit(final String query);
-        void onQueryTextChange(final String newText);
     }
 
     public interface OnOpenCloseListener {

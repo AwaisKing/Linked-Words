@@ -17,18 +17,18 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import awais.backworddictionary.adapters.DefinitionsAdapter;
-import awais.backworddictionary.adapters.SearchAdapter;
-import awais.backworddictionary.dialogs.WordDialog;
 import awais.backworddictionary.adapters.holders.WordItem;
+import awais.backworddictionary.adapters.holders.WordItemViewHolder;
+import awais.backworddictionary.dialogs.WordDialog;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
-import awais.backworddictionary.adapters.holders.WordItemViewHolder;
 import awais.backworddictionary.interfaces.DictionaryWordsItemListener;
+import awais.backworddictionary.interfaces.SearchAdapterClickListener;
 
 class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemViewHolder> implements Filterable {
     private final Context context;
     private final View.OnClickListener onClickListener, onWordItemClickListener;
-    private final SearchAdapter.OnItemClickListener itemClickListener;
+    private final SearchAdapterClickListener itemClickListener;
     private final String[] noItemFound;
     private final Filter filter;
     private boolean isShowDialogEnabled;
@@ -46,7 +46,7 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemViewHolder> im
         this.onClickListener = view -> Utils.showPopupMenu(null, context, view,
                 view.getTag() instanceof String ? (String) view.getTag() : null);
 
-        this.itemClickListener = (view, pos, text) -> {
+        this.itemClickListener = (text) -> {
             final String str = String.valueOf(text);
             if (!Utils.isEmpty(str) && !str.equals(context.getString(R.string.no_definition_found))) {
                 Utils.copyText(context, str.replaceAll("^(.*)\\t", ""));

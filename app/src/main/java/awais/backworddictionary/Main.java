@@ -1,13 +1,10 @@
 package awais.backworddictionary;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
@@ -18,7 +15,6 @@ import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
@@ -28,11 +24,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.viewpager.widget.ViewPager;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.tabs.TabLayout;
 
@@ -42,18 +38,19 @@ import java.util.Locale;
 import awais.backworddictionary.DictionaryFragment.FilterMethod;
 import awais.backworddictionary.adapters.DictionaryFragmentsAdapter;
 import awais.backworddictionary.adapters.SearchAdapter;
-import awais.backworddictionary.asyncs.SearchAsync;
-import awais.backworddictionary.dialogs.AdvancedDialog;
-import awais.backworddictionary.helpers.MenuHelper;
-import awais.backworddictionary.custom.SearchHistoryTable;
-import awais.backworddictionary.dialogs.SettingsDialog;
 import awais.backworddictionary.adapters.holders.WordItem;
-import awais.backworddictionary.helpers.other.MyApps;
+import awais.backworddictionary.asyncs.SearchAsync;
+import awais.backworddictionary.custom.SearchHistoryTable;
+import awais.backworddictionary.dialogs.AdvancedDialog;
+import awais.backworddictionary.dialogs.SettingsDialog;
+import awais.backworddictionary.helpers.InitializerThread;
+import awais.backworddictionary.helpers.MenuHelper;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
+import awais.backworddictionary.helpers.other.MyApps;
 import awais.backworddictionary.interfaces.FragmentLoader;
 import awais.backworddictionary.interfaces.MainCheck;
-import awais.clans.FloatingActionButton;
+import awais.backworddictionary.interfaces.SearchAdapterClickListener;
 import awais.clans.FloatingActionMenu;
 import awais.lapism.MaterialSearchView;
 import awais.lapism.SearchItem;
@@ -73,7 +70,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     private AppBarLayout appBarLayout;
     private SearchAdapter searchAdapter;
     private FloatingActionMenu fabOptions;
-    private SearchHistoryTable mHistoryDatabase;
+    private SearchHistoryTable historyDatabase;
     private AppBarLayout.LayoutParams toolbarParams;
     public DictionaryFragmentsAdapter fragmentsAdapter;
     public ViewPager viewPager;
@@ -113,6 +110,20 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 if (fragment.isFilterOpen()) fragment.hideFilter();
                 else fragment.showFilter(true, FilterMethod.RECYCLER_PADDING);
             return true;
+        }).setMenuItemSelector((fab, pos) -> {
+            final DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
+            if (pos == 0) { // scroll to top
+                fragment.scrollRecyclerView(true);
+
+            } else if (pos == 1) { // scroll to bottom
+                fragment.scrollRecyclerView(false);
+
+            } else if (pos == 2) { // filter
+                if (fragment.isFilterOpen()) fragment.hideFilter();
+                else fragment.showFilter(true, FilterMethod.RECYCLER_PADDING);
+            }
+            fabOptions.close();
+
         }).setMenuButtonClickListener(v -> {
             if (!fabOptions.isOpened()) {
                 fabParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -128,26 +139,6 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             }
         });
 
-        setFabListeners(fabOptions, v -> {
-            if (fragmentsAdapter != null && viewPager != null) {
-                final DictionaryFragment fragment = fragmentsAdapter.getItem(viewPager.getCurrentItem());
-                if (fragment.isAdded())
-                    switch ((int) v.getTag()) {
-                        case 0: // filter
-                            if (fragment.isFilterOpen()) fragment.hideFilter();
-                            else fragment.showFilter(true, FilterMethod.RECYCLER_PADDING);
-                            break;
-                        case 1: // scroll to bottom
-                            fragment.scrollRecyclerView(false);
-                            break;
-                        case 2: // scroll to top
-                            fragment.scrollRecyclerView(true);
-                            break;
-                    }
-                fabOptions.close();
-            }
-        });
-
         TooltipCompat.setTooltipText(fabOptions, getString(R.string.options));
         setSearchView();
         handleData();
@@ -157,8 +148,8 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     protected void onPostCreate(@Nullable final Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        new myThread(true, this).start(); // load fragments
-        new myThread(false, this).start(); // setup tts
+        new InitializerThread(true, this).start(); // load fragments
+        new InitializerThread(false, this).start(); // setup tts
     }
 
     @Override
@@ -272,44 +263,35 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
-
-        final MenuItem.OnMenuItemClickListener clickListener = item -> {
-            switch (item.getItemId()) {
-                case R.id.mAdvance:
-                    new AdvancedDialog(this).show();
-                    break;
-
-                case R.id.mSearch:
-                    if (searchView != null) {
-                        searchView.open(true, item);
-                        searchView.bringToFront();
-                    }
-                    break;
-
-                case R.id.mSettings:
-                    new SettingsDialog(Main.this).show();
-                    break;
-            }
-            return true;
-        };
-
-        menu.findItem(R.id.mAdvance).setOnMenuItemClickListener(clickListener);
-        menu.findItem(R.id.mSearch).setOnMenuItemClickListener(clickListener);
-        menu.findItem(R.id.mSettings).setOnMenuItemClickListener(clickListener);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
-        menuHelper.show(item);
-        return super.onOptionsItemSelected(item);
+        final int itemId = item.getItemId();
+        if (itemId == R.id.mAdvance) {
+            new AdvancedDialog(this).show();
+
+        } else if (itemId == R.id.mSearch && searchView != null) {
+            searchView.open(true, item);
+            searchView.bringToFront();
+
+        } else if (itemId == R.id.mSettings) {
+            new SettingsDialog(Main.this).show();
+
+        } else {
+            menuHelper.show(item);
+        }
+
+        return true;
     }
 
     @Override
     public void afterSearch(final ArrayList<WordItem> result) {
-        if (searchView != null && searchView.isShowingProgress()) searchView.hideProgress();
+        final boolean searchViewNotNull = searchView != null;
+        if (searchViewNotNull && searchView.isShowingProgress()) searchView.hideProgress();
 
-        if (result != null && !result.isEmpty() && searchView != null && searchAdapter != null) {
+        if (result != null && !result.isEmpty() && searchAdapter != null) {
             final ArrayList<SearchItem> suggestionsList = new ArrayList<>();
             for (final WordItem item : result)
                 suggestionsList.add(new SearchItem(item.getWord()));
@@ -317,7 +299,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             searchAdapter.setData(suggestionsList);
             searchAdapter.setSuggestionsList(suggestionsList);
             searchAdapter.notifyDataSetChanged();
-            searchView.showSuggestions();
+            if (searchViewNotNull) searchView.showSuggestions();
         }
     }
 
@@ -369,22 +351,18 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
     @Override
     protected void onResume() {
         super.onResume();
-        mHistoryDatabase.open();
+        historyDatabase.open();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mHistoryDatabase.close();
+        historyDatabase.close();
     }
 
-    private void addHistoryItem(final CharSequence query) {
-        mHistoryDatabase.addItem(new SearchItem(query));
-        searchAdapter.getFilter().filter("");
-    }
-
-    private void deleteHistoryItem(@NonNull final String query) {
-        mHistoryDatabase.clearDatabase(query);
+    private void historyItemAction(final boolean delete, final String query) {
+        if (delete) historyDatabase.clearDatabase(query);
+        else historyDatabase.addItem(new SearchItem(query));
         searchAdapter.getFilter().filter("");
     }
 
@@ -393,94 +371,85 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         if (searchView != null) {
             searchView.bringToFront();
 
-            mHistoryDatabase = new SearchHistoryTable(this);
+            historyDatabase = new SearchHistoryTable(this);
+            searchAdapter = new SearchAdapter(this, historyDatabase, new SearchAdapterClickListener() {
+                private AlertDialog alertDialog;
 
-            searchAdapter = new SearchAdapter(this, mHistoryDatabase, (view, position, text) -> {
-                onSearch(text);
-                addHistoryItem(text);
-            }, (view, position, text) -> {
-                final DialogInterface.OnClickListener btnListener = (dialog, which) -> {
-                    if (which == DialogInterface.BUTTON_POSITIVE) deleteHistoryItem(text);
-                    dialog.dismiss();
-                };
+                @Override
+                public void onItemClick(final String text) {
+                    onSearch(text);
+                    historyItemAction(false, text);
+                }
 
-                final AlertDialog alertDialog = new AlertDialog.Builder(Main.this)
-                        .setTitle(R.string.remove_recent)
-                        .setMessage(getString(R.string.confirm_remove, text))
-                        .setPositiveButton(R.string.yes, btnListener)
-                        .setNegativeButton(R.string.no, btnListener).show();
+                @Override
+                public void onItemLongClick(final String text) {
+                    if (alertDialog == null) {
+                        final DialogInterface.OnClickListener btnListener = (dialog, which) -> {
+                            if (which == DialogInterface.BUTTON_POSITIVE) historyItemAction(true, text);
+                            dialog.dismiss();
+                        };
 
-                final TextView tvMessage = alertDialog.findViewById(android.R.id.message);
-                if (tvMessage == null) return true;
+                        alertDialog = new AlertDialog.Builder(Main.this)
+                                .setTitle(R.string.remove_recent)
+                                .setPositiveButton(R.string.yes, btnListener)
+                                .setNegativeButton(R.string.no, btnListener).create();
+                    }
 
-                tvMessage.setTypeface(LinkedApp.fontRegular);
+                    alertDialog.setMessage(getString(R.string.confirm_remove, text));
+                    alertDialog.show();
 
-                final String tvMessageText = "" + tvMessage.getText();
-                if (Utils.isEmpty(tvMessageText)) return true;
-                final SpannableStringBuilder messageSpan = new SpannableStringBuilder(tvMessageText);
-                final int spanStart = tvMessageText.indexOf('"');
-                final int spanEnd = tvMessageText.lastIndexOf('"');
-                messageSpan.setSpan(new StyleSpan(Typeface.BOLD), spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                messageSpan.delete(spanStart, spanStart + 1);
-                messageSpan.delete(spanEnd - 1, spanEnd);
-                tvMessage.setText(messageSpan);
-                return true;
+                    final TextView tvMessage = alertDialog.findViewById(android.R.id.message);
+                    if (tvMessage != null) {
+                        tvMessage.setTypeface(LinkedApp.fontRegular);
+
+                        final CharSequence tvMessageText = tvMessage.getText();
+                        if (!Utils.isEmpty(tvMessageText)) {
+                            final SpannableStringBuilder messageSpan = new SpannableStringBuilder(tvMessageText);
+                            final int spanStart = Utils.indexOfChar(tvMessageText, '"', 0);
+                            final int spanEnd = spanStart + text.length() + 1;
+                            messageSpan.setSpan(new StyleSpan(Typeface.BOLD), spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            messageSpan.delete(spanStart, spanStart + 1);
+                            messageSpan.delete(spanEnd - 1, spanEnd);
+                            tvMessage.setText(messageSpan);
+                        }
+                    }
+                }
             });
             searchView.setAdapter(searchAdapter);
 
-            searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 private final Handler handler = new Handler();
                 private String text = "";
                 private SearchAsync prevAsync;
                 private final Runnable textWatch = () -> {
                     final SearchAsync async = new SearchAsync(Main.this);
                     if (!Utils.isEmpty(text)) {
-                        if (prevAsync != null)
-                            try {
-                                prevAsync.cancel(true);
-                            } catch (Exception ignore) {
-                            }
+                        stopAsyncSilent(prevAsync);
                         async.execute(text);
                         prevAsync = async;
                     } else {
-                        try {
-                            prevAsync.cancel(true);
-                        } catch (Exception ignore) {
-                        }
-                        try {
-                            async.cancel(true);
-                        } catch (Exception ignore) {
-                        }
+                        stopAsyncSilent(prevAsync);
+                        stopAsyncSilent(async);
                     }
                 };
 
                 @Override
                 public boolean onQueryTextSubmit(final String query) {
-                    try {
-                        handler.removeCallbacks(textWatch);
-                    } catch (Exception ignored) {
-                    }
-                    if (mHistoryDatabase != null && !Utils.isEmpty(query))
-                        try {
-                            addHistoryItem(query);
-                        } catch (Exception e) {
-                            Crashlytics.logException(e);
-                        }
+                    removeHandlerCallbacksSilent(handler, textWatch);
+                    if (historyDatabase != null && !Utils.isEmpty(query)) historyItemAction(false, query);
                     onSearch(query);
                     return query != null || BuildConfig.DEBUG;
                 }
 
                 @Override
-                public void onQueryTextChange(final String newText) {
+                public boolean onQueryTextChange(final String newText) {
                     text = newText;
                     if (!Utils.isEmpty(newText)) {
-                        try {
-                            handler.removeCallbacks(textWatch);
-                        } catch (Exception ignored) {
-                        }
+                        removeHandlerCallbacksSilent(handler, textWatch);
                         handler.postDelayed(textWatch, 800);
                         searchView.showProgress();
                     } else searchView.hideProgress();
+                    return true;
                 }
             });
 
@@ -517,60 +486,11 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
         }
     }
 
-    private static void setFabListeners(final FloatingActionMenu fabOptions, final View.OnClickListener onClickListener) {
-        if (fabOptions != null) {
-            final int[] resIds = {R.drawable.ic_filter, R.drawable.ic_arrow_down, R.drawable.ic_arrow_up};
-            final Context context = fabOptions.getContext();
-
-            int j = 0;
-            for (int i = fabOptions.getChildCount() - 1; i > -1; --i) {
-                final View view = fabOptions.getChildAt(i);
-                if (view instanceof FloatingActionButton) {
-                    final FloatingActionButton fab = (FloatingActionButton) view;
-                    if (fab.getButtonSize() == FloatingActionButton.SIZE_MINI) {
-                        final Drawable drawable = Utils.getDrawable(context, resIds[j]);
-                        drawable.setColorFilter(new PorterDuffColorFilter(0xFF2196F3, PorterDuff.Mode.SRC_ATOP));
-
-                        fab.setImageDrawable(drawable);
-                        fab.setTag(j++);
-                        fab.setOnClickListener(onClickListener);
-                    }
-                }
-            }
-        }
+    private static void stopAsyncSilent(final AsyncTask<?, ?, ?> asyncTask) {
+        try { asyncTask.cancel(true); } catch (final Exception ignored) { }
     }
 
-    private final static class myThread extends Thread {
-        private final boolean method;
-        private final Main activity;
-
-        myThread(boolean method, Main activity) {
-            this.method = method;
-            this.activity = activity;
-        }
-
-        @Override
-        public void run() {
-            if (method) {
-                try {
-                    activity.loadFragments(true);
-                } catch (Exception ignored) {
-                    activity.runOnUiThread(() -> activity.loadFragments(true));
-                }
-            } else {
-                tts = new TextToSpeech(activity, initStatus -> {
-                    if (initStatus == TextToSpeech.SUCCESS) {
-                        if (tts.isLanguageAvailable(Locale.US) == TextToSpeech.LANG_AVAILABLE)
-                            tts.setLanguage(Locale.US);
-                        else if (tts.isLanguageAvailable(Locale.CANADA) == TextToSpeech.LANG_AVAILABLE)
-                            tts.setLanguage(Locale.CANADA);
-                        else if (tts.isLanguageAvailable(Locale.UK) == TextToSpeech.LANG_AVAILABLE)
-                            tts.setLanguage(Locale.UK);
-                        else if (tts.isLanguageAvailable(Locale.ENGLISH) == TextToSpeech.LANG_AVAILABLE)
-                            tts.setLanguage(Locale.ENGLISH);
-                    }
-                });
-            }
-        }
+    private static void removeHandlerCallbacksSilent(final Handler handler, final Runnable runnable) {
+        try { handler.removeCallbacks(runnable); } catch (final Exception ignored) { }
     }
 }

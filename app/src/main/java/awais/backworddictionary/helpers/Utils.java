@@ -1,6 +1,5 @@
 package awais.backworddictionary.helpers;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ClipData;
@@ -9,7 +8,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -21,9 +19,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatDrawableManager;
 import androidx.appcompat.widget.PopupMenu;
-import androidx.core.content.ContextCompat;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.ads.AdRequest;
@@ -47,6 +43,7 @@ import awais.backworddictionary.interfaces.WordContextItemListener;
 import io.fabric.sdk.android.Fabric;
 
 import static awais.backworddictionary.Main.tabBoolsArray;
+import static java.lang.Character.MIN_LOW_SURROGATE;
 
 public final class Utils {
     public static final int[] CUSTOM_TAB_COLORS = new int[]{0xFF4888F2, 0xFF333333, 0xFF3B496B};
@@ -54,7 +51,6 @@ public final class Utils {
     public static InputMethodManager inputMethodManager;
     public static Locale defaultLocale;
     public static int statusBarHeight = 0;
-    private static AppCompatDrawableManager drawableManager;
     private static ClipboardManager clipboard;
 
     public static void setSharedPrefs(final Context context) {
@@ -126,18 +122,6 @@ public final class Utils {
         } else adLayout.setVisibility(View.GONE);
     }
 
-    @SuppressLint("RestrictedApi")
-    public static Drawable getDrawable(final Context context, final int resId) {
-        Drawable drawable;
-        try {
-            if (drawableManager == null) drawableManager = AppCompatDrawableManager.get();
-            drawable = drawableManager.getDrawable(context, resId);
-        } catch (Exception e) {
-            drawable = ContextCompat.getDrawable(context, resId);
-        }
-        return drawable;
-    }
-
     public static int getStatusBarHeight(final Window window, final Resources resources) {
         if (Build.VERSION.SDK_INT == 19 && window != null && resources != null) {
             final Rect rectangle = new Rect();
@@ -201,5 +185,21 @@ public final class Utils {
             });
             popup.show();
         }
+    }
+
+    // extracted from String class
+    public static int indexOfChar(@NonNull final CharSequence sequence, final int ch, final int startIndex) {
+        final int max = sequence.length();
+        if (startIndex < max) {
+            if (ch < Character.MIN_SUPPLEMENTARY_CODE_POINT) {
+                for (int i = startIndex; i < max; i++) if (sequence.charAt(i) == ch) return i;
+            } else if (Character.isValidCodePoint(ch)) {
+                final char hi = (char) ((ch >>> 10) + (Character.MIN_HIGH_SURROGATE - (Character.MIN_SUPPLEMENTARY_CODE_POINT >>> 10)));
+                final char lo = (char) ((ch & 0x3ff) + MIN_LOW_SURROGATE);
+                for (int i = startIndex; i < max; i++)
+                    if (sequence.charAt(i) == hi && sequence.charAt(i + 1) == lo) return i;
+            }
+        }
+        return -1;
     }
 }

@@ -6,7 +6,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -19,9 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import awais.backworddictionary.R;
-import awais.backworddictionary.custom.SearchHistoryTable;
 import awais.backworddictionary.adapters.holders.ResultViewHolder;
+import awais.backworddictionary.custom.SearchHistoryTable;
 import awais.backworddictionary.helpers.Utils;
+import awais.backworddictionary.interfaces.SearchAdapterClickListener;
 import awais.lapism.MaterialSearchView;
 import awais.lapism.SearchItem;
 
@@ -29,20 +29,17 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
     private final Filter filter;
     private final LayoutInflater layoutInflater;
     private final SearchHistoryTable historyDatabase;
-    private final SearchAdapter.OnItemClickListener clickListener;
-    private final SearchAdapter.OnItemLongClickListener longClickListener;
+    private final SearchAdapterClickListener clickListener;
     private List<SearchItem> suggestionsList = new ArrayList<>();
     private List<SearchItem> resultList = new ArrayList<>();
     private String key = "";
 
-
-    public SearchAdapter(final Context context, final SearchHistoryTable table, final OnItemClickListener clickListener,
-                         final OnItemLongClickListener longClickListener) {
+    public SearchAdapter(final Context context, final SearchHistoryTable table, final SearchAdapterClickListener listener) {
         this.layoutInflater = LayoutInflater.from(context);
         this.historyDatabase = table;
-        this.clickListener = clickListener;
-        this.longClickListener = longClickListener;
+        this.clickListener = listener;
         this.filter = new Filter() {
+            @NonNull
             @Override
             protected FilterResults performFiltering(final CharSequence constraint) {
                 final FilterResults filterResults = new FilterResults();
@@ -85,7 +82,7 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
                 setData(dataSet);
             }
         };
-        filter.filter("");
+        this.filter.filter("");
     }
 
     public void setSuggestionsList(final List<SearchItem> suggestionsList) {
@@ -123,13 +120,7 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
     @NonNull
     @Override
     public ResultViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        return new ResultViewHolder(layoutInflater.inflate(R.layout.search_item, parent, false),
-                clickListener, longClickListener) {
-            @Override
-            public int getItemsCount() {
-                return getItemCount();
-            }
-        };
+        return new ResultViewHolder(layoutInflater.inflate(R.layout.search_item, parent, false), clickListener);
     }
 
     @Override
@@ -159,13 +150,5 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
     @Override
     public int getItemViewType(final int position) {
         return position;
-    }
-
-    public interface OnItemClickListener {
-        void onItemClick(final View view, final int position, final String text);
-    }
-
-    public interface OnItemLongClickListener {
-        boolean onItemLongClick(final View view, int position, final String text);
     }
 }

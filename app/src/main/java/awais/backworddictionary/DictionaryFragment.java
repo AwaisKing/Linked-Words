@@ -27,22 +27,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import awais.backworddictionary.asyncs.WordsAsync;
 import awais.backworddictionary.adapters.holders.WordItem;
-import awais.backworddictionary.helpers.SettingsHelper;
-import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.adapters.holders.WordItemViewHolder;
+import awais.backworddictionary.asyncs.WordsAsync;
+import awais.backworddictionary.helpers.SettingsHelper;
+import awais.backworddictionary.helpers.SmoothScroller;
+import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.FragmentCallback;
 
 public class DictionaryFragment extends Fragment implements FragmentCallback {
+    private Activity activity;
+    private FrameLayout filterView;
     private List<WordItem> wordList;
     private RecyclerView recyclerView;
-    private Activity activity;
     private EditText filterSearchEditor;
     private ImageView filterSearchButton;
-    private FrameLayout filterView;
     private SwipeRefreshLayout swipeRefreshLayout;
-
+    private final SmoothScroller smoothScroller = new SmoothScroller();
     private final boolean[] filterCheck = {true, true, true};
     public String title;
     DictionaryWordsAdapter wordsAdapter;
@@ -117,7 +118,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
         });
 
         startOffset = swipeRefreshLayout.getProgressViewStartOffset();
-        expandedEndOffset = (int) (getExpandedOffset() * 1.17f);
+        expandedEndOffset = (int) (getExpandedOffset() * 1.2f);
         endOffset = (int) (expandedEndOffset - expandedEndOffset * 0.717f);
 
         recyclerView = magicRootView.findViewById(R.id.recycler_view);
@@ -283,7 +284,34 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
     }
 
     void scrollRecyclerView(final boolean directionUp) {
-        if (recyclerView != null) recyclerView.smoothScrollToPosition(directionUp ? 0 : 5000);
+        if (recyclerView != null) {
+            final int itemCount = wordsAdapter == null ? 0 : wordsAdapter.getItemCount();
+            if (itemCount > 0 && recyclerView.getLayoutManager() != null) {
+                final LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                final int firstCompletelyVisible = manager.findFirstCompletelyVisibleItemPosition();
+
+                final float scrollPerInch; // larger value = slower scroll
+                if (itemCount <= 20) scrollPerInch = 50f;
+                else if (itemCount <= 80) scrollPerInch = 27f;
+                else if (firstCompletelyVisible <= itemCount / 15) scrollPerInch = 20f;
+                else if (firstCompletelyVisible <= itemCount / 11) scrollPerInch = 26f;
+                else if (firstCompletelyVisible <= itemCount / 9) scrollPerInch = 38f;
+                else if (firstCompletelyVisible <= itemCount / 5) scrollPerInch = 46f;
+                else if (firstCompletelyVisible <= itemCount / 3) scrollPerInch = 52f;
+                else if (firstCompletelyVisible <= itemCount / 2) scrollPerInch = 67f;
+                else if (firstCompletelyVisible >= itemCount / 2) scrollPerInch = 20f;
+                else if (firstCompletelyVisible >= itemCount / 3) scrollPerInch = 26f;
+                else if (firstCompletelyVisible >= itemCount / 5) scrollPerInch = 38f;
+                else if (firstCompletelyVisible >= itemCount / 9) scrollPerInch = 46f;
+                else if (firstCompletelyVisible >= itemCount / 11) scrollPerInch = 52f;
+                else if (firstCompletelyVisible >= itemCount / 15) scrollPerInch = 67f;
+                else scrollPerInch = 10f;
+
+                smoothScroller.setScrollPerInch(scrollPerInch);
+                smoothScroller.setTargetPosition(directionUp ? 0 : itemCount - 1);
+                manager.startSmoothScroll(smoothScroller);
+            }
+        }
     }
 
     private float getExpandedOffset() {

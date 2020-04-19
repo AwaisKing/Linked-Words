@@ -12,7 +12,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import awais.backworddictionary.R;
-import awais.backworddictionary.custom.WordItem;
+import awais.backworddictionary.adapters.holders.WordItem;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.FragmentCallback;
@@ -76,7 +76,7 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
 
         try {
             final int wordsCount = SettingsHelper.getMaxWords();
-            final String body = Utils.getResponse("https://api.datamuse.com/words?md=pds&max=" + wordsCount + "&" + method + "=" + query);
+            final String body = Utils.getResponse("https://api.data" + "muse.com/words?md=pds&max=" + wordsCount + "&" + method + "=" + query);
             if (body != null) {
                 final JSONArray jsonArray = new JSONArray(body);
                 wordItemsList = new ArrayList<>(jsonArray.length());
