@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
@@ -55,7 +54,7 @@ import awais.clans.FloatingActionMenu;
 import awais.lapism.MaterialSearchView;
 import awais.lapism.SearchItem;
 
-public class Main extends AppCompatActivity implements FragmentLoader, MainCheck {
+public final class Main extends AppCompatActivity implements FragmentLoader, MainCheck {
     static {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -296,9 +295,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
             for (final WordItem item : result)
                 suggestionsList.add(new SearchItem(item.getWord()));
 
-            searchAdapter.setData(suggestionsList);
             searchAdapter.setSuggestionsList(suggestionsList);
-            searchAdapter.notifyDataSetChanged();
             if (searchViewNotNull) searchView.showSuggestions();
         }
     }
@@ -424,18 +421,18 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 private final Runnable textWatch = () -> {
                     final SearchAsync async = new SearchAsync(Main.this);
                     if (!Utils.isEmpty(text)) {
-                        stopAsyncSilent(prevAsync);
+                        Utils.stopAsyncSilent(prevAsync);
                         async.execute(text);
                         prevAsync = async;
                     } else {
-                        stopAsyncSilent(prevAsync);
-                        stopAsyncSilent(async);
+                        Utils.stopAsyncSilent(prevAsync);
+                        Utils.stopAsyncSilent(async);
                     }
                 };
 
                 @Override
                 public boolean onQueryTextSubmit(final String query) {
-                    removeHandlerCallbacksSilent(handler, textWatch);
+                    Utils.removeHandlerCallbacksSilent(handler, textWatch);
                     if (historyDatabase != null && !Utils.isEmpty(query)) historyItemAction(false, query);
                     onSearch(query);
                     return query != null || BuildConfig.DEBUG;
@@ -445,7 +442,7 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 public boolean onQueryTextChange(final String newText) {
                     text = newText;
                     if (!Utils.isEmpty(newText)) {
-                        removeHandlerCallbacksSilent(handler, textWatch);
+                        Utils.removeHandlerCallbacksSilent(handler, textWatch);
                         handler.postDelayed(textWatch, 800);
                         searchView.showProgress();
                     } else searchView.hideProgress();
@@ -484,13 +481,5 @@ public class Main extends AppCompatActivity implements FragmentLoader, MainCheck
                 }
             });
         }
-    }
-
-    private static void stopAsyncSilent(final AsyncTask<?, ?, ?> asyncTask) {
-        try { asyncTask.cancel(true); } catch (final Exception ignored) { }
-    }
-
-    private static void removeHandlerCallbacksSilent(final Handler handler, final Runnable runnable) {
-        try { handler.removeCallbacks(runnable); } catch (final Exception ignored) { }
     }
 }

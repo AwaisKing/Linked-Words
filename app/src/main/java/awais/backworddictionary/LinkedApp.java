@@ -10,7 +10,7 @@ import androidx.multidex.MultiDexApplication;
 
 import awais.backworddictionary.helpers.Utils;
 
-public class LinkedApp extends MultiDexApplication {
+public final class LinkedApp extends MultiDexApplication {
     public static Typeface fontRegular, fontMedium;
 
     @Override

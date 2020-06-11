@@ -12,6 +12,7 @@ import android.widget.Filterable;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ import awais.backworddictionary.interfaces.SearchAdapterClickListener;
 import awais.lapism.MaterialSearchView;
 import awais.lapism.SearchItem;
 
-public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implements Filterable {
+public final class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implements Filterable {
     private final Filter filter;
     private final LayoutInflater layoutInflater;
     private final SearchHistoryTable historyDatabase;
@@ -34,7 +35,7 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
     private List<SearchItem> resultList = new ArrayList<>();
     private String key = "";
 
-    public SearchAdapter(final Context context, final SearchHistoryTable table, final SearchAdapterClickListener listener) {
+    public SearchAdapter(final Context context, @Nullable final SearchHistoryTable table, final SearchAdapterClickListener listener) {
         this.layoutInflater = LayoutInflater.from(context);
         this.historyDatabase = table;
         this.clickListener = listener;
@@ -45,17 +46,17 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
                 final FilterResults filterResults = new FilterResults();
 
                 if (!Utils.isEmpty(constraint)) {
-                    key = constraint.toString().toLowerCase(Utils.defaultLocale);
+                    key = constraint.toString().toLowerCase();
 
                     final List<SearchItem> results = new ArrayList<>();
                     final List<SearchItem> history = new ArrayList<>();
-                    final List<SearchItem> databaseAllItems = historyDatabase.getAllItems(null);
+                    final List<SearchItem> databaseAllItems = historyDatabase != null ? historyDatabase.getAllItems(null) : null;
 
-                    if (!databaseAllItems.isEmpty()) history.addAll(databaseAllItems);
+                    if (databaseAllItems != null && !databaseAllItems.isEmpty()) history.addAll(databaseAllItems);
                     history.addAll(suggestionsList);
 
                     for (final SearchItem item : history)
-                        if (item.getText().toString().toLowerCase(Utils.defaultLocale).contains(key))
+                        if (item.getText().toString().toLowerCase().contains(key))
                             results.add(item);
 
                     if (results.size() > 0) {
@@ -72,9 +73,9 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
                 List<SearchItem> dataSet = new ArrayList<>();
 
                 if (results.count > 0) {
-                    for (final Object object : (ArrayList<?>) results.values)
-                        if (object instanceof SearchItem) dataSet.add((SearchItem) object);
-                } else if (key.isEmpty()) {
+                    //noinspection unchecked
+                    dataSet = (List<SearchItem>) results.values;
+                } else if (key.isEmpty() && historyDatabase != null) {
                     final List<SearchItem> allItems = historyDatabase.getAllItems(null);
                     if (!allItems.isEmpty()) dataSet = allItems;
                 }
@@ -87,7 +88,7 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
 
     public void setSuggestionsList(final List<SearchItem> suggestionsList) {
         this.suggestionsList = suggestionsList;
-        this.resultList = suggestionsList;
+        setData(suggestionsList);
     }
 
     @Override
@@ -95,25 +96,23 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
         return filter;
     }
 
-    public void setData(final List<SearchItem> data) {
-        if (resultList.size() == 0) {
+    private void setData(final List<SearchItem> data) {
+        final int previousSize = resultList.size();
+        if (previousSize == 0) {
             resultList = data;
             notifyDataSetChanged();
         } else {
-            final int previousSize = resultList.size();
             final int nextSize = data.size();
             resultList = data;
             if (previousSize == nextSize) notifyItemRangeChanged(0, previousSize);
-            else if (previousSize > nextSize) {
-                if (nextSize == 0) notifyItemRangeRemoved(0, previousSize);
-                else {
-                    notifyItemRangeChanged(0, nextSize);
-                    notifyItemRangeRemoved(nextSize - 1, previousSize);
-                }
-            } else {
+            else if (previousSize <= nextSize) {
                 notifyItemRangeChanged(0, previousSize);
                 notifyItemRangeInserted(previousSize, nextSize - previousSize);
-            }
+            } else if (nextSize != 0) {
+                notifyItemRangeChanged(0, nextSize);
+                notifyItemRangeRemoved(nextSize - 1, previousSize);
+            } else
+                notifyItemRangeRemoved(0, previousSize);
         }
     }
 
@@ -128,7 +127,7 @@ public class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> implem
         final SearchItem item = resultList.get(position);
 
         viewHolder.icon.setImageResource(item.getIcon());
-        viewHolder.icon.setColorFilter(MaterialSearchView.mIconColor, PorterDuff.Mode.SRC_IN);
+        viewHolder.icon.setColorFilter(MaterialSearchView.iconColor, PorterDuff.Mode.SRC_IN);
 
         final String itemText = item.getText().toString();
         final String itemTextLower = itemText.toLowerCase(Utils.defaultLocale);

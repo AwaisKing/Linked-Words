@@ -32,7 +32,7 @@ import static awais.clans.FloatingActionButton.SIZE_NORMAL;
 import static awais.clans.FloatingActionButton.shadowRadius;
 import static awais.clans.FloatingActionButton.shadowYOffset;
 
-public class FloatingActionMenu extends ViewGroup {
+public final class FloatingActionMenu extends ViewGroup {
     private static final int ANIMATION_DURATION = 300;
     private final int buttonSpacing = Utils.dpToPx(4);
     private final int labelsPaddingTop = buttonSpacing;

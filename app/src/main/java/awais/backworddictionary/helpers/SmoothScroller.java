@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 // same as from LinearSmoothScroller
-public class SmoothScroller extends RecyclerView.SmoothScroller {
+public final class SmoothScroller extends RecyclerView.SmoothScroller {
     public static final int SNAP_TO_START = -1, SNAP_TO_ANY = 0, SNAP_TO_END = 1;
     private static final float TARGET_SEEK_EXTRA_SCROLL_RATIO = 1.2f;
     private static final int TARGET_SEEK_SCROLL_DISTANCE_PX = 10000;

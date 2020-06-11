@@ -35,7 +35,7 @@ import awais.backworddictionary.helpers.SmoothScroller;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.FragmentCallback;
 
-public class DictionaryFragment extends Fragment implements FragmentCallback {
+public final class DictionaryFragment extends Fragment implements FragmentCallback {
     private Activity activity;
     private FrameLayout filterView;
     private List<WordItem> wordList;
@@ -119,7 +119,7 @@ public class DictionaryFragment extends Fragment implements FragmentCallback {
 
         startOffset = swipeRefreshLayout.getProgressViewStartOffset();
         expandedEndOffset = (int) (getExpandedOffset() * 1.2f);
-        endOffset = (int) (expandedEndOffset - expandedEndOffset * 0.717f);
+        endOffset = (int) (expandedEndOffset - expandedEndOffset * 0.72f);
 
         recyclerView = magicRootView.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);

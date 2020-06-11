@@ -32,8 +32,4 @@
         android:textColor="@color/search_text"
         android:textIsSelectable="false"
         android:textSize="@dimen/search_text_small" />
-
-    <androidx.appcompat.widget.AppCompatImageView
-        android:layout_width="@dimen/search_icon"
-        android:layout_height="@dimen/search_icon" />
 </androidx.appcompat.widget.LinearLayoutCompat>

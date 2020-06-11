@@ -26,6 +26,5 @@ public final class ResultViewHolder extends RecyclerView.ViewHolder {
                 return true;
             });
         }
-
     }
 }

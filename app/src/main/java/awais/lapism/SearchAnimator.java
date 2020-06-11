@@ -22,7 +22,7 @@ final class SearchAnimator {
     static void fadeIn(@NonNull final View view) {
         final Animation anim = new AlphaAnimation(0.0f, 1.0f);
         anim.setInterpolator(new AccelerateDecelerateInterpolator());
-        anim.setDuration(317);
+        anim.setDuration(300);
 
         view.setAnimation(anim);
         view.setVisibility(View.VISIBLE);
@@ -31,7 +31,7 @@ final class SearchAnimator {
     static void fadeOut(@NonNull final View view) {
         final Animation anim = new AlphaAnimation(1.0f, 0.0f);
         anim.setInterpolator(new AccelerateDecelerateInterpolator());
-        anim.setDuration(317);
+        anim.setDuration(300);
 
         view.setAnimation(anim);
         view.setVisibility(View.GONE);
@@ -57,7 +57,7 @@ final class SearchAnimator {
 
                 final Animator anim = ViewAnimationUtils.createCircularReveal(view, cx, cy, 0.0f, finalRadius);
                 anim.setInterpolator(new AccelerateDecelerateInterpolator());
-                anim.setDuration(317);
+                anim.setDuration(300);
 
                 anim.addListener(new AnimatorListenerAdapter() {
                     @Override
@@ -97,7 +97,7 @@ final class SearchAnimator {
 
                 final Animator anim = ViewAnimationUtils.createCircularReveal(view, cx, cy, initialRadius, 0.0f);
                 anim.setInterpolator(new AccelerateDecelerateInterpolator());
-                anim.setDuration(317);
+                anim.setDuration(300);
                 anim.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationStart(final Animator animation) {
@@ -119,7 +119,7 @@ final class SearchAnimator {
     static void fadeOpen(@NonNull final View view, final SearchEditText editText, final MaterialSearchView.OnOpenCloseListener listener) {
         final Animation anim = new AlphaAnimation(0.0f, 1.0f);
         anim.setInterpolator(new AccelerateDecelerateInterpolator());
-        anim.setDuration(317);
+        anim.setDuration(300);
         anim.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(final Animation animation) {
@@ -139,11 +139,11 @@ final class SearchAnimator {
         view.setVisibility(View.VISIBLE);
     }
 
-    static void fadeClose(final View view, final SearchEditText editText, final MaterialSearchView searchView,
+    static void fadeClose(@NonNull final View view, final SearchEditText editText, final MaterialSearchView searchView,
                           final MaterialSearchView.OnOpenCloseListener listener) {
         final Animation anim = new AlphaAnimation(1.0f, 0.0f);
         anim.setInterpolator(new AccelerateDecelerateInterpolator());
-        anim.setDuration(317);
+        anim.setDuration(300);
         anim.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(final Animation animation) {

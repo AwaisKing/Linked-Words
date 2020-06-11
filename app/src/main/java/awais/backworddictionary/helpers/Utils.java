@@ -8,7 +8,9 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -62,8 +64,8 @@ public final class Utils {
         final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 
         String result = null;
-        if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            try (final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 final StringBuilder response = new StringBuilder();
 
                 String currentLine;
@@ -71,9 +73,9 @@ public final class Utils {
                     response.append(currentLine);
 
                 result = response.toString();
-            } finally {
-                connection.disconnect();
             }
+        } finally {
+            connection.disconnect();
         }
 
         return result;
@@ -105,6 +107,14 @@ public final class Utils {
         return str == null || str.length() <= 0 || "null".equals(str) || str.trim().isEmpty() || "".equals(str.trim()) || "null".equals(str.trim());
     }
 
+    public static void stopAsyncSilent(final AsyncTask<?, ?, ?> asyncTask) {
+        try { asyncTask.cancel(true); } catch (final Exception ignored) { }
+    }
+
+    public static void removeHandlerCallbacksSilent(final Handler handler, final Runnable runnable) {
+        try { handler.removeCallbacks(runnable); } catch (final Exception ignored) { }
+    }
+
     public static void initCrashlytics(final Activity activity) {
         GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(activity).addOnCompleteListener(task -> {
             if (!BuildConfig.DEBUG && task.isSuccessful())
@@ -115,7 +125,7 @@ public final class Utils {
     public static void adsBox(@NonNull final Activity activity) {
         final View adLayout = activity.findViewById(R.id.adLayout);
         if (SettingsHelper.showAds()) {
-            MobileAds.initialize(activity, activity.getResources().getString(R.string.appid));
+            MobileAds.initialize(activity, initializationStatus -> { });
             final AdView adView = activity.findViewById(R.id.adView);
             adView.setAdListener(new Listener(adLayout));
             adView.loadAd(new AdRequest.Builder().build());

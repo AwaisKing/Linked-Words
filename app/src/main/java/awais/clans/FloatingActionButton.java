@@ -38,7 +38,7 @@ import java.lang.ref.WeakReference;
 import awais.backworddictionary.R;
 import awais.backworddictionary.helpers.Utils;
 
-public class FloatingActionButton extends AppCompatImageButton implements View.OnClickListener {
+public final class FloatingActionButton extends AppCompatImageButton implements View.OnClickListener {
     public static final int SIZE_NORMAL = 0;
     public static final int SIZE_MINI = 1;
     static final int shadowRadius = Utils.dpToPx(1), shadowYOffset = Utils.dpToPx(2), iconSize = Utils.dpToPx(24f);

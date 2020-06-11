@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 
-public class SettingsHelper {
+public final class SettingsHelper {
     private static final String DEFAULT_TABS = "[true, true, true, true, false, false, false, false, false, false]";
     ////////////////////////////////////////////////
     private static final String KEY_TABS = "tabs";

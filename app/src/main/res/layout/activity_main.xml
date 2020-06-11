@@ -61,8 +61,7 @@
         android:id="@+id/searchView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="awais.lapism.SearchBehavior"
-        app:search_hint="@string/search" />
+        app:layout_behavior="awais.lapism.SearchBehavior" />
 
     <include
         layout="@layout/bottom_view"

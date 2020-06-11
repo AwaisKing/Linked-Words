@@ -34,7 +34,7 @@
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/imageView_arrow_back"
+                    android:id="@+id/ivBack"
                     android:layout_width="48dp"
                     android:layout_height="match_parent"
                     android:background="?android:attr/selectableItemBackground"
@@ -43,7 +43,7 @@
                     android:padding="@dimen/filter_margin_start" />
 
                 <awais.lapism.SearchEditText
-                    android:id="@+id/searchEditText_input"
+                    android:id="@+id/etSearchView"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_gravity="start|center_vertical"
@@ -81,7 +81,7 @@
                     android:layout_height="match_parent">
 
                     <androidx.appcompat.widget.AppCompatImageView
-                        android:id="@+id/imageView_mic"
+                        android:id="@+id/ivMic"
                         android:layout_width="48dp"
                         android:layout_height="match_parent"
                         android:background="?android:attr/selectableItemBackground"
@@ -91,7 +91,7 @@
                         app:srcCompat="@drawable/ic_mic_black" />
 
                     <androidx.appcompat.widget.AppCompatImageView
-                        android:id="@+id/imageView_clear"
+                        android:id="@+id/btnCancel"
                         android:layout_width="48dp"
                         android:layout_height="match_parent"
                         android:background="?android:attr/selectableItemBackground"
@@ -110,10 +110,10 @@
                 android:gravity="start|center_vertical" />
 
             <awais.backworddictionary.custom.MaxHeightRecyclerView
-                android:id="@+id/recyclerView_result"
+                android:id="@+id/rvResults"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:maxHeight="217" />
+                app:maxHeight="215" />
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.cardview.widget.CardView>
 </merge>

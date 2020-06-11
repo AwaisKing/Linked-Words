@@ -25,7 +25,7 @@ import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.DictionaryWordsItemListener;
 import awais.backworddictionary.interfaces.SearchAdapterClickListener;
 
-class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemViewHolder> implements Filterable {
+final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemViewHolder> implements Filterable {
     private final Context context;
     private final View.OnClickListener onClickListener, onWordItemClickListener;
     private final SearchAdapterClickListener itemClickListener;
@@ -36,7 +36,7 @@ class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemViewHolder> im
     final LinkedHashSet<WordItemViewHolder> holdersHashSet = new LinkedHashSet<>();
     final LinkedHashSet<WordItem> expandedHashSet = new LinkedHashSet<>();
 
-    DictionaryWordsAdapter(@NonNull Context context, List<WordItem> wordList) {
+    DictionaryWordsAdapter(@NonNull final Context context, final List<WordItem> wordList) {
         this.noItemFound = new String[]{"", context.getString(R.string.no_definition_found)};
         this.context = context;
         this.filterList = wordList;

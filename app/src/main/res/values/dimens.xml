@@ -18,11 +18,12 @@
     <dimen name="search_icon">24dp</dimen>
     <dimen name="search_item_height">56dp</dimen>
     <dimen name="search_item_margin_text">24dp</dimen>
+    <dimen name="search_view_margin_text">24dp</dimen>
     <dimen name="search_key_line">16dp</dimen>
     <dimen name="search_menu_item_margin">1dp</dimen>
     <dimen name="search_menu_item_margin_left_right">2dp</dimen>
     <dimen name="search_reveal">24dp</dimen>
+
     <dimen name="search_text_medium">16sp</dimen>
     <dimen name="search_text_small">14sp</dimen>
-    <dimen name="search_view_margin_text">24dp</dimen>
 </resources>

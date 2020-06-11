@@ -12,8 +12,8 @@ import com.google.android.material.appbar.AppBarLayout;
 
 import awais.backworddictionary.helpers.Utils;
 
-public class SearchBehavior extends CoordinatorLayout.Behavior<MaterialSearchView> {
-    public SearchBehavior(Context context, AttributeSet attrs) {
+public final class SearchBehavior extends CoordinatorLayout.Behavior<MaterialSearchView> {
+    public SearchBehavior(final Context context, final AttributeSet attrs) {
         super(context, attrs);
     }
 

@@ -47,7 +47,6 @@ public final class MyApps {
                 new Icons("awais.reversify", "Reversify", R.drawable.rev),
                 new Icons("awais.reversify.lite", "Reversify Lite", R.drawable.revl),
                 new Icons("awais.skyrimconsole", "Skyrim Cheats", R.drawable.tesv),
-                new Icons("awais.instagrabber", "[OPENSRC] Instagrabber", R.drawable.insta),
                 new Icons("awais.videobar.play", "Videeze", R.drawable.vdz)
         };
         iconsList = new Icons[currList.length - 1];
@@ -67,7 +66,7 @@ public final class MyApps {
                 else Process.killProcess(Process.myPid());
             }
         };
-        if (new Random().nextDouble() < 0.617D) {
+        if (new Random().nextDouble() < 0.6D) {
             cancelListener.onCancel(null);
             return;
         }

@@ -35,7 +35,7 @@ import awais.backworddictionary.helpers.Utils;
 import static awais.clans.FloatingActionButton.shadowRadius;
 import static awais.clans.FloatingActionButton.shadowYOffset;
 
-public class Label extends AppCompatTextView {
+public final class Label extends AppCompatTextView {
     private static final Xfermode PORTER_DUFF_CLEAR = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
     private final GestureDetector gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
         @Override

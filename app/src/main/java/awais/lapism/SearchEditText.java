@@ -6,7 +6,7 @@ import android.view.KeyEvent;
 
 import androidx.appcompat.widget.AppCompatEditText;
 
-public class SearchEditText extends AppCompatEditText {
+public final class SearchEditText extends AppCompatEditText {
     private MaterialSearchView mSearchView;
 
     public SearchEditText(final Context context) {
@@ -27,8 +27,8 @@ public class SearchEditText extends AppCompatEditText {
 
     @Override
     public boolean onKeyPreIme(final int keyCode, final KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP &&
-                mSearchView != null && mSearchView.isSearchOpen()) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP
+                && mSearchView != null && mSearchView.isSearchOpen()) {
             mSearchView.close(true);
             return true;
         }
