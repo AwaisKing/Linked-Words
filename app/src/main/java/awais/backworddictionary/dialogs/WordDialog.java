@@ -6,9 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -16,7 +14,6 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.DialogTitle;
 import androidx.browser.customtabs.CustomTabsIntent;
 
 import java.net.URL;
@@ -25,11 +22,10 @@ import java.util.List;
 
 import awais.backworddictionary.R;
 import awais.backworddictionary.adapters.DefinitionsAdapter;
+import awais.backworddictionary.custom.AlertDialogTitle;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
 import awais.backworddictionary.interfaces.SearchAdapterClickListener;
-
-import static awais.backworddictionary.Main.tts;
 
 public final class WordDialog extends Dialog implements android.view.View.OnClickListener {
     private final String word;
@@ -39,7 +35,7 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
     private final SearchAdapterClickListener itemClickListener;
 
     public WordDialog(final Context context, final String word, final ArrayList<String[]> defs, final SearchAdapterClickListener itemClickListener) {
-        super(context, R.style.Dialog);
+        super(context, R.style.MaterialAlertDialogTheme);
         this.context = context;
         this.word = word;
         this.defs = defs;
@@ -69,7 +65,7 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
 
         setContentView(R.layout.word_dialog);
 
-        ((DialogTitle) findViewById(R.id.alertTitle)).setText(word);
+        ((AlertDialogTitle) findViewById(R.id.alertTitle)).setText(word);
 
         final ListView lvDefs = findViewById(R.id.lvDefs);
         lvDefs.setAdapter(new DefinitionsAdapter(context, false, defs, itemClickListener));
@@ -101,12 +97,7 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
         }
 
         if (id == R.id.btnSpeak) {
-            if (tts != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    tts.speak(word, TextToSpeech.QUEUE_FLUSH, null, null);
-                else
-                    tts.speak(word, TextToSpeech.QUEUE_FLUSH, null); // todo change deprecated
-            }
+            Utils.speakText(word);
             return;
         }
 

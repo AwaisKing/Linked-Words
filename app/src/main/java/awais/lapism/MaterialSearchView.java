@@ -35,6 +35,7 @@ import android.widget.Toast;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.SearchView.OnQueryTextListener;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
@@ -150,7 +151,7 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
 
         setVisibility(View.GONE);
 
-        searchArrow = new SearchArrowDrawable(context);
+        searchArrow = new SearchArrowDrawable(new ContextThemeWrapper(context, context.getTheme()));
         backImageView = findViewById(R.id.ivBack);
         backImageView.setImageDrawable(searchArrow);
         backImageView.setOnClickListener(this);

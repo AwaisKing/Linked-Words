@@ -28,14 +28,15 @@ import android.view.animation.Animation;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatTextView;
+
+import com.google.android.material.textview.MaterialTextView;
 
 import awais.backworddictionary.helpers.Utils;
 
 import static awais.clans.FloatingActionButton.shadowRadius;
 import static awais.clans.FloatingActionButton.shadowYOffset;
 
-public final class Label extends AppCompatTextView {
+public final class Label extends MaterialTextView {
     private static final Xfermode PORTER_DUFF_CLEAR = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
     private final GestureDetector gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
         @Override
@@ -56,7 +57,7 @@ public final class Label extends AppCompatTextView {
     private final Animation showAnimation, hideAnimation;
     private final int cornerRadius = Utils.dpToPx(3);
     private Drawable backgroundDrawable;
-    private int rawWidth, rawHeight, colorNormal, colorPressed;
+    private int rawWidth, rawHeight;
 
     public Label(@NonNull final Context context, @NonNull final FloatingActionButton fab, final Animation showAnimation, final Animation hideAnimation) {
         super(context);
@@ -84,8 +85,8 @@ public final class Label extends AppCompatTextView {
 
     void updateBackground() {
         final StateListDrawable drawable = new StateListDrawable();
-        drawable.addState(new int[]{android.R.attr.state_pressed}, createRectDrawable(colorPressed));
-        drawable.addState(new int[]{}, createRectDrawable(colorNormal));
+        drawable.addState(new int[]{android.R.attr.state_pressed}, createRectDrawable(0xffffffff));
+        drawable.addState(new int[]{}, createRectDrawable(0xfffafafa));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             final RippleDrawable ripple = new RippleDrawable(new ColorStateList(new int[][]{{}}, new int[]{0x33000000}), drawable, null);
@@ -124,7 +125,7 @@ public final class Label extends AppCompatTextView {
             final int measuredWidth = getMeasuredWidth();
             final RippleDrawable ripple = (RippleDrawable) backgroundDrawable;
             ripple.setState(new int[]{android.R.attr.state_enabled, android.R.attr.state_pressed});
-            ripple.setHotspot(isLabel ? measuredWidth >> 1 : measuredWidth, getMeasuredHeight() >> 1); // todo penis
+            ripple.setHotspot(isLabel ? measuredWidth >> 1 : measuredWidth, getMeasuredHeight() >> 1);
             ripple.setVisible(true, true);
         }
     }
@@ -132,15 +133,10 @@ public final class Label extends AppCompatTextView {
     void onActionUp() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && backgroundDrawable instanceof RippleDrawable) {
             final RippleDrawable ripple = (RippleDrawable) backgroundDrawable;
-            ripple.setHotspot(getMeasuredWidth() >> 1, getMeasuredHeight() >> 1); // todo penis
+            ripple.setHotspot(getMeasuredWidth() >> 1, getMeasuredHeight() >> 1);
             ripple.setVisible(true, true);
         }
         backgroundDrawable.setState(new int[]{});
-    }
-
-    void setColors(final int colorNormal, final int colorPressed) {
-        this.colorNormal = colorNormal;
-        this.colorPressed = colorPressed;
     }
 
     void show() {
@@ -180,7 +176,7 @@ public final class Label extends AppCompatTextView {
         private Shadow() {
             setLayerType(LAYER_TYPE_SOFTWARE, null);
             mPaint.setStyle(Paint.Style.FILL);
-            mPaint.setColor(colorNormal);
+            mPaint.setColor(0xfffafafa);
 
             mErase.setXfermode(PORTER_DUFF_CLEAR);
 

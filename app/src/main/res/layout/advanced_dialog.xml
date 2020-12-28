@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="@dimen/search_view_margin_text"
     android:layout_marginBottom="8dp"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.DialogTitle
+    <awais.backworddictionary.custom.AlertDialogTitle
         android:id="@+id/alertTitle"
         style="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
         android:layout_width="match_parent"
@@ -33,116 +34,125 @@
             android:orientation="vertical"
             android:paddingBottom="@dimen/filter_margin_start">
 
-            <androidx.appcompat.widget.AppCompatCheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:padding="6dp"
                 android:text="@string/reverse_related"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:useMaterialThemeColors="true" />
 
-            <androidx.appcompat.widget.AppCompatCheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:padding="6dp"
                 android:text="@string/sounds_like"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:useMaterialThemeColors="true" />
 
-            <androidx.appcompat.widget.AppCompatCheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:padding="6dp"
                 android:text="@string/spelled_like"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:useMaterialThemeColors="true" />
 
-            <androidx.appcompat.widget.AppCompatCheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:padding="6dp"
                 android:text="@string/synonyms"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:useMaterialThemeColors="true" />
 
-            <androidx.appcompat.widget.AppCompatCheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:padding="6dp"
                 android:text="@string/antonyms"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:useMaterialThemeColors="true" />
 
-            <androidx.appcompat.widget.AppCompatCheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:padding="6dp"
                 android:text="@string/triggers"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:useMaterialThemeColors="true" />
 
-            <androidx.appcompat.widget.AppCompatCheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:padding="6dp"
                 android:text="@string/part_of"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:useMaterialThemeColors="true" />
 
-            <androidx.appcompat.widget.AppCompatCheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:padding="6dp"
                 android:text="@string/comprises"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:useMaterialThemeColors="true" />
 
-            <androidx.appcompat.widget.AppCompatCheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:padding="6dp"
                 android:text="@string/rhymes"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:useMaterialThemeColors="true" />
 
-            <androidx.appcompat.widget.AppCompatCheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:padding="6dp"
                 android:text="@string/homophones"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:useMaterialThemeColors="true" />
         </androidx.appcompat.widget.LinearLayoutCompat>
     </ScrollView>
 
     <androidx.appcompat.widget.LinearLayoutCompat
-        style="?attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:gravity="bottom|end"
+        android:orientation="horizontal"
+        android:paddingLeft="8dp"
+        android:paddingTop="4dp"
+        android:paddingRight="8dp">
 
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:layout_width="match_parent"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOK"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="bottom|end"
-            android:orientation="horizontal"
-            android:paddingLeft="8dp"
-            android:paddingTop="4dp"
-            android:paddingRight="8dp">
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:text="@string/ok"
+            android:textColor="@color/buttons_color" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnOK"
-                style="?attr/buttonBarPositiveButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ok" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnCancel"
-                style="?attr/buttonBarNegativeButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/cancel" />
-        </androidx.appcompat.widget.LinearLayoutCompat>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:text="@string/cancel"
+            android:textColor="@color/buttons_color" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.appcompat.widget.LinearLayoutCompat>

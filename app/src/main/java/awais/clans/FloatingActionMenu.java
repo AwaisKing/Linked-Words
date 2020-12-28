@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -38,15 +37,13 @@ public final class FloatingActionMenu extends ViewGroup {
     private final int labelsPaddingTop = buttonSpacing;
     private final int labelsPaddingLeft = Utils.dpToPx(8);
     private final int labelMarginFix = labelsPaddingLeft;
-    private final int labelsColorNormal = getWindowBackground(getContext());
-    private final int labelsColorPressed = labelsColorNormal;
     private final float labelsTextSize;
     private final Context context;
     private final Handler uiHandler;
     private final ImageView imageToggle;
     private final AnimatorSet iconToggleSet = new AnimatorSet();
     private final ValueAnimator backgroundShowAnimator, backgroundHideAnimator;
-    private final ColorStateList labelsTextColor = ColorStateList.valueOf(0xFF808080);
+    private final ColorStateList labelsTextColor = ColorStateList.valueOf(0xDE000000);
     private final FloatingActionButton menuButton;
     //////////////////////////////////////////////////////////////////////////////////////////
     private boolean menuOpened, isMenuOpening, isMenuClosing;
@@ -258,7 +255,6 @@ public final class FloatingActionMenu extends ViewGroup {
             final Label label = new Label(context, fab, AnimationUtils.loadAnimation(context, R.anim.fab_slide_in_from_right),
                     AnimationUtils.loadAnimation(context, R.anim.fab_slide_out_to_right));
             label.setClickable(true);
-            label.setColors(labelsColorNormal, labelsColorPressed);
             label.setTextSize(TypedValue.COMPLEX_UNIT_PX, labelsTextSize);
             label.setTextColor(labelsTextColor);
             label.setMaxLines(-1);
@@ -390,13 +386,5 @@ public final class FloatingActionMenu extends ViewGroup {
 
     public void setMenuToggleListener(final FloatingActionButton.OnMenuToggleListener toggleListener) {
         if (menuButton != null) menuButton.setMenuToggleListener(toggleListener, this);
-    }
-
-    private static int getWindowBackground(@NonNull final Context context) {
-        final int colorAttr = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? android.R.attr.windowBackground :
-                context.getResources().getIdentifier("windowBackground", "attr", context.getPackageName());
-        final TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(colorAttr, outValue, true);
-        return outValue.data;
     }
 }

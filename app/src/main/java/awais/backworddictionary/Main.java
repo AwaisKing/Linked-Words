@@ -19,7 +19,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -29,6 +28,7 @@ import androidx.appcompat.widget.TooltipCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -43,7 +43,6 @@ import awais.backworddictionary.asyncs.SearchAsync;
 import awais.backworddictionary.custom.SearchHistoryTable;
 import awais.backworddictionary.dialogs.AdvancedDialog;
 import awais.backworddictionary.dialogs.SettingsDialog;
-import awais.backworddictionary.helpers.InitializerThread;
 import awais.backworddictionary.helpers.MenuHelper;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
@@ -141,16 +140,25 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
         });
 
         TooltipCompat.setTooltipText(fabOptions, getString(R.string.options));
+
+        loadFragments(true);
+
         setSearchView();
+
+        tts = new TextToSpeech(this, initStatus -> {
+            if (initStatus == TextToSpeech.SUCCESS) {
+                if (tts.isLanguageAvailable(Locale.US) == TextToSpeech.LANG_AVAILABLE)
+                    tts.setLanguage(Locale.US);
+                else if (tts.isLanguageAvailable(Locale.CANADA) == TextToSpeech.LANG_AVAILABLE)
+                    tts.setLanguage(Locale.CANADA);
+                else if (tts.isLanguageAvailable(Locale.UK) == TextToSpeech.LANG_AVAILABLE)
+                    tts.setLanguage(Locale.UK);
+                else if (tts.isLanguageAvailable(Locale.ENGLISH) == TextToSpeech.LANG_AVAILABLE)
+                    tts.setLanguage(Locale.ENGLISH);
+            }
+        });
+
         handleData();
-    }
-
-    @Override
-    protected void onPostCreate(@Nullable final Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-        new InitializerThread(true, this).start(); // load fragments
-        new InitializerThread(false, this).start(); // setup tts
     }
 
     @Override
@@ -392,7 +400,7 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                             dialog.dismiss();
                         };
 
-                        alertDialog = new AlertDialog.Builder(Main.this)
+                        alertDialog = new MaterialAlertDialogBuilder(Main.this, R.style.MaterialAlertDialogTheme)
                                 .setTitle(R.string.remove_recent)
                                 .setPositiveButton(R.string.yes, btnListener)
                                 .setNegativeButton(R.string.no, btnListener).create();

@@ -5,8 +5,9 @@
     android:layout_height="wrap_content"
     android:animateLayoutChanges="true">
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_view"
+        style="@style/CardViewStyle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
@@ -17,10 +18,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginBottom="4dp"
         android:animateLayoutChanges="true"
-        android:clickable="true"
-        android:focusable="true"
-        android:foreground="?attr/selectableItemBackground"
-        android:longClickable="true"
+        android:foreground="?selectableItemBackground"
         app:elevation="0dp"
         card_view:cardCornerRadius="2dp"
         card_view:cardElevation="1.5dp">
@@ -38,16 +36,16 @@
                 android:animateLayoutChanges="true"
                 android:padding="4dp">
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/word"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_toStartOf="@+id/overflow"
                     android:layout_toLeftOf="@+id/overflow"
                     android:freezesText="true"
-                    android:textAppearance="?attr/textAppearanceSearchResultTitle" />
+                    android:textAppearance="?textAppearanceSearchResultTitle" />
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/subText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -55,7 +53,7 @@
                     android:layout_toStartOf="@+id/overflow"
                     android:layout_toLeftOf="@+id/overflow"
                     android:freezesText="true"
-                    android:textAppearance="?attr/textAppearanceSearchResultSubtitle"
+                    android:textAppearance="?textAppearanceSearchResultSubtitle"
                     android:textColor="?android:textColorTertiary" />
 
                 <androidx.appcompat.widget.AppCompatImageView
@@ -67,7 +65,7 @@
                     android:layout_centerVertical="true"
                     android:layout_toStartOf="@id/overflow"
                     android:layout_toLeftOf="@id/overflow"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?selectableItemBackgroundBorderless"
                     android:contentDescription="@null"
                     android:scaleType="centerInside"
                     app:srcCompat="@drawable/ic_expandable_reverse" />
@@ -81,7 +79,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="?selectableItemBackgroundBorderless"
                     android:contentDescription="@null"
                     android:scaleType="centerInside"
                     app:srcCompat="@drawable/ic_dots" />
@@ -103,5 +101,5 @@
                     android:animateLayoutChanges="true" />
             </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.appcompat.widget.LinearLayoutCompat>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 </androidx.appcompat.widget.LinearLayoutCompat>

@@ -17,11 +17,12 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -169,15 +170,14 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
                     filterCheck[1] = SettingsHelper.isFilterDefinition();
                     filterCheck[2] = SettingsHelper.isFilterContains();
 
-                    new AlertDialog.Builder(activity).setTitle(getString(R.string.select_filters))
-                            .setMultiChoiceItems(new String[]{getString(R.string.words), getString(R.string.defs), getString(R.string.contains)}, filterCheck,
-                                    (dialogInterface, i, checked) -> {
-                                        filterCheck[i] = checked;
-                                        if (i == 0) SettingsHelper.setFilter("filterWord", checked);
-                                        else if (i == 1) SettingsHelper.setFilter("filterDefinition", checked);
-                                        else if (i == 2) SettingsHelper.setFilter("filterContain", checked);
-                                    })
-                            .setNeutralButton(R.string.ok, (dialogInterface, i) -> {
+                    new MaterialAlertDialogBuilder(activity, R.style.MaterialAlertDialogTheme)
+                            .setTitle(R.string.select_filters).setMultiChoiceItems(new String[]{getString(R.string.words), getString(R.string.defs), getString(R.string.contains)},
+                            filterCheck, (dialogInterface, i, checked) -> {
+                                filterCheck[i] = checked;
+                                if (i == 0) SettingsHelper.setFilter("filterWord", checked);
+                                else if (i == 1) SettingsHelper.setFilter("filterDefinition", checked);
+                                else if (i == 2) SettingsHelper.setFilter("filterContain", checked);
+                            }).setNeutralButton(R.string.ok, (dialogInterface, i) -> {
                                 if (wordList.size() > 2)
                                     wordsAdapter.getFilter().filter(filterSearchEditor.getText());
                                 dialogInterface.dismiss();

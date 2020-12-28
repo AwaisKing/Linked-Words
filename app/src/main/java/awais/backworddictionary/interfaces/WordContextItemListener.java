@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.os.Build;
-import android.speech.tts.TextToSpeech;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
@@ -19,8 +17,6 @@ import java.util.List;
 import awais.backworddictionary.R;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
-
-import static awais.backworddictionary.Main.tts;
 
 public final class WordContextItemListener implements PopupMenu.OnMenuItemClickListener {
     private final CustomTabsIntent.Builder customTabsIntent = new CustomTabsIntent.Builder();
@@ -39,11 +35,8 @@ public final class WordContextItemListener implements PopupMenu.OnMenuItemClickL
         if (itemId == R.id.action_copy) {
             Utils.copyText(context, word);
 
-        } else if (itemId == R.id.action_speak && tts != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                tts.speak(word, TextToSpeech.QUEUE_FLUSH, null, null);
-            else
-                tts.speak(word, TextToSpeech.QUEUE_FLUSH, null); // todo change deprecated
+        } else if (itemId == R.id.action_speak ) {
+            Utils.speakText(word);
 
         } else if (itemId == R.id.action_google) {
             final String wordRawGoogle = word.replaceAll(" ", "+").replaceAll("\\s", "+");

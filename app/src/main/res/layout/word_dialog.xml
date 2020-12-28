@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.AlertDialogLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<awais.backworddictionary.custom.AlertDialogLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="start|top"
@@ -10,11 +10,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingLeft="?attr/dialogPreferredPadding"
+        android:paddingStart="?dialogPreferredPadding"
+        android:paddingLeft="?dialogPreferredPadding"
         android:paddingTop="10dp"
-        android:paddingRight="?attr/dialogPreferredPadding">
+        android:paddingEnd="12dp"
+        android:paddingRight="12dp">
 
-        <androidx.appcompat.widget.DialogTitle
+        <awais.backworddictionary.custom.AlertDialogTitle
             android:id="@+id/alertTitle"
             style="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
             android:layout_width="0dp"
@@ -23,19 +25,29 @@
             android:ellipsize="end"
             android:singleLine="true" />
 
-        <androidx.appcompat.widget.AppCompatButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCopy"
-            style="?attr/buttonBarButtonStyle"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/copy" />
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp"
+            android:text="@string/copy"
+            android:textColor="@color/buttons_color" />
 
-        <androidx.appcompat.widget.AppCompatButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSpeak"
-            style="?attr/buttonBarButtonStyle"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/speak" />
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp"
+            android:text="@string/speak"
+            android:textColor="@color/buttons_color" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -58,7 +70,7 @@
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.appcompat.widget.LinearLayoutCompat
-        style="?attr/buttonBarStyle"
+        style="?buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -72,29 +84,46 @@
             android:paddingTop="4dp"
             android:paddingRight="8dp">
 
-            <androidx.appcompat.widget.AppCompatButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGoogle"
-                style="?attr/buttonBarNeutralButtonStyle"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:text="@string/google" />
+                android:layout_marginStart="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginEnd="2dp"
+                android:layout_marginRight="2dp"
+                android:text="@string/google"
+                android:textColor="@color/buttons_color" />
 
-            <androidx.appcompat.widget.AppCompatButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnWiki"
-                style="?attr/buttonBarNeutralButtonStyle"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:text="@string/wikipedia" />
+                android:layout_marginStart="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginEnd="2dp"
+                android:layout_marginRight="2dp"
+                android:text="@string/wikipedia"
+                android:textColor="@color/buttons_color" />
 
-            <androidx.appcompat.widget.AppCompatButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnUrban"
-                style="?attr/buttonBarNeutralButtonStyle"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="@string/urban_dictionary" />
+                android:layout_marginStart="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginEnd="2dp"
+                android:layout_marginRight="2dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:text="@string/urban_dictionary"
+                android:textColor="@color/buttons_color" />
         </androidx.appcompat.widget.LinearLayoutCompat>
 
         <androidx.appcompat.widget.LinearLayoutCompat
@@ -106,27 +135,30 @@
             android:paddingRight="8dp"
             android:paddingBottom="4dp">
 
-            <androidx.appcompat.widget.AppCompatButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSearch"
-                style="?attr/buttonBarPositiveButtonStyle"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/search" />
+                android:text="@string/search"
+                android:textColor="@color/buttons_color" />
 
-            <androidx.appcompat.widget.AppCompatButton
+            <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:clickable="false"
                 android:focusable="false"
-                android:focusableInTouchMode="false" />
+                android:focusableInTouchMode="false"
+                android:visibility="invisible" />
 
-            <androidx.appcompat.widget.AppCompatButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnClose"
-                style="?attr/buttonBarPositiveButtonStyle"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/close" />
+                android:text="@string/close"
+                android:textColor="@color/buttons_color" />
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.appcompat.widget.LinearLayoutCompat>
-</androidx.appcompat.widget.AlertDialogLayout>
+</awais.backworddictionary.custom.AlertDialogLayout>

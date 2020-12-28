@@ -19,9 +19,8 @@ public final class ResultViewHolder extends RecyclerView.ViewHolder {
         this.icon = view.findViewById(R.id.searchItemIcon);
         this.text = view.findViewById(R.id.searchItemText);
 
-        if (onClickListener != null) {
+        if (onClickListener != null)
             view.setOnClickListener(onClickListener);
-        }
         if (onLongClickListener != null)
             view.setOnLongClickListener(onLongClickListener);
     }

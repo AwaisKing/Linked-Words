@@ -36,15 +36,14 @@
         android:layout_marginTop="@dimen/filter_spacing"
         android:layout_marginEnd="@dimen/filter_spacing"
         android:layout_marginRight="@dimen/filter_spacing"
-        android:gravity="center_horizontal"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:gravity="center_horizontal">
 
-        <androidx.cardview.widget.CardView
-            style="@style/CardView.Light"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/CardViewStyle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="2dp"
-            android:theme="@style/Theme.AppCompat.Light"
             app:cardCornerRadius="2dp">
 
             <androidx.appcompat.widget.LinearLayoutCompat
@@ -61,7 +60,7 @@
                     android:padding="6dp"
                     app:srcCompat="@drawable/ic_back" />
 
-                <androidx.appcompat.widget.AppCompatEditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/swipeSearch"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -91,8 +90,8 @@
                     android:contentDescription="@string/filter_settings"
                     android:padding="6dp"
                     app:srcCompat="@drawable/ic_settings"
-                    app:tint="#5A5A5A" />
+                    app:tint="?colorControlNormal" />
             </androidx.appcompat.widget.LinearLayoutCompat>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </FrameLayout>
 </RelativeLayout>

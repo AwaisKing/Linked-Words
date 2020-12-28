@@ -27,7 +27,7 @@ public final class DefinitionsAdapter extends ArrayAdapter<String[]> {
                               final SearchAdapterClickListener adapterClickListener) {
         super(context, R.layout.word_dialog_item, items);
         this.onClickListener = v -> {
-            final Object tag = v.getTag();
+            final Object tag = v.getTag(R.id.word_key);
             if (tag instanceof String)
                 adapterClickListener.onItemClick((String) tag);
         };
@@ -58,7 +58,7 @@ public final class DefinitionsAdapter extends ArrayAdapter<String[]> {
         final String word = wordItem[1];
         final String subWord = wordItem[0];
 
-        row.setTag(word);
+        row.setTag(R.id.word_key, word);
         row.setOnClickListener(onClickListener);
 
         if (viewHolder.tvWord != null)

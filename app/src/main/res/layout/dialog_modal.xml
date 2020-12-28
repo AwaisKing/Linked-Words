@@ -8,14 +8,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingLeft="?attr/dialogPreferredPadding"
-        android:paddingTop="?attr/dialogPreferredPadding"
-        android:paddingRight="?attr/dialogPreferredPadding"
+        android:paddingLeft="?dialogPreferredPadding"
+        android:paddingTop="?dialogPreferredPadding"
+        android:paddingRight="?dialogPreferredPadding"
         android:paddingBottom="10dp">
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@android:id/title"
-            style="@style/TextAppearance.AppCompat.Headline"
+            style="@style/TextAppearance.MaterialComponents.Headline5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -33,16 +33,16 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@android:id/message"
-                style="@style/TextAppearance.AppCompat.Subhead"
+                style="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="?attr/dialogPreferredPadding"
-                android:paddingLeft="?attr/dialogPreferredPadding"
-                android:paddingEnd="?attr/dialogPreferredPadding"
-                android:paddingRight="?attr/dialogPreferredPadding"
-                android:paddingBottom="?attr/dialogPreferredPadding"
+                android:paddingStart="?dialogPreferredPadding"
+                android:paddingLeft="?dialogPreferredPadding"
+                android:paddingEnd="?dialogPreferredPadding"
+                android:paddingRight="?dialogPreferredPadding"
+                android:paddingBottom="?dialogPreferredPadding"
                 android:visibility="gone" />
 
             <WebView
@@ -53,5 +53,4 @@
                 android:visibility="gone" />
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.core.widget.NestedScrollView>
-
 </androidx.appcompat.widget.LinearLayoutCompat>

@@ -6,11 +6,14 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
+import android.speech.tts.TextToSpeech;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -43,7 +46,9 @@ import awais.backworddictionary.helpers.other.Listener;
 import awais.backworddictionary.interfaces.WordContextItemListener;
 
 import static awais.backworddictionary.Main.tabBoolsArray;
+import static awais.backworddictionary.Main.tts;
 import static java.lang.Character.MIN_LOW_SURROGATE;
+import static java.lang.Math.sqrt;
 
 public final class Utils {
     public static final int[] CUSTOM_TAB_COLORS = new int[]{0xFF4888F2, 0xFF333333, 0xFF3B496B};
@@ -204,6 +209,19 @@ public final class Utils {
             });
             popup.show();
         }
+    }
+
+    public static void speakText(final CharSequence text) {
+        if (tts != null && !TextUtils.isEmpty(text)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+            else
+                tts.speak(String.valueOf(text), TextToSpeech.QUEUE_FLUSH, null); // todo change deprecated
+        }
+    }
+
+    public static float distance(@NonNull final PointF pointF, @NonNull final PointF other) {
+        return (float) sqrt((other.y - pointF.y) * (other.y - pointF.y) + (other.x - pointF.x) * (other.x - pointF.x));
     }
 
     // extracted from String class

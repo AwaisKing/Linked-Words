@@ -21,7 +21,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatImageView;
-import androidx.appcompat.widget.AppCompatTextView;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textview.MaterialTextView;
 
 import java.util.Random;
 
@@ -74,7 +76,8 @@ public final class MyApps {
         gridView.setAdapter(new ImageAdapter(context));
         gridView.setNumColumns(3);
         gridView.setOnItemClickListener(clickListener);
-        final AlertDialog dialog = new AlertDialog.Builder(context).setView(gridView).setTitle("Support my apps").create();
+        final AlertDialog dialog = new MaterialAlertDialogBuilder(context, R.style.MaterialAlertDialogTheme)
+                .setView(gridView).setTitle("Support my apps").create();
         dialog.setOnCancelListener(cancelListener);
         dialog.show();
     }
@@ -120,7 +123,7 @@ public final class MyApps {
                 final LinearLayout linearLayout = new LinearLayout(context);
                 linearLayout.setOrientation(LinearLayout.VERTICAL);
                 final AppCompatImageView imageView = new AppCompatImageView(context);
-                final AppCompatTextView textView = new AppCompatTextView(context);
+                final MaterialTextView textView = new MaterialTextView(context);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
                     textView.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
                 textView.setGravity(Gravity.CENTER_HORIZONTAL);

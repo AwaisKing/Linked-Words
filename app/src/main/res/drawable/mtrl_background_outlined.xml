@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/mtrl_textinput_box_corner_radius_medium" />
+            <stroke android:width="@dimen/mtrl_textinput_box_stroke_width_default" android:color="?colorControlActivated" />
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+
+    <item android:state_focused="false">
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/mtrl_textinput_box_corner_radius_medium" />
+            <stroke android:width="@dimen/mtrl_textinput_box_stroke_width_default" android:color="@color/mtrl_textinput_default_box_stroke_color" />
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+</selector>

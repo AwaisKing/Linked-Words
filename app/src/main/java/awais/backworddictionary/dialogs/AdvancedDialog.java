@@ -10,12 +10,11 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.DialogTitle;
-
 import java.util.Arrays;
 import java.util.List;
 
 import awais.backworddictionary.R;
+import awais.backworddictionary.custom.AlertDialogTitle;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.interfaces.FragmentLoader;
 
@@ -25,7 +24,7 @@ public final class AdvancedDialog extends Dialog implements CompoundButton.OnChe
     private List<CompoundButton> checkBoxes;
 
     public AdvancedDialog(final Activity act) {
-        super(act, R.style.Dialog);
+        super(act, R.style.MaterialAlertDialogTheme);
         this.fragmentLoader = (FragmentLoader) act;
     }
 
@@ -42,7 +41,7 @@ public final class AdvancedDialog extends Dialog implements CompoundButton.OnChe
 
         setContentView(R.layout.advanced_dialog);
 
-        ((DialogTitle) findViewById(R.id.alertTitle)).setText(R.string.advance);
+        ((AlertDialogTitle) findViewById(R.id.alertTitle)).setText(R.string.advance);
 
         final ViewGroup container = findViewById(R.id.checkboxContainer);
 

@@ -7,6 +7,7 @@
 
     <color name="cards_back_color">#555555</color>
     <color name="mini_fab_color">#505050</color>
+    <color name="fab_label_ripple_color">#66ffffff</color>
     <color name="shadow_color">#A9000000</color>
 
     <!-- Lapism SearchView -->
