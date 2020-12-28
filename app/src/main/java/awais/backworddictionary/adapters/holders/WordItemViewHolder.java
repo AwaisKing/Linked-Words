@@ -12,12 +12,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import awais.backworddictionary.R;
 
 public final class WordItemViewHolder extends RecyclerView.ViewHolder {
-    public final TextView word;
-    public final TextView subtext;
+    public final TextView word, subtext;
     public final CardView cardView;
-    public final ImageView overflow;
     public final ListView lvExpandedDefs;
-    public final ImageView ivExpandedSearch;
+    public final ImageView ivExpandedSearch, overflow;
     public final LinearLayoutCompat expandableMenu;
 
     public WordItemViewHolder(final View view) {

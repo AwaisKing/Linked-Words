@@ -17,7 +17,7 @@
 -keep,allowshrinking class * implements java.lang.annotation.Annotation
 
 -keep public class * implements android.os.Parcelable {
-    public static final android.os.Parcelable.Creator *;
+    public static final android.os.Parcelable$Creator *;
 }
 
 -keepclassmembernames public class * extends android.view.View {

@@ -45,18 +45,20 @@ public final class SearchHistoryTable {
         }
     }
 
+    @NonNull
     public List<SearchItem> getAllItems(final String databaseKey) {
         final List<SearchItem> list = new ArrayList<>();
-        if (db == null || !db.isOpen()) return list;
 
-        try (Cursor cursor = db.rawQuery(databaseKey == null ?
-                "SELECT * FROM search_history ORDER BY _id DESC LIMIT " + HISTORY_SIZE :
-                "SELECT * FROM search_history WHERE _text = " + databaseKey, null)) {
+        if (db != null && db.isOpen()) {
+            try (final Cursor cursor = db.rawQuery(databaseKey == null ?
+                    "SELECT * FROM search_history ORDER BY _id DESC LIMIT " + HISTORY_SIZE :
+                    "SELECT * FROM search_history WHERE _text = " + databaseKey, null)) {
 
-            if (cursor.moveToFirst())
-                do
-                    list.add(new SearchItem(R.drawable.ic_history, cursor.getString(1)));
-                while (cursor.moveToNext());
+                if (cursor.moveToFirst())
+                    do
+                        list.add(new SearchItem(R.drawable.ic_history, cursor.getString(1)));
+                    while (cursor.moveToNext());
+            }
         }
 
         return list;
@@ -80,7 +82,7 @@ public final class SearchHistoryTable {
 
     private int getItemId(@NonNull final SearchItem item) {
         final int id;
-        try (Cursor res = db.rawQuery("SELECT _id FROM search_history WHERE _text = ?;", new String[]{item.getText().toString()})) {
+        try (final Cursor res = db.rawQuery("SELECT _id FROM search_history WHERE _text = ?;", new String[]{item.getText().toString()})) {
             res.moveToFirst();
             id = res.getInt(0);
         }
@@ -89,7 +91,7 @@ public final class SearchHistoryTable {
 
     private int getLastItemId() {
         int count;
-        try (Cursor res = db.rawQuery("SELECT _id FROM search_history", null)) {
+        try (final Cursor res = db.rawQuery("SELECT _id FROM search_history", null)) {
             count = 0;
             if (res.moveToLast()) count = res.getInt(0);
         }
@@ -98,34 +100,34 @@ public final class SearchHistoryTable {
 
     private boolean checkText(final String text) {
         final boolean ret;
-        try (Cursor cursor = db.rawQuery("SELECT _text FROM search_history WHERE _text = ?;", new String[]{text})) {
+        try (final Cursor cursor = db.rawQuery("SELECT _text FROM search_history WHERE _text = ?;", new String[]{text})) {
             ret = cursor.moveToFirst();
         }
         return ret;
     }
 
     private final static class SearchHistoryDatabase extends SQLiteOpenHelper {
-        SearchHistoryDatabase(Context context) {
+        SearchHistoryDatabase(final Context context) {
             super(context, "search_history_database.db", null, 4);
         }
 
         @Override
-        public void onCreate(@NonNull SQLiteDatabase db) {
+        public void onCreate(@NonNull final SQLiteDatabase db) {
             db.execSQL("CREATE TABLE IF NOT EXISTS search_history ( _id INTEGER PRIMARY KEY AUTOINCREMENT, _text TEXT );");
         }
 
         @Override
-        public void onUpgrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
+        public void onUpgrade(@NonNull final SQLiteDatabase db, final int oldVersion, final int newVersion) {
             db.execSQL("DROP TABLE IF EXISTS search_history");
             onCreate(db);
         }
 
         @Override
-        public void onDowngrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
+        public void onDowngrade(@NonNull final SQLiteDatabase db, final int oldVersion, final int newVersion) {
             onUpgrade(db, oldVersion, newVersion);
         }
 
         @Override
-        public void onOpen(SQLiteDatabase db) {}
+        public void onOpen(final SQLiteDatabase db) {}
     }
 }

@@ -33,8 +33,8 @@ final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemViewHold
     private final Filter filter;
     private boolean isShowDialogEnabled;
     private List<?> filterList;
-    final LinkedHashSet<WordItemViewHolder> holdersHashSet = new LinkedHashSet<>();
     final LinkedHashSet<WordItem> expandedHashSet = new LinkedHashSet<>();
+    final LinkedHashSet<WordItemViewHolder> holdersHashSet = new LinkedHashSet<>();
 
     DictionaryWordsAdapter(@NonNull final Context context, final List<WordItem> wordList) {
         this.noItemFound = new String[]{"", context.getString(R.string.no_definition_found)};
@@ -132,7 +132,7 @@ final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemViewHold
             }
 
             @Override
-            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+            protected void publishResults(final CharSequence charSequence, final FilterResults filterResults) {
                 if (filterResults.values instanceof List)
                     filterList = (List<?>) filterResults.values;
                 notifyDataSetChanged();
@@ -188,7 +188,7 @@ final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemViewHold
     }
 
     @Override
-    public long getItemId(int position) {
+    public long getItemId(final int position) {
         return position;
     }
 
@@ -206,7 +206,7 @@ final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemViewHold
         this.isShowDialogEnabled = SettingsHelper.showDialog();
     }
 
-    private static class TagItemHolder {
+    private static final class TagItemHolder {
         private final View expandableMenu;
         private final WordItem wordItem;
         private final ArrayList<String[]> defsList;

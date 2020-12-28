@@ -54,12 +54,12 @@ public final class SettingsHelper {
         return preferences != null && preferences.getBoolean(KEY_FILTER_CONTAINS, false);
     }
 
-    public static void setFilter(@NonNull String filterName, final boolean filtered) {
+    public static void setFilter(@NonNull final String filterName, final boolean filtered) {
         if (preferences != null)
             preferences.edit().putBoolean(filterName, filtered).apply();
     }
 
-    public static void setTabs(@NonNull String tabs) {
+    public static void setTabs(@NonNull final String tabs) {
         if (preferences != null)
             preferences.edit().putString(KEY_TABS, !Utils.isEmpty(tabs) ? tabs : DEFAULT_TABS).apply();
     }

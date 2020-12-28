@@ -94,8 +94,10 @@ public final class SmoothScroller extends RecyclerView.SmoothScroller {
     }
 
     private int calculateDtToFit(final int viewStart, final int viewEnd, final int boxStart, final int boxEnd, final int snapPreference) {
-        if (snapPreference == SNAP_TO_START) return boxStart - viewStart;
-        else if (snapPreference == SNAP_TO_END) return boxEnd - viewEnd;
+        if (snapPreference == SNAP_TO_START)
+            return boxStart - viewStart;
+        else if (snapPreference == SNAP_TO_END)
+            return boxEnd - viewEnd;
         else if (snapPreference == SNAP_TO_ANY) {
             final int dtStart = boxStart - viewStart;
             if (dtStart > 0) return dtStart;

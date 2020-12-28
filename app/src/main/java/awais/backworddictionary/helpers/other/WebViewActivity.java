@@ -22,6 +22,7 @@ public final class WebViewActivity extends AppCompatActivity {
         if (actionBar != null) actionBar.setDisplayHomeAsUpEnabled(true);
 
         final String url = getIntent().getStringExtra("extra.url");
+        assert url != null;
         setTitle(url);
 
         final WebView webView = findViewById(R.id.webview);

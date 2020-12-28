@@ -30,6 +30,7 @@ import java.util.Locale;
 import awais.backworddictionary.adapters.holders.WordItem;
 import awais.backworddictionary.adapters.holders.WordItemViewHolder;
 import awais.backworddictionary.asyncs.WordsAsync;
+import awais.backworddictionary.executor.TaskExecutor;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.SmoothScroller;
 import awais.backworddictionary.helpers.Utils;
@@ -54,9 +55,10 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
     public void onAttach(@NonNull final Context context) {
         super.onAttach(context);
 
-        this.activity = getActivity() != null ? getActivity() : (Activity) context;
+        final Activity activity = getActivity();
+        this.activity = activity != null ? activity : (Activity) context;
 
-        if (Main.tts == null) Main.tts = new TextToSpeech(activity, initStatus -> {
+        if (Main.tts == null) Main.tts = new TextToSpeech(this.activity, initStatus -> {
             if (initStatus == TextToSpeech.SUCCESS) {
                 if (Main.tts.isLanguageAvailable(Locale.US) == TextToSpeech.LANG_AVAILABLE)
                     Main.tts.setLanguage(Locale.US);
@@ -72,27 +74,23 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         try { Main.tts.stop(); } catch (Exception ignored) {}
         try { Main.tts.shutdown(); } catch (Exception ignored) {}
+        super.onDestroy();
     }
 
+    @Nullable
     @Override
-    public void onActivityCreated(@Nullable final Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        activity = getActivity();
-    }
-
-    @Nullable @Override
-    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container,@Nullable final Bundle savedInstanceState) {
+    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable final Bundle savedInstanceState) {
         return inflater.inflate(R.layout.dictionary_view, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull final View magicRootView, @Nullable final Bundle savedInstanceState) {
-        activity = getActivity() == null ? (Activity) getContext() : getActivity();
+        final Activity act = getActivity();
+        activity = act == null ? (Activity) getContext() : act;
 
-        if (Utils.inputMethodManager == null &&activity != null)
+        if (Utils.inputMethodManager == null && activity != null)
             Utils.inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 
         wordList = new ArrayList<>(0);
@@ -137,11 +135,14 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
         filterSearchEditor = magicRootView.findViewById(R.id.swipeSearch);
         filterSearchEditor.setOnFocusChangeListener((view, b) -> toggleKeyboard(b));
         filterSearchEditor.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(final CharSequence cs, final int i, final int i1, final int i2) {}
-            @Override public void onTextChanged(final CharSequence cs, final int i, final int i1, final int i2) {
-                if (wordList.size() > 2) wordsAdapter.getFilter().filter(cs);
+            @Override
+            public void onTextChanged(final CharSequence cs, final int i, final int i1, final int i2) {
+                if (wordList.size() > 2)
+                    wordsAdapter.getFilter().filter(cs);
             }
-            @Override public void afterTextChanged(final Editable editable) {
+
+            @Override
+            public void afterTextChanged(final Editable editable) {
                 if (editable.length() > 0) {
                     filterSearchButton.setImageResource(R.drawable.ic_clear);
                     filterSearchButton.setTag("clear");
@@ -150,11 +151,16 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
                     filterSearchButton.setTag("filter");
                 }
             }
+
+            @Override
+            public void beforeTextChanged(final CharSequence cs, final int i, final int i1, final int i2) {}
         });
 
         final View.OnClickListener onClickListener = view -> {
-            if (view == filterBackButton) hideFilter();
-            else if (view == filterSearchEditor) toggleKeyboard(true);
+            if (view == filterBackButton)
+                hideFilter();
+            else if (view == filterSearchEditor)
+                toggleKeyboard(true);
             else if (view == filterSearchButton) {
                 final Object tag = filterSearchButton.getTag();
 
@@ -189,9 +195,10 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
     }
 
     void startWords(final String method, final String word) {
-        if (filterView != null && filterSearchEditor != null) filterSearchEditor.setText("");
+        if (filterView != null && filterSearchEditor != null)
+            filterSearchEditor.setText("");
         if (!Utils.isEmpty(word))
-            new WordsAsync(this, word, method, this.activity).execute();
+            TaskExecutor.executeAsync(new WordsAsync(this, word, method, activity));
     }
 
     @Override
@@ -216,10 +223,6 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
                 swipeRefreshLayout.setRefreshing(true);
             });
         }
-    }
-
-    public enum FilterMethod {
-        DO_NOTHING, RECYCLER_PADDING, RECYCLER_NO_PADDING,
     }
 
     /**
@@ -333,5 +336,9 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
                 wordItem.setExpanded(false);
             wordsAdapter.notifyDataSetChanged();
         }
+    }
+
+    public enum FilterMethod {
+        DO_NOTHING, RECYCLER_PADDING, RECYCLER_NO_PADDING,
     }
 }

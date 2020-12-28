@@ -103,7 +103,7 @@ public final class CustomTabActivityHelper {
                     continue;
                 return true;
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             if (BuildConfig.DEBUG)
                 Log.e("AWAISKING_CHROME_VIEW", "", e);
         }

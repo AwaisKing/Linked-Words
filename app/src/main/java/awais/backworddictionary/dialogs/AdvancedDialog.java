@@ -19,7 +19,7 @@ import awais.backworddictionary.R;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.interfaces.FragmentLoader;
 
-public class AdvancedDialog extends Dialog implements CompoundButton.OnCheckedChangeListener {
+public final class AdvancedDialog extends Dialog implements CompoundButton.OnCheckedChangeListener {
     private final boolean[] enabledChecks = {true, true, true, true, false, false, false, false, false, false};
     private final FragmentLoader fragmentLoader;
     private List<CompoundButton> checkBoxes;

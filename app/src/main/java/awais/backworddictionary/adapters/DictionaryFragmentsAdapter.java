@@ -1,19 +1,20 @@
 package awais.backworddictionary.adapters;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import java.util.ArrayList;
 
 import awais.backworddictionary.DictionaryFragment;
 
-public class DictionaryFragmentsAdapter extends FragmentStatePagerAdapter {
+public final class DictionaryFragmentsAdapter extends FragmentStateAdapter {
     private final ArrayList<DictionaryFragment> fragmentList;
     private final ArrayList<String> titlesList;
 
-    public DictionaryFragmentsAdapter(final FragmentManager manager, final int tabsSize) {
-        super(manager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+    public DictionaryFragmentsAdapter(@NonNull final FragmentActivity fragmentActivity, final int tabsSize) {
+        super(fragmentActivity);
         fragmentList = new ArrayList<>(tabsSize);
         titlesList = new ArrayList<>(tabsSize);
     }
@@ -39,16 +40,19 @@ public class DictionaryFragmentsAdapter extends FragmentStatePagerAdapter {
 
     @NonNull
     @Override
+    public Fragment createFragment(final int position) {
+        return fragmentList.get(position);
+    }
+
     public DictionaryFragment getItem(final int position) {
         return fragmentList.get(position);
     }
 
     @Override
-    public int getCount() {
+    public int getItemCount() {
         return fragmentList.size();
     }
 
-    @Override
     public CharSequence getPageTitle(final int position) {
         return titlesList.get(position);
     }

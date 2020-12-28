@@ -8,6 +8,8 @@ import android.util.Log;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.multidex.MultiDexApplication;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 import awais.backworddictionary.helpers.Utils;
 
 public final class LinkedApp extends MultiDexApplication {
@@ -18,6 +20,7 @@ public final class LinkedApp extends MultiDexApplication {
         super.onCreate();
 
         Utils.setSharedPrefs(this);
+        Utils.firebaseCrashlytics = FirebaseCrashlytics.getInstance();
 
         Typeface fontBold = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -27,7 +30,8 @@ public final class LinkedApp extends MultiDexApplication {
                 fontMedium = resources.getFont(R.font.googlesans_medium);
                 fontBold = resources.getFont(R.font.googlesans_bold);
             } catch (final Exception e) {
-                Log.e("AWAISKING_APP", "", e);
+                if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
+                else Utils.firebaseCrashlytics.recordException(e);
             }
         } else {
             fontRegular = ResourcesCompat.getFont(this, R.font.googlesans_regular);

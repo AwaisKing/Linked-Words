@@ -14,7 +14,7 @@ import awais.backworddictionary.adapters.holders.WordItem;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.MainCheck;
 
-public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
+public final class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     private MainCheck mainCheck;
 
     public SearchAsync(final MainCheck mainCheck) {
@@ -25,8 +25,8 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     protected ArrayList<WordItem> doInBackground(final String... params) {
         String query;
         try {
-            query = URLEncoder.encode(params[0], "UTF-8");
-        } catch (Exception e) {
+            query = URLEncoder.encode(params[0], Utils.CHARSET);
+        } catch (final Exception e) {
             query = params[0].replaceAll("\\s", "+").replaceAll(" ", "+")
                     .replaceAll("#", "%23").replaceAll("@", "%40")
                     .replaceAll("&", "%26");
@@ -46,8 +46,9 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
                     arrayList.add(new WordItem(jsonObject.getString("word"), 0, null, null));
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
+            else Utils.firebaseCrashlytics.recordException(e);
         }
 
         return arrayList;
@@ -55,7 +56,7 @@ public class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
 
     @Override
     protected void onCancelled() {
-        mainCheck.afterSearch(null);
+        if (mainCheck != null) mainCheck.afterSearch(null);
     }
 
     @Override

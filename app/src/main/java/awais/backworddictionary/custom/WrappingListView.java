@@ -8,7 +8,7 @@ import android.widget.ListView;
  * thanks to Raj008
  * https://stackoverflow.com/questions/18997729/listview-same-height-as-content
  **/
-public class WrappingListView extends ListView {
+public  final class WrappingListView extends ListView {
     public WrappingListView(final Context context) {
         super(context);
     }

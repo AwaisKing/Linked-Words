@@ -1,9 +1,8 @@
 package awais.backworddictionary.helpers;
 
-import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.BulletSpan;
@@ -24,9 +23,10 @@ import java.util.ArrayList;
 
 import awais.backworddictionary.R;
 import awais.backworddictionary.dialogs.MenuDialog;
+import awais.backworddictionary.executor.TaskExecutor;
 import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
 
-public class MenuHelper {
+public final class MenuHelper {
     private static SpannableStringBuilder examplesSpan, helpSpan, licensesSpan;
     private static CustomTabsIntent.Builder customTabsIntent;
     private final MenuDialog menuDialog;
@@ -34,80 +34,64 @@ public class MenuHelper {
     private final FragmentManager fragmentManager;
 
     public MenuHelper(@NonNull final AppCompatActivity activity) {
-        creditsString = activity.getString(R.string._credits);
+        final Resources resources = activity.getResources();
+        creditsString = resources.getString(R.string._credits);
         fragmentManager = activity.getSupportFragmentManager();
         menuDialog = new MenuDialog();
         customTabsIntent = new CustomTabsIntent.Builder();
-        new Menuer().execute(activity);
-    }
-
-    public void show(@NonNull final MenuItem item) {
-        final int itemId = item.getItemId();
-        menuDialog.setTitle(itemId == R.id.mLicenses ? creditsString : item.getTitle());
-        if (itemId == R.id.mExamples) menuDialog.setMessage(examplesSpan);
-        else if (itemId == R.id.mHelp) menuDialog.setMessage(helpSpan);
-        else if (itemId == R.id.mLicenses) menuDialog.setMessage(licensesSpan);
-        else if (itemId == R.id.mAbout) menuDialog.setMessage("aboutHere");
-        menuDialog.show(fragmentManager, null);
-    }
-
-    private static class Menuer extends AsyncTask<Object, Void, Void> {
-        @Override
-        protected Void doInBackground(@NonNull final Object... params) {
-            final Context context = (Context) params[0];
-
-            final int helpColor = ResourcesCompat.getColor(context.getResources(), R.color.helper_color, null);
+        TaskExecutor.executeAsync(() -> {
+            final int helpColor = ResourcesCompat.getColor(resources, R.color.helper_color, null);
 
             // XXX EXAMPLES
             final SpanBuilder examplesBuilder = new SpanBuilder();
-            examplesBuilder.append(context.getString(R.string.finding_help) + ":\n", new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
+            examplesBuilder.append(activity.getString(R.string.finding_help) + ":\n", new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
             examplesBuilder.append("person who makes gold\n", new BulletSpan(26, helpColor));
             examplesBuilder.append("one who massages\n", new BulletSpan(26, helpColor));
             examplesBuilder.append("food search\n\n", new BulletSpan(26, helpColor));
-            examplesBuilder.append(context.getString(R.string.related_help) + ":\n", new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
+            examplesBuilder.append(activity.getString(R.string.related_help) + ":\n", new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
             examplesBuilder.append("rainbow colors\n", new BulletSpan(26, helpColor));
             examplesBuilder.append("tropical birds\n", new BulletSpan(26, helpColor));
             examplesBuilder.append("spicy vegetables\n\n", new BulletSpan(26, helpColor));
-            examplesBuilder.append(context.getString(R.string.answers_help) + ":\n", new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
+            examplesBuilder.append(activity.getString(R.string.answers_help) + ":\n", new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
             examplesBuilder.append("what's popular city of Pakistan?\n", new BulletSpan(26, helpColor));
             examplesBuilder.append("what's largest continent on earth?\n", new BulletSpan(26, helpColor));
             examplesBuilder.append("who was Galileo?\n\n", new BulletSpan(26, helpColor));
-            examplesBuilder.append(context.getString(R.string.spelled_help) + ":\n", new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
-            examplesBuilder.append("l?nd\t-- " + context.getString(R.string.single_char_help, '?') + '\n', new BulletSpan(26, helpColor));
-            examplesBuilder.append("fr*g\t-- " + context.getString(R.string.number_char_help, '*') + '\n', new BulletSpan(26, helpColor));
-            examplesBuilder.append("ta#t\t-- " + context.getString(R.string.consonant_char_help, '#') + '\n', new BulletSpan(26, helpColor));
-            examplesBuilder.append("**stone**\t-- " + context.getString(R.string.phrase_help) + '\n', new BulletSpan(26, helpColor));
+            examplesBuilder.append(activity.getString(R.string.spelled_help) + ":\n", new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
+            examplesBuilder.append("l?nd\t-- " + activity.getString(R.string.single_char_help, '?') + '\n', new BulletSpan(26, helpColor));
+            examplesBuilder.append("fr*g\t-- " + activity.getString(R.string.number_char_help, '*') + '\n', new BulletSpan(26, helpColor));
+            examplesBuilder.append("ta#t\t-- " + activity.getString(R.string.consonant_char_help, '#') + '\n', new BulletSpan(26, helpColor));
+            examplesBuilder.append("**stone**\t-- " + activity.getString(R.string.phrase_help) + '\n', new BulletSpan(26, helpColor));
             examplesSpan = examplesBuilder.build();
 
             // XXX HELP
             final SpanBuilder helpBuilder = new SpanBuilder();
-            helpBuilder.append(context.getString(R.string.reverse) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(context.getString(R.string.reverse_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(context.getString(R.string.sounds_like) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(context.getString(R.string.sounds_like_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(context.getString(R.string.spelled_help) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(context.getString(R.string.wildcards_help) + '\n', new BulletSpan(26, helpColor));
-            helpBuilder.append("[" + context.getString(R.string.wildcard_link_help) + "]\n\n", new BulletSpan(26, helpColor), new ClickableSpan() {
+            helpBuilder.append(activity.getString(R.string.reverse) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+            helpBuilder.append(activity.getString(R.string.reverse_help) + "\n\n", new BulletSpan(26, helpColor));
+            helpBuilder.append(activity.getString(R.string.sounds_like) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+            helpBuilder.append(activity.getString(R.string.sounds_like_help) + "\n\n", new BulletSpan(26, helpColor));
+            helpBuilder.append(activity.getString(R.string.spelled_help) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+            helpBuilder.append(activity.getString(R.string.wildcards_help) + '\n', new BulletSpan(26, helpColor));
+            helpBuilder.append("[" + activity.getString(R.string.wildcard_link_help) + "]\n\n", new BulletSpan(26, helpColor), new ClickableSpan() {
                 @Override
                 public void onClick(@NonNull View view) {
                     customTabsIntent.setToolbarColor(0xFFFFC400);
-                    CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(), Uri.parse("https://www.one" + "look.com/?c=faq#patterns"));
+                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://www.one" + "look.com/?c=faq#patterns"));
                 }
             });
-            helpBuilder.append(context.getString(R.string.synonyms) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(context.getString(R.string.synonym_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(context.getString(R.string.antonyms) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(context.getString(R.string.antonym_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(context.getString(R.string.triggers) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(context.getString(R.string.triggers_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(context.getString(R.string.part_of) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(context.getString(R.string.is_part_of_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(context.getString(R.string.comprises) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(context.getString(R.string.comprises_of_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(context.getString(R.string.rhymes) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(context.getString(R.string.rhymes_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(context.getString(R.string.homophones) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(context.getString(R.string.homophones_help) + "\n\n", new BulletSpan(26, helpColor));
+            helpBuilder.append(activity.getString(R.string.synonyms) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+            helpBuilder.append(activity.getString(R.string.synonym_help) + "\n\n", new BulletSpan(26, helpColor));
+            helpBuilder.append(activity.getString(R.string.antonyms) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+            helpBuilder.append(activity.getString(R.string.antonym_help) + "\n\n", new BulletSpan(26, helpColor));
+            helpBuilder.append(activity.getString(R.string.triggers) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+            helpBuilder.append(activity.getString(R.string.triggers_help) + "\n\n", new BulletSpan(26, helpColor));
+            helpBuilder.append(activity.getString(R.string.part_of) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+            helpBuilder.append(activity.getString(R.string.is_part_of_help) + "\n\n", new BulletSpan(26, helpColor));
+            helpBuilder.append(activity.getString(R.string.comprises) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+            helpBuilder.append(activity.getString(R.string.comprises_of_help) + "\n\n", new BulletSpan(26, helpColor));
+            helpBuilder.append(activity.getString(R.string.rhymes) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+            helpBuilder.append(activity.getString(R.string.rhymes_help) + "\n\n", new BulletSpan(26, helpColor));
+            helpBuilder.append(activity.getString(R.string.homophones) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+            helpBuilder.append(activity.getString(R.string.homophones_help) + "\n\n", new BulletSpan(26, helpColor));
             helpSpan = helpBuilder.build();
 
             // XXX LICENSES
@@ -117,7 +101,7 @@ public class MenuHelper {
                 @Override
                 public void onClick(@NonNull View view) {
                     customTabsIntent.setToolbarColor(0xFF607D8B);
-                    CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(), Uri.parse("https://romannurik.github.io/AndroidAssetStudio/"));
+                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://romannurik.github.io/AndroidAssetStudio/"));
                 }
             });
 
@@ -126,7 +110,7 @@ public class MenuHelper {
                 @Override
                 public void onClick(@NonNull View view) {
                     customTabsIntent.setToolbarColor(0xFF006FCC);
-                    CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(), Uri.parse("https://www.datamuse.com/api/"));
+                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://www.datamuse.com/api/"));
                 }
             });
 
@@ -140,13 +124,24 @@ public class MenuHelper {
                 @Override
                 public void onClick(@NonNull View view) {
                     customTabsIntent.setToolbarColor(0xFFCB2533);
-                    CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(), Uri.parse("https://www.apache.org/licenses/LICENSE-2.0"));
+                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://www.apache.org/licenses/LICENSE-2.0"));
                 }
             });
+
             licensesSpan = licensesBuilder.build();
 
             return null;
-        }
+        });
+    }
+
+    public void show(@NonNull final MenuItem item) {
+        final int itemId = item.getItemId();
+        menuDialog.setTitle(itemId == R.id.mLicenses ? creditsString : item.getTitle());
+        if (itemId == R.id.mExamples) menuDialog.setMessage(examplesSpan);
+        else if (itemId == R.id.mHelp) menuDialog.setMessage(helpSpan);
+        else if (itemId == R.id.mLicenses) menuDialog.setMessage(licensesSpan);
+        else if (itemId == R.id.mAbout) menuDialog.setMessage("aboutHere");
+        menuDialog.show(fragmentManager, null);
     }
 
     private final static class SpanBuilder {

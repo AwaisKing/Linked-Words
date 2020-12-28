@@ -68,5 +68,8 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/appid" />
+        <meta-data
+            android:name="com.google.android.gms.ads.awais.backworddictionary"
+            android:value="@string/appid" />
     </application>
 </manifest>

@@ -19,7 +19,7 @@ import awais.backworddictionary.R;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
 
-public class SettingsDialog extends Dialog {
+public final class SettingsDialog extends Dialog {
     private final int maxWords = SettingsHelper.getMaxWords();
     private final boolean showAds = SettingsHelper.showAds();
     private final boolean showDialog = SettingsHelper.showDialog();

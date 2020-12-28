@@ -113,7 +113,7 @@
                 android:id="@+id/rvResults"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:maxHeight="215" />
+                app:rv_maxHeight="215" />
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.cardview.widget.CardView>
 </merge>

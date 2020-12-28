@@ -31,7 +31,7 @@ import awais.backworddictionary.interfaces.SearchAdapterClickListener;
 
 import static awais.backworddictionary.Main.tts;
 
-public class WordDialog extends Dialog implements android.view.View.OnClickListener {
+public final class WordDialog extends Dialog implements android.view.View.OnClickListener {
     private final String word;
     private final Context context;
     private final ArrayList<String[]> defs;
@@ -93,64 +93,69 @@ public class WordDialog extends Dialog implements android.view.View.OnClickListe
 
     @Override
     public void onClick(@NonNull final View v) {
-        switch (v.getId()) {
-            case R.id.btnCopy:
-                Utils.copyText(context, word);
-                return;
+        final int id = v.getId();
 
-            case R.id.btnSpeak:
-                if (tts != null) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                        tts.speak(word, TextToSpeech.QUEUE_FLUSH, null, null);
-                    else
-                        tts.speak(word, TextToSpeech.QUEUE_FLUSH, null); // todo change deprecated
-                }
-                return;
+        if (id == R.id.btnCopy) {
+            Utils.copyText(context, word);
+            return;
+        }
 
-            case R.id.btnSearch:
-                Utils.showPopupMenu(this, context, v, word);
-                return;
+        if (id == R.id.btnSpeak) {
+            if (tts != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    tts.speak(word, TextToSpeech.QUEUE_FLUSH, null, null);
+                else
+                    tts.speak(word, TextToSpeech.QUEUE_FLUSH, null); // todo change deprecated
+            }
+            return;
+        }
 
-            case R.id.btnGoogle:
-                final String wordRawGoogle = word.replace(" ", "+").replace("\\s", "+");
-                try {
-                    final Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
-                    intent.putExtra(SearchManager.QUERY, word);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-                    context.startActivity(intent);
-                } catch (Exception e) {
-                    customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[0]);
-                    CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
-                            Uri.parse("https://google.com/search?q=define+" + wordRawGoogle));
-                }
-                break;
+        if (id == R.id.btnSearch) {
+            Utils.showPopupMenu(this, context, v, word);
+            return;
+        }
 
-            case R.id.btnWiki:
-                String wordRawWiki = word.replace(" ", "_").replace("\\s", "_");
-                try { wordRawWiki = String.valueOf(new URL(wordRawWiki)); } catch (Exception ignored) {}
-
-                final Uri wordWikiUri = Uri.parse("https://en.wikipedia.org/wiki/" + wordRawWiki);
-
-                final Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.setPackage("org.wikipedia");
-                intent.setData(wordWikiUri);
-
-                final List<ResolveInfo> resInfo = context.getPackageManager().queryIntentActivities(intent, 0);
-                if (resInfo.size() > 0) context.startActivity(intent);
-                else {
-                    customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[1]);
-                    CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
-                            wordWikiUri);
-                }
-                break;
-
-            case R.id.btnUrban:
-                customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[2]);
+        if (id == R.id.btnGoogle) {
+            final String wordRawGoogle = word.replace(" ", "+").replace("\\s", "+");
+            try {
+                final Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
+                intent.putExtra(SearchManager.QUERY, word);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                context.startActivity(intent);
+            } catch (final Exception e) {
+                customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[0]);
                 CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
-                        Uri.parse("https://www.urban" + "dictionary.com/define.php?term=" + word));
-                break;
+                        Uri.parse("https://google.com/search?q=define+" + wordRawGoogle));
+            }
+
+        } else if (id == R.id.btnWiki) {
+            String wordRawWiki = word.replace(" ", "_").replace("\\s", "_");
+            try {
+                wordRawWiki = String.valueOf(new URL(wordRawWiki));
+            } catch (final Exception e) {
+                // ignore
+            }
+
+            final Uri wordWikiUri = Uri.parse("https://en.wikipedia.org/wiki/" + wordRawWiki);
+
+            final Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setPackage("org.wikipedia");
+            intent.setData(wordWikiUri);
+
+            final List<ResolveInfo> resInfo = context.getPackageManager().queryIntentActivities(intent, 0);
+            if (resInfo.size() > 0) context.startActivity(intent);
+            else {
+                customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[1]);
+                CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
+                        wordWikiUri);
+            }
+
+        } else if (id == R.id.btnUrban) {
+            customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[2]);
+            CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
+                    Uri.parse("https://www.urban" + "dictionary.com/define.php?term=" + word));
         }
         dismiss();
     }

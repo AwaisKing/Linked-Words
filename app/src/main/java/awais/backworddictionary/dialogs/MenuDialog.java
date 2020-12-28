@@ -17,7 +17,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import awais.backworddictionary.LinkedApp;
 import awais.backworddictionary.R;
 
-public class MenuDialog extends BottomSheetDialogFragment {
+public final class MenuDialog extends BottomSheetDialogFragment {
     private CharSequence title = "";
     private Object message;
 

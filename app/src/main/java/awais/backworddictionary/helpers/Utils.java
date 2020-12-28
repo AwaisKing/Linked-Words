@@ -23,11 +23,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -42,14 +41,15 @@ import awais.backworddictionary.R;
 import awais.backworddictionary.adapters.holders.WordItem;
 import awais.backworddictionary.helpers.other.Listener;
 import awais.backworddictionary.interfaces.WordContextItemListener;
-import io.fabric.sdk.android.Fabric;
 
 import static awais.backworddictionary.Main.tabBoolsArray;
 import static java.lang.Character.MIN_LOW_SURROGATE;
 
 public final class Utils {
     public static final int[] CUSTOM_TAB_COLORS = new int[]{0xFF4888F2, 0xFF333333, 0xFF3B496B};
+    public static final String CHARSET = "UTF-8";
     public static final DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
+    public static FirebaseCrashlytics firebaseCrashlytics;
     public static InputMethodManager inputMethodManager;
     public static Locale defaultLocale;
     public static int statusBarHeight = 0;
@@ -63,7 +63,6 @@ public final class Utils {
     public static String getResponse(final String url) throws Exception {
         final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 
-        String result = null;
         try (final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 final StringBuilder response = new StringBuilder();
@@ -72,13 +71,12 @@ public final class Utils {
                 while ((currentLine = reader.readLine()) != null)
                     response.append(currentLine);
 
-                result = response.toString();
+                return response.toString();
             }
+            return null;
         } finally {
             connection.disconnect();
         }
-
-        return result;
     }
 
     public static int dpToPx(final float dp) {
@@ -95,35 +93,43 @@ public final class Utils {
             if (!staticField.isAccessible()) staticField.setAccessible(true);
             staticField.set(null, fontTypeface);
         } catch (final Exception e) {
-            Log.e("AWAISKING_APP", "", e);
+            if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
+            else firebaseCrashlytics.recordException(e);
         }
     }
 
     public static boolean isEmpty(final CharSequence cs) {
-        return cs == null || cs.length() <= 0 || cs == "" || cs.equals("");
+        if (cs instanceof String) return isEmpty((String) cs);
+        return cs == null || cs.length() <= 0 || cs.equals("");
     }
 
-    public static boolean isEmpty(final String str) {
-        return str == null || str.length() <= 0 || "null".equals(str) || str.trim().isEmpty() || "".equals(str.trim()) || "null".equals(str.trim());
+    public static boolean isEmpty(String str) {
+        if (str == null || str.length() <= 0 || "null".equals(str)) return true;
+        str = str.trim();
+        return str.isEmpty() || "null".equals(str);
     }
 
     public static void stopAsyncSilent(final AsyncTask<?, ?, ?> asyncTask) {
-        try { asyncTask.cancel(true); } catch (final Exception ignored) { }
+        try {
+            if (asyncTask != null)
+                asyncTask.cancel(true);
+        } catch (final Exception e) {
+            // ignore
+        }
     }
 
     public static void removeHandlerCallbacksSilent(final Handler handler, final Runnable runnable) {
-        try { handler.removeCallbacks(runnable); } catch (final Exception ignored) { }
-    }
-
-    public static void initCrashlytics(final Activity activity) {
-        GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(activity).addOnCompleteListener(task -> {
-            if (!BuildConfig.DEBUG && task.isSuccessful())
-                Fabric.with(activity, new Crashlytics());
-        });
+        try {
+            if (handler != null)
+                handler.removeCallbacks(runnable);
+        } catch (final Exception e) {
+            // ignore
+        }
     }
 
     public static void adsBox(@NonNull final Activity activity) {
         final View adLayout = activity.findViewById(R.id.adLayout);
+        if (adLayout == null) return;
         if (SettingsHelper.showAds()) {
             MobileAds.initialize(activity, initializationStatus -> { });
             final AdView adView = activity.findViewById(R.id.adView);
@@ -150,7 +156,9 @@ public final class Utils {
     }
 
     public static void copyText(final Context context, final String stringToCopy) {
-        if (clipboard == null) clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard == null)
+            clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+
         if (clipboard != null) {
             clipboard.setPrimaryClip(ClipData.newPlainText("word", stringToCopy));
             Toast.makeText(context, R.string.copied_clipboard, Toast.LENGTH_SHORT).show();
@@ -183,11 +191,12 @@ public final class Utils {
                         final int index = actMain.fragmentsAdapter.fragmentIndex(menuItem.getTitle());
                         if (index != -1) {
                             actMain.fragmentsAdapter.getItem(index).title = word;
-                            actMain.viewPager.setCurrentItem(index, true);
+                            actMain.viewPager2.setCurrentItem(index, true);
                         }
                         actMain.onSearch(word);
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
+                        else firebaseCrashlytics.recordException(e);
                     }
                 }
                 if (dialog != null) dialog.dismiss();

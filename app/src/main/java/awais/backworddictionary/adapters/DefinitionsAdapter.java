@@ -16,20 +16,24 @@ import awais.backworddictionary.LinkedApp;
 import awais.backworddictionary.R;
 import awais.backworddictionary.interfaces.SearchAdapterClickListener;
 
-public class DefinitionsAdapter extends ArrayAdapter<String[]> {
+public final class DefinitionsAdapter extends ArrayAdapter<String[]> {
     private final boolean isExpanded;
     private final ArrayList<String[]> items;
     private final LayoutInflater layoutInflater;
-    private final SearchAdapterClickListener searchAdapterClickListener;
+    private final View.OnClickListener onClickListener;
     private int topMargin = 0, subSize = 20;
 
     public DefinitionsAdapter(final Context context, final boolean isExpanded, final ArrayList<String[]> items,
-                              final SearchAdapterClickListener searchAdapterClickListener) {
+                              final SearchAdapterClickListener adapterClickListener) {
         super(context, R.layout.word_dialog_item, items);
+        this.onClickListener = v -> {
+            final Object tag = v.getTag();
+            if (tag instanceof String)
+                adapterClickListener.onItemClick((String) tag);
+        };
         this.layoutInflater = LayoutInflater.from(context);
         this.items = items;
         this.isExpanded = isExpanded;
-        this.searchAdapterClickListener = searchAdapterClickListener;
     }
 
     @NonNull
@@ -51,11 +55,18 @@ public class DefinitionsAdapter extends ArrayAdapter<String[]> {
 
         final String[] wordItem = items.get(position);
 
-        if (viewHolder.tvWord != null) viewHolder.tvWord.setText(wordItem[1]);
+        final String word = wordItem[1];
+        final String subWord = wordItem[0];
+
+        row.setTag(word);
+        row.setOnClickListener(onClickListener);
+
+        if (viewHolder.tvWord != null)
+            viewHolder.tvWord.setText(word);
 
         if (viewHolder.tvSub != null)
-            if (!isExpanded && wordItem[0] != null && !wordItem[0].isEmpty()) {
-                final String itemSub = '[' + wordItem[0] + ']';
+            if (!isExpanded && subWord != null && !subWord.isEmpty()) {
+                final String itemSub = '[' + subWord + ']';
                 viewHolder.tvSub.setText(itemSub);
                 viewHolder.tvSub.setVisibility(View.VISIBLE);
             } else {
@@ -65,11 +76,7 @@ public class DefinitionsAdapter extends ArrayAdapter<String[]> {
                 viewHolder.tvSub.setVisibility(View.GONE);
             }
 
-        final View finalRow = row;
-        if (searchAdapterClickListener != null) row.setOnClickListener(v ->
-                searchAdapterClickListener.onItemClick(wordItem[1]));
-
-        return finalRow;
+        return row;
     }
 
     private static class Holder {

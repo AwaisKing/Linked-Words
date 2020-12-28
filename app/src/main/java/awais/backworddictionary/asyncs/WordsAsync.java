@@ -2,7 +2,6 @@ package awais.backworddictionary.asyncs;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -11,13 +10,15 @@ import org.json.JSONObject;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
+import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.R;
 import awais.backworddictionary.adapters.holders.WordItem;
+import awais.backworddictionary.executor.ExecutorCallback;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.FragmentCallback;
 
-public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
+public final class WordsAsync implements ExecutorCallback<ArrayList<WordItem>> {
     private ArrayList<WordItem> wordItemsList = new ArrayList<>();
     private final String word;
     private final String method;
@@ -56,18 +57,18 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
     }
 
     @Override
-    protected void onPreExecute() {
+    public void preExecute() {
         if (fragmentCallback != null) fragmentCallback.wordStarted();
     }
 
     @Override
-    protected ArrayList<WordItem> doInBackground(final String... params) {
+    public ArrayList<WordItem> call() {
         if (wordItemsList == null) wordItemsList = new ArrayList<>(0);
         else wordItemsList.clear();
 
         String query;
         try {
-            query = URLEncoder.encode(word, "UTF-8");
+            query = URLEncoder.encode(word, Utils.CHARSET);
         } catch (Exception e) {
             query = word.replaceAll("\\s", "+").replaceAll(" ", "+")
                     .replaceAll("#", "%23").replaceAll("@", "%40")
@@ -76,7 +77,8 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
 
         try {
             final int wordsCount = SettingsHelper.getMaxWords();
-            final String body = Utils.getResponse("https://api.data" + "muse.com/words?md=pds&max=" + wordsCount + "&" + method + "=" + query);
+            final String body = Utils.getResponse("https://api.data" + "muse.com/words?md=pds&max=" + wordsCount +
+                    "&" + method + "=" + query);
             if (body != null) {
                 final JSONArray jsonArray = new JSONArray(body);
                 wordItemsList = new ArrayList<>(jsonArray.length());
@@ -104,15 +106,16 @@ public class WordsAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
                     wordItemsList.add(new WordItem(word, numSyllables, tagsString, defsString));
                 }
             }
-        } catch (Exception e) {
-            Log.e("AWAISKING_APP", "", e);
+        } catch (final Exception e) {
+            if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
+            else Utils.firebaseCrashlytics.recordException(e);
         }
 
         return wordItemsList;
     }
 
     @Override
-    protected void onPostExecute(final ArrayList<WordItem> wordItems) {
+    public void postExecute(final ArrayList<WordItem> wordItems) {
         if (fragmentCallback != null)
             fragmentCallback.done(wordItems, word);
     }
