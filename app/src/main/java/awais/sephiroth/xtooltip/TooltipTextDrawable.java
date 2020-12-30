@@ -101,9 +101,9 @@ public final class TooltipTextDrawable extends Drawable {
         path.moveTo(left + radius, (float) top);
 
         if (drawPoint && gravity == Tooltip.Gravity.BOTTOM) {
-            path.lineTo((float) (left + tmpPoint.x - arrowWeight), (float) top);
-            path.lineTo((float) (left + tmpPoint.x), (float) outBounds.top);
-            path.lineTo((float) (left + tmpPoint.x + arrowWeight), (float) top);
+            path.lineTo(left + tmpPoint.x - arrowWeight, (float) top);
+            path.lineTo(left + tmpPoint.x, (float) outBounds.top);
+            path.lineTo(left + tmpPoint.x + arrowWeight, (float) top);
         }
 
         // top/right
@@ -111,9 +111,9 @@ public final class TooltipTextDrawable extends Drawable {
         path.quadTo((float) right, (float) top, (float) right, top + radius);
 
         if (drawPoint && gravity == Tooltip.Gravity.LEFT) {
-            path.lineTo((float) right, (float) (top + tmpPoint.y - arrowWeight));
-            path.lineTo((float) outBounds.right, (float) (top + tmpPoint.y));
-            path.lineTo((float) right, (float) (top + tmpPoint.y + arrowWeight));
+            path.lineTo((float) right, top + tmpPoint.y - arrowWeight);
+            path.lineTo((float) outBounds.right, top + tmpPoint.y);
+            path.lineTo((float) right, top + tmpPoint.y + arrowWeight);
         }
 
         // bottom/right
@@ -121,9 +121,9 @@ public final class TooltipTextDrawable extends Drawable {
         path.quadTo((float) right, (float) bottom, right - radius, (float) bottom);
 
         if (drawPoint && gravity == Tooltip.Gravity.TOP) {
-            path.lineTo((float) (left + tmpPoint.x + arrowWeight), (float) bottom);
-            path.lineTo((float) (left + tmpPoint.x), (float) outBounds.bottom);
-            path.lineTo((float) (left + tmpPoint.x - arrowWeight), (float) bottom);
+            path.lineTo(left + tmpPoint.x + arrowWeight, (float) bottom);
+            path.lineTo(left + tmpPoint.x, (float) outBounds.bottom);
+            path.lineTo(left + tmpPoint.x - arrowWeight, (float) bottom);
         }
 
         // bottom/left
@@ -131,9 +131,9 @@ public final class TooltipTextDrawable extends Drawable {
         path.quadTo((float) left, (float) bottom, (float) left, bottom - radius);
 
         if (drawPoint && gravity == Tooltip.Gravity.RIGHT) {
-            path.lineTo((float) left, (float) (top + tmpPoint.y + arrowWeight));
-            path.lineTo((float) outBounds.left, (float) (top + tmpPoint.y));
-            path.lineTo((float) left, (float) (top + tmpPoint.y - arrowWeight));
+            path.lineTo((float) left, top + tmpPoint.y + arrowWeight);
+            path.lineTo((float) outBounds.left, top + tmpPoint.y);
+            path.lineTo((float) left, top + tmpPoint.y - arrowWeight);
         }
 
         // top/left

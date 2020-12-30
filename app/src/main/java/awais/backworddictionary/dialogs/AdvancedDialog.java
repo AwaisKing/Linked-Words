@@ -1,6 +1,5 @@
 package awais.backworddictionary.dialogs;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
@@ -13,6 +12,7 @@ import android.widget.Toast;
 import java.util.Arrays;
 import java.util.List;
 
+import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
 import awais.backworddictionary.custom.AlertDialogTitle;
 import awais.backworddictionary.helpers.SettingsHelper;
@@ -23,9 +23,9 @@ public final class AdvancedDialog extends Dialog implements CompoundButton.OnChe
     private final FragmentLoader fragmentLoader;
     private List<CompoundButton> checkBoxes;
 
-    public AdvancedDialog(final Activity act) {
+    public AdvancedDialog(final Main act) {
         super(act, R.style.MaterialAlertDialogTheme);
-        this.fragmentLoader = (FragmentLoader) act;
+        this.fragmentLoader = act;
     }
 
     @Override

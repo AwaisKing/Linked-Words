@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.text.SpannableStringBuilder;
@@ -222,35 +223,45 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
             }
         } else {
             finish();
-            startActivity(new Intent(this, Main.class));
+            startActivity(new Intent(getBaseContext().getApplicationContext(), Main.class));
         }
     }
 
     private void handleData() {
-        final Intent intent = getIntent();
-        if (intent != null) {
-            final Bundle bundle = intent.getExtras();
-            if (bundle != null) {
-                final String str;
-
-                if (bundle.containsKey(Intent.EXTRA_TEXT)
-                        && "text/plain".equals(intent.getType())
-                        && Intent.ACTION_SEND.equals(intent.getAction()))
-                    str = bundle.getString(Intent.EXTRA_TEXT);
-                else if (bundle.containsKey("query"))
-                    str = bundle.getString("query");
-                else str = null;
-
-                if (str != null) {
-                    final Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            onSearch(str);
-                            handler.removeCallbacks(this);
-                        }
-                    }, 400);
+        final Intent intent;
+        final Bundle bundle;
+        if ((intent = getIntent()) != null && (bundle = intent.getExtras()) != null && "text/plain".equals(intent.getType())) {
+            final String[] str = {null};
+            final String action = intent.getAction();
+            final Object object = bundle.get(action);
+            if (object instanceof CharSequence)
+                str[0] = object.toString();
+            else for (final String key : bundle.keySet()) {
+                if (Intent.EXTRA_PROCESS_TEXT.equals(key) || Intent.EXTRA_TEXT.equals(key)) {
+                    final Object o = bundle.get(key);
+                    if (o != null) str[0] = o.toString();
+                } else {
+                    final String lcKey = key.toLowerCase();
+                    if ("query".equals(lcKey) || "text".equals(lcKey)) {
+                        final Object o = bundle.get(key);
+                        if (o != null) str[0] = o.toString();
+                    }
                 }
+
+                if (str[0] != null) break;
+            }
+            if (str[0] != null) {
+                final Handler handler = new Handler(Looper.getMainLooper());
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (historyDatabase != null && !Utils.isEmpty(str[0]))
+                            historyItemAction(false, str[0]);
+                        if (searchView != null) searchView.setQuery(str[0], false);
+                        onSearch(str[0]);
+                        handler.removeCallbacks(this);
+                    }
+                }, 300);
             }
         }
     }
@@ -429,7 +440,7 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
             searchView.setAdapter(searchAdapter);
 
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                private final Handler handler = new Handler();
+                private final Handler handler = new Handler(Looper.getMainLooper());
                 private String text = "";
                 private SearchAsync prevAsync;
                 private final Runnable textWatch = () -> {

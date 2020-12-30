@@ -7,7 +7,7 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Handler;
-import android.os.IBinder;
+import android.os.Looper;
 import android.text.Spannable;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -37,12 +37,13 @@ import awais.backworddictionary.helpers.Utils;
 
 public final class Tooltip {
     private final Context context;
+    private final LayoutInflater inflater;
 
     private final int mPadding = Utils.dpToPx(20f);
     private final float mSizeTolerance;
     private final boolean mShowArrow = true;
     private final WindowManager windowManager;
-    private final Handler mHandler = new Handler();
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final Point mAnchorPoint = new Point(0, 0);
     private final TooltipTextDrawable mDrawable;
     private final Runnable hideRunnable = this::hide, activateRunnable = () -> mActivated = true;
@@ -62,6 +63,7 @@ public final class Tooltip {
 
     public Tooltip(@NonNull final Context context, final View anchorView, final CharSequence text) {
         this.context = context;
+        this.inflater = LayoutInflater.from(context);
 
         this.windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         this.mSizeTolerance = context.getResources().getDisplayMetrics().density * 10f;
@@ -87,62 +89,6 @@ public final class Tooltip {
         mText = text;
         if (isShowing && null != mPopupView) mTextView.setText(text instanceof Spannable ? text :
                 HtmlCompat.fromHtml(String.valueOf(text), HtmlCompat.FROM_HTML_MODE_COMPACT));
-    }
-
-    @NonNull
-    private WindowManager.LayoutParams createPopupLayoutParams(final IBinder token) {
-        final WindowManager.LayoutParams p = new WindowManager.LayoutParams();
-        p.gravity = android.view.Gravity.START | android.view.Gravity.TOP;
-        p.width = WindowManager.LayoutParams.MATCH_PARENT;
-        p.height = WindowManager.LayoutParams.MATCH_PARENT;
-        p.format = PixelFormat.TRANSLUCENT;
-        p.flags = p.flags | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS |
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR |
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
-        p.type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL;
-        p.token = token;
-        p.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN;
-        p.setTitle("ToolTip:" + Integer.toHexString(hashCode()));
-        return p;
-    }
-
-    private void preparePopup() {
-        final TooltipViewContainer viewContainer = new TooltipViewContainer(context);
-
-        final View contentView = LayoutInflater.from(context)
-                .inflate(R.layout.tooltip_textview, viewContainer, false);
-
-        mTextView = new MaterialTextView(new ContextThemeWrapper(context, R.style.ToolTipTextStyle));
-        ((ViewGroup) contentView).addView(mTextView);
-
-        if (mDrawable != null) mTextView.setBackground(mDrawable);
-        if (mShowArrow) mTextView.setPadding(mPadding, mPadding, mPadding, mPadding);
-        else mTextView.setPadding(mPadding / 2, mPadding / 2, mPadding / 2, mPadding / 2);
-        mTextView.setText(mText instanceof Spannable ? mText :
-                HtmlCompat.fromHtml(String.valueOf(mText), HtmlCompat.FROM_HTML_MODE_COMPACT));
-
-        viewContainer.addView(contentView, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        viewContainer.setMeasureAllChildren(true);
-        viewContainer.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-
-        mTextView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-            @Override
-            public void onViewAttachedToWindow(final View v) {
-                mHandler.removeCallbacks(activateRunnable);
-                mHandler.postDelayed(activateRunnable, 0);
-            }
-
-            @Override
-            public void onViewDetachedFromWindow(final View v) {
-                if (v != null) v.removeOnAttachStateChangeListener(this);
-                removeCallbacks();
-            }
-        });
-
-        mContentView = contentView;
-        mPopupView = viewContainer;
     }
 
     @Nullable
@@ -275,8 +221,50 @@ public final class Tooltip {
 
         isVisible = false;
 
-        WindowManager.LayoutParams params = createPopupLayoutParams(parent.getWindowToken());
-        preparePopup();
+        final WindowManager.LayoutParams params = new WindowManager.LayoutParams();
+        params.gravity = android.view.Gravity.START | android.view.Gravity.TOP;
+        params.width = WindowManager.LayoutParams.MATCH_PARENT;
+        params.height = WindowManager.LayoutParams.MATCH_PARENT;
+        params.format = PixelFormat.TRANSLUCENT;
+        params.flags = params.flags | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS |
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR |
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
+        params.type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL;
+        params.token = parent.getWindowToken();
+        params.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN;
+        params.setTitle("ToolTip:" + Integer.toHexString(hashCode()));
+
+        mPopupView = new TooltipViewContainer(context);
+        mContentView = inflater.inflate(R.layout.tooltip_textview, mPopupView, false);
+
+        mTextView = new MaterialTextView(new ContextThemeWrapper(context, R.style.ToolTipTextStyle));
+        ((ViewGroup) mContentView).addView(mTextView);
+
+        if (mDrawable != null) mTextView.setBackground(mDrawable);
+        if (mShowArrow) mTextView.setPadding(mPadding, mPadding, mPadding, mPadding);
+        else mTextView.setPadding(mPadding / 2, mPadding / 2, mPadding / 2, mPadding / 2);
+        mTextView.setText(mText instanceof Spannable ? mText :
+                HtmlCompat.fromHtml(String.valueOf(mText), HtmlCompat.FROM_HTML_MODE_COMPACT));
+
+        mPopupView.addView(mContentView, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        mPopupView.setMeasureAllChildren(true);
+        mPopupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+
+        mTextView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(final View v) {
+                mHandler.removeCallbacks(activateRunnable);
+                mHandler.postDelayed(activateRunnable, 0);
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(final View v) {
+                if (v != null) v.removeOnAttachStateChangeListener(this);
+                removeCallbacks();
+            }
+        });
 
         final ArrayList<Gravity> gravities = new ArrayList<>();
         Collections.addAll(gravities, mGravities);

@@ -169,7 +169,8 @@ final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemViewHold
         else
             defsList.addAll(Arrays.asList(wordItemDefs));
 
-        holder.lvExpandedDefs.setAdapter(new DefinitionsAdapter(context, true, defsList, itemClickListener));
+        holder.lvExpandedDefs.setAdapter(new DefinitionsAdapter(context, wordItemWord,
+                true, defsList, itemClickListener));
 
         holder.ivExpandedSearch.setTag(wordItem.getWord());
         holder.ivExpandedSearch.setOnClickListener(onClickListener);

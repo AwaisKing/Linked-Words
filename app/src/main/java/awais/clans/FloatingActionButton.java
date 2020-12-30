@@ -97,7 +97,7 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
         }
 
         colorNormal = ResourcesCompat.getColor(resources, R.color.mini_fab_color, null);
-        colorPressed = ResourcesCompat.getColor(resources, R.color.fab_label_ripple_color, null);
+        colorPressed = ResourcesCompat.getColor(resources, R.color.mini_fab_color_pressed, null);
 
         showAnimation = AnimationUtils.loadAnimation(context, R.anim.fab_scale_up);
         hideAnimation = AnimationUtils.loadAnimation(context, R.anim.fab_scale_down);

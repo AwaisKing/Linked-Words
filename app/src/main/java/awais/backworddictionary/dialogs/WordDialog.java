@@ -68,7 +68,8 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
         ((AlertDialogTitle) findViewById(R.id.alertTitle)).setText(word);
 
         final ListView lvDefs = findViewById(R.id.lvDefs);
-        lvDefs.setAdapter(new DefinitionsAdapter(context, false, defs, itemClickListener));
+        lvDefs.setAdapter(new DefinitionsAdapter(context, word,
+                false, defs, itemClickListener));
 
         final Button copy = findViewById(R.id.btnCopy);
         final Button speak = findViewById(R.id.btnSpeak);

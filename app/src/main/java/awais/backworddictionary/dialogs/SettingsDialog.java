@@ -85,7 +85,8 @@ public final class SettingsDialog extends Dialog {
 
                     if (selectedTheme != checkedTheme) {
                         AppCompatDelegate.setDefaultNightMode(theme);
-                        if (activity != null) activity.recreate();
+                        if (activity instanceof Main) ((Main) activity).loadFragments(false);
+                        else if (activity != null) activity.recreate();
                     }
                 } else if (activity instanceof Main) Utils.adsBox(activity);
                 dismiss();

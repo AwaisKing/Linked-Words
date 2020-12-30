@@ -11,6 +11,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -67,7 +68,7 @@ public final class FloatingActionMenu extends ViewGroup {
         super(context, attrs, defStyleAttr);
 
         this.context = context;
-        this.uiHandler = new Handler();
+        this.uiHandler = new Handler(Looper.getMainLooper());
 
         final Resources resources = context.getResources();
         labelsTextSize = resources.getDimension(R.dimen.search_text_small);

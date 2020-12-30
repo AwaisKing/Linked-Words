@@ -4,14 +4,16 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import awais.backworddictionary.BuildConfig;
 
 public final class TaskExecutor {
     private static final Handler handler = new Handler(Looper.getMainLooper());
-    private static final Executor executor = Executors.newCachedThreadPool();
+    private static final ThreadPoolExecutor executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+            30, TimeUnit.SECONDS, new SynchronousQueue<>());
 
     public static <T> void executeAsync(final ExecutorCallback<T> callable) {
         try {

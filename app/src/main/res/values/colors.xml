@@ -9,7 +9,7 @@
     <color name="cards_back_color">@android:color/white</color>
 
     <color name="mini_fab_color">@android:color/white</color>
-    <color name="fab_label_ripple_color">#33000000</color>
+    <color name="mini_fab_color_pressed">#B0B0B0</color>
 
     <color name="progress1">@color/colorAccent</color>
     <color name="progress2">@color/colorPrimary</color>

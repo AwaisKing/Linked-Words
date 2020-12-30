@@ -23,13 +23,13 @@ public final class DefinitionsAdapter extends ArrayAdapter<String[]> {
     private final View.OnClickListener onClickListener;
     private int topMargin = 0, subSize = 20;
 
-    public DefinitionsAdapter(final Context context, final boolean isExpanded, final ArrayList<String[]> items,
-                              final SearchAdapterClickListener adapterClickListener) {
+    public DefinitionsAdapter(final Context context, final String currentWord, final boolean isExpanded,
+                              final ArrayList<String[]> items, final SearchAdapterClickListener adapterClickListener) {
         super(context, R.layout.word_dialog_item, items);
         this.onClickListener = v -> {
             final Object tag = v.getTag(R.id.word_key);
             if (tag instanceof String)
-                adapterClickListener.onItemClick((String) tag);
+                adapterClickListener.onItemClick(currentWord + ": " + tag);
         };
         this.layoutInflater = LayoutInflater.from(context);
         this.items = items;
@@ -44,7 +44,7 @@ public final class DefinitionsAdapter extends ArrayAdapter<String[]> {
 
         if (row == null) {
             row = layoutInflater.inflate(R.layout.word_dialog_item, parent, false);
-            viewHolder = new Holder(row.findViewById(R.id.item_text), row.findViewById(R.id.sub_text));
+            viewHolder = new Holder(row.findViewById(android.R.id.text1), row.findViewById(android.R.id.text2));
             viewHolder.tvSub.measure(0, 0);
             topMargin = ((ViewGroup.MarginLayoutParams) viewHolder.tvSub.getLayoutParams()).topMargin;
             subSize = viewHolder.tvSub.getMeasuredHeight() / 2;
@@ -61,8 +61,9 @@ public final class DefinitionsAdapter extends ArrayAdapter<String[]> {
         row.setTag(R.id.word_key, word);
         row.setOnClickListener(onClickListener);
 
-        if (viewHolder.tvWord != null)
-            viewHolder.tvWord.setText(word);
+        final boolean tvWordNotNull = viewHolder.tvWord != null;
+
+        if (tvWordNotNull) viewHolder.tvWord.setText(word);
 
         if (viewHolder.tvSub != null)
             if (!isExpanded && subWord != null && !subWord.isEmpty()) {
@@ -70,7 +71,7 @@ public final class DefinitionsAdapter extends ArrayAdapter<String[]> {
                 viewHolder.tvSub.setText(itemSub);
                 viewHolder.tvSub.setVisibility(View.VISIBLE);
             } else {
-                if (isExpanded && viewHolder.tvWord != null)
+                if (isExpanded && tvWordNotNull)
                     viewHolder.tvWord.setPadding(ViewCompat.getPaddingStart(viewHolder.tvWord), subSize,
                             ViewCompat.getPaddingEnd(viewHolder.tvWord), subSize + topMargin);
                 viewHolder.tvSub.setVisibility(View.GONE);
