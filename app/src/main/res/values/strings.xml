@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name" translatable="false">Linked Words</string>
 
+    <string name="linked_words_notif_channel_descr">This notification channel helps with Bubbles API.\n(I just hope it works on every Android 10+ phone)</string>
+
     <string name="copy">Copy</string>
     <string name="speak">Speak</string>
     <string name="google" translatable="false">Google</string>
@@ -25,10 +27,13 @@
     <string name="max_words">Max Words</string>
     <string name="show_ads">Show Ads</string>
     <string name="show_dialog">Show Definition Dialog</string>
+    <string name="show_definition_popup">Show Definition List Popup</string>
+    <string name="show_floating">Show Bubbles/Floating dialog when text is shared to the app</string>
     <string name="app_theme">App Theme</string>
     <string name="theme_auto">Follow Device Mode</string>
     <string name="theme_dark">Always Dark</string>
     <string name="theme_light">Always Light</string>
+    <string name="btn_tts_settings">TTS Settings</string>
 
     <string name="reverse_related">Reverse/Related</string>
     <string name="reverse">Reverse</string>
@@ -44,6 +49,24 @@
     <string name="words">Words</string>
     <string name="defs">Definitions</string>
     <string name="contains">Contains</string>
+
+    <string name="tts_first_time_message">Apparently Google always messes up their APIs by deprecating them or adding more "security",
+    that\'s why on some devices (or custom ROMs) Text-to-Speech doesn\'t work.\n\n
+    So that\'s why I added this settings to fix that issue.</string>
+
+    <string name="tts_settings">Text-to-Speech Settings</string>
+    <string name="reset_tts">Reset TTS Settings</string>
+
+    <string name="tts_not_initialized">Text-to-Speech is not initialized…</string>
+    <string name="tts_data_not_found">Text-to-Speech voice data not found!\nDo you want to open settings to install voice data?</string>
+
+    <string name="save_tts">Save TTS Settings</string>
+    <string name="play_tts">Play example</string>
+    <string name="set_pitch">Set Pitch</string>
+    <string name="set_speech_rate">Set Speech Rate</string>
+    <string name="select_language">Select Language</string>
+    <string name="select_engine">Select TTS Engine</string>
+    <string name="select_voice_model">Select Voice Model</string>
 
     <string name="remove_recent">Remove recent search</string>
     <string name="confirm_remove">Are you sure to remove \"%s\" from recent searches?</string>

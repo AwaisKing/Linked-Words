@@ -6,7 +6,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.browser.customtabs.CustomTabsIntent;
@@ -15,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import awais.backworddictionary.BuildConfig;
+import awais.backworddictionary.helpers.Utils;
 
 public final class CustomTabActivityHelper {
     private static final String STABLE_PACKAGE = "com.android.chrome";
@@ -36,7 +36,7 @@ public final class CustomTabActivityHelper {
     }
 
     private static String getPackageNameToUse(final Context context) {
-        if (packageNameToUse != null) return packageNameToUse;
+        if (!Utils.isEmpty(packageNameToUse)) return packageNameToUse;
 
         final PackageManager pm = context.getPackageManager();
 
@@ -47,7 +47,7 @@ public final class CustomTabActivityHelper {
         if (defaultViewHandlerInfo != null)
             defaultBrowser = defaultViewHandlerInfo.activityInfo.packageName;
 
-        final ArrayList<String> customTabBrowsersList = new ArrayList<>();
+        final ArrayList<String> customTabBrowsersList = new ArrayList<>(0);
 
         final List<ResolveInfo> resolvedActivityList = pm.queryIntentActivities(activityIntent, 0);
         for (final ResolveInfo info : resolvedActivityList) {
@@ -66,7 +66,7 @@ public final class CustomTabActivityHelper {
         if (customTabBrowsersList.isEmpty()) packageNameToUse = null;
         else if (customTabBrowsersList.size() == 1)
             packageNameToUse = customTabBrowsersList.get(0);
-        else if (!TextUtils.isEmpty(defaultBrowser) && !hasSpecializedHandlerIntents(context, activityIntent) && customTabBrowsersList.contains(defaultBrowser))
+        else if (!Utils.isEmpty(defaultBrowser) && !hasSpecializedHandlerIntents(context, activityIntent) && customTabBrowsersList.contains(defaultBrowser))
             packageNameToUse = defaultBrowser;
         else {
             for (final String browser : customTabBrowsersList) {
@@ -104,8 +104,7 @@ public final class CustomTabActivityHelper {
                 return true;
             }
         } catch (final Exception e) {
-            if (BuildConfig.DEBUG)
-                Log.e("AWAISKING_CHROME_VIEW", "", e);
+            if (BuildConfig.DEBUG) Log.e("AWAISKING_CHROME_VIEW", "", e);
         }
         return false;
     }

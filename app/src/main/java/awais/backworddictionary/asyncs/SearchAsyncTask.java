@@ -1,6 +1,5 @@
 package awais.backworddictionary.asyncs;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -11,23 +10,24 @@ import java.util.ArrayList;
 
 import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.adapters.holders.WordItem;
+import awais.backworddictionary.executor.LocalAsyncTask;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.MainCheck;
 
-public final class SearchAsync extends AsyncTask<String, Void, ArrayList<WordItem>> {
+public final class SearchAsyncTask extends LocalAsyncTask<String, ArrayList<WordItem>> {
     private MainCheck mainCheck;
 
-    public SearchAsync(final MainCheck mainCheck) {
+    public SearchAsyncTask(final MainCheck mainCheck) {
         this.mainCheck = mainCheck;
     }
 
     @Override
-    protected ArrayList<WordItem> doInBackground(final String... params) {
+    protected ArrayList<WordItem> doInBackground(final String param) {
         String query;
         try {
-            query = URLEncoder.encode(params[0], Utils.CHARSET);
+            query = URLEncoder.encode(param, Utils.CHARSET);
         } catch (final Exception e) {
-            query = params[0].replaceAll("\\s", "+").replaceAll(" ", "+")
+            query = param.replaceAll("\\s", "+").replaceAll(" ", "+")
                     .replaceAll("#", "%23").replaceAll("@", "%40")
                     .replaceAll("&", "%26");
         }
@@ -35,7 +35,7 @@ public final class SearchAsync extends AsyncTask<String, Void, ArrayList<WordIte
         ArrayList<WordItem> arrayList = new ArrayList<>(0);
 
         try {
-            final String response = Utils.getResponse("https://api.data" + "muse.com/sug?s=" + query);
+            final String response = Utils.getResponse("https://api.data".concat("muse.com/sug?s=").concat(query));
 
             if (response != null) {
                 final JSONArray jsonArray = new JSONArray(response);
@@ -47,7 +47,7 @@ public final class SearchAsync extends AsyncTask<String, Void, ArrayList<WordIte
                 }
             }
         } catch (final Exception e) {
-            if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
+            if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "SearchAsyncTask", e);
             else Utils.firebaseCrashlytics.recordException(e);
         }
 
@@ -55,12 +55,8 @@ public final class SearchAsync extends AsyncTask<String, Void, ArrayList<WordIte
     }
 
     @Override
-    protected void onCancelled() {
-        if (mainCheck != null) mainCheck.afterSearch(null);
-    }
-
-    @Override
     protected void onCancelled(final ArrayList<WordItem> wordItems) {
+        if (mainCheck != null) mainCheck.afterSearch(null);
         mainCheck = null;
     }
 

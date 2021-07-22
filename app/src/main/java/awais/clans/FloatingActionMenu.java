@@ -1,5 +1,7 @@
 package awais.clans;
 
+import static awais.clans.FloatingActionButton.SIZE_NORMAL;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
@@ -28,16 +30,12 @@ import androidx.core.content.res.ResourcesCompat;
 import awais.backworddictionary.R;
 import awais.backworddictionary.helpers.Utils;
 
-import static awais.clans.FloatingActionButton.SIZE_NORMAL;
-import static awais.clans.FloatingActionButton.shadowRadius;
-import static awais.clans.FloatingActionButton.shadowYOffset;
-
 public final class FloatingActionMenu extends ViewGroup {
     private static final int ANIMATION_DURATION = 300;
-    private final int buttonSpacing = Utils.dpToPx(4);
-    private final int labelsPaddingTop = buttonSpacing;
-    private final int labelsPaddingLeft = Utils.dpToPx(8);
-    private final int labelMarginFix = labelsPaddingLeft;
+
+    private final int buttonSpacing, labelsPaddingLeft, labelsPaddingTop, labelMarginFix;
+    private final int shadowRadius, shadowYOffset;
+
     private final float labelsTextSize;
     private final Context context;
     private final Handler uiHandler;
@@ -71,7 +69,11 @@ public final class FloatingActionMenu extends ViewGroup {
         this.uiHandler = new Handler(Looper.getMainLooper());
 
         final Resources resources = context.getResources();
+        labelsPaddingLeft = labelMarginFix = (int) resources.getDimension(R.dimen.dialog_corners);
+        labelsPaddingTop = buttonSpacing = (int) resources.getDimension(R.dimen.dialog_padding);
         labelsTextSize = resources.getDimension(R.dimen.search_text_small);
+        shadowRadius = (int) resources.getDimension(R.dimen.search_divider);
+        shadowYOffset = (int) resources.getDimension(R.dimen.ttlm_default_elevation);
 
         final int maxAlpha = ResourcesCompat.getColor(resources, R.color.floating_background, null) >>> 24;
         backgroundShowAnimator = ValueAnimator.ofInt(0, maxAlpha);
@@ -252,7 +254,7 @@ public final class FloatingActionMenu extends ViewGroup {
     private void addLabel(@NonNull final FloatingActionButton fab) {
         final String labelText = fab.getLabelText();
 
-        if (!TextUtils.isEmpty(labelText)) {
+        if (!Utils.isEmpty(labelText)) {
             final Label label = new Label(context, fab, AnimationUtils.loadAnimation(context, R.anim.fab_slide_in_from_right),
                     AnimationUtils.loadAnimation(context, R.anim.fab_slide_out_to_right));
             label.setClickable(true);

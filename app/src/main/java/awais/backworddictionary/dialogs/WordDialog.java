@@ -14,10 +14,10 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.browser.customtabs.CustomTabsIntent;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import awais.backworddictionary.R;
@@ -25,17 +25,20 @@ import awais.backworddictionary.adapters.DefinitionsAdapter;
 import awais.backworddictionary.custom.AlertDialogTitle;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
-import awais.backworddictionary.interfaces.SearchAdapterClickListener;
+import awais.backworddictionary.interfaces.AdapterClickListener;
 
 public final class WordDialog extends Dialog implements android.view.View.OnClickListener {
+    private static final int ALERT_DIALOG_THEME = R.style.DefinitionsDialogTheme;
+
     private final String word;
     private final Context context;
-    private final ArrayList<String[]> defs;
+    private final List<?> defs;
     private final CustomTabsIntent.Builder customTabsIntent;
-    private final SearchAdapterClickListener itemClickListener;
+    private final AdapterClickListener itemClickListener;
 
-    public WordDialog(final Context context, final String word, final ArrayList<String[]> defs, final SearchAdapterClickListener itemClickListener) {
-        super(context, R.style.MaterialAlertDialogTheme);
+    public WordDialog(Context context, final String word, final List<?> defs, final AdapterClickListener itemClickListener) {
+        super(context = new ContextThemeWrapper(context, ALERT_DIALOG_THEME),
+                ALERT_DIALOG_THEME);
         this.context = context;
         this.word = word;
         this.defs = defs;
@@ -68,7 +71,7 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
         ((AlertDialogTitle) findViewById(R.id.alertTitle)).setText(word);
 
         final ListView lvDefs = findViewById(R.id.lvDefs);
-        lvDefs.setAdapter(new DefinitionsAdapter(context, word,
+        lvDefs.setAdapter(new DefinitionsAdapter<>(context, word,
                 false, defs, itemClickListener));
 
         final Button copy = findViewById(R.id.btnCopy);
@@ -129,12 +132,10 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
                 // ignore
             }
 
-            final Uri wordWikiUri = Uri.parse("https://en.wikipedia.org/wiki/" + wordRawWiki);
+            final Uri wordWikiUri = Uri.parse("https://en.wikipedia.org/wiki/".concat(wordRawWiki));
 
-            final Intent intent = new Intent();
-            intent.setAction(Intent.ACTION_VIEW);
-            intent.setPackage("org.wikipedia");
-            intent.setData(wordWikiUri);
+            final Intent intent = new Intent().setAction(Intent.ACTION_VIEW)
+                    .setPackage("org.wikipedia").setData(wordWikiUri);
 
             final List<ResolveInfo> resInfo = context.getPackageManager().queryIntentActivities(intent, 0);
             if (resInfo.size() > 0) context.startActivity(intent);
@@ -147,7 +148,7 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
         } else if (id == R.id.btnUrban) {
             customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[2]);
             CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
-                    Uri.parse("https://www.urban" + "dictionary.com/define.php?term=" + word));
+                    Uri.parse("https://www.urban".concat("dictionary.com/define.php?term=").concat(word)));
         }
         dismiss();
     }

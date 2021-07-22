@@ -5,15 +5,15 @@
     android:layout_height="match_parent">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_container"
+        android:id="@android:id/custom"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
+            android:id="@android:id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/filterView"
+            android:layout_below="@android:id/progress"
             android:layout_gravity="fill_vertical"
             android:clipToPadding="false"
             android:paddingTop="6dp"
@@ -28,7 +28,7 @@
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <FrameLayout
-        android:id="@+id/filterView"
+        android:id="@android:id/progress"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginStart="@dimen/filter_spacing"
@@ -36,8 +36,8 @@
         android:layout_marginTop="@dimen/filter_spacing"
         android:layout_marginEnd="@dimen/filter_spacing"
         android:layout_marginRight="@dimen/filter_spacing"
-        android:visibility="gone"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:visibility="gone">
 
         <com.google.android.material.card.MaterialCardView
             style="@style/CardViewStyle"
@@ -52,7 +52,7 @@
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/filterBack"
+                    android:id="@android:id/button1"
                     style="?selectableItemBackgroundBorderless"
                     android:layout_width="48dp"
                     android:layout_height="match_parent"
@@ -61,7 +61,7 @@
                     app:srcCompat="@drawable/ic_back" />
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/swipeSearch"
+                    android:id="@android:id/input"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -82,7 +82,7 @@
                     android:windowSoftInputMode="adjustPan" />
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/filterSettings"
+                    android:id="@android:id/button2"
                     style="?selectableItemBackgroundBorderless"
                     android:layout_width="48dp"
                     android:layout_height="match_parent"

@@ -10,27 +10,25 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import awais.backworddictionary.LinkedApp;
 import awais.backworddictionary.R;
-import awais.backworddictionary.interfaces.SearchAdapterClickListener;
+import awais.backworddictionary.interfaces.AdapterClickListener;
 
-public final class DefinitionsAdapter extends ArrayAdapter<String[]> {
+public final class DefinitionsAdapter<T> extends ArrayAdapter<T> {
     private final boolean isExpanded;
-    private final ArrayList<String[]> items;
+    private final List<T> items;
     private final LayoutInflater layoutInflater;
     private final View.OnClickListener onClickListener;
+    private final String currentWord;
     private int topMargin = 0, subSize = 20;
 
     public DefinitionsAdapter(final Context context, final String currentWord, final boolean isExpanded,
-                              final ArrayList<String[]> items, final SearchAdapterClickListener adapterClickListener) {
+                              final List<T> items, final AdapterClickListener adapterClickListener) {
         super(context, R.layout.word_dialog_item, items);
-        this.onClickListener = v -> {
-            final Object tag = v.getTag(R.id.word_key);
-            if (tag instanceof String)
-                adapterClickListener.onItemClick(currentWord + ": " + tag);
-        };
+        this.currentWord = currentWord;
+        this.onClickListener = adapterClickListener;
         this.layoutInflater = LayoutInflater.from(context);
         this.items = items;
         this.isExpanded = isExpanded;
@@ -53,21 +51,24 @@ public final class DefinitionsAdapter extends ArrayAdapter<String[]> {
             row.setTag(viewHolder);
         } else viewHolder = (Holder) row.getTag();
 
-        final String[] wordItem = items.get(position);
+        if (!(row.getTag(R.id.word) instanceof CharSequence))
+            row.setTag(R.id.word, currentWord);
 
-        final String word = wordItem[1];
-        final String subWord = wordItem[0];
+        final String[] wordItem = (String[]) items.get(position);
 
-        row.setTag(R.id.word_key, word);
+        final String definition = wordItem[1];
+        final String tags = wordItem[0];
+
+        row.setTag(R.id.word_key, definition);
         row.setOnClickListener(onClickListener);
 
         final boolean tvWordNotNull = viewHolder.tvWord != null;
 
-        if (tvWordNotNull) viewHolder.tvWord.setText(word);
+        if (tvWordNotNull) viewHolder.tvWord.setText(definition);
 
         if (viewHolder.tvSub != null)
-            if (!isExpanded && subWord != null && !subWord.isEmpty()) {
-                final String itemSub = '[' + subWord + ']';
+            if (!isExpanded && tags != null && !tags.isEmpty()) {
+                final String itemSub = '[' + tags + ']';
                 viewHolder.tvSub.setText(itemSub);
                 viewHolder.tvSub.setVisibility(View.VISIBLE);
             } else {

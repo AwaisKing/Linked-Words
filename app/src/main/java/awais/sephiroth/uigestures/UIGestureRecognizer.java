@@ -78,7 +78,7 @@ public abstract class UIGestureRecognizer {
     }
 
     protected void fireActionEvent() {
-        actionListener.onAction(this);
+        if (actionListener != null) actionListener.onAction(this);
     }
 
     public boolean onTouchEvent(final MotionEvent event) {

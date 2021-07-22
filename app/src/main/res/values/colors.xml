@@ -5,8 +5,13 @@
     <color name="colorAccent">#2196F3</color>
     <color name="navbar_color">#7A7A7A</color>
 
-    <color name="divider">#BDBDBD</color>
+    <!-- for dialogs -->
+    <color name="colorAccentDialog">#2196F3</color>
+    <color name="colorDialogBackground">#FFFFFF</color>
+
+    <color name="colorAppIconBg">#007EE5</color>
     <color name="cards_back_color">@android:color/white</color>
+    <color name="divider">#BDBDBD</color>
 
     <color name="mini_fab_color">@android:color/white</color>
     <color name="mini_fab_color_pressed">#B0B0B0</color>
@@ -24,7 +29,10 @@
     <color name="search_icon">#8a000000</color>
     <color name="search_text">#de000000</color>
 
-    <color name="buttons_color">#2196F3</color>
     <color name="helper_color">#212121</color>
     <color name="floating_background">#18000000</color>
+
+    <!-- for button selector -->
+    <color name="btn_color_enabled">#FF2196F3</color>
+    <color name="btn_color_disabled">#9A2196F3</color>
 </resources>

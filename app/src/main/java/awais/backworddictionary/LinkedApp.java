@@ -10,6 +10,7 @@ import androidx.multidex.MultiDexApplication;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
+import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
 
 public final class LinkedApp extends MultiDexApplication {
@@ -19,7 +20,7 @@ public final class LinkedApp extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
 
-        Utils.setSharedPrefs(this);
+        SettingsHelper.setPreferences(this);
         Utils.firebaseCrashlytics = FirebaseCrashlytics.getInstance();
 
         Typeface fontBold = null;
@@ -30,7 +31,7 @@ public final class LinkedApp extends MultiDexApplication {
                 fontMedium = resources.getFont(R.font.googlesans_medium);
                 fontBold = resources.getFont(R.font.googlesans_bold);
             } catch (final Exception e) {
-                if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
+                if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "LinkedApp", e);
                 else Utils.firebaseCrashlytics.recordException(e);
             }
         } else {

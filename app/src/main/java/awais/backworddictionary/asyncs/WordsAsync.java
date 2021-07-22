@@ -13,13 +13,12 @@ import java.util.ArrayList;
 import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.R;
 import awais.backworddictionary.adapters.holders.WordItem;
-import awais.backworddictionary.executor.ExecutorCallback;
+import awais.backworddictionary.executor.LocalAsyncTask;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.FragmentCallback;
 
-public final class WordsAsync implements ExecutorCallback<ArrayList<WordItem>> {
-    private ArrayList<WordItem> wordItemsList = new ArrayList<>();
+public final class WordsAsync extends LocalAsyncTask<Void, ArrayList<WordItem>> {
     private final String word;
     private final String method;
     private final FragmentCallback fragmentCallback;
@@ -57,19 +56,18 @@ public final class WordsAsync implements ExecutorCallback<ArrayList<WordItem>> {
     }
 
     @Override
-    public void preExecute() {
+    protected void onPreExecute() {
         if (fragmentCallback != null) fragmentCallback.wordStarted();
     }
 
     @Override
-    public ArrayList<WordItem> call() {
-        if (wordItemsList == null) wordItemsList = new ArrayList<>(0);
-        else wordItemsList.clear();
+    protected ArrayList<WordItem> doInBackground(final Void param) {
+        ArrayList<WordItem> wordItemsList = null;
 
         String query;
         try {
             query = URLEncoder.encode(word, Utils.CHARSET);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             query = word.replaceAll("\\s", "+").replaceAll(" ", "+")
                     .replaceAll("#", "%23").replaceAll("@", "%40")
                     .replaceAll("&", "%26");
@@ -77,8 +75,9 @@ public final class WordsAsync implements ExecutorCallback<ArrayList<WordItem>> {
 
         try {
             final int wordsCount = SettingsHelper.getMaxWords();
-            final String body = Utils.getResponse("https://api.data" + "muse.com/words?md=pds&max=" + wordsCount +
-                    "&" + method + "=" + query);
+            final String body = Utils.getResponse("https://api.data".concat("muse.com/words?md=pds&max=")
+                    .concat(String.valueOf(wordsCount)).concat("&").concat(method)
+                    .concat("=").concat(query));
             if (body != null) {
                 final JSONArray jsonArray = new JSONArray(body);
                 wordItemsList = new ArrayList<>(jsonArray.length());
@@ -107,7 +106,7 @@ public final class WordsAsync implements ExecutorCallback<ArrayList<WordItem>> {
                 }
             }
         } catch (final Exception e) {
-            if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
+            if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "WordsAsync", e);
             else Utils.firebaseCrashlytics.recordException(e);
         }
 
@@ -115,7 +114,7 @@ public final class WordsAsync implements ExecutorCallback<ArrayList<WordItem>> {
     }
 
     @Override
-    public void postExecute(final ArrayList<WordItem> wordItems) {
+    protected void onPostExecute(final ArrayList<WordItem> wordItems) {
         if (fragmentCallback != null)
             fragmentCallback.done(wordItems, word);
     }

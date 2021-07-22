@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <dimen name="dialog_padding">5dp</dimen>
+    <dimen name="dialog_corners">8dp</dimen>
     <dimen name="options_padding_bottom">20dp</dimen>
     <dimen name="options_padding_horizontal">@dimen/filter_margin_start</dimen>
 
-    <dimen name="design_fab_size_mini" tools:override="true">45dp</dimen>
-
     <dimen name="filter_top_margin">55dp</dimen>
+
+    <!-- FAB Menu -->
+    <dimen name="fab_label_corner_size">3dp</dimen>
+    <dimen name="design_fab_size_normal" tools:override="true">64dp</dimen>
+    <dimen name="design_fab_size_mini" tools:override="true">45dp</dimen>
 
     <!-- Number Picker -->
     <dimen name="gestures_config_minScalingSpan" tools:ignore="InOrMmUsage">27mm</dimen>
     <dimen name="gestures_screen_edge_limit">20dp</dimen>
+    <dimen name="gestures_tracker_max_dist">200dp</dimen>
 
     <!-- Tooltip -->
     <dimen name="ttlm_default_elevation">2dp</dimen>
+    <dimen name="ttlm_default_radius">6dp</dimen>
 
     <!-- Lapism SearchView -->
     <dimen name="filter_margin_start">12dp</dimen>

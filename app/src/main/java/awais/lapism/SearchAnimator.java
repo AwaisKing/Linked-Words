@@ -53,7 +53,7 @@ final class SearchAnimator {
             final WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
             if (windowManager != null) {
                 windowManager.getDefaultDisplay().getSize(displaySize);
-                float finalRadius = (float) Math.hypot(Math.max(cx, displaySize.x - cx), cy);
+                final float finalRadius = (float) Math.hypot(Math.max(cx, displaySize.x - cx), cy);
 
                 final Animator anim = ViewAnimationUtils.createCircularReveal(view, cx, cy, 0.0f, finalRadius);
                 anim.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -61,12 +61,12 @@ final class SearchAnimator {
 
                 anim.addListener(new AnimatorListenerAdapter() {
                     @Override
-                    final public void onAnimationStart(Animator animation) {
+                    final public void onAnimationStart(final Animator animation) {
                         if (listener != null) listener.onOpen();
                     }
 
                     @Override
-                    final public void onAnimationEnd(Animator animation) {
+                    final public void onAnimationEnd(final Animator animation) {
                         editText.requestFocus();
                     }
                 });
@@ -93,7 +93,7 @@ final class SearchAnimator {
             final WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
             if (windowManager != null) {
                 windowManager.getDefaultDisplay().getSize(displaySize);
-                float initialRadius = (float) Math.hypot(Math.max(cx, displaySize.x - cx), cy);
+                final float initialRadius = (float) Math.hypot(Math.max(cx, displaySize.x - cx), cy);
 
                 final Animator anim = ViewAnimationUtils.createCircularReveal(view, cx, cy, initialRadius, 0.0f);
                 anim.setInterpolator(new AccelerateDecelerateInterpolator());

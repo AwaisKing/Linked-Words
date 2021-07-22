@@ -1,6 +1,9 @@
 package awais.backworddictionary.adapters.holders;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 public final class WordItem {
+    private int position = RecyclerView.NO_POSITION;
     private final String word;
     private final String[][] defs;
     private final String parsedTags;
@@ -51,5 +54,13 @@ public final class WordItem {
 
     public void setExpanded(final boolean expanded) {
         this.expanded = expanded;
+    }
+
+    public void setPosition(final int position) {
+        this.position = position;
+    }
+
+    public int getPosition() {
+        return position;
     }
 }

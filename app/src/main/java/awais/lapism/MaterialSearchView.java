@@ -64,7 +64,7 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     private ImageView backImageView, voiceImageView, emptyImageView;
     private CharSequence oldQueryText, userQuery = "";
     private int menuItemCx = -1;
-    private boolean isSearchOpen = false, isVoice = false;
+    private boolean isSearchOpen = false, isVoice = false, isHandlingIntentData = false;
 
     public MaterialSearchView(final Context context) {
         this(context, null);
@@ -99,7 +99,7 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
         recyclerView = findViewById(R.id.rvResults);
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        recyclerView.setItemAnimator(new FadeAnimator());
+        recyclerView.setItemAnimator(null);
         recyclerView.setVisibility(View.GONE);
 
         dividerView = findViewById(R.id.view_divider);
@@ -132,7 +132,7 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
 
             @Override
             public void onTextChanged(final CharSequence charSequence, final int start, final int before, final int count) {
-                onSearchTextChanged(charSequence);
+                if (!isHandlingIntentData) onSearchTextChanged(charSequence);
             }
         });
         searchEditText.setOnEditorActionListener((textView, i, keyEvent) -> {
@@ -184,6 +184,10 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
         if (isVoice && searchEditText != null) searchEditText.setPrivateImeOptions("nm");
 
         voiceImageView.setVisibility(isVoice ? View.VISIBLE : View.GONE);
+    }
+
+    public void setHandlingIntentData(final boolean isHandlingIntentData) {
+        this.isHandlingIntentData = isHandlingIntentData;
     }
 
     public void setQuery(final CharSequence query, final boolean submit) {
@@ -353,7 +357,7 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
                 intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
 
                 ((Activity) context).startActivityForResult(intent, SPEECH_REQUEST_CODE);
-            } catch (ActivityNotFoundException e) {
+            } catch (final ActivityNotFoundException e) {
                 Toast.makeText(context, "No app or service found to perform voice search.", Toast.LENGTH_SHORT).show();
             }
         }
@@ -448,12 +452,14 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     }
 
     private static class SavedState extends BaseSavedState {
-        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
+        public static final Creator<SavedState> CREATOR = new Creator<>() {
+            @NonNull
             @Override
             public SavedState createFromParcel(final Parcel in) {
                 return new SavedState(in);
             }
 
+            @NonNull
             @Override
             public SavedState[] newArray(final int size) {
                 return new SavedState[size];

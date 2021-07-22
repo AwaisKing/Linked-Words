@@ -2,7 +2,6 @@
 <lint>
     <issue id="IconLocation">
         <ignore path="src/main/res/drawable/adm.png" />
-        <ignore path="src/main/res/drawable/dialog_back.9.png" />
         <ignore path="src/main/res/drawable/insta.png" />
         <ignore path="src/main/res/drawable/lw.png" />
         <ignore path="src/main/res/drawable/ms.png" />

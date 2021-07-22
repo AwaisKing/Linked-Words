@@ -5,7 +5,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,7 +15,6 @@ public final class WordItemViewHolder extends RecyclerView.ViewHolder {
     public final CardView cardView;
     public final ListView lvExpandedDefs;
     public final ImageView ivExpandedSearch, overflow;
-    public final LinearLayoutCompat expandableMenu;
 
     public WordItemViewHolder(final View view) {
         super(view);
@@ -26,6 +24,5 @@ public final class WordItemViewHolder extends RecyclerView.ViewHolder {
         cardView = view.findViewById(R.id.card_view);
         lvExpandedDefs = view.findViewById(R.id.lvExpandedDefs);
         ivExpandedSearch = view.findViewById(R.id.ivExpandedSearch);
-        expandableMenu = view.findViewById(R.id.expandableMenu);
     }
 }

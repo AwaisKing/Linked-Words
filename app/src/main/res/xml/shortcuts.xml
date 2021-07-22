@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_search"
+        android:shortcutId="search"
+        android:shortcutLongLabel="@string/search"
+        android:shortcutShortLabel="@string/search"
+        tools:targetApi="n_mr1">
+        <categories android:name="android.shortcut.conversation" />
+        <categories android:name="awais.linkedwords.bubbles.SEARCH" />
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="awais.backworddictionary.helpers.TextProcessHelper"
+            android:targetPackage="awais.backworddictionary" />
+    </shortcut>
+
+    <share-target android:targetClass="awais.backworddictionary.helpers.TextProcessHelper">
+        <category android:name="awais.linkedwords.bubbles.SEARCH" />
+        <data android:mimeType="text/plain" />
+    </share-target>
+    <share-target android:targetClass="awais.backworddictionary.helpers.TextProcessHelper">
+        <action android:name="android.intent.action.VIEW" />
+        <data android:mimeType="text/plain" />
+    </share-target>
+    <share-target android:targetClass="awais.backworddictionary.helpers.TextProcessHelper">
+        <action android:name="android.intent.action.SEND" />
+        <data android:mimeType="text/plain" />
+    </share-target>
+    <share-target android:targetClass="awais.backworddictionary.helpers.TextProcessHelper">
+        <action android:name="android.intent.action.WEB_SEARCH" />
+        <data android:mimeType="text/plain" />
+    </share-target>
+    <share-target android:targetClass="awais.backworddictionary.helpers.TextProcessHelper">
+        <action android:name="android.intent.action.SEARCH" />
+        <data android:mimeType="text/plain" />
+    </share-target>
+    <share-target android:targetClass="awais.backworddictionary.helpers.TextProcessHelper">
+        <action android:name="android.intent.action.PROCESS_TEXT" />
+        <data android:mimeType="text/plain" />
+    </share-target>
+</shortcuts>

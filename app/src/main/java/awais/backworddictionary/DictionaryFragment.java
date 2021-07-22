@@ -2,6 +2,8 @@ package awais.backworddictionary;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
@@ -10,6 +12,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -17,6 +20,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,25 +30,50 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
+import awais.backworddictionary.adapters.DictionaryWordsAdapter;
 import awais.backworddictionary.adapters.holders.WordItem;
 import awais.backworddictionary.adapters.holders.WordItemViewHolder;
 import awais.backworddictionary.asyncs.WordsAsync;
-import awais.backworddictionary.executor.TaskExecutor;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.SmoothScroller;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.FragmentCallback;
 
 public final class DictionaryFragment extends Fragment implements FragmentCallback {
+    private static final RecyclerView.OnScrollListener VIEWPAGER_SCROLL_HACK = new RecyclerView.OnScrollListener() {
+        private boolean isVertical = false, isHorizontal = false;
+
+        @Override
+        public void onScrollStateChanged(@NonNull final RecyclerView recyclerView, final int newState) {
+            final RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+            if (layoutManager != null) {
+                isHorizontal = layoutManager.canScrollHorizontally();
+                isVertical = layoutManager.canScrollVertically();
+            }
+        }
+
+        @Override
+        public void onScrolled(@NonNull final RecyclerView recyclerView, final int dx, final int dy) {
+            if (isHorizontal || isVertical) {
+                recyclerView.requestDisallowInterceptTouchEvent(true);
+                ViewParent parent = recyclerView.getParent();
+                while (parent != null) {
+                    parent.requestDisallowInterceptTouchEvent(true);
+                    parent = parent.getParent();
+                }
+            }
+        }
+    };
+    private int cardBackColor;
     private Activity activity;
+    private Resources resources;
     private FrameLayout filterView;
-    private List<WordItem> wordList;
     private RecyclerView recyclerView;
     private EditText filterSearchEditor;
-    private ImageView filterSearchButton;
+    private ImageView filterSearchButton, filterBackButton;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private final List<WordItem> wordList = new ArrayList<>(0);
     private final SmoothScroller smoothScroller = new SmoothScroller();
     private final boolean[] filterCheck = {true, true, true};
     public String title;
@@ -59,18 +88,10 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
         final Activity activity = getActivity();
         this.activity = activity != null ? activity : (Activity) context;
 
-        if (Main.tts == null) Main.tts = new TextToSpeech(this.activity, initStatus -> {
-            if (initStatus == TextToSpeech.SUCCESS) {
-                if (Main.tts.isLanguageAvailable(Locale.US) == TextToSpeech.LANG_AVAILABLE)
-                    Main.tts.setLanguage(Locale.US);
-                else if (Main.tts.isLanguageAvailable(Locale.CANADA) == TextToSpeech.LANG_AVAILABLE)
-                    Main.tts.setLanguage(Locale.CANADA);
-                else if (Main.tts.isLanguageAvailable(Locale.UK) == TextToSpeech.LANG_AVAILABLE)
-                    Main.tts.setLanguage(Locale.UK);
-                else if (Main.tts.isLanguageAvailable(Locale.ENGLISH) == TextToSpeech.LANG_AVAILABLE)
-                    Main.tts.setLanguage(Locale.ENGLISH);
-            }
-        });
+        if (Main.tts == null) startActivityForResult(new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA),
+                Main.TTS_DATA_CHECK_CODE);
+        //            Main.tts = new TextToSpeech(this.activity.getApplicationContext(),
+        //                Main::onTTSInit);
     }
 
     @Override
@@ -91,14 +112,25 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
         final Activity act = getActivity();
         activity = act == null ? (Activity) getContext() : act;
 
+        swipeRefreshLayout = magicRootView.findViewById(android.R.id.custom);
+        recyclerView = magicRootView.findViewById(android.R.id.list);
+        filterView = magicRootView.findViewById(android.R.id.progress);
+        filterSearchEditor = magicRootView.findViewById(android.R.id.input);
+        filterBackButton = magicRootView.findViewById(android.R.id.button1);
+        filterSearchButton = magicRootView.findViewById(android.R.id.button2);
+
+        recyclerView.addOnScrollListener(VIEWPAGER_SCROLL_HACK);
+
+        if (resources == null) resources = activity != null ? activity.getResources() : getResources();
+        final Resources.Theme theme = activity != null ? activity.getTheme() : null;
+        cardBackColor = ResourcesCompat.getColor(resources, R.color.cards_back_color, theme);
+
         if (Utils.inputMethodManager == null && activity != null)
             Utils.inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 
-        wordList = new ArrayList<>(0);
+        wordList.clear();
         wordsAdapter = new DictionaryWordsAdapter(activity, wordList);
-        wordsAdapter.setHasStableIds(true);
 
-        swipeRefreshLayout = magicRootView.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setEnabled(false);
         swipeRefreshLayout.setColorSchemeResources(R.color.progress1, R.color.progress2,
                 R.color.progress3, R.color.progress4);
@@ -111,7 +143,7 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
                     mainActivity.searchView.close(true);
 
                 final String title = (String) activity.getTitle();
-                if (!title.equals(getResources().getString(R.string.app_name))) mainActivity.onSearch(title);
+                if (!title.equals(resources.getString(R.string.app_name))) mainActivity.onSearch(title);
                 else swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -120,26 +152,24 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
         expandedEndOffset = (int) (getExpandedOffset() * 1.2f);
         endOffset = (int) (expandedEndOffset - expandedEndOffset * 0.72f);
 
-        recyclerView = magicRootView.findViewById(R.id.recycler_view);
+        if (BuildConfig.DEBUG) {
+            // todo add animator in next release build
+            //recyclerView.setItemAnimator(new MagicAnimator());
+            recyclerView.setItemAnimator(null);
+        }
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(wordsAdapter);
 
         topPadding = recyclerView.getPaddingTop();
-        topMargin = Math.round(getResources().getDimension(R.dimen.filter_top_margin));
+        topMargin = Math.round(resources.getDimension(R.dimen.filter_top_margin));
 
-        filterView = magicRootView.findViewById(R.id.filterView);
-
-        final ImageView filterBackButton = magicRootView.findViewById(R.id.filterBack);
-        filterSearchButton = magicRootView.findViewById(R.id.filterSettings);
         filterSearchButton.setTag("filter");
-
-        filterSearchEditor = magicRootView.findViewById(R.id.swipeSearch);
         filterSearchEditor.setOnFocusChangeListener((view, b) -> toggleKeyboard(b));
         filterSearchEditor.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onTextChanged(final CharSequence cs, final int i, final int i1, final int i2) {
+            public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
                 if (wordList.size() > 2)
-                    wordsAdapter.getFilter().filter(cs);
+                    wordsAdapter.getFilter().filter(s);
             }
 
             @Override
@@ -154,7 +184,7 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
             }
 
             @Override
-            public void beforeTextChanged(final CharSequence cs, final int i, final int i1, final int i2) {}
+            public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) { }
         });
 
         final View.OnClickListener onClickListener = view -> {
@@ -178,10 +208,10 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
                                 else if (i == 1) SettingsHelper.setFilter("filterDefinition", checked);
                                 else if (i == 2) SettingsHelper.setFilter("filterContain", checked);
                             }).setNeutralButton(R.string.ok, (dialogInterface, i) -> {
-                                if (wordList.size() > 2)
-                                    wordsAdapter.getFilter().filter(filterSearchEditor.getText());
-                                dialogInterface.dismiss();
-                            }).show();
+                        if (wordList.size() > 2)
+                            wordsAdapter.getFilter().filter(filterSearchEditor.getText());
+                        dialogInterface.dismiss();
+                    }).show();
                 } else {
                     filterSearchEditor.setText("");
                     filterSearchButton.setTag("filter");
@@ -198,17 +228,17 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
         if (filterView != null && filterSearchEditor != null)
             filterSearchEditor.setText("");
         if (!Utils.isEmpty(word))
-            TaskExecutor.executeAsync(new WordsAsync(this, word, method, activity));
+            new WordsAsync(this, word, method, activity).execute();
     }
 
     @Override
     public void done(final ArrayList<WordItem> items, final String word) {
-        wordList = items == null ? new ArrayList<>() : items;
+        wordList.clear();
+        if (items != null) wordList.addAll(items);
 
         swipeRefreshLayout.post(() -> swipeRefreshLayout.setRefreshing(false));
 
-        wordsAdapter = new DictionaryWordsAdapter(activity, wordList);
-        wordsAdapter.notifyDataSetChanged();
+        wordsAdapter.updateList(wordList);
         recyclerView.setAdapter(wordsAdapter);
 
         title = word;
@@ -230,10 +260,13 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
      * ANY IDEA WHAT IS METHOD ABOUT, PLEASE FORGIVE ME.
      * I ASK FOR FORGIVENESS GOD. I SWEAR.
      * 14th March 2020, still a little clue, trying to make it work with enums
+     *
      * @param showFilter either to show or hide filter
      * @param method     no idea what this is. i really forgot.
      */
-    void showFilter(final boolean showFilter, final FilterMethod method) {
+    boolean showFilter(final boolean showFilter, final FilterMethod method) {
+        boolean returnVal = false;
+
         if (filterView != null) {
             final boolean isRefrehing = swipeRefreshLayout.isRefreshing();
             final boolean isMethod0 = method == FilterMethod.RECYCLER_PADDING;
@@ -252,27 +285,37 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
                     final LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
                     final boolean managerNotNull = manager != null;
 
-                    final boolean canScroll = wordsAdapter != null && wordsAdapter.getItemCount() > 5 || managerNotNull && manager.getItemCount() > 5;
+                    final boolean canScroll = wordsAdapter.getItemCount() > 5 || managerNotNull && manager.getItemCount() > 5;
                     if (canScroll && managerNotNull && manager.findFirstVisibleItemPosition() <= 3)
                         recyclerView.smoothScrollToPosition(0);
+
                 }
+
+                returnVal = recyclerView != null && (isMethod2 || isMethod0);
             } else {
-                if (isMethod0 || isMethod2)
+                if (isMethod0 || isMethod2) {
+                    returnVal = true;
                     filterView.setVisibility(View.GONE);
+                }
 
                 if (recyclerView != null)
                     recyclerView.setPadding(0, topPadding, 0, recyclerView.getPaddingBottom());
             }
 
+            if (!returnVal) returnVal = method != FilterMethod.DO_NOTHING;
+
             if (method != FilterMethod.DO_NOTHING) {
-                swipeRefreshLayout.setProgressViewOffset(false, startOffset, showFilter ? expandedEndOffset : endOffset);
+                swipeRefreshLayout.setProgressViewOffset(false, startOffset,
+                        showFilter ? expandedEndOffset : endOffset);
                 if (isRefrehing) swipeRefreshLayout.setRefreshing(true);
             }
         }
+
+        return returnVal;
     }
 
-    void hideFilter() {
-        showFilter(false, FilterMethod.RECYCLER_PADDING);
+    boolean hideFilter() {
+        return showFilter(false, FilterMethod.RECYCLER_PADDING);
     }
 
     boolean isFilterOpen() {
@@ -288,7 +331,7 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
 
     void scrollRecyclerView(final boolean directionUp) {
         if (recyclerView != null) {
-            final int itemCount = wordsAdapter == null ? 0 : wordsAdapter.getItemCount();
+            final int itemCount = wordsAdapter.getItemCount();
             if (itemCount > 0 && recyclerView.getLayoutManager() != null) {
                 final LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 final int firstCompletelyVisible = manager.findFirstCompletelyVisibleItemPosition();
@@ -310,7 +353,7 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
                 else if (firstCompletelyVisible >= itemCount / 15) scrollPerInch = 67f;
                 else scrollPerInch = 10f;
 
-                smoothScroller.setScrollPerInch(scrollPerInch);
+                smoothScroller.setScrollPerInch(resources.getDisplayMetrics(),scrollPerInch);
                 smoothScroller.setTargetPosition(directionUp ? 0 : itemCount - 1);
                 manager.startSmoothScroll(smoothScroller);
             }
@@ -320,22 +363,25 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
     private float getExpandedOffset() {
         final TypedValue tv = new TypedValue();
         if (activity == null) activity = getActivity();
-        if (activity != null && activity.getTheme().resolveAttribute(R.attr.actionBarSize, tv, true))
-            return TypedValue.complexToDimensionPixelSize(tv.data, Utils.displayMetrics);
+        if (activity != null && activity.getTheme().resolveAttribute(R.attr.actionBarSize, tv, true)) {
+            if (resources == null) resources = activity.getResources();
+            return TypedValue.complexToDimensionPixelSize(tv.data, resources.getDisplayMetrics());
+        }
         return swipeRefreshLayout == null ? 250f : swipeRefreshLayout.getProgressViewEndOffset() * 2f;
     }
 
     void closeExpanded() {
-        if (wordsAdapter != null) {
-            wordsAdapter.refreshShowDialogEnabled();
+        wordsAdapter.refreshShowDialogEnabled();
 
-            for (final WordItemViewHolder holder : wordsAdapter.holdersHashSet)
-                holder.cardView.setCardBackgroundColor(-1);
+        for (final WordItemViewHolder holder : wordsAdapter.holdersHashSet)
+            holder.cardView.setCardBackgroundColor(cardBackColor);
 
-            for (final WordItem wordItem : wordsAdapter.expandedHashSet)
-                wordItem.setExpanded(false);
-            wordsAdapter.notifyDataSetChanged();
-        }
+        for (final WordItem wordItem : wordsAdapter.expandedHashSet)
+            wordItem.setExpanded(false);
+
+        wordsAdapter.expandedHashSet.clear();
+
+        wordsAdapter.updateList(wordList);
     }
 
     public enum FilterMethod {

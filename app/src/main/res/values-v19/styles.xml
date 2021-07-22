@@ -2,8 +2,8 @@
 <resources>
 
     <style name="AppTheme" parent="NoTitleAppTheme">
-        <!-- TODO TRANSLUCENT -->
         <item name="android:windowTranslucentStatus">true</item>
-        <!-- <item name="android:windowTranslucentNavigation">true</item> -->
+        <!-- TODO DISABLE TRANSLUCENT NAV MAYBE? -->
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 </resources>

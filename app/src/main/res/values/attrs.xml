@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="word_key" type="id" />
+    <item name="key_popup" type="id" />
+    <item name="key_popup_builder" type="id" />
+    <item name="key_popup_item_listener" type="id" />
 
     <attr name="pickerStyle" format="reference" />
     <attr name="ttlm_defaultStyle" format="reference" />
@@ -9,42 +12,8 @@
     <item name="fab_label" type="id" />
 
     <declare-styleable name="MaxHeightRecyclerView">
+        <!-- Specifies the max height to wrap.
+            type: integer, automatically converts into density pixels -->
         <attr name="rv_maxHeight" format="integer" />
-    </declare-styleable>
-
-    <declare-styleable name="NumberPicker">
-        <attr name="android:background" />
-        <attr name="android:progress" />
-        <attr name="picker_stepSize" format="integer" />
-        <attr name="picker_min" format="integer" />
-        <attr name="picker_max" format="integer" />
-        <attr name="picker_arrowStyle" format="reference" />
-        <attr name="picker_editTextStyle" format="reference" />
-        <attr name="picker_tooltipAnimationStyle" format="reference" />
-        <attr name="picker_tooltipStyle" format="reference" />
-        <attr name="picker_disableGestures" format="boolean" />
-
-        <attr name="picker_tracker" format="enum">
-            <enum name="linear" value="0" />
-            <enum name="exponential" value="1" />
-        </attr>
-
-        <attr name="picker_orientation" format="enum">
-            <enum name="horizontal" value="0" />
-            <enum name="vertical" value="1" />
-        </attr>
-    </declare-styleable>
-
-    <declare-styleable name="TooltipLayout">
-        <attr name="ttlm_overlayStyle" format="reference" />
-        <attr name="ttlm_textStyle" format="reference" />
-    </declare-styleable>
-
-    <declare-styleable name="TooltipOverlay">
-        <attr name="android:color" />
-        <attr name="android:alpha" />
-        <attr name="ttlm_repeatCount" format="integer" />
-        <attr name="ttlm_duration" format="integer" />
-        <attr name="android:layout_margin" />
     </declare-styleable>
 </resources>

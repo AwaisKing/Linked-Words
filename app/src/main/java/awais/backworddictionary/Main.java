@@ -1,21 +1,28 @@
 package awais.backworddictionary;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.Voice;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
@@ -26,6 +33,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.TooltipCompat;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.appbar.AppBarLayout;
@@ -34,42 +42,52 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 import awais.backworddictionary.DictionaryFragment.FilterMethod;
 import awais.backworddictionary.adapters.DictionaryFragmentsAdapter;
 import awais.backworddictionary.adapters.SearchAdapter;
 import awais.backworddictionary.adapters.holders.WordItem;
-import awais.backworddictionary.asyncs.SearchAsync;
+import awais.backworddictionary.asyncs.SearchAsyncTask;
 import awais.backworddictionary.custom.SearchHistoryTable;
 import awais.backworddictionary.dialogs.AdvancedDialog;
 import awais.backworddictionary.dialogs.SettingsDialog;
+import awais.backworddictionary.helpers.BubbleHelper;
 import awais.backworddictionary.helpers.MenuHelper;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.helpers.other.MyApps;
+import awais.backworddictionary.interfaces.AdapterClickListener;
 import awais.backworddictionary.interfaces.FragmentLoader;
 import awais.backworddictionary.interfaces.MainCheck;
-import awais.backworddictionary.interfaces.SearchAdapterClickListener;
+import awais.backworddictionary.interfaces.TTSRefresher;
 import awais.clans.FloatingActionMenu;
 import awais.lapism.MaterialSearchView;
 import awais.lapism.SearchItem;
 
 public final class Main extends AppCompatActivity implements FragmentLoader, MainCheck {
     static {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
+    public static final int TTS_DATA_CHECK_CODE = 775;
+    static final TTSRefresher ttsRefresher = () -> onTTSInit(TextToSpeech.SUCCESS);
     private static final int[] tabs = {R.string.reverse, R.string.sounds_like, R.string.spelled_like, R.string.synonyms, R.string.antonyms,
             R.string.triggers, R.string.part_of, R.string.comprises, R.string.rhymes, R.string.homophones};
     public static boolean[] tabBoolsArray = {true, true, true, true, false, false, false, false, false, false};
+    public static boolean isTTSAsyncRunning;
     public static TextToSpeech tts;
+    private boolean isBubbling = false;
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private MenuHelper menuHelper;
     private AppBarLayout appBarLayout;
+    private AlertDialog ttsErrorDialog;
     private SearchAdapter searchAdapter;
+    private SettingsDialog settingsDialog;
     private FloatingActionMenu fabOptions;
     private SearchHistoryTable historyDatabase;
     private AppBarLayout.LayoutParams toolbarParams;
@@ -80,28 +98,67 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        final Window window = getWindow();
+        final Resources resources = getResources();
+
+        Utils.statusBarHeight = Utils.getStatusBarHeight(window, resources);
+        Utils.navigationBarHeight = Utils.getNavigationBarHeight(window, resources);
+        Utils.inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         Utils.defaultLocale = Locale.getDefault();
-        Utils.statusBarHeight = Utils.getStatusBarHeight(getWindow(), getResources());
         final int nightMode = SettingsHelper.getNightMode();
         if (nightMode != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
             AppCompatDelegate.setDefaultNightMode(nightMode);
 
-        setContentView(R.layout.activity_main);
+        final View contentView = View.inflate(this, R.layout.activity_main, null);
+        setContentView(contentView);
 
-        Utils.adsBox(this);
+        final View decorView = window.getDecorView().findViewById(Window.ID_ANDROID_CONTENT);
+        if (Build.VERSION.SDK_INT == 19 && Utils.statusBarHeight > 0 && decorView instanceof ViewGroup) {
+            final ViewGroup viewGroup = (ViewGroup) decorView;
 
-        Utils.inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            boolean isFound = false;
+            View child;
+            for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                child = viewGroup.getChildAt(i);
+                if (child != null && child.getId() == android.R.id.custom) {
+                    isFound = true;
+                    break;
+                }
+            }
+
+            if (!isFound) {
+                final Context context = viewGroup.getContext();
+                final View view = new View(context, null, 0);
+                view.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary));
+                view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        Utils.statusBarHeight));
+                view.setFocusableInTouchMode(false);
+                view.setLongClickable(true);
+                view.setFocusable(false);
+                view.setClickable(true);
+                viewGroup.addView(view);
+            }
+        }
+
         menuHelper = new MenuHelper(this);
+        Utils.adsBox(this);
 
         tabLayout = findViewById(R.id.tabs);
         viewPager2 = findViewById(R.id.viewpager);
         fabOptions = findViewById(R.id.fabOptions);
         appBarLayout = findViewById(R.id.appbarLayout);
         toolbar = findViewById(R.id.toolbar);
+
         toolbarParams = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
         appBarLayout.setPadding(0, Utils.statusBarHeight, 0, 0);
+        contentView.setPadding(0, 0, 0, Utils.navigationBarHeight);
 
         setSupportActionBar(toolbar);
+
+        // check for tts before initializing it
+        startActivityForResult(new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA),
+                TTS_DATA_CHECK_CODE);
 
         final ViewGroup.LayoutParams fabParams = fabOptions.getLayoutParams();
         fabOptions.setLongClickListener(v -> {
@@ -124,7 +181,6 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                 else fragment.showFilter(true, FilterMethod.RECYCLER_PADDING);
             }
             fabOptions.close();
-
         }).setMenuButtonClickListener(v -> {
             if (!fabOptions.isOpened()) {
                 fabParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -139,32 +195,23 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                 fabOptions.setLayoutParams(fabParams);
             }
         });
-
         TooltipCompat.setTooltipText(fabOptions, getString(R.string.options));
 
         loadFragments(true);
-
         setSearchView();
-
-        tts = new TextToSpeech(this, initStatus -> {
-            if (initStatus == TextToSpeech.SUCCESS) {
-                if (tts.isLanguageAvailable(Locale.US) == TextToSpeech.LANG_AVAILABLE)
-                    tts.setLanguage(Locale.US);
-                else if (tts.isLanguageAvailable(Locale.CANADA) == TextToSpeech.LANG_AVAILABLE)
-                    tts.setLanguage(Locale.CANADA);
-                else if (tts.isLanguageAvailable(Locale.UK) == TextToSpeech.LANG_AVAILABLE)
-                    tts.setLanguage(Locale.UK);
-                else if (tts.isLanguageAvailable(Locale.ENGLISH) == TextToSpeech.LANG_AVAILABLE)
-                    tts.setLanguage(Locale.ENGLISH);
-            }
-        });
-
         handleData();
     }
 
     @Override
     public void loadFragments(final boolean main) {
         if (main) {
+            final int[] currentItem = {0};
+            final DictionaryFragment item;
+            final String prevTitle = viewPager2 != null && fragmentsAdapter != null && (currentItem[0] = viewPager2.getCurrentItem()) >= 0
+                    && fragmentsAdapter.getItemCount() > 0 && currentItem[0] < fragmentsAdapter.getItemCount()
+                    && (item = fragmentsAdapter.getItem(currentItem[0])) != null && item.isAdded()
+                    && !Utils.isEmpty(item.title) ? item.title : null;
+
             tabBoolsArray = SettingsHelper.getTabs();
             fragmentsAdapter = new DictionaryFragmentsAdapter(this, tabBoolsArray.length);
             for (int i = 0; i < tabBoolsArray.length; i++)
@@ -175,10 +222,11 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                 fragmentsAdapter.setFragments(getString(tabs[0]), getString(tabs[1]), getString(tabs[2]), getString(tabs[3]));
 
             viewPager2.setOffscreenPageLimit(5);
+            viewPager2.setAdapter(fragmentsAdapter);
+
             if (tabLayout == null) tabLayout = findViewById(R.id.tabs);
             if (tabLayout != null) {
                 tabLayout.clearOnTabSelectedListeners();
-                viewPager2.setAdapter(fragmentsAdapter);
                 new TabLayoutMediator(tabLayout, viewPager2, true, true,
                         (tab, position) -> tab.setText(fragmentsAdapter.getPageTitle(position)))
                         .attach();
@@ -197,11 +245,11 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                                 if (!Utils.isEmpty(currentItem.title)) setTitle(currentItem.title);
                                 else if (prevItem.title != null && !prevItem.title.isEmpty()) {
                                     try {
-                                        currentItem.wordsAdapter.updateList(new ArrayList<>(0));
+                                        currentItem.wordsAdapter.updateList(null);
                                         currentItem.startWords(String.valueOf(tab.getText()), prevItem.title);
                                         currentItem.title = prevItem.title;
-                                    } catch (Exception e) {
-                                        if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
+                                    } catch (final Exception e) {
+                                        if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "Main::loadFragments::onTabSelected", e);
                                         else Utils.firebaseCrashlytics.recordException(e);
                                     }
                                 }
@@ -221,48 +269,54 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                     public void onTabReselected(final TabLayout.Tab tab) {}
                 });
             }
-        } else {
-            finish();
-            startActivity(new Intent(getBaseContext().getApplicationContext(), Main.class));
-        }
-    }
 
-    private void handleData() {
-        final Intent intent;
-        final Bundle bundle;
-        if ((intent = getIntent()) != null && (bundle = intent.getExtras()) != null && "text/plain".equals(intent.getType())) {
-            final String[] str = {null};
-            final String action = intent.getAction();
-            final Object object = bundle.get(action);
-            if (object instanceof CharSequence)
-                str[0] = object.toString();
-            else for (final String key : bundle.keySet()) {
-                if (Intent.EXTRA_PROCESS_TEXT.equals(key) || Intent.EXTRA_TEXT.equals(key)) {
-                    final Object o = bundle.get(key);
-                    if (o != null) str[0] = o.toString();
-                } else {
-                    final String lcKey = key.toLowerCase();
-                    if ("query".equals(lcKey) || "text".equals(lcKey)) {
-                        final Object o = bundle.get(key);
-                        if (o != null) str[0] = o.toString();
-                    }
-                }
-
-                if (str[0] != null) break;
-            }
-            if (str[0] != null) {
-                final Handler handler = new Handler(Looper.getMainLooper());
+            if (!Utils.isEmpty(prevTitle)) {
+                final Handler handler = new Handler(getMainLooper());
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (historyDatabase != null && !Utils.isEmpty(str[0]))
-                            historyItemAction(false, str[0]);
-                        if (searchView != null) searchView.setQuery(str[0], false);
-                        onSearch(str[0]);
+                        currentItem[0] = Math.max(0, Math.min(fragmentsAdapter.getItemCount() - 1, currentItem[0]));
+                        viewPager2.setCurrentItem(currentItem[0], false);
+                        final DictionaryFragment fragment = fragmentsAdapter.getItem(currentItem[0]);
+
+                        if (fragment != null && fragment.isAdded())
+                            onSearch(prevTitle);
                         handler.removeCallbacks(this);
                     }
-                }, 300);
+                }, 800);
             }
+
+        } else if (!isBubbling) {
+            finish();
+            startActivity(new Intent(getBaseContext().getApplicationContext(), Main.class));
+        } else
+            loadFragments(true);
+    }
+
+    private void handleData() {
+        final Intent intent = getIntent();
+        final String data;
+
+        if (intent != null && Intent.ACTION_VIEW.equals(intent.getAction()) &&
+                !Utils.isEmpty(data = intent.hasExtra(Intent.EXTRA_TEXT) ?
+                        intent.getStringExtra(Intent.EXTRA_TEXT) : intent.getDataString())) {
+
+            if (!isBubbling)
+                isBubbling = intent.hasExtra(BubbleHelper.INTENT_EXTRA_BUBBLING) &&
+                        intent.getBooleanExtra(BubbleHelper.INTENT_EXTRA_BUBBLING, false);
+
+            final Handler handler = new Handler(Looper.getMainLooper());
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    handler.removeCallbacks(this);
+                    if (searchView != null) {
+                        searchView.setHandlingIntentData(true);
+                        searchView.setQuery(data, true);
+                        searchView.setHandlingIntentData(false);
+                    }
+                }
+            }, 300);
         }
     }
 
@@ -275,10 +329,34 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        if (requestCode == MaterialSearchView.SPEECH_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
-            final ArrayList<String> text = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            if (searchView != null && text != null && text.size() > 0)
-                searchView.setQuery(text.get(0), true);
+        if (requestCode == TTS_DATA_CHECK_CODE) {
+            if (resultCode != TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
+                if (ttsErrorDialog != null && ttsErrorDialog.isShowing()) {
+                    ttsErrorDialog.cancel();
+                    ttsErrorDialog = null;
+                }
+                ttsErrorDialog = new MaterialAlertDialogBuilder(this, R.style.MaterialAlertDialogTheme).create();
+                ttsErrorDialog.setTitle(R.string.tts_not_initialized);
+                ttsErrorDialog.setMessage(getString(R.string.tts_data_not_found));
+                ttsErrorDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.no),
+                        (DialogInterface.OnClickListener) null);
+                ttsErrorDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.ok), (d, w) -> {
+                    ttsErrorDialog = null;
+                    startActivity(new Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA));
+                });
+                ttsErrorDialog.show();
+            } else if (tts == null)
+                tts = new TextToSpeech(getApplicationContext(), Main::onTTSInit);
+
+        } else if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == SettingsDialog.TTS_SETTINGS_REQUEST_CODE && settingsDialog != null && settingsDialog.isShowing()) {
+                settingsDialog.dismiss();
+
+            } else if (requestCode == MaterialSearchView.SPEECH_REQUEST_CODE && data != null) {
+                final ArrayList<String> text = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                if (searchView != null && text != null && text.size() > 0)
+                    searchView.setQuery(text.get(0), true);
+            }
         } else
             super.onActivityResult(requestCode, resultCode, data);
     }
@@ -300,7 +378,7 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
             searchView.bringToFront();
 
         } else if (itemId == R.id.mSettings) {
-            new SettingsDialog(Main.this).show();
+            (settingsDialog = new SettingsDialog(Main.this, ttsErrorDialog)).show();
 
         } else {
             menuHelper.show(item);
@@ -315,7 +393,7 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
         if (searchViewNotNull && searchView.isShowingProgress()) searchView.hideProgress();
 
         if (result != null && !result.isEmpty() && searchAdapter != null) {
-            final ArrayList<SearchItem> suggestionsList = new ArrayList<>();
+            final ArrayList<SearchItem> suggestionsList = new ArrayList<>(0);
             for (final WordItem item : result)
                 suggestionsList.add(new SearchItem(item.getWord()));
 
@@ -328,10 +406,11 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
         try {
             if (fragmentsAdapter != null && viewPager2 != null) {
                 final int pagerCurrentItem = viewPager2.getCurrentItem();
-                final CharSequence method = fragmentsAdapter.getPageTitle(pagerCurrentItem);
                 final DictionaryFragment fragment = fragmentsAdapter.getItem(pagerCurrentItem);
-                if (fragment.isAdded())
-                    fragment.startWords("" + method, word);
+                if (fragment != null && fragment.isAdded()) {
+                    final String method = fragmentsAdapter.getPageTitle(pagerCurrentItem);
+                    fragment.startWords(method, word);
+                }
             }
 
             if (searchView != null && searchView.isSearchOpen()) {
@@ -341,7 +420,7 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                 toolbar.setLayoutParams(toolbarParams);
             }
         } catch (final Exception e) {
-            if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "", e);
+            if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "Main::onSearch", e);
             else Utils.firebaseCrashlytics.recordException(e);
         }
     }
@@ -350,21 +429,22 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
         if (fragmentsAdapter != null) {
             for (int i = 0; i < fragmentsAdapter.getItemCount(); ++i) {
                 final DictionaryFragment fragment = fragmentsAdapter.getItem(i);
-                if (fragment.isAdded()) fragment.closeExpanded();
+                if (fragment != null && fragment.isAdded()) fragment.closeExpanded();
             }
         }
     }
 
     @Override
     public void onBackPressed() {
-        if (fragmentsAdapter != null && viewPager2 != null && fragmentsAdapter.getItemCount() > 0) {
-            final DictionaryFragment dictionaryFragment = fragmentsAdapter.getItem(viewPager2.getCurrentItem());
-            if (dictionaryFragment.isAdded() && dictionaryFragment.isFilterOpen()) {
-                dictionaryFragment.hideFilter();
-                return;
-            }
-        }
-        MyApps.showAlertDialog(this, (parent, view, position, id) -> {
+        final DictionaryFragment fragment;
+        if (fragmentsAdapter != null && viewPager2 != null && fragmentsAdapter.getItemCount() > 0
+                && (fragment = fragmentsAdapter.getItem(viewPager2.getCurrentItem())) != null
+                && fragment.isAdded() && fragment.isFilterOpen() && fragment.hideFilter())
+            return;
+
+        if (isBubbling)
+            super.onBackPressed();
+        else MyApps.showAlertDialog(this, (parent, view, position, id) -> {
             if (id == -1 && position == -1 && parent == null) super.onBackPressed();
             else MyApps.openAppStore(this, position);
         });
@@ -374,6 +454,10 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
     protected void onResume() {
         super.onResume();
         historyDatabase.open();
+        final Intent intent;
+        if (!isBubbling && (intent = getIntent()) != null)
+            isBubbling = intent.hasExtra(BubbleHelper.INTENT_EXTRA_BUBBLING) &&
+                    intent.getBooleanExtra(BubbleHelper.INTENT_EXTRA_BUBBLING, false);
     }
 
     @Override
@@ -394,57 +478,74 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
             searchView.bringToFront();
 
             historyDatabase = new SearchHistoryTable(this);
-            searchAdapter = new SearchAdapter(this, historyDatabase, new SearchAdapterClickListener() {
+            searchAdapter = new SearchAdapter(historyDatabase, new AdapterClickListener() {
                 private AlertDialog alertDialog;
 
                 @Override
-                public void onItemClick(final String text) {
-                    onSearch(text);
-                    historyItemAction(false, text);
+                public void onClick(final View view) {
+                    final Object tag = view.getTag();
+                    if (tag instanceof SearchItem) {
+                        final String word = ((SearchItem) tag).getText();
+                        onSearch(word);
+                        historyItemAction(false, word);
+                    }
                 }
 
                 @Override
-                public void onItemLongClick(final String text) {
-                    if (alertDialog == null) {
-                        final DialogInterface.OnClickListener btnListener = (dialog, which) -> {
-                            if (which == DialogInterface.BUTTON_POSITIVE) historyItemAction(true, text);
-                            dialog.dismiss();
-                        };
+                public boolean onLongClick(final View view) {
+                    if (view == null) return super.onLongClick(null);
 
-                        alertDialog = new MaterialAlertDialogBuilder(Main.this, R.style.MaterialAlertDialogTheme)
-                                .setTitle(R.string.remove_recent)
-                                .setPositiveButton(R.string.yes, btnListener)
-                                .setNegativeButton(R.string.no, btnListener).create();
-                    }
+                    final Object tag = view.getTag();
+                    if (tag instanceof SearchItem) {
+                        final SearchItem searchItem = (SearchItem) tag;
+                        if (searchItem.isSearchable()) return true;
 
-                    alertDialog.setMessage(getString(R.string.confirm_remove, text));
-                    alertDialog.show();
+                        final String word = searchItem.getText();
 
-                    final TextView tvMessage = alertDialog.findViewById(android.R.id.message);
-                    if (tvMessage != null) {
-                        tvMessage.setTypeface(LinkedApp.fontRegular);
+                        if (alertDialog == null) {
+                            final DialogInterface.OnClickListener btnListener = (dialog, which) -> {
+                                if (which == DialogInterface.BUTTON_POSITIVE) historyItemAction(true, word);
+                                dialog.dismiss();
+                            };
 
-                        final CharSequence tvMessageText = tvMessage.getText();
-                        if (!Utils.isEmpty(tvMessageText)) {
-                            final SpannableStringBuilder messageSpan = new SpannableStringBuilder(tvMessageText);
-                            final int spanStart = Utils.indexOfChar(tvMessageText, '"', 0);
-                            final int spanEnd = spanStart + text.length() + 1;
-                            messageSpan.setSpan(new StyleSpan(Typeface.BOLD), spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            messageSpan.delete(spanStart, spanStart + 1);
-                            messageSpan.delete(spanEnd - 1, spanEnd);
-                            tvMessage.setText(messageSpan);
+                            alertDialog = new MaterialAlertDialogBuilder(Main.this, R.style.MaterialAlertDialogTheme)
+                                    .setTitle(R.string.remove_recent)
+                                    .setPositiveButton(R.string.yes, btnListener)
+                                    .setNegativeButton(R.string.no, btnListener).create();
+                        }
+
+                        alertDialog.setMessage(getString(R.string.confirm_remove, word));
+                        alertDialog.show();
+
+                        final TextView tvMessage = alertDialog.findViewById(android.R.id.message);
+                        if (tvMessage != null) {
+                            if (tvMessage.getTypeface() != LinkedApp.fontRegular)
+                                tvMessage.setTypeface(LinkedApp.fontRegular);
+
+                            final CharSequence tvMessageText = tvMessage.getText();
+                            if (!Utils.isEmpty(tvMessageText)) {
+                                final SpannableStringBuilder messageSpan = new SpannableStringBuilder(tvMessageText);
+                                final int spanStart = Utils.indexOfChar(tvMessageText, '"', 0);
+                                final int spanEnd = spanStart + word.length() + 1;
+                                messageSpan.setSpan(new StyleSpan(Typeface.BOLD), spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                messageSpan.delete(spanStart, spanStart + 1);
+                                messageSpan.delete(spanEnd - 1, spanEnd);
+                                tvMessage.setText(messageSpan);
+                            }
                         }
                     }
+
+                    return true;
                 }
             });
             searchView.setAdapter(searchAdapter);
 
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                private final Handler handler = new Handler(Looper.getMainLooper());
                 private String text = "";
-                private SearchAsync prevAsync;
+                private SearchAsyncTask prevAsync;
+                private final Handler handler = new Handler(Looper.getMainLooper());
                 private final Runnable textWatch = () -> {
-                    final SearchAsync async = new SearchAsync(Main.this);
+                    final SearchAsyncTask async = new SearchAsyncTask(Main.this);
                     Utils.stopAsyncSilent(prevAsync);
                     if (Utils.isEmpty(text)) Utils.stopAsyncSilent(async);
                     else async.execute(text);
@@ -456,7 +557,7 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                     Utils.removeHandlerCallbacksSilent(handler, textWatch);
                     if (historyDatabase != null && !Utils.isEmpty(query)) historyItemAction(false, query);
                     onSearch(query);
-                    return query != null || BuildConfig.DEBUG;
+                    return query != null;
                 }
 
                 @Override
@@ -501,6 +602,91 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                     }
                 }
             });
+        }
+    }
+
+    static synchronized void onTTSInit(final int initStatus) {
+        if (tts != null && initStatus == TextToSpeech.SUCCESS) {
+            // set speech rate and pitch
+            {
+                tts.setSpeechRate(SettingsHelper.getTTSSpeechRate() / 100f);
+                tts.setPitch(SettingsHelper.getTTSPitch() / 100f);
+            }
+
+            // set engine and voice
+            if (isTTSAsyncRunning) return;
+
+            isTTSAsyncRunning = true;
+
+            final String defaultEngine = tts.getDefaultEngine();
+            final Locale defaultLanguage = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? tts.getDefaultLanguage() : null;
+            Voice defaultVoice;
+            try {
+                defaultVoice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? tts.getDefaultVoice() : null;
+            } catch (final Exception e) {
+                defaultVoice = null;
+            }
+
+            String engine = defaultEngine;
+            Locale language = tts.getLanguage();
+            Voice voice;
+            try {
+                voice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? tts.getVoice() : null;
+            } catch (final Exception e) {
+                voice = null;
+            }
+
+            final String ttsEngine = SettingsHelper.getTTSEngine();
+            final String ttsVoice = SettingsHelper.getTTSVoice();
+            final String ttsLanguage = SettingsHelper.getTTSLanguage();
+
+            String tempStr;
+
+            final boolean setEngine = !Utils.isEmpty(ttsEngine) && !ttsEngine.equals(defaultEngine);
+            final boolean setLanguage = !Utils.isEmpty(ttsLanguage) && !Utils.isEmpty(tempStr = language != null
+                    ? language.getDisplayLanguage() : defaultLanguage != null ? defaultLanguage.getDisplayLanguage() : null)
+                    && !ttsLanguage.equals(tempStr);
+            final boolean setVoice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+                    !Utils.isEmpty(ttsVoice) && !Utils.isEmpty(tempStr = voice != null
+                    ? voice.getName() : defaultVoice != null ? defaultVoice.getName() : null) && !tempStr.equals(ttsVoice);
+
+            if (setEngine) engine = ttsEngine;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && setLanguage) {
+                final List<Locale> languages = new ArrayList<>(0);
+                final List<Locale> locales = Arrays.asList(Locale.getAvailableLocales());
+                Collection<Locale> localeCollection;
+                try {
+                    localeCollection = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? tts.getAvailableLanguages() :
+                            locales;
+                } catch (final Exception e) {
+                    localeCollection = locales;
+                }
+                languages.addAll(localeCollection);
+
+                for (final Locale intLanguage : languages) {
+                    if (intLanguage != null && intLanguage.getDisplayLanguage().equals(ttsLanguage)) {
+                        language = intLanguage;
+                        break;
+                    }
+                }
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && setVoice) {
+                for (final Voice intVoice : tts.getVoices()) {
+                    if (intVoice != null && TextUtils.equals(intVoice.getName(), ttsVoice)) {
+                        voice = intVoice;
+                        break;
+                    }
+                }
+            }
+
+            //noinspection deprecation
+            tts.setEngineByPackageName(engine);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) tts.setLanguage(language);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && voice != null) tts.setVoice(voice);
+
+            isTTSAsyncRunning = false;
         }
     }
 }

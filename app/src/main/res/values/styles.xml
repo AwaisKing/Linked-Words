@@ -1,9 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="NoTitleAppTheme" parent="Theme.MaterialComponents.DayNight">
+        <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="windowActionBarOverlay">true</item>
-        <item name="windowNoTitle">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
 
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -18,7 +21,8 @@
         <item name="tabStyle">@style/AppTabLayout</item>
         <item name="cardViewStyle">@style/CardViewStyle</item>
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
-        <item name="popupMenuStyle">@style/Widget.AppCompat.PopupMenu</item>
+        <item name="popupMenuStyle">@style/PopupStyle</item>
+        <item name="materialAlertDialogTheme">@style/MaterialAlertDialogTheme</item>
         <item name="alertDialogStyle">@style/MaterialAlertDialogTheme</item>
 
         <item name="android:typeface">sans</item>
@@ -26,11 +30,29 @@
         <item name="fontFamily">@font/googlesans_medium</item>
     </style>
 
+    <!-- taken from my other (discountinued) app "InstaGrabber", for intent filter helper -->
+    <style name="AppTheme.CompletelyTransparent" parent="AppTheme">
+        <item name="windowActionBarOverlay">false</item>
+        <item name="android:windowActionBarOverlay">false</item>
+        <item name="android:background">@null</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoDisplay">true</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
     <style name="AppTheme" parent="NoTitleAppTheme" />
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 
-    <style name="AppTheme.PopupOverlay" parent="Theme.MaterialComponents.DayNight.Bridge" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
 
     <style name="PopupStyle" parent="Widget.MaterialComponents.PopupMenu">
         <item name="popupMenuBackground">@drawable/mtrl_popupmenu_background</item>
@@ -51,21 +73,48 @@
         <item name="bottomSheetStyle">@style/Widget.Design.BottomSheet.Modal</item>
     </style>
 
-    <style name="MaterialAlertDialogTheme" parent="Theme.MaterialComponents.DayNight.DialogWhenLarge">
+    <style name="DefinitionsDialogTheme" parent="Theme.MaterialComponents.DayNight.DialogWhenLarge">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/buttons_color</item>
+        <item name="colorAccent">@color/colorAccentDialog</item>
 
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowBackground">@drawable/dialog_back</item>
+        <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
+        <item name="android:windowBackground">@color/colorDialogBackground</item>
 
         <item name="useMaterialThemeColors">true</item>
         <item name="buttonBarPositiveButtonStyle">@style/MaterialAlertDialogTheme.Button</item>
         <item name="buttonBarNegativeButtonStyle">@style/MaterialAlertDialogTheme.Button</item>
         <item name="buttonBarNeutralButtonStyle">@style/MaterialAlertDialogTheme.Button.Flush</item>
+    </style>
+
+    <style name="MaterialAlertDialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Bridge">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccentDialog</item>
+
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+
+        <item name="dialogCornerRadius">@dimen/dialog_corners</item>
+        <item name="shapeAppearanceOverlay">@style/MaterialAlertDialogTheme.Corners</item>
+        <item name="android:dialogCornerRadius" tools:targetApi="p">@dimen/dialog_corners</item>
+
+        <item name="useMaterialThemeColors">true</item>
+        <item name="buttonBarPositiveButtonStyle">@style/MaterialAlertDialogTheme.Button</item>
+        <item name="buttonBarNegativeButtonStyle">@style/MaterialAlertDialogTheme.Button</item>
+        <item name="buttonBarNeutralButtonStyle">@style/MaterialAlertDialogTheme.Button.Flush</item>
+    </style>
+
+    <style name="MaterialAlertDialogTheme.Corners">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/dialog_corners</item>
     </style>
 
     <style name="MaterialAlertDialogTheme.Button" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
@@ -92,51 +141,6 @@
     </style>
 
     <!-- Number Picker Styles -->
-    <style name="NumberPicker">
-        <item name="picker_min">0</item>
-        <item name="picker_max">100</item>
-        <item name="picker_stepSize">1</item>
-        <item name="picker_tracker">exponential</item>
-        <item name="picker_editTextStyle">@style/NumberPicker.EditTextStyle</item>
-        <item name="picker_tooltipStyle">@style/ToolTipLayoutDefaultStyle</item>
-        <item name="android:paddingLeft">1dp</item>
-        <item name="android:paddingStart">1dp</item>
-        <item name="android:paddingRight">1dp</item>
-        <item name="paddingEnd">1dp</item>
-    </style>
-
-    <style name="NumberPicker.AnimationVertical">
-        <item name="android:windowEnterAnimation">@anim/anim_in_bottom</item>
-        <item name="android:windowExitAnimation">@anim/anim_out</item>
-    </style>
-
-    <style name="NumberPicker.Outlined">
-        <item name="picker_orientation">vertical</item>
-        <item name="picker_arrowStyle">@style/NumberPicker.ArrowStyle</item>
-        <item name="android:background">@drawable/mtrl_background_outlined</item>
-    </style>
-
-    <style name="NumberPicker.Outlined.Horizontal">
-        <item name="picker_orientation">horizontal</item>
-    </style>
-
-    <style name="NumberPicker.None">
-        <item name="picker_orientation">vertical</item>
-        <item name="picker_arrowStyle">@style/NumberPicker.ArrowStyle</item>
-        <item name="android:background">@null</item>
-    </style>
-
-    <style name="NumberPicker.None.Horizontal">
-        <item name="picker_orientation">horizontal</item>
-    </style>
-
-    <style name="ArrowStyle" />
-
-    <style name="NumberPicker.ArrowStyle" parent="ArrowStyle">
-        <item name="android:src">@drawable/arrow_right_selector</item>
-        <item name="android:background">?selectableItemBackground</item>
-    </style>
-
     <style name="NumberPicker.EditTextStyle" parent="Widget.AppCompat.EditText">
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
         <item name="android:selectAllOnFocus">true</item>
@@ -145,10 +149,11 @@
         <item name="android:gravity">center</item>
         <item name="android:editable">true</item>
         <item name="android:background">@null</item>
-        <item name="android:imeOptions">actionDone</item>
+        <item name="android:imeOptions">flagNoExtractUi|actionDone</item>
     </style>
 
     <style name="NumberPicker.EditTextStyle.Disabled">
+        <item name="android:enabled">false</item>
         <item name="android:selectAllOnFocus">false</item>
         <item name="android:textIsSelectable">false</item>
         <item name="android:selectable">false</item>
@@ -160,37 +165,15 @@
     </style>
 
     <!-- Tooltip Styles -->
-    <style name="ToolTipLayoutDefaultStyle">
-        <item name="ttlm_overlayStyle">@style/ToolTipOverlayDefaultStyle</item>
-        <item name="ttlm_textStyle">@style/ToolTipTextStyle</item>
-    </style>
-
     <style name="ToolTipTextStyle" parent="TextAppearance.AppCompat.Small.Inverse">
-        <item name="maxLines">1</item>
-        <item name="elevation">@dimen/ttlm_default_elevation</item>
         <item name="android:gravity">center</item>
         <item name="android:lines">1</item>
         <item name="android:maxLines">1</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:autoLink">all</item>
-        <item name="android:linksClickable">true</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
         <item name="android:textColorLink">?android:attr/textColorPrimaryInverse</item>
         <item name="android:elevation" tools:targetApi="lollipop">@dimen/ttlm_default_elevation</item>
         <item name="android:translationZ" tools:targetApi="lollipop">@dimen/ttlm_default_elevation</item>
-    </style>
-
-    <style name="ToolTipOverlayDefaultStyle">
-        <item name="android:color">?colorAccent</item>
-        <item name="ttlm_repeatCount">99</item>
-        <item name="ttlm_duration">600</item>
-        <item name="android:alpha">0.5</item>
-        <item name="android:layout_margin">8dp</item>
-    </style>
-
-    <style name="ToolTipAnimation">
-        <item name="android:windowEnterAnimation">@anim/ttlm_tooltip_anim_enter</item>
-        <item name="android:windowExitAnimation">@anim/ttlm_tooltip_anim_exit</item>
     </style>
 </resources>

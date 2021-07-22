@@ -1,5 +1,6 @@
 package awais.backworddictionary.helpers.other;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.webkit.WebSettings;
@@ -21,7 +22,8 @@ public final class WebViewActivity extends AppCompatActivity {
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) actionBar.setDisplayHomeAsUpEnabled(true);
 
-        final String url = getIntent().getStringExtra("extra.url");
+        final Intent intent = getIntent();
+        final String url = intent == null ? null : intent.getStringExtra("extra.url");
         assert url != null;
         setTitle(url);
 

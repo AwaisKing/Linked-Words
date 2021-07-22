@@ -21,10 +21,13 @@ import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
 public final class WordContextItemListener implements PopupMenu.OnMenuItemClickListener {
     private final CustomTabsIntent.Builder customTabsIntent = new CustomTabsIntent.Builder();
     private final Context context;
-    private final String word;
+    private String word;
 
-    public WordContextItemListener(final Context context, @NonNull final CharSequence word) {
+    public WordContextItemListener(final Context context) {
         this.context = context;
+    }
+
+    public void setWord(@NonNull final CharSequence word) {
         this.word = word.toString();
     }
 
@@ -35,7 +38,7 @@ public final class WordContextItemListener implements PopupMenu.OnMenuItemClickL
         if (itemId == R.id.action_copy) {
             Utils.copyText(context, word);
 
-        } else if (itemId == R.id.action_speak ) {
+        } else if (itemId == R.id.action_speak) {
             Utils.speakText(word);
 
         } else if (itemId == R.id.action_google) {

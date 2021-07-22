@@ -34,7 +34,7 @@
                     android:id="@+id/ivBack"
                     android:layout_width="48dp"
                     android:layout_height="match_parent"
-                    android:background="?android:attr/selectableItemBackground"
+                    android:background="?selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
                     android:padding="@dimen/filter_margin_start" />
@@ -81,7 +81,7 @@
                         android:id="@+id/ivMic"
                         android:layout_width="48dp"
                         android:layout_height="match_parent"
-                        android:background="?android:attr/selectableItemBackground"
+                        android:background="?selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
                         android:padding="@dimen/filter_margin_start"
@@ -91,7 +91,7 @@
                         android:id="@+id/btnCancel"
                         android:layout_width="48dp"
                         android:layout_height="match_parent"
-                        android:background="?android:attr/selectableItemBackground"
+                        android:background="?selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
                         android:padding="@dimen/filter_margin_start"
@@ -103,7 +103,7 @@
                 android:id="@+id/view_divider"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/search_divider"
-                android:background="?android:attr/listDivider"
+                android:background="?android:listDivider"
                 android:gravity="start|center_vertical" />
 
             <awais.backworddictionary.custom.MaxHeightRecyclerView

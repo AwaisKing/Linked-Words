@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.res.ResourcesCompat;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
 
 import awais.backworddictionary.R;
 import awais.backworddictionary.dialogs.MenuDialog;
-import awais.backworddictionary.executor.TaskExecutor;
+import awais.backworddictionary.executor.LocalAsyncTask;
 import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
 
 public final class MenuHelper {
@@ -39,99 +40,114 @@ public final class MenuHelper {
         fragmentManager = activity.getSupportFragmentManager();
         menuDialog = new MenuDialog();
         customTabsIntent = new CustomTabsIntent.Builder();
-        TaskExecutor.executeAsync(() -> {
-            final int helpColor = ResourcesCompat.getColor(resources, R.color.helper_color, null);
 
-            // XXX EXAMPLES
-            final SpanBuilder examplesBuilder = new SpanBuilder();
-            examplesBuilder.append(activity.getString(R.string.finding_help) + ":\n", new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
-            examplesBuilder.append("person who makes gold\n", new BulletSpan(26, helpColor));
-            examplesBuilder.append("one who massages\n", new BulletSpan(26, helpColor));
-            examplesBuilder.append("food search\n\n", new BulletSpan(26, helpColor));
-            examplesBuilder.append(activity.getString(R.string.related_help) + ":\n", new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
-            examplesBuilder.append("rainbow colors\n", new BulletSpan(26, helpColor));
-            examplesBuilder.append("tropical birds\n", new BulletSpan(26, helpColor));
-            examplesBuilder.append("spicy vegetables\n\n", new BulletSpan(26, helpColor));
-            examplesBuilder.append(activity.getString(R.string.answers_help) + ":\n", new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
-            examplesBuilder.append("what's popular city of Pakistan?\n", new BulletSpan(26, helpColor));
-            examplesBuilder.append("what's largest continent on earth?\n", new BulletSpan(26, helpColor));
-            examplesBuilder.append("who was Galileo?\n\n", new BulletSpan(26, helpColor));
-            examplesBuilder.append(activity.getString(R.string.spelled_help) + ":\n", new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
-            examplesBuilder.append("l?nd\t-- " + activity.getString(R.string.single_char_help, '?') + '\n', new BulletSpan(26, helpColor));
-            examplesBuilder.append("fr*g\t-- " + activity.getString(R.string.number_char_help, '*') + '\n', new BulletSpan(26, helpColor));
-            examplesBuilder.append("ta#t\t-- " + activity.getString(R.string.consonant_char_help, '#') + '\n', new BulletSpan(26, helpColor));
-            examplesBuilder.append("**stone**\t-- " + activity.getString(R.string.phrase_help) + '\n', new BulletSpan(26, helpColor));
-            examplesSpan = examplesBuilder.build();
+        final boolean helpEmpty = helpSpan == null || helpSpan.length() < 1;
+        final boolean examplesEmpty = examplesSpan == null || examplesSpan.length() < 1;
+        final boolean licensesEmpty = licensesSpan == null || licensesSpan.length() < 1;
 
-            // XXX HELP
-            final SpanBuilder helpBuilder = new SpanBuilder();
-            helpBuilder.append(activity.getString(R.string.reverse) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(activity.getString(R.string.reverse_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(activity.getString(R.string.sounds_like) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(activity.getString(R.string.sounds_like_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(activity.getString(R.string.spelled_help) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(activity.getString(R.string.wildcards_help) + '\n', new BulletSpan(26, helpColor));
-            helpBuilder.append("[" + activity.getString(R.string.wildcard_link_help) + "]\n\n", new BulletSpan(26, helpColor), new ClickableSpan() {
-                @Override
-                public void onClick(@NonNull View view) {
-                    customTabsIntent.setToolbarColor(0xFFFFC400);
-                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://www.one" + "look.com/?c=faq#patterns"));
+        if (helpEmpty || examplesEmpty || licensesEmpty) new LocalAsyncTask<Void, Void>() {
+            @Nullable
+            @Override
+            protected Void doInBackground(final Void param) {
+                final int helpColor = ResourcesCompat.getColor(resources, R.color.helper_color, null);
+
+                if (examplesEmpty) {
+                    // XXX EXAMPLES
+                    final SpanBuilder examplesBuilder = new SpanBuilder();
+                    examplesBuilder.append(activity.getString(R.string.finding_help).concat(":\n"), new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
+                    examplesBuilder.append("person who makes gold\n", new BulletSpan(26, helpColor));
+                    examplesBuilder.append("one who massages\n", new BulletSpan(26, helpColor));
+                    examplesBuilder.append("food search\n\n", new BulletSpan(26, helpColor));
+                    examplesBuilder.append(activity.getString(R.string.related_help).concat(":\n"), new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
+                    examplesBuilder.append("rainbow colors\n", new BulletSpan(26, helpColor));
+                    examplesBuilder.append("tropical birds\n", new BulletSpan(26, helpColor));
+                    examplesBuilder.append("spicy vegetables\n\n", new BulletSpan(26, helpColor));
+                    examplesBuilder.append(activity.getString(R.string.answers_help).concat(":\n"), new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
+                    examplesBuilder.append("what's popular city of Pakistan?\n", new BulletSpan(26, helpColor));
+                    examplesBuilder.append("what's largest continent on earth?\n", new BulletSpan(26, helpColor));
+                    examplesBuilder.append("who was Galileo?\n\n", new BulletSpan(26, helpColor));
+                    examplesBuilder.append(activity.getString(R.string.spelled_help).concat(":\n"), new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor), new StyleSpan(Typeface.BOLD));
+                    examplesBuilder.append("l?nd\t-- " + activity.getString(R.string.single_char_help, '?') + '\n', new BulletSpan(26, helpColor));
+                    examplesBuilder.append("fr*g\t-- " + activity.getString(R.string.number_char_help, '*') + '\n', new BulletSpan(26, helpColor));
+                    examplesBuilder.append("ta#t\t-- " + activity.getString(R.string.consonant_char_help, '#') + '\n', new BulletSpan(26, helpColor));
+                    examplesBuilder.append("**stone**\t-- " + activity.getString(R.string.phrase_help) + '\n', new BulletSpan(26, helpColor));
+                    examplesSpan = examplesBuilder.build();
                 }
-            });
-            helpBuilder.append(activity.getString(R.string.synonyms) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(activity.getString(R.string.synonym_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(activity.getString(R.string.antonyms) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(activity.getString(R.string.antonym_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(activity.getString(R.string.triggers) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(activity.getString(R.string.triggers_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(activity.getString(R.string.part_of) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(activity.getString(R.string.is_part_of_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(activity.getString(R.string.comprises) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(activity.getString(R.string.comprises_of_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(activity.getString(R.string.rhymes) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(activity.getString(R.string.rhymes_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpBuilder.append(activity.getString(R.string.homophones) + ":\n", new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
-            helpBuilder.append(activity.getString(R.string.homophones_help) + "\n\n", new BulletSpan(26, helpColor));
-            helpSpan = helpBuilder.build();
 
-            // XXX LICENSES
-            final SpanBuilder licensesBuilder = new SpanBuilder();
-            licensesBuilder.append("App Icon:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor));
-            licensesBuilder.append("Android Asset Studio - Launcher icon generator\n\n", new BulletSpan(26, helpColor), new ClickableSpan() {
-                @Override
-                public void onClick(@NonNull View view) {
-                    customTabsIntent.setToolbarColor(0xFF607D8B);
-                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://romannurik.github.io/AndroidAssetStudio/"));
+                if (helpEmpty) {
+                    // XXX HELP
+                    final SpanBuilder helpBuilder = new SpanBuilder();
+                    helpBuilder.append(activity.getString(R.string.reverse).concat(":\n"), new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+                    helpBuilder.append(activity.getString(R.string.reverse_help).concat("\n\n"), new BulletSpan(26, helpColor));
+                    helpBuilder.append(activity.getString(R.string.sounds_like).concat(":\n"), new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+                    helpBuilder.append(activity.getString(R.string.sounds_like_help).concat("\n\n"), new BulletSpan(26, helpColor));
+                    helpBuilder.append(activity.getString(R.string.spelled_help).concat(":\n"), new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+                    helpBuilder.append(activity.getString(R.string.wildcards_help) + '\n', new BulletSpan(26, helpColor));
+                    helpBuilder.append("[" + activity.getString(R.string.wildcard_link_help).concat("]\n\n"), new BulletSpan(26, helpColor), new ClickableSpan() {
+                        @Override
+                        public void onClick(@NonNull final View view) {
+                            customTabsIntent.setToolbarColor(0xFFFFC400);
+                            CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://www.one".concat("look.com/?c=faq#patterns")));
+                        }
+                    });
+                    helpBuilder.append(activity.getString(R.string.synonyms).concat(":\n"), new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+                    helpBuilder.append(activity.getString(R.string.synonym_help).concat("\n\n"), new BulletSpan(26, helpColor));
+                    helpBuilder.append(activity.getString(R.string.antonyms).concat(":\n"), new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+                    helpBuilder.append(activity.getString(R.string.antonym_help).concat("\n\n"), new BulletSpan(26, helpColor));
+                    helpBuilder.append(activity.getString(R.string.triggers).concat(":\n"), new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+                    helpBuilder.append(activity.getString(R.string.triggers_help).concat("\n\n"), new BulletSpan(26, helpColor));
+                    helpBuilder.append(activity.getString(R.string.part_of).concat(":\n"), new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+                    helpBuilder.append(activity.getString(R.string.is_part_of_help).concat("\n\n"), new BulletSpan(26, helpColor));
+                    helpBuilder.append(activity.getString(R.string.comprises).concat(":\n"), new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+                    helpBuilder.append(activity.getString(R.string.comprises_of_help).concat("\n\n"), new BulletSpan(26, helpColor));
+                    helpBuilder.append(activity.getString(R.string.rhymes).concat(":\n"), new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+                    helpBuilder.append(activity.getString(R.string.rhymes_help).concat("\n\n"), new BulletSpan(26, helpColor));
+                    helpBuilder.append(activity.getString(R.string.homophones).concat(":\n"), new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
+                    helpBuilder.append(activity.getString(R.string.homophones_help).concat("\n\n"), new BulletSpan(26, helpColor));
+                    helpSpan = helpBuilder.build();
                 }
-            });
 
-            licensesBuilder.append("Dictionary API:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor));
-            licensesBuilder.append("Datamuse API\n\n", new BulletSpan(26, helpColor), new ClickableSpan() {
-                @Override
-                public void onClick(@NonNull View view) {
-                    customTabsIntent.setToolbarColor(0xFF006FCC);
-                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://www.datamuse.com/api/"));
+                if (licensesEmpty) {
+                    // XXX LICENSES
+                    final SpanBuilder licensesBuilder = new SpanBuilder();
+                    licensesBuilder.append("App Icon:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor));
+                    licensesBuilder.append("Android Asset Studio - Launcher icon generator\n\n", new BulletSpan(26, helpColor), new ClickableSpan() {
+                        @Override
+                        public void onClick(@NonNull final View view) {
+                            customTabsIntent.setToolbarColor(0xFF607D8B);
+                            CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://romannurik.github.io/AndroidAssetStudio/"));
+                        }
+                    });
+
+                    licensesBuilder.append("Dictionary API:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor));
+                    licensesBuilder.append("Datamuse API\n\n", new BulletSpan(26, helpColor), new ClickableSpan() {
+                        @Override
+                        public void onClick(@NonNull final View view) {
+                            customTabsIntent.setToolbarColor(0xFF006FCC);
+                            CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://www.datamuse.com/api/"));
+                        }
+                    });
+
+                    licensesBuilder.append("Libraries:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor));
+                    licensesBuilder.append("SearchView [Apache License 2.0]\n", new BulletSpan(26, helpColor));
+                    licensesBuilder.append("Chrome Custom Tabs [Apache License 2.0]\n", new BulletSpan(26, helpColor));
+                    licensesBuilder.append("Expandable FAB [Apache License 2.0]\n\n", new BulletSpan(26, helpColor));
+
+                    licensesBuilder.append("License:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor));
+                    licensesBuilder.append("Apache License 2.0", new BulletSpan(26, helpColor), new ClickableSpan() {
+                        @Override
+                        public void onClick(@NonNull final View view) {
+                            customTabsIntent.setToolbarColor(0xFFCB2533);
+                            CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://www.apache.org/licenses/LICENSE-2.0"));
+                        }
+                    });
+
+                    licensesSpan = licensesBuilder.build();
                 }
-            });
 
-            licensesBuilder.append("Libraries:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor));
-            licensesBuilder.append("SearchView [Apache License 2.0]\n", new BulletSpan(26, helpColor));
-            licensesBuilder.append("Chrome Custom Tabs [Apache License 2.0]\n", new BulletSpan(26, helpColor));
-            licensesBuilder.append("Expandable FAB [Apache License 2.0]\n\n", new BulletSpan(26, helpColor));
-
-            licensesBuilder.append("License:\n", new StyleSpan(Typeface.BOLD), new RelativeSizeSpan(1.2f), new ForegroundColorSpan(helpColor));
-            licensesBuilder.append("Apache License 2.0", new BulletSpan(26, helpColor), new ClickableSpan() {
-                @Override
-                public void onClick(@NonNull View view) {
-                    customTabsIntent.setToolbarColor(0xFFCB2533);
-                    CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://www.apache.org/licenses/LICENSE-2.0"));
-                }
-            });
-
-            licensesSpan = licensesBuilder.build();
-
-            return null;
-        });
+                return null;
+            }
+        }.execute();
     }
 
     public void show(@NonNull final MenuItem item) {
@@ -145,32 +161,8 @@ public final class MenuHelper {
     }
 
     private final static class SpanBuilder {
-        private final ArrayList<SpanSection> spanSections;
-        private final StringBuilder stringBuilder;
-
-        private final static class SpanSection {
-            private final String text;
-            private final int startIndex;
-            private final Object[] styles;
-
-            private SpanSection(final String text, final int startIndex, final Object... styles) {
-                this.styles = styles;
-                this.text = text;
-                this.startIndex = startIndex;
-            }
-
-            private void apply(final SpannableStringBuilder spanStringBuilder) {
-                if (spanStringBuilder != null) {
-                    for (final Object style : styles)
-                        spanStringBuilder.setSpan(style, startIndex, startIndex + text.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-                }
-            }
-        }
-
-        SpanBuilder() {
-            this.stringBuilder = new StringBuilder();
-            this.spanSections = new ArrayList<>();
-        }
+        private final ArrayList<SpanSection> spanSections = new ArrayList<>(0);
+        private final StringBuilder stringBuilder = new StringBuilder();
 
         void append(final String text, final Object... styles) {
             if (styles != null && styles.length > 0)
@@ -189,6 +181,25 @@ public final class MenuHelper {
         @Override
         public String toString() {
             return String.valueOf(build());
+        }
+
+        private final static class SpanSection {
+            private final String text;
+            private final int startIndex;
+            private final Object[] styles;
+
+            private SpanSection(final String text, final int startIndex, final Object... styles) {
+                this.styles = styles;
+                this.text = text;
+                this.startIndex = startIndex;
+            }
+
+            private void apply(final SpannableStringBuilder spanStringBuilder) {
+                if (spanStringBuilder != null) {
+                    for (final Object style : styles)
+                        spanStringBuilder.setSpan(style, startIndex, startIndex + text.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+                }
+            }
         }
     }
 }

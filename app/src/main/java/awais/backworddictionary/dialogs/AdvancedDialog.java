@@ -24,7 +24,7 @@ public final class AdvancedDialog extends Dialog implements CompoundButton.OnChe
     private List<CompoundButton> checkBoxes;
 
     public AdvancedDialog(final Main act) {
-        super(act, R.style.MaterialAlertDialogTheme);
+        super(act, R.style.DefinitionsDialogTheme);
         this.fragmentLoader = act;
     }
 
@@ -34,10 +34,11 @@ public final class AdvancedDialog extends Dialog implements CompoundButton.OnChe
         setCancelable(true);
         setCanceledOnTouchOutside(true);
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         final Window window = getWindow();
-        if (window != null) window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+        if (window != null) {
+            window.requestFeature(Window.FEATURE_NO_TITLE);
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
 
         setContentView(R.layout.advanced_dialog);
 

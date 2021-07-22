@@ -213,7 +213,10 @@ public final class UILongPressGestureRecognizer extends UIGestureRecognizer {
             break;
         }
 
-        return cancelsTouchesInView;
+        if (state == State.POSSIBLE) return cancelsTouchesInView;
+        else if (state == State.ENDED) return cancelsTouchesInView;
+
+        return !cancelsTouchesInView;
     }
 
     @Override

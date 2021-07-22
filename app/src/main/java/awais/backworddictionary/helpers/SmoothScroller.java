@@ -1,6 +1,8 @@
 package awais.backworddictionary.helpers;
 
+import android.content.res.Resources;
 import android.graphics.PointF;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
@@ -19,6 +21,15 @@ public final class SmoothScroller extends RecyclerView.SmoothScroller {
     private boolean hasCalculated = false;
     private float scrollPerInch = 25f, interimTargetDx = 0, interimTargetDy = 0, millisPerPixel;
 
+    private DisplayMetrics displayMetrics;
+
+    @Override
+    protected void onChildAttachedToWindow(final View child) {
+        super.onChildAttachedToWindow(child);
+        if (child != null && displayMetrics == null)
+            displayMetrics = child.getResources().getDisplayMetrics();
+    }
+
     @Override
     protected void onStart() { }
 
@@ -33,7 +44,7 @@ public final class SmoothScroller extends RecyclerView.SmoothScroller {
                     layoutManager.getHeight() - layoutManager.getPaddingBottom(),
                     targetVector == null || targetVector.y == 0 ? SNAP_TO_ANY : targetVector.y > 0 ? SNAP_TO_END : SNAP_TO_START);
         }
-
+        displayMetrics = targetView.getResources().getDisplayMetrics();
         final double time = Math.ceil(calculateTimeForScrolling(Math.sqrt(result * result)) / .3356);
         if (time > 0) action.update(0, -result, (int) time, decelerateInterpolator);
     }
@@ -74,14 +85,16 @@ public final class SmoothScroller extends RecyclerView.SmoothScroller {
         targetVector = null;
     }
 
-    public void setScrollPerInch(final float scrollPerInch) {
+    public void setScrollPerInch(@NonNull final DisplayMetrics displayMetrics, final float scrollPerInch) {
         this.scrollPerInch = scrollPerInch;
-        this.millisPerPixel = scrollPerInch / Utils.displayMetrics.densityDpi;
+        this.millisPerPixel = scrollPerInch / displayMetrics.densityDpi;
     }
 
     private double calculateTimeForScrolling(final double dx) {
+        DisplayMetrics displayMetrics = this.displayMetrics;
+        if (displayMetrics == null) displayMetrics = Resources.getSystem().getDisplayMetrics();
         if (!hasCalculated) {
-            millisPerPixel = scrollPerInch / Utils.displayMetrics.densityDpi;
+            millisPerPixel = scrollPerInch / displayMetrics.densityDpi;
             hasCalculated = true;
         }
         return Math.ceil(Math.abs(dx) * millisPerPixel);

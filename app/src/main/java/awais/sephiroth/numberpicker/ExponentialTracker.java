@@ -64,7 +64,7 @@ final class ExponentialTracker {
     }
 
     private void calcDistance() {
-        int[] loc = {0, 0};
+        final int[] loc = {0, 0};
         final DisplayMetrics metrics = numberPicker.getResources().getDisplayMetrics();
         numberPicker.getLocationOnScreen(loc);
         loc[0] += numberPicker.getWidth() / 2;

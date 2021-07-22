@@ -29,7 +29,6 @@
             android:layout_gravity="bottom"
             android:clipChildren="false"
             app:layout_collapseMode="pin"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
             app:tabGravity="center"
             app:tabIndicatorColor="@android:color/white"
             app:tabIndicatorHeight="3dp"

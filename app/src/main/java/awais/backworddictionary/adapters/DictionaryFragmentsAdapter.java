@@ -53,7 +53,7 @@ public final class DictionaryFragmentsAdapter extends FragmentStateAdapter {
         return fragmentList.size();
     }
 
-    public CharSequence getPageTitle(final int position) {
+    public String getPageTitle(final int position) {
         return titlesList.get(position);
     }
 

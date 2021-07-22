@@ -11,7 +11,7 @@ import androidx.appcompat.graphics.drawable.DrawerArrowDrawable;
 public final class SearchArrowDrawable extends DrawerArrowDrawable {
     static final float STATE_ARROW = 0.0f;
     static final float STATE_HAMBURGER = 1.0f;
-    private static final Property<SearchArrowDrawable, Float> PROGRESS = new Property<SearchArrowDrawable, Float>(Float.class, "progress") {
+    private static final Property<SearchArrowDrawable, Float> PROGRESS = new Property<>(Float.class, "progress") {
         @Override
         public void set(@NonNull final SearchArrowDrawable object, final Float value) {
             object.setProgress(value);

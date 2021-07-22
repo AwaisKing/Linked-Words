@@ -3,6 +3,7 @@ package awais.clans;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Outline;
@@ -31,10 +32,7 @@ import androidx.annotation.Nullable;
 
 import com.google.android.material.textview.MaterialTextView;
 
-import awais.backworddictionary.helpers.Utils;
-
-import static awais.clans.FloatingActionButton.shadowRadius;
-import static awais.clans.FloatingActionButton.shadowYOffset;
+import awais.backworddictionary.R;
 
 public final class Label extends MaterialTextView {
     private static final Xfermode PORTER_DUFF_CLEAR = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
@@ -55,22 +53,35 @@ public final class Label extends MaterialTextView {
     });
     private final FloatingActionButton fab;
     private final Animation showAnimation, hideAnimation;
-    private final int cornerRadius = Utils.dpToPx(3);
+    private final int cornerRadius,shadowRadius , shadowYOffset;
+
     private Drawable backgroundDrawable;
     private int rawWidth, rawHeight;
 
-    public Label(@NonNull final Context context, @NonNull final FloatingActionButton fab, final Animation showAnimation, final Animation hideAnimation) {
-        super(context);
+
+    public Label(@NonNull final Context context, @Nullable final AttributeSet attrs) {
+        this(context, attrs, null, null, null);
+    }
+
+    public Label(@NonNull final Context context, @NonNull final FloatingActionButton fab, final Animation showAnimation,
+                 final Animation hideAnimation) {
+        this(context, null, fab, showAnimation, hideAnimation);
+    }
+
+    public Label(@NonNull final Context context, @Nullable final AttributeSet attrs, @Nullable final FloatingActionButton fab,
+                 final Animation showAnimation, final Animation hideAnimation){
+        super(context, attrs);
+
+        final Resources resources = context.getResources();
+        this.cornerRadius = (int) resources.getDimension(R.dimen.fab_label_corner_size);
+        this.shadowRadius = (int) resources.getDimension(R.dimen.search_divider);
+        this.shadowYOffset = (int) resources.getDimension(R.dimen.ttlm_default_elevation);
+
         this.fab = fab;
         this.showAnimation = showAnimation;
         this.hideAnimation = hideAnimation;
-        setOnClickListener(fab.getOnClickListener());
-    }
 
-    public Label(@NonNull final Context context, @Nullable final AttributeSet attrs) {
-        super(context, attrs);
-        fab = null;
-        hideAnimation = showAnimation = null;
+        if (fab != null) setOnClickListener(fab.getOnClickListener());
     }
 
     @Override
@@ -92,7 +103,7 @@ public final class Label extends MaterialTextView {
             final RippleDrawable ripple = new RippleDrawable(new ColorStateList(new int[][]{{}}, new int[]{0x33000000}), drawable, null);
             setOutlineProvider(new ViewOutlineProvider() {
                 @Override
-                public void getOutline(View view, Outline outline) {
+                public void getOutline(final View view, final Outline outline) {
                     outline.setOval(0, 0, view.getWidth(), view.getHeight());
                 }
             });
@@ -104,8 +115,7 @@ public final class Label extends MaterialTextView {
         final LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{new Shadow(), backgroundDrawable});
         layerDrawable.setLayerInset(1, shadowRadius, shadowRadius + shadowYOffset, shadowRadius, shadowRadius + shadowYOffset);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) setBackground(layerDrawable);
-        else setBackgroundDrawable(layerDrawable);
+        setBackground(layerDrawable);
     }
 
     @NonNull

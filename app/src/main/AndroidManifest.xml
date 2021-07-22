@@ -3,8 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="awais.backworddictionary">
 
+    <!-- for Text-to-Speech API on Android SDK 21+ or 22+ or 23+ probably -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:name=".LinkedApp"
@@ -26,17 +34,46 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
 
+        <!-- Shortcuts for Bubbles API -->
+        <meta-data
+            android:name="android.app.shortcuts"
+            android:resource="@xml/shortcuts" />
+
         <activity
             android:name=".Main"
+            android:allowEmbedded="true"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:documentLaunchMode="intoExisting"
+            android:exported="true"
+            android:imeOptions="flagNoExtractUi|actionSearch"
             android:label="@string/app_name"
-            android:launchMode="singleTop"
+            android:launchMode="singleInstance"
+            android:maxRecents="1"
+            android:resizeableActivity="true"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
 
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".helpers.TextProcessHelper"
+            android:autoRemoveFromRecents="true"
+            android:clearTaskOnLaunch="true"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:finishOnTaskLaunch="true"
+            android:launchMode="singleTop"
+            android:maxRecents="1"
+            android:theme="@style/AppTheme.CompletelyTransparent">
+
+            <!-- Filter for Bubbles API -->
+            <intent-filter>
+                <category android:name="awais.linkedwords.bubbles.SEARCH" />
+                <action android:name="android.intent.action.VIEW" />
             </intent-filter>
 
             <!-- Search Intent Filter -->
@@ -64,7 +101,26 @@
                 <action android:name="android.intent.action.PROCESS_TEXT" />
                 <data android:mimeType="text/plain" />
             </intent-filter>
+
+            <intent-filter>
+                <category android:name="android.intent.category.ALTERNATIVE" />
+
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
         </activity>
+
+        <activity
+            android:name=".TTSActivity"
+            android:autoRemoveFromRecents="true"
+            android:clearTaskOnLaunch="true"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:imeOptions="flagNoExtractUi|actionDone"
+            android:inputType="numberSigned"
+            android:label="@string/tts_settings"
+            android:launchMode="singleTop"
+            android:maxRecents="1" />
 
         <activity
             android:name=".helpers.other.WebViewActivity"

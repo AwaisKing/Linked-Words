@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="@dimen/search_view_margin_text"
@@ -40,67 +41,92 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1.3"
-                    android:text="@string/max_words" />
+                    android:defaultFocusHighlightEnabled="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:focusedByDefault="false"
+                    android:gravity="center_vertical"
+                    android:text="@string/max_words"
+                    android:textAppearance="?android:textAppearanceSmall"
+                    app:useMaterialThemeColors="true"
+                    tools:ignore="UnusedAttribute" />
 
                 <awais.sephiroth.numberpicker.HorizontalNumberPicker
                     android:id="@+id/horizontalNumberPicker"
-                    style="@style/NumberPicker.Outlined.Horizontal"
                     android:layout_width="0dp"
                     android:layout_height="48dp"
                     android:layout_weight="1" />
             </androidx.appcompat.widget.LinearLayoutCompat>
 
-            <androidx.appcompat.widget.LinearLayoutCompat
+            <awais.backworddictionary.custom.MaterialCheckedTextView
                 android:id="@+id/showAds"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/search_height"
-                android:layout_marginTop="@dimen/filter_margin_start"
-                android:layout_marginEnd="@dimen/search_height"
-                android:clickable="true"
-                android:focusable="true"
+                android:layout_marginTop="@dimen/filter_spacing"
+                android:checkMark="?android:listChoiceIndicatorMultiple"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:paddingStart="@dimen/search_height"
+                android:paddingLeft="@dimen/search_height"
+                android:paddingTop="@dimen/filter_margin_start"
+                android:paddingEnd="@dimen/search_height"
+                android:paddingRight="@dimen/search_height"
+                android:paddingBottom="@dimen/filter_margin_start"
+                android:text="@string/show_ads"
+                android:textAppearance="?android:textAppearanceSmall"
+                app:useMaterialThemeColors="true" />
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="3"
-                    android:text="@string/show_ads" />
+            <awais.backworddictionary.custom.MaterialCheckedTextView
+                android:id="@+id/showFloating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/filter_spacing"
+                android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                android:gravity="center_vertical"
+                android:paddingStart="@dimen/search_height"
+                android:paddingLeft="@dimen/search_height"
+                android:paddingTop="@dimen/filter_margin_start"
+                android:paddingEnd="@dimen/search_height"
+                android:paddingRight="@dimen/search_height"
+                android:paddingBottom="@dimen/filter_margin_start"
+                android:text="@string/show_floating"
+                android:textAppearance="?android:textAppearanceSmall"
+                app:useMaterialThemeColors="true" />
 
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-            </androidx.appcompat.widget.LinearLayoutCompat>
-
-            <androidx.appcompat.widget.LinearLayoutCompat
+            <awais.backworddictionary.custom.MaterialCheckedTextView
                 android:id="@+id/showWordDialog"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/search_height"
-                android:layout_marginTop="@dimen/filter_margin_start"
-                android:layout_marginEnd="@dimen/search_height"
-                android:clickable="true"
-                android:focusable="true"
+                android:layout_marginTop="@dimen/filter_spacing"
+                android:checkMark="?android:attr/listChoiceIndicatorMultiple"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:paddingStart="@dimen/search_height"
+                android:paddingLeft="@dimen/search_height"
+                android:paddingTop="@dimen/filter_margin_start"
+                android:paddingEnd="@dimen/search_height"
+                android:paddingRight="@dimen/search_height"
+                android:paddingBottom="@dimen/filter_margin_start"
+                android:text="@string/show_dialog"
+                android:textAppearance="?android:textAppearanceSmall"
+                app:useMaterialThemeColors="true" />
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="3"
-                    android:text="@string/show_dialog"
-                    app:useMaterialThemeColors="true" />
-
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    app:useMaterialThemeColors="true" />
-            </androidx.appcompat.widget.LinearLayoutCompat>
+            <awais.backworddictionary.custom.MaterialCheckedTextView
+                android:id="@+id/showDefsPopup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/filter_spacing"
+                android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                android:gravity="center_vertical"
+                android:paddingStart="@dimen/search_height"
+                android:paddingLeft="@dimen/search_height"
+                android:paddingTop="@dimen/filter_margin_start"
+                android:paddingEnd="@dimen/search_height"
+                android:paddingRight="@dimen/search_height"
+                android:paddingBottom="@dimen/filter_margin_start"
+                android:text="@string/show_definition_popup"
+                android:textAppearance="?android:textAppearanceSmall"
+                app:useMaterialThemeColors="true" />
 
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
@@ -116,7 +142,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/filter_margin_start"
                     android:layout_marginRight="@dimen/filter_margin_start"
-                    android:text="@string/app_theme" />
+                    android:defaultFocusHighlightEnabled="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:focusedByDefault="false"
+                    android:text="@string/app_theme"
+                    android:textAppearance="?android:textAppearanceSmall"
+                    tools:ignore="UnusedAttribute" />
 
                 <RadioGroup
                     android:id="@+id/rgAppTheme"
@@ -125,25 +157,55 @@
 
                     <com.google.android.material.radiobutton.MaterialRadioButton
                         android:id="@+id/rbThemeAuto"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/theme_auto"
                         app:useMaterialThemeColors="true" />
 
                     <com.google.android.material.radiobutton.MaterialRadioButton
                         android:id="@+id/rbThemeDark"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/theme_dark"
                         app:useMaterialThemeColors="true" />
 
                     <com.google.android.material.radiobutton.MaterialRadioButton
                         android:id="@+id/rbThemeLight"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/theme_light"
                         app:useMaterialThemeColors="true" />
                 </RadioGroup>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/search_height"
+                android:layout_marginTop="@dimen/filter_margin_start"
+                android:layout_marginEnd="@dimen/search_height"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:defaultFocusHighlightEnabled="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:focusedByDefault="false"
+                    android:text="@string/tts_settings"
+                    tools:ignore="UnusedAttribute" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTTS"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1.16"
+                    android:text="@string/btn_tts_settings"
+                    android:textColor="?colorAccent" />
             </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.appcompat.widget.LinearLayoutCompat>
     </ScrollView>

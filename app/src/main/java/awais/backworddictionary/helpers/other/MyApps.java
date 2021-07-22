@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Process;
@@ -33,23 +32,27 @@ import awais.backworddictionary.R;
 public final class MyApps {
     /**
      * copy paste this shit
-     *
+     * <p>
      * MyApps.showAlertDialog(this, (parent, view, position, id) -> {
      * if (id == -1 && position == -1 && parent == null) super.onBackPressed();
      * else MyApps.openAppStore(this, position);
      * });
      */
     private final static Icons[] iconsList;
+
     static {
         final Icons[] currList = new Icons[]{
-                new Icons("awais.media.scanner", "mediaScanner", R.drawable.ms),
                 new Icons("awais.addme", "AddMe", R.drawable.adm),
-                new Icons("awais.backworddictionary", "Linked Words", R.drawable.lw),
-                new Icons("awais.quodb", "QuoDB", R.drawable.qdb),
+                new Icons("awais.media.scanner", "mediaScanner", R.drawable.ms),
+                new Icons("awais.skyrimconsole", "Skyrim Cheats", R.drawable.tesv),
                 new Icons("awais.reversify", "Reversify", R.drawable.rev),
                 new Icons("awais.reversify.lite", "Reversify Lite", R.drawable.revl),
-                new Icons("awais.skyrimconsole", "Skyrim Cheats", R.drawable.tesv),
-                new Icons("awais.videobar.play", "Videeze", R.drawable.vdz)
+                new Icons("awais.backworddictionary", "Linked Words", R.drawable.lw),
+                new Icons("awais.hostsmanager", "Hosts Manager Pro", R.drawable.hmp),
+                new Icons("awais.hostsmanager.lite", "Hosts Manager Lite", R.drawable.hml),
+                new Icons("awais.game.tictactoe", "Tic Tac Toe", R.drawable.ttt),
+                new Icons("awais.game.jigsaw", "JigSaw", R.drawable.jsw),
+                new Icons("awais.quodb", "QuoDB", R.drawable.qdb),
         };
         iconsList = new Icons[currList.length - 1];
         int i = 0;
@@ -57,7 +60,12 @@ public final class MyApps {
     }
 
     public static void openAppStore(@NonNull final Context context, final int position) {
-        context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + MyApps.iconsList[position].pkg)));
+        try {
+            context.startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=" + MyApps.iconsList[position].pkg)));
+        } catch (final Exception e) {
+            // activity not found? bruh
+        }
     }
 
     public static void showAlertDialog(final Context context, final AdapterView.OnItemClickListener clickListener) {
@@ -97,9 +105,9 @@ public final class MyApps {
         private final Context context;
         private final int size;
 
-        public ImageAdapter(final Context context) {
+        public ImageAdapter(@NonNull final Context context) {
             this.context = context;
-            this.size = (int) (80 * Resources.getSystem().getDisplayMetrics().density);
+            this.size = (int) (80 * context.getResources().getDisplayMetrics().density);
         }
 
         @Override
@@ -117,6 +125,8 @@ public final class MyApps {
             return 0;
         }
 
+        @NonNull
+        @Override
         public View getView(final int position, View convertView, final ViewGroup parent) {
             final ViewHolder holder;
             if (convertView == null) {

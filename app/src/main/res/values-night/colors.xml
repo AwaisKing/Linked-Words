@@ -5,6 +5,8 @@
     <color name="colorAccent">#E3E3E3</color> <!-- BFBFBF -->
     <color name="navbar_color">#474747</color>
 
+    <color name="colorDialogBackground">#353535</color>
+
     <color name="cards_back_color">#555555</color>
     <color name="shadow_color">#A9000000</color>
 

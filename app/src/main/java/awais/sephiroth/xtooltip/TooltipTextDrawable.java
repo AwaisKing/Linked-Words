@@ -20,7 +20,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
 
 import awais.backworddictionary.R;
-import awais.backworddictionary.helpers.Utils;
 
 public final class TooltipTextDrawable extends Drawable {
     public static final float ARROW_RATIO_DEFAULT = 1.4f;
@@ -30,13 +29,14 @@ public final class TooltipTextDrawable extends Drawable {
     private final PointF tmpPoint = new PointF();
     private final Path path = new Path();
     private final Paint bgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final float radius = (float) Utils.dpToPx(6f);
+    private final float radius;
     private int padding = 0, arrowWeight = 0;
     private PointF point = null;
     private Tooltip.Gravity gravity = null;
 
     public TooltipTextDrawable(@NonNull final Context context) {
-        bgPaint.setColor( ContextCompat.getColor(context, R.color.colorAccent));
+        radius = context.getResources().getDimension(R.dimen.ttlm_default_radius);
+        bgPaint.setColor(ContextCompat.getColor(context, R.color.colorAccent));
         bgPaint.setStyle(Paint.Style.FILL);
     }
 

@@ -9,6 +9,7 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Spannable;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -33,47 +34,49 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import awais.backworddictionary.R;
-import awais.backworddictionary.helpers.Utils;
 
 public final class Tooltip {
     private final Context context;
     private final LayoutInflater inflater;
 
-    private final int mPadding = Utils.dpToPx(20f);
-    private final float mSizeTolerance;
+    private final int padding;
+    private final float toleranceSize;
     private final boolean mShowArrow = true;
     private final WindowManager windowManager;
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
-    private final Point mAnchorPoint = new Point(0, 0);
-    private final TooltipTextDrawable mDrawable;
-    private final Runnable hideRunnable = this::hide, activateRunnable = () -> mActivated = true;
-    private final Gravity[] mGravities = {Gravity.LEFT, Gravity.RIGHT, Gravity.TOP, Gravity.BOTTOM};
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Point anchorPoint = new Point(0, 0);
+    private final TooltipTextDrawable textDrawable;
+    private final Runnable hideRunnable = this::hide, activateRunnable = () -> isActivated = true;
+    private final Gravity[] gravities = {Gravity.LEFT, Gravity.RIGHT, Gravity.TOP, Gravity.BOTTOM};
 
-    private boolean mActivated = false;
-    private boolean mHasAnchorView = false;
+    private boolean hasAnchorView = false;
+    private boolean isActivated = false;
     private boolean isShowing = false;
     private boolean isVisible = false;
     private View mContentView;
     private TextView mTextView;
-    private CharSequence mText;
-    private Positions mCurrentPosition = null;
+    private CharSequence text;
+    private Positions currentPosition = null;
     private TooltipFunctions tooltipFunctions;
-    private WeakReference<View> mAnchorView = null;
-    private TooltipViewContainer mPopupView = null;
+    private WeakReference<View> anchorView = null;
+    private TooltipViewContainer popupView = null;
 
     public Tooltip(@NonNull final Context context, final View anchorView, final CharSequence text) {
         this.context = context;
+        this.text = text;
+
+        final DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        this.toleranceSize = displayMetrics.density * 10f;
+        this.padding = Math.round(displayMetrics.density * 20f);
+
         this.inflater = LayoutInflater.from(context);
-
         this.windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        this.mSizeTolerance = context.getResources().getDisplayMetrics().density * 10f;
 
-        this.mText = text;
-        this.mDrawable = new TooltipTextDrawable(context);
+        this.textDrawable = new TooltipTextDrawable(context);
 
         if (anchorView != null) {
-            this.mAnchorView = new WeakReference<>(anchorView);
-            this.mHasAnchorView = true;
+            this.anchorView = new WeakReference<>(anchorView);
+            this.hasAnchorView = true;
         }
     }
 
@@ -86,15 +89,15 @@ public final class Tooltip {
     }
 
     public void update(final CharSequence text) {
-        mText = text;
-        if (isShowing && null != mPopupView) mTextView.setText(text instanceof Spannable ? text :
+        this.text = text;
+        if (isShowing && null != popupView) mTextView.setText(text instanceof Spannable ? text :
                 HtmlCompat.fromHtml(String.valueOf(text), HtmlCompat.FROM_HTML_MODE_COMPACT));
     }
 
     @Nullable
     private Positions findPosition(final View parent, @Nullable final View anchor, final Point offset, final ArrayList<Gravity> gravities,
                                    final WindowManager.LayoutParams params, final boolean fitToScreen) {
-        if (mPopupView == null || gravities.isEmpty()) return null;
+        if (popupView == null || gravities.isEmpty()) return null;
 
         final Gravity gravity = gravities.remove(0);
 
@@ -105,20 +108,22 @@ public final class Tooltip {
 
         if (anchor != null) {
             anchor.getLocationOnScreen(anchorPosition);
+            final int width = anchor.getWidth();
+            final int height = anchor.getHeight();
 
             if (gravity == Gravity.LEFT) {
-                anchorPosition[1] += anchor.getHeight() / 2;
+                anchorPosition[1] += height / 2;
             } else if (gravity == Gravity.RIGHT) {
-                anchorPosition[0] += anchor.getWidth();
-                anchorPosition[1] += anchor.getHeight() / 2;
+                anchorPosition[0] += width;
+                anchorPosition[1] += height / 2;
             } else if (gravity == Gravity.TOP) {
-                anchorPosition[0] += anchor.getWidth() / 2;
+                anchorPosition[0] += width / 2;
             } else if (gravity == Gravity.BOTTOM) {
-                anchorPosition[0] += anchor.getWidth() / 2;
-                anchorPosition[1] += anchor.getHeight();
+                anchorPosition[0] += width / 2;
+                anchorPosition[1] += height;
             } else if (gravity == Gravity.CENTER) {
-                anchorPosition[0] += anchor.getWidth() / 2;
-                anchorPosition[1] += anchor.getHeight() / 2;
+                anchorPosition[0] += width / 2;
+                anchorPosition[1] += height / 2;
             }
         }
 
@@ -133,19 +138,19 @@ public final class Tooltip {
         if (gravity == Gravity.LEFT) {
             contentPosition.x = anchorPosition[0] - w;
             contentPosition.y = anchorPosition[1] - h / 2;
-            arrowPosition.y = h / 2 - mPadding / 2;
+            arrowPosition.y = h / 2 - padding / 2;
         } else if (gravity == Gravity.TOP) {
             contentPosition.x = anchorPosition[0] - w / 2;
             contentPosition.y = anchorPosition[1] - h;
-            arrowPosition.x = w / 2 - mPadding / 2;
+            arrowPosition.x = w / 2 - padding / 2;
         } else if (gravity == Gravity.RIGHT) {
             contentPosition.x = anchorPosition[0];
             contentPosition.y = anchorPosition[1] - h / 2;
-            arrowPosition.y = h / 2 - mPadding / 2;
+            arrowPosition.y = h / 2 - padding / 2;
         } else if (gravity == Gravity.BOTTOM) {
             contentPosition.x = anchorPosition[0] - w / 2;
             contentPosition.y = anchorPosition[1];
-            arrowPosition.x = w / 2 - mPadding / 2;
+            arrowPosition.x = w / 2 - padding / 2;
         } else if (gravity == Gravity.CENTER) {
             contentPosition.x = anchorPosition[0] - w / 2;
             contentPosition.y = anchorPosition[1] - h / 2;
@@ -154,8 +159,8 @@ public final class Tooltip {
         if (fitToScreen) {
             final Rect finalRect = new Rect(contentPosition.x, contentPosition.y,
                     contentPosition.x + w, contentPosition.y + h);
-            if (!displayFrame.contains(Math.round(finalRect.left + mSizeTolerance), Math.round(finalRect.top + mSizeTolerance),
-                    Math.round(finalRect.right - mSizeTolerance), Math.round(finalRect.bottom - mSizeTolerance))) {
+            if (!displayFrame.contains(Math.round(finalRect.left + toleranceSize), Math.round(finalRect.top + toleranceSize),
+                    Math.round(finalRect.right - toleranceSize), Math.round(finalRect.bottom - toleranceSize))) {
                 return findPosition(parent, anchor, offset, gravities, params, true);
             }
         }
@@ -165,41 +170,41 @@ public final class Tooltip {
     }
 
     public float getOffsetY() {
-        return mCurrentPosition == null ? 0f : mCurrentPosition.mOffsetY;
+        return currentPosition == null ? 0f : currentPosition.mOffsetY;
     }
 
     private void invokePopup(final Positions positions) {
         if (positions != null) {
             isShowing = true;
-            mCurrentPosition = positions;
+            currentPosition = positions;
 
-            if (mHasAnchorView && mAnchorView.get() != null) setupListeners(mAnchorView.get());
+            if (hasAnchorView && anchorView.get() != null) setupListeners(anchorView.get());
 
-            mDrawable.setAnchor(positions.gravity, !mShowArrow ? 0 : mPadding / 2,
+            textDrawable.setAnchor(positions.gravity, !mShowArrow ? 0 : padding / 2,
                     !mShowArrow ? null : new PointF(positions.getArrowPointX(), positions.getArrowPointY()));
 
             offsetBy();
 
             positions.params.packageName = context.getPackageName();
-            mPopupView.setFitsSystemWindows(true);
-            windowManager.addView(mPopupView, positions.params);
+            popupView.setFitsSystemWindows(true);
+            windowManager.addView(popupView, positions.params);
             fadeIn();
         } else
             tooltipFunctions.doOnFailure(this);
     }
 
     void offsetBy() {
-        if (isShowing && mPopupView != null && mCurrentPosition != null) {
-            mContentView.setTranslationX(mCurrentPosition.getContentPointX());
-            mContentView.setTranslationY(mCurrentPosition.getContentPointY());
+        if (isShowing && popupView != null && currentPosition != null) {
+            mContentView.setTranslationX(currentPosition.getContentPointX());
+            mContentView.setTranslationY(currentPosition.getContentPointY());
         }
     }
 
     public void offsetTo(final float xoff, final float yoff) {
-        if (isShowing && mPopupView != null && mCurrentPosition != null) {
-            mCurrentPosition.offsetTo(xoff, yoff);
-            mContentView.setTranslationX(mCurrentPosition.getContentPointX());
-            mContentView.setTranslationY(mCurrentPosition.getContentPointY());
+        if (isShowing && popupView != null && currentPosition != null) {
+            currentPosition.offsetTo(xoff, yoff);
+            mContentView.setTranslationX(currentPosition.getContentPointX());
+            mContentView.setTranslationY(currentPosition.getContentPointY());
         }
     }
 
@@ -217,7 +222,7 @@ public final class Tooltip {
     }
 
     public void show(final View parent, final Gravity gravity, final boolean fitToScreen) {
-        if (isShowing || (mHasAnchorView && mAnchorView.get() == null)) return;
+        if (isShowing || (hasAnchorView && anchorView.get() == null)) return;
 
         isVisible = false;
 
@@ -228,35 +233,35 @@ public final class Tooltip {
         params.format = PixelFormat.TRANSLUCENT;
         params.flags = params.flags | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
                 WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS |
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR |
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
+                WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM | 0x00010000; // == FLAG_LAYOUT_INSET_DECOR
         params.type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL;
         params.token = parent.getWindowToken();
         params.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN;
         params.setTitle("ToolTip:" + Integer.toHexString(hashCode()));
 
-        mPopupView = new TooltipViewContainer(context);
-        mContentView = inflater.inflate(R.layout.tooltip_textview, mPopupView, false);
+        popupView = new TooltipViewContainer(context);
+        mContentView = inflater.inflate(R.layout.tooltip_textview, popupView, false);
 
         mTextView = new MaterialTextView(new ContextThemeWrapper(context, R.style.ToolTipTextStyle));
         ((ViewGroup) mContentView).addView(mTextView);
 
-        if (mDrawable != null) mTextView.setBackground(mDrawable);
-        if (mShowArrow) mTextView.setPadding(mPadding, mPadding, mPadding, mPadding);
-        else mTextView.setPadding(mPadding / 2, mPadding / 2, mPadding / 2, mPadding / 2);
-        mTextView.setText(mText instanceof Spannable ? mText :
-                HtmlCompat.fromHtml(String.valueOf(mText), HtmlCompat.FROM_HTML_MODE_COMPACT));
+        if (textDrawable != null) mTextView.setBackground(textDrawable);
+        if (mShowArrow) mTextView.setPadding(padding, padding, padding, padding);
+        else mTextView.setPadding(padding / 2, padding / 2, padding / 2, padding / 2);
+        mTextView.setText(text instanceof Spannable ? text :
+                HtmlCompat.fromHtml(String.valueOf(text), HtmlCompat.FROM_HTML_MODE_COMPACT));
 
-        mPopupView.addView(mContentView, new FrameLayout.LayoutParams(
+        popupView.addView(mContentView, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        mPopupView.setMeasureAllChildren(true);
-        mPopupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        popupView.setMeasureAllChildren(true);
+        popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 
         mTextView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
             @Override
             public void onViewAttachedToWindow(final View v) {
-                mHandler.removeCallbacks(activateRunnable);
-                mHandler.postDelayed(activateRunnable, 0);
+                handler.removeCallbacks(activateRunnable);
+                handler.postDelayed(activateRunnable, 0);
             }
 
             @Override
@@ -266,15 +271,15 @@ public final class Tooltip {
             }
         });
 
-        final ArrayList<Gravity> gravities = new ArrayList<>();
-        Collections.addAll(gravities, mGravities);
+        final ArrayList<Gravity> gravities = new ArrayList<>(0);
+        Collections.addAll(gravities, this.gravities);
         gravities.remove(gravity);
         gravities.add(0, gravity);
 
         if (tooltipFunctions != null) tooltipFunctions.doOnPrepare(this);
 
-        invokePopup(findPosition(parent, mAnchorView.get(),
-                mAnchorPoint, gravities, params, fitToScreen));
+        invokePopup(findPosition(parent, anchorView.get(),
+                anchorPoint, gravities, params, fitToScreen));
     }
 
     void hide() {
@@ -282,10 +287,10 @@ public final class Tooltip {
     }
 
     public void dismiss() {
-        if (isShowing && mPopupView != null) {
+        if (isShowing && popupView != null) {
             removeCallbacks();
-            windowManager.removeView(mPopupView);
-            mPopupView = null;
+            windowManager.removeView(popupView);
+            popupView = null;
             isShowing = false;
             isVisible = false;
 
@@ -294,8 +299,8 @@ public final class Tooltip {
     }
 
     private void removeCallbacks() {
-        mHandler.removeCallbacks(hideRunnable);
-        mHandler.removeCallbacks(activateRunnable);
+        handler.removeCallbacks(hideRunnable);
+        handler.removeCallbacks(activateRunnable);
     }
 
     private void fadeIn() {
@@ -355,7 +360,7 @@ public final class Tooltip {
 
         @Override
         public boolean dispatchKeyEvent(final KeyEvent event) {
-            if (isShowing && isVisible && mActivated && event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+            if (isShowing && isVisible && isActivated && event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
                 final KeyEvent.DispatcherState keyDispatcherState = getKeyDispatcherState();
 
                 if (keyDispatcherState == null) return super.dispatchKeyEvent(event);
@@ -378,7 +383,7 @@ public final class Tooltip {
         @SuppressLint("ClickableViewAccessibility")
         @Override
         public boolean onTouchEvent(final MotionEvent event) {
-            if (!isShowing || !isVisible || !mActivated) return false;
+            if (!isShowing || !isVisible || !isActivated) return false;
             hide();
             return false;
         }

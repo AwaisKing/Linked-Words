@@ -19,7 +19,6 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.Shape;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -36,14 +35,15 @@ import androidx.core.content.res.ResourcesCompat;
 import java.lang.ref.WeakReference;
 
 import awais.backworddictionary.R;
-import awais.backworddictionary.helpers.Utils;
 
 public final class FloatingActionButton extends AppCompatImageButton implements View.OnClickListener {
     public static final int SIZE_NORMAL = 0;
     public static final int SIZE_MINI = 1;
-    static final int shadowRadius = Utils.dpToPx(1), shadowYOffset = Utils.dpToPx(2), iconSize = Utils.dpToPx(24f);
+
     private static final Xfermode PORTER_DUFF_CLEAR = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
+    private static WeakReference<FloatingActionMenu> floatingActionMenu;
     private static OnMenuToggleListener menuToggleListener;
+
     private final GestureDetector gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDown(final MotionEvent e) {
@@ -62,12 +62,15 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
         }
     });
     private final Resources resources;
+    private final int iconSize;
+    private final int shadowRadius;
+    private final int shadowYOffset;
+
     private String labelText;
     private Drawable iconDrawable;
     private OnClickListener clickListener;
     private StateListDrawable backgroundDrawable;
     private Animation showAnimation, hideAnimation;
-    private static WeakReference<FloatingActionMenu> floatingActionMenu;
     private int colorNormal, colorPressed;
     private float originalX = -1, originalY = -1;
     private boolean shouldUpdateButtonPosition, buttonPositionSaved;
@@ -85,6 +88,10 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
         super(context, attrs, defStyleAttr);
 
         resources = context.getResources();
+
+        shadowRadius = (int) resources.getDimension(R.dimen.search_divider);
+        iconSize = (int) resources.getDimension(R.dimen.search_icon);
+        shadowYOffset = (int) resources.getDimension(R.dimen.ttlm_default_elevation);
 
         if (attrs != null) {
             for (int i = 0; i < attrs.getAttributeCount(); ++i) {
@@ -123,9 +130,10 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
         setClickable(true);
     }
 
-    @SuppressLint("PrivateResource")
     private int getCircleSize() {
-        return fabSize == SIZE_NORMAL ? Utils.dpToPx(64) : resources.getDimensionPixelSize(R.dimen.design_fab_size_mini);
+        Resources resources = this.resources;
+        if (resources == null) resources = getResources();
+        return resources.getDimensionPixelSize(fabSize == SIZE_NORMAL ? R.dimen.design_fab_size_normal : R.dimen.design_fab_size_mini);
     }
 
     private int calculateMeasuredWidth() {
@@ -175,14 +183,13 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
 
         int iconSize = -1;
         if (iconDrawable != null) iconSize = Math.max(iconDrawable.getIntrinsicWidth(), iconDrawable.getIntrinsicHeight());
-        final int iconOffset = (getCircleSize() - (iconSize > 0 ? iconSize : FloatingActionButton.iconSize)) / 2;
+        final int iconOffset = (getCircleSize() - (iconSize > 0 ? iconSize : this.iconSize)) / 2;
         final int circleInsetVertical = shadowRadius + shadowYOffset;
 
         layerDrawable.setLayerInset(2, shadowRadius + iconOffset, circleInsetVertical + iconOffset,
                 shadowRadius + iconOffset, circleInsetVertical + iconOffset);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) setBackground(layerDrawable);
-        else setBackgroundDrawable(layerDrawable);
+        setBackground(layerDrawable);
     }
 
     protected Drawable getIconDrawable() {
