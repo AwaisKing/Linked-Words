@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <View xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="1dp"
     android:layout_marginStart="14dp"
@@ -10,5 +11,8 @@
     android:layout_marginBottom="12dp"
     android:background="?android:listDivider"
     android:clickable="false"
+    android:defaultFocusHighlightEnabled="false"
     android:focusable="false"
-    android:focusableInTouchMode="false" />
+    android:focusableInTouchMode="false"
+    android:focusedByDefault="false"
+    tools:ignore="UnusedAttribute" />

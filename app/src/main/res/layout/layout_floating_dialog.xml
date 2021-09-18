@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<awais.backworddictionary.custom.AlertDialogLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="300dp"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/topPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingLeft="8dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="8dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="5dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:foreground="?selectableItemBackground"
+            app:cardBackgroundColor="?colorPrimary"
+            app:cardElevation="2dp"
+            app:cardMaxElevation="2dp"
+            app:cardUseCompatPadding="true">
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/search_height"
+                android:gravity="start|center_vertical"
+                android:orientation="horizontal">
+
+                <awais.lapism.SearchEditText
+                    android:id="@+id/etSearchView"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="start|center_vertical"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:ems="10"
+                    android:gravity="start|center_vertical"
+                    android:hint="@string/search"
+                    android:imeOptions="actionSearch|flagNoExtractUi"
+                    android:inputType="textNoSuggestions"
+                    android:maxLines="1"
+                    android:paddingStart="@dimen/progress_margin_end"
+                    android:paddingLeft="@dimen/progress_margin_end"
+                    android:paddingEnd="@dimen/progress_margin_end"
+                    android:paddingRight="@dimen/progress_margin_end"
+                    android:privateImeOptions="nm"
+                    android:textColor="@color/search_text"
+                    android:textColorHint="@color/search_hint"
+                    android:textSize="@dimen/search_text_medium"
+                    android:windowSoftInputMode="stateAlwaysHidden" />
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    style="?android:attr/indeterminateProgressStyle"
+                    android:layout_width="@dimen/progress_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/progress_margin_end"
+                    android:layout_marginRight="@dimen/progress_margin_end"
+                    android:visibility="gone" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/btnClear"
+                    android:layout_width="36dp"
+                    android:layout_height="match_parent"
+                    android:background="?actionBarItemBackground"
+                    android:padding="6dp"
+                    android:tint="@android:color/white"
+                    app:srcCompat="@drawable/ic_clear"
+                    app:tint="@android:color/white" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/btnSearch"
+                    android:layout_width="36dp"
+                    android:layout_height="match_parent"
+                    android:background="?actionBarItemBackground"
+                    android:padding="6dp"
+                    android:tint="@android:color/white"
+                    app:srcCompat="@drawable/ic_search"
+                    app:tint="@android:color/white" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnCopy"
+            android:layout_width="40dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp"
+            android:allowClickWhenDisabled="false"
+            android:elevation="0dp"
+            android:foreground="?selectableItemBackground"
+            android:tooltipText="@string/copy"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:contentPadding="5dp"
+            app:strokeColor="?colorControlNormal"
+            app:strokeWidth="1dp"
+            tools:ignore="UnusedAttribute">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:tint="?colorControlNormal"
+                app:srcCompat="@drawable/ic_copy"
+                app:tint="?colorControlNormal" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnSpeak"
+            android:layout_width="40dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginRight="2dp"
+            android:allowClickWhenDisabled="false"
+            android:elevation="0dp"
+            android:foreground="?selectableItemBackground"
+            android:tooltipText="@string/speak"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:contentPadding="5dp"
+            app:strokeColor="?colorControlNormal"
+            app:strokeWidth="1dp">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:tint="?colorControlNormal"
+                app:srcCompat="@drawable/ic_play_example"
+                app:tint="?colorControlNormal" />
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/customPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_vertical"
+            android:clipToPadding="false"
+            android:minHeight="180dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="8dp"
+            android:scrollbars="none"
+            app:fastScrollEnabled="true"
+            app:fastScrollHorizontalThumbDrawable="@drawable/slider_thumb"
+            app:fastScrollHorizontalTrackDrawable="@drawable/slider_track"
+            app:fastScrollVerticalThumbDrawable="@drawable/slider_thumb"
+            app:fastScrollVerticalTrackDrawable="@drawable/slider_track"
+            app:layoutManager="LinearLayoutManager" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</awais.backworddictionary.custom.AlertDialogLayout>

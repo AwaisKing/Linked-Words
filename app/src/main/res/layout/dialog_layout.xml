@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="?dialogCornerRadius"
+    app:cardElevation="4dp"
+    app:cardMaxElevation="6dp"
+    app:cardUseCompatPadding="true"
+    app:contentPaddingTop="10dp">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minWidth="350dp"
+        android:orientation="vertical">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="12dp"
+            android:textColor="?android:textColorPrimary"
+            android:textSize="21sp"
+            android:textStyle="bold" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="?dialogPreferredPadding">
+
+            <View
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </FrameLayout>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:minHeight="48dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button3"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:insetLeft="8dp"
+                android:insetTop="4dp"
+                android:insetRight="4dp"
+                android:insetBottom="8dp"
+                android:minHeight="48dp"
+                android:text="Cancel"
+                android:textColor="@color/buttons_color"
+                android:visibility="invisible"
+                app:cornerRadius="4dp"
+                app:useMaterialThemeColors="true" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button2"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:insetLeft="4dp"
+                android:insetTop="4dp"
+                android:insetRight="4dp"
+                android:insetBottom="8dp"
+                android:minHeight="48dp"
+                android:text="Cancel"
+                android:textColor="@color/buttons_color"
+                app:cornerRadius="4dp"
+                app:useMaterialThemeColors="true" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button1"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:insetLeft="4dp"
+                android:insetTop="4dp"
+                android:insetRight="8dp"
+                android:insetBottom="8dp"
+                android:minHeight="48dp"
+                android:text="OK"
+                android:textColor="@color/buttons_color"
+                app:cornerRadius="4dp"
+                app:useMaterialThemeColors="true" />
+        </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</com.google.android.material.card.MaterialCardView>

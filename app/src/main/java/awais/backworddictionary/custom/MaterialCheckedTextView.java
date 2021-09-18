@@ -24,6 +24,7 @@ import com.google.android.material.resources.MaterialResources;
 
 import awais.backworddictionary.R;
 
+@SuppressLint({"PrivateResource", "RestrictedApi"})
 public final class MaterialCheckedTextView extends AppCompatCheckedTextView {
     private static final int DEF_STYLE_RES = R.style.Widget_MaterialComponents_CheckedTextView;
     private static final int[][] ENABLED_CHECKED_STATES = new int[][]{
@@ -44,7 +45,6 @@ public final class MaterialCheckedTextView extends AppCompatCheckedTextView {
         this(context, attrs, R.attr.checkedTextViewStyle);
     }
 
-    @SuppressLint("RestrictedApi")
     public MaterialCheckedTextView(@NonNull Context context, @Nullable final AttributeSet attrs, final int defStyleAttr) {
         super(wrap(context, attrs, defStyleAttr, DEF_STYLE_RES),
                 attrs, defStyleAttr);

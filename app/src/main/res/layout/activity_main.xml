@@ -22,7 +22,7 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
         <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabs"
+            android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignWithParentIfMissing="true"
@@ -36,7 +36,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewpager"
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
@@ -79,7 +79,7 @@
         android:tooltipText="@string/options"
         android:windowSoftInputMode="adjustPan"
         app:elevation="0dp"
-        app:layout_anchor="@id/viewpager"
+        app:layout_anchor="@id/viewPager"
         app:layout_anchorGravity="end|bottom"
         tools:ignore="RtlSymmetry">
 

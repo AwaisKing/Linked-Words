@@ -5,15 +5,14 @@
     android:layout_height="match_parent">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@android:id/custom"
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@android:id/list"
+            android:id="@+id/rvItems"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@android:id/progress"
             android:layout_gravity="fill_vertical"
             android:clipToPadding="false"
             android:paddingTop="6dp"
@@ -28,7 +27,7 @@
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <FrameLayout
-        android:id="@android:id/progress"
+        android:id="@+id/filterView"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginStart="@dimen/filter_spacing"
@@ -52,7 +51,7 @@
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@android:id/button1"
+                    android:id="@+id/filterBackButton"
                     style="?selectableItemBackgroundBorderless"
                     android:layout_width="48dp"
                     android:layout_height="match_parent"
@@ -61,7 +60,7 @@
                     app:srcCompat="@drawable/ic_back" />
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@android:id/input"
+                    android:id="@+id/filterSearchEditor"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -82,7 +81,7 @@
                     android:windowSoftInputMode="adjustPan" />
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@android:id/button2"
+                    android:id="@+id/filterSearchButton"
                     style="?selectableItemBackgroundBorderless"
                     android:layout_width="48dp"
                     android:layout_height="match_parent"

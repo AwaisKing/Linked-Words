@@ -21,6 +21,7 @@
             style="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:ellipsize="end"
             android:singleLine="true" />
@@ -70,6 +71,7 @@
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/buttonPanel"
         style="?buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

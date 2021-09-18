@@ -8,18 +8,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.RadioGroup;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.LinearLayoutCompat;
 
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
 import awais.backworddictionary.TTSActivity;
 import awais.backworddictionary.custom.MaterialCheckedTextView;
+import awais.backworddictionary.databinding.SettingsDialogBinding;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.Utils;
-import awais.sephiroth.numberpicker.HorizontalNumberPicker;
 
 public final class SettingsDialog extends Dialog {
     public final static int TTS_SETTINGS_REQUEST_CODE = 5320;
@@ -49,35 +48,25 @@ public final class SettingsDialog extends Dialog {
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
 
-        setContentView(R.layout.settings_dialog);
+        final SettingsDialogBinding dialogBinding = SettingsDialogBinding.inflate(getLayoutInflater());
+        final LinearLayoutCompat rootView = dialogBinding.getRoot();
 
-        ((TextView) findViewById(R.id.alertTitle)).setText(R.string.settings);
+        dialogBinding.alertTitle.setText(R.string.settings);
 
-        final HorizontalNumberPicker numberPicker = findViewById(R.id.horizontalNumberPicker);
-        numberPicker.setProgress(maxWords);
+        dialogBinding.numberPicker.setProgress(maxWords);
+        dialogBinding.showFloating.setChecked(showFloating);
+        dialogBinding.showAds.setChecked(showAds);
+        dialogBinding.showWordDialog.setChecked(showDialog);
+        dialogBinding.showDefsPopup.setChecked(showPopup);
 
-        final MaterialCheckedTextView cbShowFloating = findViewById(R.id.showFloating);
-        cbShowFloating.setChecked(showFloating);
-
-        final MaterialCheckedTextView cbShowAds = findViewById(R.id.showAds);
-        cbShowAds.setChecked(showAds);
-
-        final MaterialCheckedTextView cbShowDialog = findViewById(R.id.showWordDialog);
-        cbShowDialog.setChecked(showDialog);
-
-        final MaterialCheckedTextView cbShowDefsPopup = findViewById(R.id.showDefsPopup);
-        cbShowDefsPopup.setChecked(showPopup);
-
-        final RadioGroup rgAppTheme = findViewById(R.id.rgAppTheme);
-        final int checkedTheme;
         final int darkMode = SettingsHelper.getNightMode();
+        final int checkedTheme;
         if (darkMode == AppCompatDelegate.MODE_NIGHT_YES) checkedTheme = R.id.rbThemeDark;
         else if (darkMode == AppCompatDelegate.MODE_NIGHT_NO) checkedTheme = R.id.rbThemeLight;
         else checkedTheme = R.id.rbThemeAuto;
-        rgAppTheme.check(checkedTheme);
+        dialogBinding.rgAppTheme.check(checkedTheme);
 
-        final View btnTTS = findViewById(R.id.btnTTS);
-        ((View) btnTTS.getParent()).setVisibility(wasTTSErrorShown ? View.GONE : View.VISIBLE);
+        ((View) dialogBinding.btnTTS.getParent()).setVisibility(wasTTSErrorShown ? View.GONE : View.VISIBLE);
 
         final View.OnClickListener onClickListener = v -> {
             if (v instanceof MaterialCheckedTextView) {
@@ -86,16 +75,15 @@ public final class SettingsDialog extends Dialog {
                 return;
             }
 
-            final int id = v.getId();
-            if (id == R.id.btnOK) {
+            if (v == dialogBinding.btnOK) {
                 int theme = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
-                final int selectedTheme = rgAppTheme.getCheckedRadioButtonId();
+                final int selectedTheme = dialogBinding.rgAppTheme.getCheckedButtonId();
                 if (selectedTheme == R.id.rbThemeDark) theme = AppCompatDelegate.MODE_NIGHT_YES;
                 else if (selectedTheme == R.id.rbThemeLight) theme = AppCompatDelegate.MODE_NIGHT_NO;
 
-                SettingsHelper.setValues(Math.max(Math.min(1000, numberPicker.getProgress()), 1),
-                        theme, cbShowAds.isChecked(), cbShowDialog.isChecked(),
-                        cbShowFloating.isChecked(), cbShowDefsPopup.isChecked());
+                SettingsHelper.setValues(Math.max(Math.min(1000, dialogBinding.numberPicker.getProgress()), 1),
+                        theme, dialogBinding.showAds.isChecked(), dialogBinding.showWordDialog.isChecked(),
+                        dialogBinding.showFloating.isChecked(), dialogBinding.showDefsPopup.isChecked());
 
                 if (activity instanceof Main) {
                     ((Main) activity).closeExpanded();
@@ -107,23 +95,33 @@ public final class SettingsDialog extends Dialog {
                     if (activity instanceof Main) ((Main) activity).loadFragments(false);
                     else if (activity != null) activity.recreate();
                 }
-            } else if (id == R.id.btnTTS) {
+            } else if (v == dialogBinding.btnTTS) {
                 if (activity != null)
                     activity.startActivityForResult(new Intent(activity, TTSActivity.class),
                             TTS_SETTINGS_REQUEST_CODE);
                 return;
             } else if (activity instanceof Main) Utils.adsBox(activity);
+
             dismiss();
         };
 
-        cbShowAds.setOnClickListener(onClickListener);
-        cbShowDialog.setOnClickListener(onClickListener);
-        cbShowFloating.setOnClickListener(onClickListener);
-        cbShowDefsPopup.setOnClickListener(onClickListener);
+        dialogBinding.showAds.setOnClickListener(onClickListener);
+        dialogBinding.showWordDialog.setOnClickListener(onClickListener);
+        dialogBinding.showFloating.setOnClickListener(onClickListener);
+        dialogBinding.showDefsPopup.setOnClickListener(onClickListener);
 
-        findViewById(R.id.btnOK).setOnClickListener(onClickListener);
-        findViewById(R.id.btnCancel).setOnClickListener(onClickListener);
-        btnTTS.setOnClickListener(onClickListener);
+        dialogBinding.btnOK.setOnClickListener(onClickListener);
+        dialogBinding.btnCancel.setOnClickListener(onClickListener);
+        dialogBinding.btnTTS.setOnClickListener(onClickListener);
+
+        setContentView(rootView);
+
+        rootView.post(() -> {
+            dialogBinding.dummy.requestFocusFromTouch();
+            dialogBinding.dummy.requestFocus();
+
+            dialogBinding.dummy.clearFocus();
+        });
     }
 
     @Override

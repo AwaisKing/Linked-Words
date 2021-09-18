@@ -34,7 +34,6 @@ import awais.backworddictionary.R;
  * </ul>
  */
 public class AlertDialogLayout extends LinearLayoutCompat {
-
     public AlertDialogLayout(@NonNull final Context context) {
         super(context);
     }

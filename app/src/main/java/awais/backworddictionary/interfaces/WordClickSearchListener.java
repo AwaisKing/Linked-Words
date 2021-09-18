@@ -32,7 +32,7 @@ public final class WordClickSearchListener implements PopupMenu.OnMenuItemClickL
                 final int index = actMain.fragmentsAdapter.fragmentIndex(item.getTitle());
                 if (index != -1) {
                     actMain.fragmentsAdapter.getItem(index).title = word;
-                    actMain.viewPager2.setCurrentItem(index, true);
+                    actMain.mainBinding.viewPager.setCurrentItem(index, true);
                 }
                 actMain.onSearch(word);
             } catch (final Exception e) {

@@ -23,6 +23,7 @@ import java.util.List;
 import awais.backworddictionary.R;
 import awais.backworddictionary.adapters.holders.ResultViewHolder;
 import awais.backworddictionary.custom.SearchHistoryTable;
+import awais.backworddictionary.databinding.SearchItemBinding;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.AdapterClickListener;
 import awais.lapism.MaterialSearchView;
@@ -138,30 +139,31 @@ public final class SearchAdapter extends RecyclerView.Adapter<ResultViewHolder> 
     public ResultViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         if (layoutInflater == null)
             layoutInflater = LayoutInflater.from(parent.getContext());
-        return new ResultViewHolder(layoutInflater.inflate(R.layout.search_item, parent, false),
+        return new ResultViewHolder(SearchItemBinding.inflate(layoutInflater, parent, false),
                 onClickListener, onLongClickListener);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final ResultViewHolder viewHolder, final int position) {
         final SearchItem item = resultList.get(position);
+        final SearchItemBinding itemBinding = viewHolder.searchItemBinding;
 
         viewHolder.itemView.setTag(item);
 
-        viewHolder.icon.setImageResource(item.getIcon());
-        viewHolder.icon.setColorFilter(MaterialSearchView.iconColor, PorterDuff.Mode.SRC_IN);
+        itemBinding.ivIcon.setImageResource(item.getIcon());
+        itemBinding.ivIcon.setColorFilter(MaterialSearchView.iconColor, PorterDuff.Mode.SRC_IN);
 
         final String itemText = item.getText();
         final String itemTextLower = itemText.toLowerCase(Utils.defaultLocale);
 
-        if (!itemTextLower.contains(key) || key.isEmpty()) viewHolder.text.setText(itemText);
+        if (!itemTextLower.contains(key) || key.isEmpty()) itemBinding.tvText.setText(itemText);
         else {
             final SpannableString highlightedText = new SpannableString(itemText);
             final int keyIndex = itemTextLower.indexOf(key);
             highlightedText.setSpan(new ForegroundColorSpan(0xA72196F3),
                     keyIndex, keyIndex + key.length(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            viewHolder.text.setText(highlightedText, TextView.BufferType.SPANNABLE);
+            itemBinding.tvText.setText(highlightedText, TextView.BufferType.SPANNABLE);
         }
     }
 

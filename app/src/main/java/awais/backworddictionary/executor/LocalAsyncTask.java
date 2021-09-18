@@ -100,7 +100,7 @@ public abstract class LocalAsyncTask<Param, Result> {
 
     public LocalAsyncTask() {
         mHandler = getMainHandler();
-        mWorker = new WorkerRunnable<>() {
+        mWorker = new WorkerRunnable<Param, Result>() {
             @Override
             public Result call() {
                 mTaskInvoked.set(true);
@@ -118,7 +118,7 @@ public abstract class LocalAsyncTask<Param, Result> {
                 return result;
             }
         };
-        mFuture = new FutureTask<>(mWorker) {
+        mFuture = new FutureTask<Result>(mWorker) {
             @Override
             protected void done() {
                 try {

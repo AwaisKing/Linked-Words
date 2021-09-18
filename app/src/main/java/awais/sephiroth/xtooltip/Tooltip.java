@@ -53,8 +53,8 @@ public final class Tooltip {
     private boolean isActivated = false;
     private boolean isShowing = false;
     private boolean isVisible = false;
-    private View mContentView;
-    private TextView mTextView;
+    private View contentView;
+    private TextView textView;
     private CharSequence text;
     private Positions currentPosition = null;
     private TooltipFunctions tooltipFunctions;
@@ -81,7 +81,7 @@ public final class Tooltip {
     }
 
     public View getContentView() {
-        return mContentView;
+        return contentView;
     }
 
     public void setupTooltipFunction(final TooltipFunctions tooltipFunctions) {
@@ -90,7 +90,7 @@ public final class Tooltip {
 
     public void update(final CharSequence text) {
         this.text = text;
-        if (isShowing && null != popupView) mTextView.setText(text instanceof Spannable ? text :
+        if (isShowing && null != popupView) textView.setText(text instanceof Spannable ? text :
                 HtmlCompat.fromHtml(String.valueOf(text), HtmlCompat.FROM_HTML_MODE_COMPACT));
     }
 
@@ -130,8 +130,8 @@ public final class Tooltip {
         anchorPosition[0] += offset.x;
         anchorPosition[1] += offset.y;
 
-        final int w = mContentView.getMeasuredWidth();
-        final int h = mContentView.getMeasuredHeight();
+        final int w = contentView.getMeasuredWidth();
+        final int h = contentView.getMeasuredHeight();
 
         final Point contentPosition = new Point(), arrowPosition = new Point();
 
@@ -195,16 +195,16 @@ public final class Tooltip {
 
     void offsetBy() {
         if (isShowing && popupView != null && currentPosition != null) {
-            mContentView.setTranslationX(currentPosition.getContentPointX());
-            mContentView.setTranslationY(currentPosition.getContentPointY());
+            contentView.setTranslationX(currentPosition.getContentPointX());
+            contentView.setTranslationY(currentPosition.getContentPointY());
         }
     }
 
     public void offsetTo(final float xoff, final float yoff) {
         if (isShowing && popupView != null && currentPosition != null) {
             currentPosition.offsetTo(xoff, yoff);
-            mContentView.setTranslationX(currentPosition.getContentPointX());
-            mContentView.setTranslationY(currentPosition.getContentPointY());
+            contentView.setTranslationX(currentPosition.getContentPointX());
+            contentView.setTranslationY(currentPosition.getContentPointY());
         }
     }
 
@@ -241,23 +241,23 @@ public final class Tooltip {
         params.setTitle("ToolTip:" + Integer.toHexString(hashCode()));
 
         popupView = new TooltipViewContainer(context);
-        mContentView = inflater.inflate(R.layout.tooltip_textview, popupView, false);
+        contentView = inflater.inflate(R.layout.tooltip_textview, popupView, false);
 
-        mTextView = new MaterialTextView(new ContextThemeWrapper(context, R.style.ToolTipTextStyle));
-        ((ViewGroup) mContentView).addView(mTextView);
+        textView = new MaterialTextView(new ContextThemeWrapper(context, R.style.ToolTipTextStyle));
+        ((ViewGroup) contentView).addView(textView);
 
-        if (textDrawable != null) mTextView.setBackground(textDrawable);
-        if (mShowArrow) mTextView.setPadding(padding, padding, padding, padding);
-        else mTextView.setPadding(padding / 2, padding / 2, padding / 2, padding / 2);
-        mTextView.setText(text instanceof Spannable ? text :
+        if (textDrawable != null) textView.setBackground(textDrawable);
+        if (mShowArrow) textView.setPadding(padding, padding, padding, padding);
+        else textView.setPadding(padding / 2, padding / 2, padding / 2, padding / 2);
+        textView.setText(text instanceof Spannable ? text :
                 HtmlCompat.fromHtml(String.valueOf(text), HtmlCompat.FROM_HTML_MODE_COMPACT));
 
-        popupView.addView(mContentView, new FrameLayout.LayoutParams(
+        popupView.addView(contentView, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         popupView.setMeasureAllChildren(true);
         popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 
-        mTextView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+        textView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
             @Override
             public void onViewAttachedToWindow(final View v) {
                 handler.removeCallbacks(activateRunnable);
@@ -306,8 +306,8 @@ public final class Tooltip {
     private void fadeIn() {
         if (!isShowing || isVisible) return;
 
-        mTextView.clearAnimation();
-        mTextView.startAnimation(AnimationUtils.loadAnimation(context, R.anim.anim_in_bottom));
+        textView.clearAnimation();
+        textView.startAnimation(AnimationUtils.loadAnimation(context, R.anim.anim_in_bottom));
 
         isVisible = true;
         if (tooltipFunctions != null) tooltipFunctions.doOnShown(this);
@@ -333,8 +333,8 @@ public final class Tooltip {
         });
         animation.start();
 
-        mTextView.clearAnimation();
-        mTextView.startAnimation(animation);
+        textView.clearAnimation();
+        textView.startAnimation(animation);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

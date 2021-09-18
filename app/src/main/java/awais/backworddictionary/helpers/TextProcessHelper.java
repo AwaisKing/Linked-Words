@@ -1,5 +1,6 @@
 package awais.backworddictionary.helpers;
 
+import static awais.backworddictionary.Main.tts;
 import static awais.backworddictionary.helpers.BubbleHelper.LW_BUBBLES_CHANNEL_ID;
 import static awais.backworddictionary.helpers.BubbleHelper.LW_BUBBLES_CHANNEL_NAME;
 import static awais.backworddictionary.helpers.BubbleHelper.LW_BUBBLES_CONVO_ID;
@@ -10,26 +11,35 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ClipData;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.speech.tts.TextToSpeech;
+import android.util.DisplayMetrics;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import java.util.List;
 
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
+import awais.backworddictionary.custom.FloatingDialogView;
+import awais.backworddictionary.dialogs.AwaisomeDialogBuilder;
+import awais.backworddictionary.dialogs.AwaisomeDialogBuilder.AwaisomeDialog;
+import awais.backworddictionary.dialogs.AwaisomeDialogBuilder.HiddenFlags;
 
 public final class TextProcessHelper extends Activity {
     private static BubbleHelper bubbleHelper;
     private boolean isFound = false, dataHandled = false;
+    private AwaisomeDialog awaisomeDialog = null;
     private NotificationChannel channel;
     private Intent intent;
     private Context context;
@@ -71,6 +81,7 @@ public final class TextProcessHelper extends Activity {
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (this.intent == null) this.intent = getIntent();
+        if (this.context == null) this.context = this;
         findIntent();
     }
 
@@ -82,7 +93,11 @@ public final class TextProcessHelper extends Activity {
             try {
                 context = getApplicationContext();
             } catch (final Exception e) {
-                context = getBaseContext();
+                try {
+                    context = getBaseContext();
+                } catch (final Exception e1) {
+                    context = this;
+                }
             }
         }
 
@@ -226,21 +241,56 @@ public final class TextProcessHelper extends Activity {
 
             if (handleFallback) {
                 final Handler handler = new Handler(Looper.getMainLooper());
-                final Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        startMain(str[0]);
-                        handler.removeCallbacks(this);
-                    }
-                };
 
                 if (showFloating) {
-                    // todo add floating dialog in next version
-                    Toast.makeText(context, "Floating dialog for low end devices will be added soon!",
-                            Toast.LENGTH_SHORT).show();
+                    if (tts == null)
+                        tts = new TextToSpeech(getApplicationContext(), Main::onTTSInit);
+
+                    final int nightMode = SettingsHelper.getNightMode();
+                    if (nightMode != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+                        final Configuration configOverlay = getResources().getConfiguration();
+
+                        final int newNightMode;
+                        if (nightMode == AppCompatDelegate.MODE_NIGHT_YES) newNightMode = Configuration.UI_MODE_NIGHT_YES;
+                        else if (nightMode == AppCompatDelegate.MODE_NIGHT_NO) newNightMode = Configuration.UI_MODE_NIGHT_NO;
+                        else newNightMode = configOverlay.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
+                        final DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+
+                        final Configuration overrideConf = new Configuration();
+                        overrideConf.fontScale = 0;
+                        if (configOverlay != null) overrideConf.setTo(configOverlay);
+                        overrideConf.uiMode = newNightMode | (overrideConf.uiMode & ~Configuration.UI_MODE_NIGHT_MASK);
+
+                        getResources().updateConfiguration(overrideConf, displayMetrics);
+                    }
+
+                    awaisomeDialog = new AwaisomeDialogBuilder(this, R.style.MaterialAlertDialogTheme)
+                            .setLayoutView(new FloatingDialogView(this).setWord(str[0]))
+                            .setDialogInsets(0, 0)
+                            .setLayoutPadding(0, 0)
+                            .setViewHideFlags(HiddenFlags.BUTTON_PANEL | HiddenFlags.TITLE_PANEL)
+                            .build();
                 }
 
-                handler.postDelayed(runnable, 100);
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (showFloating) {
+                            final DialogInterface.OnDismissListener onDismissListener = dialogInterface -> {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) finishAndRemoveTask();
+                                else finish();
+                            };
+                            awaisomeDialog.setOnCancelListener(onDismissListener::onDismiss);
+                            awaisomeDialog.setOnDismissListener(onDismissListener);
+                            awaisomeDialog.show();
+                        } else {
+                            startMain(str[0]);
+                        }
+
+                        handler.removeCallbacks(this);
+                    }
+                }, showFloating ? 50 : 100);
             }
         }
 
@@ -312,6 +362,7 @@ public final class TextProcessHelper extends Activity {
     }
 
     private void finishTask() {
+        if (awaisomeDialog != null) return;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) finishAndRemoveTask();
         else finish();
     }

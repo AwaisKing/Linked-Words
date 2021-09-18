@@ -14,7 +14,7 @@
         android:paddingBottom="10dp">
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@android:id/title"
+            android:id="@+id/alertTitle"
             style="@style/TextAppearance.MaterialComponents.Headline5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -23,7 +23,6 @@
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clipToPadding="false">
@@ -34,7 +33,7 @@
             android:orientation="vertical">
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@android:id/message"
+                android:id="@+id/spannableMessage"
                 style="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -46,7 +45,7 @@
                 android:visibility="gone" />
 
             <WebView
-                android:id="@+id/webViewAbout"
+                android:id="@+id/aboutMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@null"

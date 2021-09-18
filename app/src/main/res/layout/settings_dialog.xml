@@ -4,8 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="@dimen/search_view_margin_text"
-    android:layout_marginBottom="8dp"
     android:orientation="vertical"
     android:paddingLeft="@dimen/filter_margin_start"
     android:paddingRight="@dimen/filter_margin_start">
@@ -19,7 +17,17 @@
         android:layout_marginLeft="@dimen/search_view_margin_text"
         android:layout_marginBottom="@dimen/search_view_margin_text"
         android:ellipsize="end"
+        android:paddingTop="@dimen/search_view_margin_text"
         android:singleLine="true" />
+
+    <View
+        android:id="@+id/dummy"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:defaultFocusHighlightEnabled="false"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        tools:ignore="UnusedAttribute" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -54,7 +62,7 @@
                     tools:ignore="UnusedAttribute" />
 
                 <awais.sephiroth.numberpicker.HorizontalNumberPicker
-                    android:id="@+id/horizontalNumberPicker"
+                    android:id="@+id/number_picker"
                     android:layout_width="0dp"
                     android:layout_height="48dp"
                     android:layout_weight="1" />
@@ -150,32 +158,54 @@
                     android:textAppearance="?android:textAppearanceSmall"
                     tools:ignore="UnusedAttribute" />
 
-                <RadioGroup
+                <com.google.android.material.button.MaterialButtonToggleGroup
                     android:id="@+id/rgAppTheme"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:divider="@null"
+                    android:dividerPadding="0dp"
+                    android:orientation="vertical"
+                    android:showDividers="none"
+                    android:theme="@style/MaterialAlertDialogTheme"
+                    app:selectionRequired="true"
+                    app:singleSelection="true">
 
-                    <com.google.android.material.radiobutton.MaterialRadioButton
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/rbThemeAuto"
+                        style="@style/AppTheme.Settings.Button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
                         android:text="@string/theme_auto"
+                        android:textColor="@color/btn_group_text_color"
+                        app:strokeColor="@color/btn_group_stroke_color"
                         app:useMaterialThemeColors="true" />
 
-                    <com.google.android.material.radiobutton.MaterialRadioButton
-                        android:id="@+id/rbThemeDark"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/theme_dark"
-                        app:useMaterialThemeColors="true" />
-
-                    <com.google.android.material.radiobutton.MaterialRadioButton
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/rbThemeLight"
+                        style="?materialButtonOutlinedStyle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
                         android:text="@string/theme_light"
+                        android:textColor="@color/btn_group_text_color"
+                        app:strokeColor="@color/btn_group_stroke_color"
                         app:useMaterialThemeColors="true" />
-                </RadioGroup>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/rbThemeDark"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="@string/theme_dark"
+                        android:textColor="@color/btn_group_text_color"
+                        app:strokeColor="@color/btn_group_stroke_color"
+                        app:useMaterialThemeColors="true" />
+                </com.google.android.material.button.MaterialButtonToggleGroup>
             </androidx.appcompat.widget.LinearLayoutCompat>
 
             <androidx.appcompat.widget.LinearLayoutCompat
@@ -214,36 +244,31 @@
         style="?buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:gravity="bottom|end"
+        android:orientation="horizontal"
+        android:paddingLeft="8dp"
+        android:paddingTop="4dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="8dp">
 
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:layout_width="match_parent"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOK"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="bottom|end"
-            android:orientation="horizontal"
-            android:paddingLeft="8dp"
-            android:paddingTop="4dp"
-            android:paddingRight="8dp">
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:text="@string/ok"
+            android:textColor="@color/buttons_color" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnOK"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:layout_marginRight="4dp"
-                android:text="@string/ok"
-                android:textColor="@color/buttons_color" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCancel"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginLeft="4dp"
-                android:text="@string/cancel"
-                android:textColor="@color/buttons_color" />
-        </androidx.appcompat.widget.LinearLayoutCompat>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:text="@string/cancel"
+            android:textColor="@color/buttons_color" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.appcompat.widget.LinearLayoutCompat>

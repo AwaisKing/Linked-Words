@@ -1,27 +1,22 @@
 package awais.backworddictionary.adapters.holders;
 
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import awais.backworddictionary.R;
+import awais.backworddictionary.databinding.SearchItemBinding;
 
 public final class ResultViewHolder extends RecyclerView.ViewHolder {
-    public final TextView text;
-    public final ImageView icon;
+    public final SearchItemBinding searchItemBinding;
 
-    public ResultViewHolder(final View view, final View.OnClickListener onClickListener,
+    public ResultViewHolder(@NonNull final SearchItemBinding searchItemBinding, final View.OnClickListener onClickListener,
                             final View.OnLongClickListener onLongClickListener) {
-        super(view);
+        super(searchItemBinding.getRoot());
 
-        this.icon = view.findViewById(R.id.searchItemIcon);
-        this.text = view.findViewById(R.id.searchItemText);
+        this.searchItemBinding = searchItemBinding;
 
-        if (onClickListener != null)
-            view.setOnClickListener(onClickListener);
-        if (onLongClickListener != null)
-            view.setOnLongClickListener(onLongClickListener);
+        if (onClickListener != null) itemView.setOnClickListener(onClickListener);
+        if (onLongClickListener != null) itemView.setOnLongClickListener(onLongClickListener);
     }
 }

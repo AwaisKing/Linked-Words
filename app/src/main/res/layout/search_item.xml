@@ -13,12 +13,12 @@
     android:paddingRight="@dimen/search_key_line">
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/searchItemIcon"
+        android:id="@+id/ivIcon"
         android:layout_width="@dimen/search_icon"
         android:layout_height="@dimen/search_icon" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/searchItemText"
+        android:id="@+id/tvText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="start|center_vertical"

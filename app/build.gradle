@@ -4,31 +4,34 @@ plugins {
     id 'com.google.firebase.crashlytics'
 }
 
+def sdkVersion = 31 // todo make 31
 android {
-    compileSdk 30
+    compileSdk sdkVersion
 
     defaultConfig {
         applicationId 'awais.backworddictionary'
 
         minSdk 16
-        targetSdk 30
+        targetSdk sdkVersion
 
-        versionCode 116
-        versionName '11.6'
+        versionCode 117
+        versionName '11.7'
 
         multiDexEnabled true
 
-        vectorDrawables.useSupportLibrary true
-        vectorDrawables.generatedDensities = []
-
-//        useLibrary 'org.apache.http.legacy'
+        vectorDrawables {
+            useSupportLibrary true
+            generatedDensities = []
+        }
     }
+
+    buildFeatures { viewBinding true }
 
     aaptOptions { additionalParameters '--no-version-vectors' }
 
     compileOptions {
-        targetCompatibility JavaVersion.VERSION_1_9
-        sourceCompatibility JavaVersion.VERSION_1_9
+        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
     }
 
     buildTypes {
@@ -75,13 +78,14 @@ allprojects {
 }
 
 dependencies {
+    implementation('androidx.multidex:multidex:2.0.1@aar') { transitive true }
     implementation('androidx.recyclerview:recyclerview:1.2.1@aar') { transitive true }
     implementation('androidx.appcompat:appcompat:1.4.0-alpha03@aar') { transitive true }
-    implementation('com.google.android.material:material:1.5.0-alpha01@aar') { transitive true }
+    implementation('com.google.android.material:material:1.5.0-alpha03@aar') { transitive true }
 
-    implementation 'com.google.android.gms:play-services-ads:20.2.0'
+    implementation 'com.google.android.gms:play-services-ads:20.3.0'
 
-    implementation platform('com.google.firebase:firebase-bom:28.2.1')
+    implementation platform('com.google.firebase:firebase-bom:28.4.1')
     implementation 'com.google.firebase:firebase-core'
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-crashlytics'

@@ -10,8 +10,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
-import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.view.ContextThemeWrapper;
@@ -22,7 +20,7 @@ import java.util.List;
 
 import awais.backworddictionary.R;
 import awais.backworddictionary.adapters.DefinitionsAdapter;
-import awais.backworddictionary.custom.AlertDialogTitle;
+import awais.backworddictionary.databinding.WordDialogBinding;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
 import awais.backworddictionary.interfaces.AdapterClickListener;
@@ -66,29 +64,21 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
         if (window != null)
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        setContentView(R.layout.word_dialog);
+        final WordDialogBinding wordDialogBinding = WordDialogBinding.inflate(getLayoutInflater());
+        setContentView(wordDialogBinding.getRoot());
 
-        ((AlertDialogTitle) findViewById(R.id.alertTitle)).setText(word);
+        wordDialogBinding.alertTitle.setText(word);
 
-        final ListView lvDefs = findViewById(R.id.lvDefs);
-        lvDefs.setAdapter(new DefinitionsAdapter<>(context, word,
+        wordDialogBinding.lvDefs.setAdapter(new DefinitionsAdapter<>(context, word,
                 false, defs, itemClickListener));
 
-        final Button copy = findViewById(R.id.btnCopy);
-        final Button speak = findViewById(R.id.btnSpeak);
-        final Button google = findViewById(R.id.btnGoogle);
-        final Button wiki = findViewById(R.id.btnWiki);
-        final Button urban = findViewById(R.id.btnUrban);
-        final Button search = findViewById(R.id.btnSearch);
-        final Button close = findViewById(R.id.btnClose);
-
-        copy.setOnClickListener(this);
-        speak.setOnClickListener(this);
-        google.setOnClickListener(this);
-        wiki.setOnClickListener(this);
-        urban.setOnClickListener(this);
-        search.setOnClickListener(this);
-        close.setOnClickListener(this);
+        wordDialogBinding.btnCopy.setOnClickListener(this);
+        wordDialogBinding.btnSpeak.setOnClickListener(this);
+        wordDialogBinding.btnGoogle.setOnClickListener(this);
+        wordDialogBinding.btnWiki.setOnClickListener(this);
+        wordDialogBinding.btnUrban.setOnClickListener(this);
+        wordDialogBinding.btnSearch.setOnClickListener(this);
+        wordDialogBinding.btnClose.setOnClickListener(this);
     }
 
     @Override
@@ -113,11 +103,9 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
         if (id == R.id.btnGoogle) {
             final String wordRawGoogle = word.replace(" ", "+").replace("\\s", "+");
             try {
-                final Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
-                intent.putExtra(SearchManager.QUERY, word);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-                context.startActivity(intent);
+                context.startActivity(new Intent(Intent.ACTION_WEB_SEARCH)
+                        .putExtra(SearchManager.QUERY, word)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK));
             } catch (final Exception e) {
                 customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[0]);
                 CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),

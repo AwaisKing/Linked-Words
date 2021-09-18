@@ -44,7 +44,7 @@
         <item name="android:windowDisablePreview">true</item>
         <item name="android:windowBackground">@null</item>
         <item name="android:windowActionBar">false</item>
-        <item name="android:windowNoDisplay">true</item>
+        <!--<item name="android:windowNoDisplay">true</item>-->
         <item name="android:windowIsFloating">true</item>
     </style>
 
@@ -125,6 +125,10 @@
     <style name="MaterialAlertDialogTheme.Button.Flush" parent="Widget.MaterialComponents.Button.TextButton.Dialog.Flush">
         <item name="useMaterialThemeColors">true</item>
         <item name="android:textColor">@color/buttons_color</item>
+    </style>
+
+    <style name="AppTheme.Settings.Button" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="useMaterialThemeColors">true</item>
     </style>
 
     <style name="AppTabLayout" parent="Widget.MaterialComponents.TabLayout">

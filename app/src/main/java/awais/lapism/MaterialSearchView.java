@@ -28,8 +28,6 @@ import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Filterable;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
@@ -37,7 +35,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.SearchView.OnQueryTextListener;
-import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -46,6 +43,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import awais.backworddictionary.R;
+import awais.backworddictionary.databinding.SearchViewBinding;
 import awais.backworddictionary.helpers.Utils;
 
 public final class MaterialSearchView extends FrameLayout implements View.OnClickListener {
@@ -56,12 +54,10 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     private RecyclerView.Adapter<?> adapter = null;
     private OnQueryTextListener onQueryChangeListener = null;
     private OnOpenCloseListener onOpenCloseListener = null;
-    private RecyclerView recyclerView;
-    private CardView cardView;
-    private ProgressBar progressBar;
-    private SearchEditText searchEditText;
-    private View menuItemView = null, shadowView, dividerView;
-    private ImageView backImageView, voiceImageView, emptyImageView;
+
+    private SearchViewBinding searchViewBinding;
+
+    private View menuItemView = null;
     private CharSequence oldQueryText, userQuery = "";
     private int menuItemCx = -1;
     private boolean isSearchOpen = false, isVoice = false, isHandlingIntentData = false;
@@ -93,37 +89,29 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
 
     private void initView() {
         LayoutInflater.from(context).inflate(R.layout.search_view, this, true);
+        searchViewBinding = SearchViewBinding.bind(this);
 
-        cardView = findViewById(R.id.cardView);
+        searchViewBinding.rvResults.setNestedScrollingEnabled(false);
+        searchViewBinding.rvResults.setLayoutManager(new LinearLayoutManager(context));
+        searchViewBinding.rvResults.setItemAnimator(null);
+        searchViewBinding.rvResults.setVisibility(View.GONE);
 
-        recyclerView = findViewById(R.id.rvResults);
-        recyclerView.setNestedScrollingEnabled(false);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        recyclerView.setItemAnimator(null);
-        recyclerView.setVisibility(View.GONE);
+        searchViewBinding.viewDivider.setVisibility(View.GONE);
+        searchViewBinding.viewShadow.setVisibility(View.GONE);
 
-        dividerView = findViewById(R.id.view_divider);
-        dividerView.setVisibility(View.GONE);
+        searchViewBinding.viewShadow.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.shadow_color, null));
+        searchViewBinding.viewShadow.setOnClickListener(this);
 
-        shadowView = findViewById(R.id.view_shadow);
-        shadowView.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.shadow_color, null));
-        shadowView.setOnClickListener(this);
-        shadowView.setVisibility(View.GONE);
+        searchViewBinding.progressBar.setVisibility(View.GONE);
 
-        progressBar = findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.GONE);
+        searchViewBinding.ivMic.setOnClickListener(this);
+        searchViewBinding.ivMic.setVisibility(View.GONE);
 
-        voiceImageView = findViewById(R.id.ivMic);
-        voiceImageView.setOnClickListener(this);
-        voiceImageView.setVisibility(View.GONE);
+        searchViewBinding.btnCancel.setOnClickListener(this);
+        searchViewBinding.btnCancel.setVisibility(View.GONE);
 
-        emptyImageView = findViewById(R.id.btnCancel);
-        emptyImageView.setOnClickListener(this);
-        emptyImageView.setVisibility(View.GONE);
-
-        searchEditText = findViewById(R.id.etSearchView);
-        searchEditText.setSearchView(this);
-        searchEditText.addTextChangedListener(new TextWatcher() {
+        searchViewBinding.etSearchView.setSearchView(this);
+        searchViewBinding.etSearchView.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(final Editable editable) { }
 
@@ -135,14 +123,14 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
                 if (!isHandlingIntentData) onSearchTextChanged(charSequence);
             }
         });
-        searchEditText.setOnEditorActionListener((textView, i, keyEvent) -> {
+        searchViewBinding.etSearchView.setOnEditorActionListener((textView, i, keyEvent) -> {
             onSubmitQuery();
             return true;
         });
-        searchEditText.setOnFocusChangeListener((v, hasFocus) -> {
+        searchViewBinding.etSearchView.setOnFocusChangeListener((v, hasFocus) -> {
             if (!Utils.isEmpty(userQuery)) {
-                emptyImageView.setVisibility(hasFocus ? View.VISIBLE : View.GONE);
-                if (isVoice) voiceImageView.setVisibility(hasFocus ? View.GONE : VISIBLE);
+                searchViewBinding.btnCancel.setVisibility(hasFocus ? View.VISIBLE : View.GONE);
+                if (isVoice) searchViewBinding.ivMic.setVisibility(hasFocus ? View.GONE : VISIBLE);
             }
 
             if (hasFocus) addFocus();
@@ -152,9 +140,8 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
         setVisibility(View.GONE);
 
         searchArrow = new SearchArrowDrawable(new ContextThemeWrapper(context, context.getTheme()));
-        backImageView = findViewById(R.id.ivBack);
-        backImageView.setImageDrawable(searchArrow);
-        backImageView.setOnClickListener(this);
+        searchViewBinding.ivBack.setImageDrawable(searchArrow);
+        searchViewBinding.ivBack.setOnClickListener(this);
 
         final LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 
@@ -169,21 +156,21 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
             params.setMarginStart(leftRight);
         }
 
-        cardView.setLayoutParams(params);
+        searchViewBinding.cardView.setLayoutParams(params);
 
         setBackgroundColor(ContextCompat.getColor(context, R.color.search_background));
 
         // setIconColor
         iconColor = ContextCompat.getColor(context, R.color.search_icon);
         final ColorFilter colorFilter = new PorterDuffColorFilter(iconColor, PorterDuff.Mode.SRC_IN);
-        backImageView.setColorFilter(colorFilter);
-        voiceImageView.setColorFilter(colorFilter);
-        emptyImageView.setColorFilter(colorFilter);
+        searchViewBinding.ivBack.setColorFilter(colorFilter);
+        searchViewBinding.ivMic.setColorFilter(colorFilter);
+        searchViewBinding.btnCancel.setColorFilter(colorFilter);
 
         isVoice = isVoiceAvailable();
-        if (isVoice && searchEditText != null) searchEditText.setPrivateImeOptions("nm");
 
-        voiceImageView.setVisibility(isVoice ? View.VISIBLE : View.GONE);
+        if (isVoice) searchViewBinding.etSearchView.setPrivateImeOptions("nm");
+        searchViewBinding.ivMic.setVisibility(isVoice ? View.VISIBLE : View.GONE);
     }
 
     public void setHandlingIntentData(final boolean isHandlingIntentData) {
@@ -194,8 +181,8 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
         setQueryWithoutSubmitting(query);
 
         if (!Utils.isEmpty(userQuery)) {
-            emptyImageView.setVisibility(View.GONE);
-            if (isVoice) voiceImageView.setVisibility(View.VISIBLE);
+            searchViewBinding.btnCancel.setVisibility(View.GONE);
+            if (isVoice) searchViewBinding.ivMic.setVisibility(View.VISIBLE);
         }
 
         if (submit && !Utils.isEmpty(query)) onSubmitQuery();
@@ -203,18 +190,18 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
 
     public void setAdapter(final RecyclerView.Adapter<?> adapter) {
         this.adapter = adapter;
-        recyclerView.setAdapter(this.adapter);
+        searchViewBinding.rvResults.setAdapter(this.adapter);
     }
 
     @Override
     public void setBackgroundColor(@ColorInt final int color) {
-        cardView.setCardBackgroundColor(color);
+        searchViewBinding.cardView.setCardBackgroundColor(color);
     }
 
     @Override
     public void setElevation(final float elevation) {
-        cardView.setMaxCardElevation(elevation);
-        cardView.setCardElevation(elevation);
+        searchViewBinding.cardView.setMaxCardElevation(elevation);
+        searchViewBinding.cardView.setCardElevation(elevation);
         invalidate();
     }
 
@@ -224,31 +211,34 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
         if (animate) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 if (menuItem != null) getMenuItemPosition(menuItem.getItemId());
-                cardView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                searchViewBinding.cardView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
-                        cardView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        SearchAnimator.revealOpen(cardView, menuItemCx, context, searchEditText, onOpenCloseListener);
+                        searchViewBinding.cardView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        SearchAnimator.revealOpen(searchViewBinding.cardView, menuItemCx, context,
+                                searchViewBinding.etSearchView, onOpenCloseListener);
                     }
                 });
             } else
-                SearchAnimator.fadeOpen(cardView, searchEditText, onOpenCloseListener);
+                SearchAnimator.fadeOpen(searchViewBinding.cardView, searchViewBinding.etSearchView, onOpenCloseListener);
         } else {
-            cardView.setVisibility(View.VISIBLE);
+            searchViewBinding.cardView.setVisibility(View.VISIBLE);
             if (onOpenCloseListener != null) onOpenCloseListener.onOpen();
-            searchEditText.requestFocus();
+            searchViewBinding.etSearchView.requestFocus();
         }
     }
 
     public void close(final boolean animate) {
         if (animate) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                SearchAnimator.revealClose(cardView, menuItemCx, context, searchEditText, this, onOpenCloseListener);
+                SearchAnimator.revealClose(searchViewBinding.cardView, menuItemCx, context,
+                        searchViewBinding.etSearchView, this, onOpenCloseListener);
             else
-                SearchAnimator.fadeClose(cardView, searchEditText, this, onOpenCloseListener);
+                SearchAnimator.fadeClose(searchViewBinding.cardView, searchViewBinding.etSearchView,
+                        this, onOpenCloseListener);
         } else {
-            searchEditText.clearFocus();
-            cardView.setVisibility(View.GONE);
+            searchViewBinding.etSearchView.clearFocus();
+            searchViewBinding.cardView.setVisibility(View.GONE);
             setVisibility(View.GONE);
             if (onOpenCloseListener != null) onOpenCloseListener.onClose();
         }
@@ -257,7 +247,7 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     private void addFocus() {
         isSearchOpen = true;
         setArrow();
-        SearchAnimator.fadeIn(shadowView);
+        SearchAnimator.fadeIn(searchViewBinding.viewShadow);
         showSuggestions();
         showKeyboard();
     }
@@ -265,21 +255,21 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     private void removeFocus() {
         isSearchOpen = false;
         setHamburger();
-        SearchAnimator.fadeOut(shadowView);
+        SearchAnimator.fadeOut(searchViewBinding.viewShadow);
         hideSuggestions();
         hideKeyboard();
     }
 
     public void showSuggestions() {
-        if (adapter != null && adapter.getItemCount() > 0) dividerView.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.VISIBLE);
-        SearchAnimator.fadeIn(recyclerView);
+        if (adapter != null && adapter.getItemCount() > 0) searchViewBinding.viewDivider.setVisibility(View.VISIBLE);
+        searchViewBinding.rvResults.setVisibility(View.VISIBLE);
+        SearchAnimator.fadeIn(searchViewBinding.rvResults);
     }
 
     private void hideSuggestions() {
-        dividerView.setVisibility(View.GONE);
-        recyclerView.setVisibility(View.GONE);
-        SearchAnimator.fadeOut(recyclerView);
+        searchViewBinding.viewDivider.setVisibility(View.GONE);
+        searchViewBinding.rvResults.setVisibility(View.GONE);
+        SearchAnimator.fadeOut(searchViewBinding.rvResults);
     }
 
     public boolean isSearchOpen() {
@@ -288,7 +278,7 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
 
     private void showKeyboard() {
         if (!isInEditMode() && Utils.inputMethodManager != null) {
-            Utils.inputMethodManager.showSoftInput(searchEditText, 0);
+            Utils.inputMethodManager.showSoftInput(searchViewBinding.etSearchView, 0);
             Utils.inputMethodManager.showSoftInput(this, 0);
         }
     }
@@ -299,24 +289,24 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     }
 
     public void showProgress() {
-        progressBar.setVisibility(View.VISIBLE);
+        searchViewBinding.progressBar.setVisibility(View.VISIBLE);
     }
 
     public void hideProgress() {
-        progressBar.setVisibility(View.GONE);
+        searchViewBinding.progressBar.setVisibility(View.GONE);
     }
 
     public boolean isShowingProgress() {
-        return progressBar.getVisibility() == View.VISIBLE;
+        return searchViewBinding.progressBar.getVisibility() == View.VISIBLE;
     }
 
     private void setQueryWithoutSubmitting(final CharSequence query) {
-        searchEditText.setText(query);
+        searchViewBinding.etSearchView.setText(query);
         if (query != null) {
-            searchEditText.setSelection(searchEditText.length());
+            searchViewBinding.etSearchView.setSelection(searchViewBinding.etSearchView.length());
             userQuery = query;
-        } else if (searchEditText.getText() != null)
-            searchEditText.getText().clear();
+        } else if (searchViewBinding.etSearchView.getText() != null)
+            searchViewBinding.etSearchView.getText().clear();
     }
 
     private void setArrow() {
@@ -371,14 +361,14 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     }
 
     private void onSubmitQuery() {
-        final CharSequence query = searchEditText.getText();
+        final CharSequence query = searchViewBinding.etSearchView.getText();
         if (query != null && TextUtils.getTrimmedLength(query) > 0 &&
                 (onQueryChangeListener == null || !onQueryChangeListener.onQueryTextSubmit(query.toString())))
-            searchEditText.setText(query);
+            searchViewBinding.etSearchView.setText(query);
     }
 
     private void onSearchTextChanged(final CharSequence newText) {
-        userQuery = searchEditText.getText();
+        userQuery = searchViewBinding.etSearchView.getText();
 
         if (adapter instanceof Filterable) ((Filterable) adapter).getFilter().filter(userQuery);
 
@@ -387,24 +377,24 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
         oldQueryText = newText.toString();
 
         final boolean isTextEmpty = Utils.isEmpty(newText);
-        emptyImageView.setVisibility(isTextEmpty ? View.GONE : View.VISIBLE);
-        if (isVoice) voiceImageView.setVisibility(isTextEmpty ? View.VISIBLE : View.GONE);
+        searchViewBinding.btnCancel.setVisibility(isTextEmpty ? View.GONE : View.VISIBLE);
+        if (isVoice) searchViewBinding.ivMic.setVisibility(isTextEmpty ? View.VISIBLE : View.GONE);
     }
 
     private int getCenterX(@NonNull final View view) {
         final int[] location = new int[2];
         view.getLocationOnScreen(location);
-        return location[0] + (view.getWidth() >> 1);
+        return location[0] + (view.getWidth() >>> 1);
     }
 
     @Override
     public void onClick(final View v) {
-        if (v == voiceImageView)
+        if (v == searchViewBinding.ivMic)
             onVoiceClicked();
-        else if (v == shadowView || v == backImageView)
+        else if (v == searchViewBinding.viewShadow || v == searchViewBinding.ivBack)
             close(true);
-        else if (v == emptyImageView && searchEditText.length() > 0) {
-            final Editable text = searchEditText.getText();
+        else if (v == searchViewBinding.btnCancel && searchViewBinding.etSearchView.length() > 0) {
+            final Editable text = searchViewBinding.etSearchView.getText();
             if (text != null) text.clear();
         }
     }
@@ -428,7 +418,7 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
             if (ss.isSearchOpen) {
                 open(true, null);
                 setQueryWithoutSubmitting(ss.query);
-                searchEditText.requestFocus();
+                searchViewBinding.etSearchView.requestFocus();
             }
 
             super.onRestoreInstanceState(ss.getSuperState());
@@ -452,7 +442,7 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     }
 
     private static class SavedState extends BaseSavedState {
-        public static final Creator<SavedState> CREATOR = new Creator<>() {
+        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
             @NonNull
             @Override
             public SavedState createFromParcel(final Parcel in) {

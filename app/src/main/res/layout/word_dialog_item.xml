@@ -7,7 +7,7 @@
     android:focusable="true">
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@android:id/text1"
+        android:id="@+id/tvWord"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
@@ -20,12 +20,12 @@
         android:textAppearance="?textAppearanceListItem" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@android:id/text2"
+        android:id="@+id/tvSub"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@android:id/text1"
-        android:layout_alignStart="@android:id/text1"
-        android:layout_alignLeft="@android:id/text1"
+        android:layout_below="@id/tvWord"
+        android:layout_alignStart="@id/tvWord"
+        android:layout_alignLeft="@id/tvWord"
         android:layout_marginTop="3dp"
         android:layout_marginBottom="6dp"
         android:gravity="start"

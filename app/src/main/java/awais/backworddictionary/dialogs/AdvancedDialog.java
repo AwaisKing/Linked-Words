@@ -14,17 +14,19 @@ import java.util.List;
 
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
-import awais.backworddictionary.custom.AlertDialogTitle;
+import awais.backworddictionary.databinding.AdvancedDialogBinding;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.interfaces.FragmentLoader;
 
 public final class AdvancedDialog extends Dialog implements CompoundButton.OnCheckedChangeListener {
     private final boolean[] enabledChecks = {true, true, true, true, false, false, false, false, false, false};
+    private final AdvancedDialogBinding dialogBinding;
     private final FragmentLoader fragmentLoader;
     private List<CompoundButton> checkBoxes;
 
     public AdvancedDialog(final Main act) {
         super(act, R.style.DefinitionsDialogTheme);
+        this.dialogBinding = AdvancedDialogBinding.inflate(act.getLayoutInflater());
         this.fragmentLoader = act;
     }
 
@@ -40,22 +42,20 @@ public final class AdvancedDialog extends Dialog implements CompoundButton.OnChe
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
 
-        setContentView(R.layout.advanced_dialog);
+        setContentView(dialogBinding.getRoot());
 
-        ((AlertDialogTitle) findViewById(R.id.alertTitle)).setText(R.string.advance);
+        dialogBinding.alertTitle.setText(R.string.advance);
 
-        final ViewGroup container = findViewById(R.id.checkboxContainer);
-
-        final CheckBox cbReverse = (CheckBox) container.getChildAt(0);
-        final CheckBox cbSoundsLike = (CheckBox) container.getChildAt(1);
-        final CheckBox cbSpelledLike = (CheckBox) container.getChildAt(2);
-        final CheckBox cbSynonyms = (CheckBox) container.getChildAt(3);
-        final CheckBox cbAntonyms = (CheckBox) container.getChildAt(4);
-        final CheckBox cbTriggers = (CheckBox) container.getChildAt(5);
-        final CheckBox cbPartOf = (CheckBox) container.getChildAt(6);
-        final CheckBox cbComprises = (CheckBox) container.getChildAt(7);
-        final CheckBox cbRhymes = (CheckBox) container.getChildAt(8);
-        final CheckBox cbHomophones = (CheckBox) container.getChildAt(9);
+        final CheckBox cbReverse = (CheckBox) dialogBinding.checkboxContainer.getChildAt(0);
+        final CheckBox cbSoundsLike = (CheckBox) dialogBinding.checkboxContainer.getChildAt(1);
+        final CheckBox cbSpelledLike = (CheckBox) dialogBinding.checkboxContainer.getChildAt(2);
+        final CheckBox cbSynonyms = (CheckBox) dialogBinding.checkboxContainer.getChildAt(3);
+        final CheckBox cbAntonyms = (CheckBox) dialogBinding.checkboxContainer.getChildAt(4);
+        final CheckBox cbTriggers = (CheckBox) dialogBinding.checkboxContainer.getChildAt(5);
+        final CheckBox cbPartOf = (CheckBox) dialogBinding.checkboxContainer.getChildAt(6);
+        final CheckBox cbComprises = (CheckBox) dialogBinding.checkboxContainer.getChildAt(7);
+        final CheckBox cbRhymes = (CheckBox) dialogBinding.checkboxContainer.getChildAt(8);
+        final CheckBox cbHomophones = (CheckBox) dialogBinding.checkboxContainer.getChildAt(9);
 
         checkBoxes = Arrays.asList(new CheckBox[]{cbReverse, cbSoundsLike, cbSpelledLike,
                 cbSynonyms, cbAntonyms, cbTriggers, cbPartOf, cbComprises, cbRhymes, cbHomophones});
@@ -90,8 +90,8 @@ public final class AdvancedDialog extends Dialog implements CompoundButton.OnChe
             }
             dismiss();
         };
-        findViewById(R.id.btnOK).setOnClickListener(clickListener);
-        findViewById(R.id.btnCancel).setOnClickListener(clickListener);
+        dialogBinding.btnOK.setOnClickListener(clickListener);
+        dialogBinding.btnCancel.setOnClickListener(clickListener);
     }
 
     @Override

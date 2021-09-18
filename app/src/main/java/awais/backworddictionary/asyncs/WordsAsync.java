@@ -106,7 +106,7 @@ public final class WordsAsync extends LocalAsyncTask<Void, ArrayList<WordItem>> 
                 }
             }
         } catch (final Exception e) {
-            if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "WordsAsync", e);
+            if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "WordsAsync :: " + e, e);
             else Utils.firebaseCrashlytics.recordException(e);
         }
 

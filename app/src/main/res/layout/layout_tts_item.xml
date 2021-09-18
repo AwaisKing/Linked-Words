@@ -10,7 +10,8 @@
     android:paddingTop="4dp"
     android:paddingEnd="8dp"
     android:paddingRight="8dp"
-    android:paddingBottom="4dp">
+    android:paddingBottom="4dp"
+    tools:viewBindingIgnore="true">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@android:id/icon"
@@ -46,16 +47,16 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:ellipsize="none"
+            android:fadingEdge="horizontal"
+            android:fadingEdgeLength="12dp"
             android:isScrollContainer="true"
             android:paddingStart="8dp"
             android:paddingLeft="8dp"
-            android:requiresFadingEdge="horizontal"
-            android:fadingEdgeLength="12dp"
-            android:fadingEdge="horizontal"
             android:paddingTop="4dp"
             android:paddingEnd="8dp"
             android:paddingRight="8dp"
             android:paddingBottom="4dp"
+            android:requiresFadingEdge="horizontal"
             android:scrollbarAlwaysDrawHorizontalTrack="true"
             android:scrollbarDefaultDelayBeforeFade="900"
             android:scrollbarFadeDuration="700"

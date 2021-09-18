@@ -12,7 +12,7 @@ import java.util.Objects;
 import awais.backworddictionary.R;
 
 public final class SearchItem implements Parcelable {
-    public static final Creator<SearchItem> CREATOR = new Creator<>() {
+    public static final Creator<SearchItem> CREATOR = new Creator<SearchItem>() {
         @Override
         @NonNull
         public SearchItem createFromParcel(final Parcel source) {

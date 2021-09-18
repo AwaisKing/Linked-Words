@@ -14,17 +14,16 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
-import androidx.core.internal.view.SupportMenuItem;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
 import awais.backworddictionary.R;
 import awais.backworddictionary.adapters.holders.WordItem;
 import awais.backworddictionary.adapters.holders.WordItemViewHolder;
+import awais.backworddictionary.databinding.WordItemBinding;
 import awais.backworddictionary.dialogs.WordDialog;
 import awais.backworddictionary.helpers.MenuBuilderHelper;
 import awais.backworddictionary.helpers.MenuBuilderHelper.PopupHelper;
@@ -33,26 +32,27 @@ import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.AdapterClickListener;
 
 public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemViewHolder> implements Filterable {
-    private final Context context;
+    private final LayoutInflater layoutInflater;
     private final AdapterClickListener wordItemClickListener;
     private final AdapterClickListener definitionItemClickListener;
 
     private final String[] noItemFound;
     private final Filter filter;
     private boolean isShowDialogEnabled;
-    private List<?> filterList;
+    private boolean showExpandedSearchIcon;
+    private ArrayList<WordItem> filterList;
     public final HashSet<WordItem> expandedHashSet = new HashSet<>();
     public final HashSet<WordItemViewHolder> holdersHashSet = new HashSet<>();
 
     // recycling variables for definition PopupMenu tag
     private String def, strToCopy, word;
 
-    public DictionaryWordsAdapter(@NonNull final Context context, final List<WordItem> wordList) {
+    public DictionaryWordsAdapter(@NonNull final Context context, final ArrayList<WordItem> wordList) {
         setHasStableIds(true);
         final String strNoItemFound = context.getString(R.string.no_definition_found);
 
+        this.layoutInflater = LayoutInflater.from(context);
         this.noItemFound = new String[]{"", strNoItemFound};
-        this.context = context;
         this.filterList = wordList;
 
         refreshShowDialogEnabled();
@@ -86,7 +86,7 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
                             if (tag instanceof MenuBuilderHelper) menuBuilder = (MenuBuilderHelper) tag;
                             else {
                                 menuBuilder = new MenuBuilderHelper(context)
-                                        .setDefaultShowAsAction(SupportMenuItem.SHOW_AS_ACTION_WITH_TEXT);
+                                        .setDefaultShowAsAction(MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 
                                 menuBuilder.add(0, R.id.action_copy, 0, resources.getString(R.string.copy))
                                         .setOnMenuItemClickListener(menuItemClickListener);
@@ -122,8 +122,12 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
                     }
                 }
             }
-        };
 
+            @Override
+            public boolean onLongClick(final View view) {
+                return super.onLongClick(view);
+            }
+        };
         this.wordItemClickListener = new AdapterClickListener() {
             @Override
             public void onClick(final View view) {
@@ -178,6 +182,7 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
 
         this.filter = new Filter() {
             private final FilterResults results = new FilterResults();
+            private ArrayList<WordItem> filteredList;
 
             @Override
             protected FilterResults performFiltering(final CharSequence charSequence) {
@@ -194,7 +199,7 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
                     return results;
                 }
 
-                final ArrayList<WordItem> filteredList = new ArrayList<>(wordList.size() >> 1);
+                final ArrayList<WordItem> filteredList = new ArrayList<>(wordList.size() >>> 1);
                 for (final WordItem mWord : wordList) {
                     final String word = mWord.getWord().toLowerCase(Utils.defaultLocale);
                     final String[][] defs = mWord.getDefs();
@@ -228,65 +233,32 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
                 }
 
                 filteredList.trimToSize();
-                results.values = filteredList;
+                results.count = filteredList.size();
+
+                this.filteredList = filteredList;
 
                 return results;
             }
 
             @Override
             protected void publishResults(final CharSequence charSequence, FilterResults filterResults) {
-                if (filterResults == null) filterResults = results;
-                if (filterResults.values instanceof List)
-                    updateList((List<?>) filterResults.values);
+                updateList(filteredList);
             }
         };
     }
 
     @NonNull
     @Override
-    public WordItemViewHolder onCreateViewHolder(@NonNull final ViewGroup viewGroup, final int viewType) {
-        return new WordItemViewHolder(LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.word_item, viewGroup, false));
+    public WordItemViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
+        return new WordItemViewHolder(WordItemBinding.inflate(layoutInflater, parent, false),
+                wordItemClickListener, definitionItemClickListener, noItemFound,
+                showExpandedSearchIcon);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final WordItemViewHolder holder, final int position) {
-        final WordItem wordItem = (WordItem) filterList.get(position);
         holdersHashSet.add(holder);
-
-        wordItem.setPosition(position);
-        holder.lvExpandedDefs.setVisibility(wordItem.isExpanded() ? View.VISIBLE : View.GONE);
-
-        holder.overflow.setTag(position);
-        holder.overflow.setTag(R.id.overflow, wordItem);
-        holder.cardView.setTag(R.id.overflow, holder.overflow);
-        holder.ivExpandedSearch.setTag(wordItem.getWord());
-
-        final String[][] wordItemDefs = wordItem.getDefs();
-        final String wordItemWord = wordItem.getWord();
-
-        holder.word.setText(wordItemWord);
-        holder.subtext.setText(wordItem.getParsedTags());
-
-        final ArrayList<String[]> defsList = new ArrayList<>(1);
-        if (wordItemDefs != null && wordItemDefs.length > 0) defsList.addAll(Arrays.asList(wordItemDefs));
-        else defsList.add(noItemFound);
-
-        holder.lvExpandedDefs.setAdapter(new DefinitionsAdapter<>(context, wordItemWord,
-                true, defsList, definitionItemClickListener));
-        holder.ivExpandedSearch.setOnClickListener(wordItemClickListener);
-
-        //holder.cardView.setTag(R.id.expandableMenu, holder.expandableMenu);
-        holder.cardView.setTag(R.id.word, wordItem);
-        holder.cardView.setTag(R.id.lvDefs, defsList);
-
-        holder.cardView.setOnLongClickListener(wordItemClickListener);
-        holder.cardView.setOnClickListener(wordItemClickListener);
-
-        Utils.setPopupMenuSlider(null, context, holder.ivExpandedSearch, wordItem.getWord());
-        Utils.setPopupMenuSlider(holder.overflow, wordItem);
-
-        holder.overflow.setOnClickListener(wordItemClickListener);
+        holder.setupItem(filterList.get(position), position);
     }
 
     @Override
@@ -304,7 +276,7 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
         return filterList == null ? 0 : filterList.size();
     }
 
-    public void updateList(final List<?> list) {
+    public void updateList(final ArrayList<WordItem> list) {
         final int previousSize = getItemCount();
         filterList = list;
         final int nextSize = getItemCount();
@@ -323,5 +295,9 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
 
     public void refreshShowDialogEnabled() {
         this.isShowDialogEnabled = SettingsHelper.showDialog();
+    }
+
+    public void setShowExpandedSearchIcon(final boolean showExpandedSearchIcon) {
+        this.showExpandedSearchIcon = showExpandedSearchIcon;
     }
 }

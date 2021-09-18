@@ -46,7 +46,6 @@
             android:documentLaunchMode="intoExisting"
             android:exported="true"
             android:imeOptions="flagNoExtractUi|actionSearch"
-            android:label="@string/app_name"
             android:launchMode="singleInstance"
             android:maxRecents="1"
             android:resizeableActivity="true"
@@ -68,6 +67,7 @@
             android:finishOnTaskLaunch="true"
             android:launchMode="singleTop"
             android:maxRecents="1"
+            android:noHistory="true"
             android:theme="@style/AppTheme.CompletelyTransparent">
 
             <!-- Filter for Bubbles API -->

@@ -1,28 +1,83 @@
 package awais.backworddictionary.adapters.holders;
 
+import android.content.Context;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import awais.backworddictionary.R;
+import awais.backworddictionary.adapters.DefinitionsAdapter;
+import awais.backworddictionary.databinding.WordItemBinding;
+import awais.backworddictionary.helpers.Utils;
+import awais.backworddictionary.interfaces.AdapterClickListener;
 
 public final class WordItemViewHolder extends RecyclerView.ViewHolder {
-    public final TextView word, subtext;
-    public final CardView cardView;
-    public final ListView lvExpandedDefs;
-    public final ImageView ivExpandedSearch, overflow;
+    private final Context context;
+    private final WordItemBinding wordItemBinding;
+    private final AdapterClickListener wordItemClickListener;
+    private final AdapterClickListener definitionItemClickListener;
+    private final String[] noItemFound;
+    private final boolean showExpandedSearchIcon;
 
-    public WordItemViewHolder(final View view) {
-        super(view);
-        word = view.findViewById(R.id.word);
-        subtext = view.findViewById(R.id.subText);
-        overflow = view.findViewById(R.id.overflow);
-        cardView = view.findViewById(R.id.card_view);
-        lvExpandedDefs = view.findViewById(R.id.lvExpandedDefs);
-        ivExpandedSearch = view.findViewById(R.id.ivExpandedSearch);
+    public final CardView cardView;
+
+    public WordItemViewHolder(@NonNull final WordItemBinding wordItemBinding, final AdapterClickListener wordItemClickListener,
+                              final AdapterClickListener definitionItemClickListener, final String[] noItemFound,
+                              final boolean showExpandedSearchIcon) {
+        super(wordItemBinding.getRoot());
+        this.cardView = wordItemBinding.cardView;
+        this.wordItemBinding = wordItemBinding;
+        this.context = wordItemBinding.getRoot().getContext();
+        this.wordItemClickListener = wordItemClickListener;
+        this.definitionItemClickListener = definitionItemClickListener;
+        this.noItemFound = noItemFound;
+        this.showExpandedSearchIcon = showExpandedSearchIcon;
+    }
+
+    public void setupItem(@NonNull final WordItem wordItem, final int position) {
+        wordItem.setPosition(position);
+
+        final String wordItemWord = wordItem.getWord();
+        final String[][] wordItemDefs = wordItem.getDefs();
+
+        wordItemBinding.ivExpandedSearch.setVisibility(showExpandedSearchIcon ? View.VISIBLE : View.GONE);
+        wordItemBinding.lvExpandedDefs.setVisibility(wordItem.isExpanded() ? View.VISIBLE : View.GONE);
+
+        wordItemBinding.overflow.setTag(position);
+        wordItemBinding.overflow.setTag(R.id.overflow, wordItem);
+        wordItemBinding.cardView.setTag(R.id.overflow, wordItemBinding.overflow);
+        if (showExpandedSearchIcon)
+            wordItemBinding.ivExpandedSearch.setTag(wordItemWord);
+
+        wordItemBinding.word.setText(wordItemWord);
+        wordItemBinding.subText.setText(wordItem.getParsedTags());
+
+        final ArrayList<String[]> defsList = new ArrayList<>(1);
+        if (wordItemDefs != null && wordItemDefs.length > 0) defsList.addAll(Arrays.asList(wordItemDefs));
+        else defsList.add(noItemFound);
+
+        wordItemBinding.lvExpandedDefs.setAdapter(new DefinitionsAdapter<>(context, wordItemWord,
+                true, defsList, definitionItemClickListener));
+
+        //wordItemBinding.cardView.setTag(R.id.expandableMenu, wordItemBinding.expandableMenu);
+        wordItemBinding.cardView.setTag(R.id.word, wordItem);
+        wordItemBinding.cardView.setTag(R.id.lvDefs, defsList);
+
+        wordItemBinding.cardView.setOnLongClickListener(wordItemClickListener);
+        wordItemBinding.cardView.setOnClickListener(wordItemClickListener);
+
+        if (showExpandedSearchIcon) {
+            wordItemBinding.ivExpandedSearch.setOnClickListener(wordItemClickListener);
+            Utils.setPopupMenuSlider(null, context, wordItemBinding.ivExpandedSearch, wordItemWord);
+        }
+
+        Utils.setPopupMenuSlider(wordItemBinding.overflow, wordItem);
+
+        wordItemBinding.overflow.setOnClickListener(wordItemClickListener);
     }
 }

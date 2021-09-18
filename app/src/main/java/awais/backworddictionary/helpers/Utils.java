@@ -314,11 +314,11 @@ public final class Utils {
 
         Drawable drawable;
         try {
-            drawable = ContextCompat.getDrawable(context, R.drawable.mtrl_background_outlined);
-        } catch (final Exception e) {
+            drawable = ResourcesCompat.getDrawable(resources, R.drawable.mtrl_background_outlined, theme);
+        } catch (final Exception ex) {
             try {
-                drawable = ResourcesCompat.getDrawable(resources, R.drawable.mtrl_background_outlined, theme);
-            } catch (final Exception ex) {
+                drawable = ContextCompat.getDrawable(context, R.drawable.mtrl_background_outlined);
+            } catch (final Exception e) {
                 drawable = null;
             }
         }
@@ -336,9 +336,9 @@ public final class Utils {
             final int colorControlHighlight = outValue.resourceId != 0 ?
                     ResourcesCompat.getColor(resources, outValue.resourceId, theme) : outValue.data;
 
-
-            final float cornerRadius = resources.getDimension(R.dimen.mtrl_textinput_box_corner_radius_medium);
-            final int strokeSize = resources.getDimensionPixelSize(R.dimen.mtrl_textinput_box_stroke_width_default);
+            final float density = context.getResources().getDisplayMetrics().density;
+            final float cornerRadius = density * 4f;
+            final int strokeSize = Math.round(density * 0.99f);
 
             final StateListDrawable stateListDrawable = new StateListDrawable();
             GradientDrawable gradientDrawable;
@@ -370,7 +370,7 @@ public final class Utils {
                 gradientDrawable.setShape(GradientDrawable.RECTANGLE);
                 gradientDrawable.setCornerRadius(cornerRadius);
                 gradientDrawable.setStroke(strokeSize, colorControlHighlight);
-                stateListDrawable.addState(API_20_BELOW_STATE_DRAWABLES[2],gradientDrawable);
+                stateListDrawable.addState(API_20_BELOW_STATE_DRAWABLES[2], gradientDrawable);
             }
 
             drawable = stateListDrawable;
