@@ -585,7 +585,7 @@ public final class TTSActivity extends AppCompatActivity {
                             } else {
                                 rvEngines.addItemDecoration(dividerItemDecoration);
                                 rvEngines.setLayoutManager(new LinearLayoutManager(TTSActivity.this));
-                                rvEngines.setAdapter(enginesAdapter = new TTSItemsAdapter<>(enginesList, onClickListener));
+                                rvEngines.setAdapter(enginesAdapter = new TTSItemsAdapter<>(TTSActivity.this, enginesList, onClickListener));
                                 rvEnginesParent.setVisibility(View.VISIBLE);
                             }
                         }
@@ -644,7 +644,7 @@ public final class TTSActivity extends AppCompatActivity {
                                 rvVoices.addItemDecoration(dividerItemDecoration);
                                 rvVoices.setNestedScrollingEnabled(true);
                                 rvVoices.setLayoutManager(new LinearLayoutManager(TTSActivity.this));
-                                rvVoices.setAdapter(voicesAdapter = new TTSItemsAdapter<>(voicesList, onClickListener));
+                                rvVoices.setAdapter(voicesAdapter = new TTSItemsAdapter<>(TTSActivity.this, voicesList, onClickListener));
                                 rvVoicesParent.setVisibility(View.VISIBLE);
                             }
                         }
@@ -686,7 +686,7 @@ public final class TTSActivity extends AppCompatActivity {
                                 rvLanguages.addItemDecoration(dividerItemDecoration);
                                 rvLanguages.setNestedScrollingEnabled(true);
                                 rvLanguages.setLayoutManager(new LinearLayoutManager(TTSActivity.this));
-                                rvLanguages.setAdapter(languagesAdapter = new TTSItemsAdapter<>(languagesList, onClickListener));
+                                rvLanguages.setAdapter(languagesAdapter = new TTSItemsAdapter<>(TTSActivity.this, languagesList, onClickListener));
                                 rvLanguagesParent.setVisibility(View.VISIBLE);
                             }
                         }

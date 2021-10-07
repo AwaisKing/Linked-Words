@@ -26,6 +26,7 @@ import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.view.ContextThemeWrapper;
 
 import java.util.List;
 
@@ -43,6 +44,8 @@ public final class TextProcessHelper extends Activity {
     private NotificationChannel channel;
     private Intent intent;
     private Context context;
+
+    public FloatingDialogView floatingDialogView = null;
 
     @Override
     public void onWindowAttributesChanged(final WindowManager.LayoutParams params) {
@@ -212,6 +215,7 @@ public final class TextProcessHelper extends Activity {
                 bubbleHelper = new BubbleHelper(context, str[0]);
 
 
+            final boolean showFloatingDialog = SettingsHelper.showFloatingDialog();
             final boolean showFloating = SettingsHelper.showFloating();
 
             //Log.d("AWAISKING_APP", "isBubbles:" + isBubbles
@@ -222,7 +226,7 @@ public final class TextProcessHelper extends Activity {
             //);
 
             final boolean handleFallback;
-            if (!showFloating || Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) handleFallback = true;
+            if (showFloating && showFloatingDialog || !showFloating || Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) handleFallback = true;
             else {
                 if (bubbleHelper != null) {
                     bubbleHelper.setText(str[0]);
@@ -242,7 +246,7 @@ public final class TextProcessHelper extends Activity {
             if (handleFallback) {
                 final Handler handler = new Handler(Looper.getMainLooper());
 
-                if (showFloating) {
+                if (showFloating || showFloatingDialog) {
                     if (tts == null)
                         tts = new TextToSpeech(getApplicationContext(), Main::onTTSInit);
 
@@ -265,8 +269,9 @@ public final class TextProcessHelper extends Activity {
                         getResources().updateConfiguration(overrideConf, displayMetrics);
                     }
 
-                    awaisomeDialog = new AwaisomeDialogBuilder(this, R.style.MaterialAlertDialogTheme)
-                            .setLayoutView(new FloatingDialogView(this).setWord(str[0]))
+                    final ContextThemeWrapper styledContext = Utils.getStyledContext(this, R.style.MaterialAlertDialogTheme);
+                    awaisomeDialog = new AwaisomeDialogBuilder(styledContext)
+                            .setLayoutView(floatingDialogView = new FloatingDialogView(styledContext).setWord(str[0]))
                             .setDialogInsets(0, 0)
                             .setLayoutPadding(0, 0)
                             .setViewHideFlags(HiddenFlags.BUTTON_PANEL | HiddenFlags.TITLE_PANEL)
@@ -276,7 +281,7 @@ public final class TextProcessHelper extends Activity {
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (showFloating) {
+                        if ((showFloating || showFloatingDialog) && awaisomeDialog != null) {
                             final DialogInterface.OnDismissListener onDismissListener = dialogInterface -> {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) finishAndRemoveTask();
                                 else finish();
@@ -290,7 +295,7 @@ public final class TextProcessHelper extends Activity {
 
                         handler.removeCallbacks(this);
                     }
-                }, showFloating ? 50 : 100);
+                }, showFloating || showFloatingDialog ? 50 : 100);
             }
         }
 

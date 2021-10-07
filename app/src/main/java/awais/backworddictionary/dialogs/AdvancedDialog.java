@@ -79,7 +79,7 @@ public final class AdvancedDialog extends Dialog implements CompoundButton.OnChe
         cbHomophones.setOnCheckedChangeListener(this);
 
         final View.OnClickListener clickListener = view -> {
-            if (view.getId() == R.id.btnOK) {
+            if (view == dialogBinding.btnOK) {
                 if (getResult() != 0) {
                     SettingsHelper.setTabs(Arrays.toString(enabledChecks));
                     fragmentLoader.loadFragments(false);

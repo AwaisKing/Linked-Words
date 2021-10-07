@@ -103,6 +103,27 @@
                 app:useMaterialThemeColors="true" />
 
             <awais.backworddictionary.custom.MaterialCheckedTextView
+                android:id="@+id/showFloatingDialog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/search_height"
+                android:layout_marginLeft="@dimen/search_height"
+                android:layout_marginRight="@dimen/search_height"
+                android:layout_marginEnd="@dimen/search_height"
+                android:layout_marginTop="@dimen/filter_spacing"
+                android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                android:gravity="center_vertical"
+                android:paddingStart="@dimen/filter_margin_start"
+                android:paddingLeft="@dimen/filter_margin_start"
+                android:paddingTop="@dimen/filter_margin_start"
+                android:paddingEnd="@dimen/filter_margin_start"
+                android:paddingRight="@dimen/filter_margin_start"
+                android:paddingBottom="@dimen/filter_margin_start"
+                android:text="@string/show_floating_dialog"
+                android:textAppearance="?android:textAppearanceSmall"
+                app:useMaterialThemeColors="true" />
+
+            <awais.backworddictionary.custom.MaterialCheckedTextView
                 android:id="@+id/showWordDialog"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

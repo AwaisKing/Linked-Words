@@ -34,10 +34,6 @@ public final class LinkedApp extends MultiDexApplication {
                 if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "LinkedApp", e);
                 else Utils.firebaseCrashlytics.recordException(e);
             }
-        } else {
-            fontRegular = ResourcesCompat.getFont(this, R.font.googlesans_regular);
-            fontMedium = ResourcesCompat.getFont(this, R.font.googlesans_medium);
-            fontBold = ResourcesCompat.getFont(this, R.font.googlesans_bold);
         }
 
         if (fontRegular == null) fontRegular = ResourcesCompat.getFont(this, R.font.googlesans_regular);

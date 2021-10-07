@@ -27,30 +27,27 @@ import awais.backworddictionary.helpers.ScrollingMovement;
 public final class TTSItemsAdapter<T> extends RecyclerView.Adapter<TTSItemsAdapter.TTSViewHolder> {
     private final List<TTSItemHolder<T>> list;
     private final View.OnClickListener onClickListener;
-    private Context context;
-    private Resources resources;
-    private LayoutInflater inflater;
+    private final Context context;
+    private final Resources resources;
+    private final LayoutInflater inflater;
 
-    public TTSItemsAdapter(final List<TTSItemHolder<T>> list, final View.OnClickListener onClickListener) {
+    public TTSItemsAdapter(@NonNull final Context context, final List<TTSItemHolder<T>> list, final View.OnClickListener onClickListener) {
+        this.resources = context.getResources();
+        this.inflater = LayoutInflater.from(context);
         this.list = list;
+        this.context = context;
         this.onClickListener = onClickListener;
     }
 
     @NonNull
     @Override
     public TTSViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        if (context == null) context = parent.getContext();
-        if (resources == null) resources = context.getResources();
-        if (inflater == null) inflater = LayoutInflater.from(context);
         return new TTSViewHolder(inflater.inflate(R.layout.layout_tts_item, parent, false),
                 onClickListener);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final TTSViewHolder holder, final int position) {
-        if (context == null) context = holder.itemView.getContext();
-        if (resources == null) resources = context.getResources();
-
         final TTSItemHolder<T> obj = list.get(position);
         holder.itemView.setTag(obj);
 

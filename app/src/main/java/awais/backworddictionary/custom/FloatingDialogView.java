@@ -35,7 +35,7 @@ public final class FloatingDialogView extends FrameLayout implements View.OnClic
     private final DictionaryWordsAdapter wordsAdapter;
     private final PopupMenu popup;
 
-    private String word;
+    private String word, method;
 
     public FloatingDialogView(final Context context) {
         this(context, null);
@@ -149,17 +149,32 @@ public final class FloatingDialogView extends FrameLayout implements View.OnClic
         else if (v == dialogBinding.btnSpeak) Utils.speakText(word);
     }
 
+    public boolean searchWord(final String word) {
+        dialogBinding.etSearchView.setText(word);
+
+        if (!Utils.isEmpty(word)) {
+            new WordsAsync(this, this.word = word, this.method, getContext()).execute();
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean searchWord() {
+        return searchWord(String.valueOf(dialogBinding.etSearchView.getText()));
+    }
+
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
-        final CharSequence word = dialogBinding.etSearchView.getText();
-        if (!Utils.isEmpty(word)) new WordsAsync(this, word.toString(),
-                item.getTitle().toString(), getContext()).execute();
-        return true;
+        final String defMethod = popup.getMenu().getItem(0).getTitle().toString();
+        if (item == null && Utils.isEmpty(method)) method = defMethod;
+        if (Utils.isEmpty(method)) method = defMethod;
+        return searchWord();
     }
 
     @Override
     public boolean onEditorAction(final TextView textView, final int i, final KeyEvent keyEvent) {
-        return onMenuItemClick(popup.getMenu().getItem(0));
+        return onMenuItemClick(null);
     }
 
     @Override

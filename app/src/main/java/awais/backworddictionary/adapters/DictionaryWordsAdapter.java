@@ -39,7 +39,7 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
     private final String[] noItemFound;
     private final Filter filter;
     private boolean isShowDialogEnabled;
-    private boolean showExpandedSearchIcon;
+    private boolean showExpandedSearchIcon = true;
     private ArrayList<WordItem> filterList;
     public final HashSet<WordItem> expandedHashSet = new HashSet<>();
     public final HashSet<WordItemViewHolder> holdersHashSet = new HashSet<>();

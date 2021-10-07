@@ -11,6 +11,10 @@ import android.app.NotificationManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -34,6 +38,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StyleRes;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.PopupMenu;
@@ -284,6 +289,63 @@ public final class Utils {
 
     public static float distance(@NonNull final PointF pointF, @NonNull final PointF other) {
         return (float) sqrt((other.y - pointF.y) * (other.y - pointF.y) + (other.x - pointF.x) * (other.x - pointF.x));
+    }
+
+    @NonNull
+    public static ContextThemeWrapper getStyledContext(final Context context, @StyleRes int style) {
+        if (context instanceof ContextThemeWrapper) return (ContextThemeWrapper) context;
+        if (style == 0 || style == -1) {
+            final Resources.Theme theme;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && (theme = context.getTheme()) != null)
+                return new ContextThemeWrapper(context, theme);
+            else {
+                final Context appContext = context.getApplicationContext();
+
+                final PackageManager packageManager = appContext.getPackageManager();
+                final String packageName = appContext.getPackageName();
+
+                int styleHack;
+                try {
+                    final PackageInfo packageInfo = packageManager.getPackageInfo(packageName, 0);
+                    styleHack = packageInfo.applicationInfo.theme;
+                    Log.d("AWAISKING_APP", "styleHack1: " + styleHack);
+                } catch (final Exception e) {
+                    Log.e("AWAISKING_APP", "err1", e);
+                    styleHack = -1;
+                }
+
+                if (styleHack == 0 || styleHack == -1) {
+                    try {
+                        final Intent intent = packageManager.getLaunchIntentForPackage(packageName);
+                        //noinspection ConstantConditions
+                        final ActivityInfo activityInfo = packageManager.getActivityInfo(intent.getComponent(), 0);
+                        styleHack = activityInfo.getThemeResource();
+                        Log.d("AWAISKING_APP", "styleHack2: " + styleHack);
+                    } catch (final Exception e) {
+                        Log.e("AWAISKING_APP", "err2", e);
+                        styleHack = -1;
+                    }
+                }
+
+                //try {
+                //    final ActivityInfo activityInfo = packageManager.getActivityInfo(new ComponentName(appContext, Main.class), 0);
+                //    styleHack = activityInfo.getThemeResource();
+                //} catch (final Throwable e) {
+                //    styleHack = -1;
+                //}
+                //if (styleHack == 0 || styleHack == -1) {
+                //    try {
+                //        final ActivityInfo activityInfo = packageManager.getActivityInfo(new ComponentName(context, Main.class), 0);
+                //        styleHack = activityInfo.getThemeResource();
+                //    } catch (final Throwable e) {
+                //        styleHack = -1;
+                //    }
+                //}
+
+                if (styleHack != 0 && styleHack != -1) style = styleHack;
+            }
+        }
+        return new ContextThemeWrapper(context, style);
     }
 
     // extracted from String class

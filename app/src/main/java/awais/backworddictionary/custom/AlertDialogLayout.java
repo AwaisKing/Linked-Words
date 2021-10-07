@@ -33,7 +33,7 @@ import awais.backworddictionary.R;
  *         priority for extra space</li>
  * </ul>
  */
-public class AlertDialogLayout extends LinearLayoutCompat {
+public final class AlertDialogLayout extends LinearLayoutCompat {
     public AlertDialogLayout(@NonNull final Context context) {
         super(context);
     }

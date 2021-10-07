@@ -8,10 +8,13 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.PopupMenu;
 
 import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.Main;
+import awais.backworddictionary.custom.FloatingDialogView;
+import awais.backworddictionary.helpers.TextProcessHelper;
 
 public final class WordClickSearchListener implements PopupMenu.OnMenuItemClickListener {
     private final Context context;
@@ -39,7 +42,20 @@ public final class WordClickSearchListener implements PopupMenu.OnMenuItemClickL
                 if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "WordClickSearchListener", e);
                 else firebaseCrashlytics.recordException(e);
             }
+        } else {
+            Context baseContext = null;
+            final FloatingDialogView floatingDialogView;
+
+            if (context instanceof ContextThemeWrapper)
+                baseContext = ((ContextThemeWrapper) context).getBaseContext();
+            else if (context instanceof android.view.ContextThemeWrapper)
+                baseContext = ((android.view.ContextThemeWrapper) context).getBaseContext();
+
+            if (baseContext instanceof TextProcessHelper
+                    && (floatingDialogView = ((TextProcessHelper) baseContext).floatingDialogView) != null)
+                floatingDialogView.searchWord(word);
         }
+
         if (dialog != null) dialog.dismiss();
         return true;
     }

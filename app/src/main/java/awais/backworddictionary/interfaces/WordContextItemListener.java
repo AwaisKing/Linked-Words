@@ -11,10 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.browser.customtabs.CustomTabsIntent;
 
-import java.net.URLEncoder;
 import java.util.List;
 
 import awais.backworddictionary.R;
+import awais.backworddictionary.helpers.URLEncoder;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
 
@@ -42,7 +42,6 @@ public final class WordContextItemListener implements PopupMenu.OnMenuItemClickL
             Utils.speakText(word);
 
         } else if (itemId == R.id.action_google) {
-            final String wordRawGoogle = word.replaceAll(" ", "+").replaceAll("\\s", "+");
             try {
                 context.startActivity(new Intent(Intent.ACTION_WEB_SEARCH)
                         .putExtra(SearchManager.QUERY, word)
@@ -50,19 +49,12 @@ public final class WordContextItemListener implements PopupMenu.OnMenuItemClickL
                         .addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK));
             } catch (final Exception e) {
                 customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[0]);
-                CustomTabActivityHelper.openCustomTab(context,
-                        customTabsIntent.build(), Uri.parse("https://google.com/search?q=define+" + wordRawGoogle));
+                CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
+                        Uri.parse("https://google.com/search?q=define+" .concat(URLEncoder.encode(word))));
             }
 
         } else if (itemId == R.id.action_wiki) {
-            String wordRawWiki = word.replaceAll(" ", "_").replaceAll("\\s", "_");
-            try {
-                wordRawWiki = URLEncoder.encode(wordRawWiki, Utils.CHARSET);
-            } catch (final Exception e) {
-                // ignore
-            }
-
-            final Uri wordWikiUri = Uri.parse("https://en.wikipedia.org/wiki/" + wordRawWiki);
+            final Uri wordWikiUri = Uri.parse("https://en.wikipedia.org/wiki/".concat(URLEncoder.encode(word)));
 
             final Intent intent = new Intent()
                     .setAction(Intent.ACTION_VIEW)
@@ -80,7 +72,7 @@ public final class WordContextItemListener implements PopupMenu.OnMenuItemClickL
         } else if (itemId == R.id.action_urban) {
             customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[2]);
             CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
-                    Uri.parse("https://www.urbandictionary.com/define.php?term=" + word));
+                    Uri.parse("https://www.urbandictionary.com/define.php?term=".concat(word)));
 
         } else
             return false;

@@ -15,12 +15,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.browser.customtabs.CustomTabsIntent;
 
-import java.net.URL;
 import java.util.List;
 
 import awais.backworddictionary.R;
 import awais.backworddictionary.adapters.DefinitionsAdapter;
 import awais.backworddictionary.databinding.WordDialogBinding;
+import awais.backworddictionary.helpers.URLEncoder;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
 import awais.backworddictionary.interfaces.AdapterClickListener;
@@ -34,9 +34,10 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
     private final CustomTabsIntent.Builder customTabsIntent;
     private final AdapterClickListener itemClickListener;
 
+    private WordDialogBinding wordDialogBinding;
+
     public WordDialog(Context context, final String word, final List<?> defs, final AdapterClickListener itemClickListener) {
-        super(context = new ContextThemeWrapper(context, ALERT_DIALOG_THEME),
-                ALERT_DIALOG_THEME);
+        super(new ContextThemeWrapper(context, ALERT_DIALOG_THEME), ALERT_DIALOG_THEME);
         this.context = context;
         this.word = word;
         this.defs = defs;
@@ -64,7 +65,7 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
         if (window != null)
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        final WordDialogBinding wordDialogBinding = WordDialogBinding.inflate(getLayoutInflater());
+        wordDialogBinding = WordDialogBinding.inflate(getLayoutInflater());
         setContentView(wordDialogBinding.getRoot());
 
         wordDialogBinding.alertTitle.setText(word);
@@ -83,25 +84,22 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
 
     @Override
     public void onClick(@NonNull final View v) {
-        final int id = v.getId();
-
-        if (id == R.id.btnCopy) {
+        if (v == wordDialogBinding.btnCopy) {
             Utils.copyText(context, word);
             return;
         }
 
-        if (id == R.id.btnSpeak) {
+        if (v == wordDialogBinding.btnSpeak) {
             Utils.speakText(word);
             return;
         }
 
-        if (id == R.id.btnSearch) {
+        if (v == wordDialogBinding.btnSearch) {
             Utils.showPopupMenu(this, context, v, word);
             return;
         }
 
-        if (id == R.id.btnGoogle) {
-            final String wordRawGoogle = word.replace(" ", "+").replace("\\s", "+");
+        if (v == wordDialogBinding.btnGoogle) {
             try {
                 context.startActivity(new Intent(Intent.ACTION_WEB_SEARCH)
                         .putExtra(SearchManager.QUERY, word)
@@ -109,18 +107,11 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
             } catch (final Exception e) {
                 customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[0]);
                 CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
-                        Uri.parse("https://google.com/search?q=define+" + wordRawGoogle));
+                        Uri.parse("https://google.com/search?q=define+".concat(URLEncoder.encode(word))));
             }
 
-        } else if (id == R.id.btnWiki) {
-            String wordRawWiki = word.replace(" ", "_").replace("\\s", "_");
-            try {
-                wordRawWiki = String.valueOf(new URL(wordRawWiki));
-            } catch (final Exception e) {
-                // ignore
-            }
-
-            final Uri wordWikiUri = Uri.parse("https://en.wikipedia.org/wiki/".concat(wordRawWiki));
+        } else if (v == wordDialogBinding.btnWiki) {
+            final Uri wordWikiUri = Uri.parse("https://en.wikipedia.org/wiki/".concat(URLEncoder.encode(word)));
 
             final Intent intent = new Intent().setAction(Intent.ACTION_VIEW)
                     .setPackage("org.wikipedia").setData(wordWikiUri);
@@ -133,7 +124,7 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
                         wordWikiUri);
             }
 
-        } else if (id == R.id.btnUrban) {
+        } else if (v == wordDialogBinding.btnUrban) {
             customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[2]);
             CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
                     Uri.parse("https://www.urban".concat("dictionary.com/define.php?term=").concat(word)));

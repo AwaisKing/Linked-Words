@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,7 @@ public final class SettingsDialog extends Dialog {
     private final boolean showPopup = SettingsHelper.showDefsPopup();
     private final boolean showDialog = SettingsHelper.showDialog();
     private final boolean showFloating = SettingsHelper.showFloating();
+    private final boolean showFloatingDialog = SettingsHelper.showFloatingDialog();
     private final boolean wasTTSErrorShown;
     private final Activity activity;
 
@@ -59,6 +61,15 @@ public final class SettingsDialog extends Dialog {
         dialogBinding.showWordDialog.setChecked(showDialog);
         dialogBinding.showDefsPopup.setChecked(showPopup);
 
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            dialogBinding.showFloatingDialog.setEnabled(false);
+            dialogBinding.showFloatingDialog.setVisibility(View.GONE);
+        } else {
+            dialogBinding.showFloatingDialog.setEnabled(true);
+            dialogBinding.showFloatingDialog.setVisibility(View.VISIBLE);
+            dialogBinding.showFloatingDialog.setChecked(showFloatingDialog);
+        }
+
         final int darkMode = SettingsHelper.getNightMode();
         final int checkedTheme;
         if (darkMode == AppCompatDelegate.MODE_NIGHT_YES) checkedTheme = R.id.rbThemeDark;
@@ -71,7 +82,12 @@ public final class SettingsDialog extends Dialog {
         final View.OnClickListener onClickListener = v -> {
             if (v instanceof MaterialCheckedTextView) {
                 final MaterialCheckedTextView tvCheck = (MaterialCheckedTextView) v;
-                tvCheck.setChecked(!tvCheck.isChecked());
+                final boolean checked = tvCheck.isChecked();
+                tvCheck.setChecked(!checked);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && v == dialogBinding.showFloating) {
+                    dialogBinding.showFloatingDialog.setEnabled(!checked);
+                    dialogBinding.showFloatingDialog.setAlpha(!checked ? 1f : 0.6f);
+                }
                 return;
             }
 
@@ -83,7 +99,8 @@ public final class SettingsDialog extends Dialog {
 
                 SettingsHelper.setValues(Math.max(Math.min(1000, dialogBinding.numberPicker.getProgress()), 1),
                         theme, dialogBinding.showAds.isChecked(), dialogBinding.showWordDialog.isChecked(),
-                        dialogBinding.showFloating.isChecked(), dialogBinding.showDefsPopup.isChecked());
+                        dialogBinding.showFloating.isChecked(), dialogBinding.showFloatingDialog.isChecked(),
+                        dialogBinding.showDefsPopup.isChecked());
 
                 if (activity instanceof Main) {
                     ((Main) activity).closeExpanded();
@@ -108,11 +125,12 @@ public final class SettingsDialog extends Dialog {
         dialogBinding.showAds.setOnClickListener(onClickListener);
         dialogBinding.showWordDialog.setOnClickListener(onClickListener);
         dialogBinding.showFloating.setOnClickListener(onClickListener);
+        dialogBinding.showFloatingDialog.setOnClickListener(onClickListener);
         dialogBinding.showDefsPopup.setOnClickListener(onClickListener);
 
         dialogBinding.btnOK.setOnClickListener(onClickListener);
-        dialogBinding.btnCancel.setOnClickListener(onClickListener);
         dialogBinding.btnTTS.setOnClickListener(onClickListener);
+        dialogBinding.btnCancel.setOnClickListener(onClickListener);
 
         setContentView(rootView);
 

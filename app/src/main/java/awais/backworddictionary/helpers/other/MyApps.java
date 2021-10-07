@@ -43,16 +43,14 @@ public final class MyApps {
     static {
         final Icons[] currList = new Icons[]{
                 new Icons("awais.addme", "AddMe", R.drawable.adm),
+                new Icons("awais.quodb", "QuoDB", R.drawable.qdb),
                 new Icons("awais.media.scanner", "mediaScanner", R.drawable.ms),
                 new Icons("awais.skyrimconsole", "Skyrim Cheats", R.drawable.tesv),
                 new Icons("awais.reversify", "Reversify", R.drawable.rev),
                 new Icons("awais.reversify.lite", "Reversify Lite", R.drawable.revl),
                 new Icons("awais.backworddictionary", "Linked Words", R.drawable.lw),
-                new Icons("awais.hostsmanager", "Hosts Manager Pro", R.drawable.hmp),
-                new Icons("awais.hostsmanager.lite", "Hosts Manager Lite", R.drawable.hml),
                 new Icons("awais.game.tictactoe", "Tic Tac Toe", R.drawable.ttt),
                 new Icons("awais.game.jigsaw", "JigSaw", R.drawable.jsw),
-                new Icons("awais.quodb", "QuoDB", R.drawable.qdb),
         };
         iconsList = new Icons[currList.length - 1];
         int i = 0;

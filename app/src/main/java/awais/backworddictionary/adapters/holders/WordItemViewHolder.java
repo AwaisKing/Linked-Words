@@ -30,9 +30,9 @@ public final class WordItemViewHolder extends RecyclerView.ViewHolder {
                               final AdapterClickListener definitionItemClickListener, final String[] noItemFound,
                               final boolean showExpandedSearchIcon) {
         super(wordItemBinding.getRoot());
-        this.cardView = wordItemBinding.cardView;
         this.wordItemBinding = wordItemBinding;
-        this.context = wordItemBinding.getRoot().getContext();
+        this.cardView = wordItemBinding.cardView;
+        this.context = itemView.getContext();
         this.wordItemClickListener = wordItemClickListener;
         this.definitionItemClickListener = definitionItemClickListener;
         this.noItemFound = noItemFound;

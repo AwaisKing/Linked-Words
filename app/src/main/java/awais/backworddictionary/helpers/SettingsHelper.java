@@ -22,6 +22,7 @@ public final class SettingsHelper {
     private static final String KEY_SHOW_DIALOG = "showDialog";
     private static final String KEY_DARK_MODE = "darkMode";
     private static final String KEY_SHOW_FLOATING = "showFloating";
+    private static final String KEY_SHOW_FLOATING_DIALOG = "showFloatingDialog";
     private static final String KEY_SHOW_DEFS_POPUP = "showDefsPopup";
     ////////////////////////////////////////////////
     private static final String KEY_TTS_DLG_SEEN = "ttsDialogShown";
@@ -62,6 +63,10 @@ public final class SettingsHelper {
 
     public static boolean showFloating() {
         return preferences == null || preferences.getBoolean(KEY_SHOW_FLOATING, true);
+    }
+
+    public static boolean showFloatingDialog() {
+        return preferences == null || preferences.getBoolean(KEY_SHOW_FLOATING_DIALOG, false);
     }
 
     public static boolean showDialog() {
@@ -202,7 +207,7 @@ public final class SettingsHelper {
     }
 
     public static void setValues(final int maxWords, final int darkMode, final boolean showAds, final boolean showDialog,
-                                 final boolean isFloating, final boolean showDefsPopup) {
+                                 final boolean isFloating, final boolean isFloatingDialog, final boolean showDefsPopup) {
         if (preferences != null) {
             preferences.edit()
                     .putInt(KEY_MAX_WORDS, maxWords)
@@ -210,6 +215,7 @@ public final class SettingsHelper {
                     .putBoolean(KEY_SHOW_ADS, showAds)
                     .putBoolean(KEY_SHOW_DIALOG, showDialog)
                     .putBoolean(KEY_SHOW_FLOATING, isFloating)
+                    .putBoolean(KEY_SHOW_FLOATING_DIALOG, isFloatingDialog)
                     .putBoolean(KEY_SHOW_DEFS_POPUP, showDefsPopup)
                     .apply();
         }

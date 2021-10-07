@@ -2,16 +2,9 @@ package awais.backworddictionary.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +17,6 @@ import androidx.annotation.Px;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
-import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.LinearLayoutCompat;
 
 import com.google.android.material.button.MaterialButton;
@@ -35,6 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import awais.backworddictionary.databinding.DialogLayoutBinding;
+import awais.backworddictionary.helpers.Utils;
 
 public final class AwaisomeDialogBuilder {
     private final Context context;
@@ -208,7 +201,7 @@ public final class AwaisomeDialogBuilder {
         private ColorStateList backColor = null;
 
         public AwaisomeDialog(@NonNull Context context, @StyleRes final int style) {
-            super(context = getStyledContext(context, style));
+            super(context = Utils.getStyledContext(context, style));
             this.context = context;
         }
 
@@ -371,63 +364,6 @@ public final class AwaisomeDialogBuilder {
                 binding.button2.setOnClickListener(btnClickListener);
                 binding.button3.setOnClickListener(btnClickListener);
             }
-        }
-
-        @NonNull
-        private static ContextThemeWrapper getStyledContext(final Context context, @StyleRes int style) {
-            if (style == 0 || style == -1) {
-                final Resources.Theme theme;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && (theme = context.getTheme()) != null)
-                    return new ContextThemeWrapper(context, theme);
-                else {
-                    final Context appContext = context.getApplicationContext();
-
-                    final PackageManager packageManager = appContext.getPackageManager();
-                    final String packageName = appContext.getPackageName();
-
-                    int styleHack;
-                    try {
-                        final PackageInfo packageInfo = packageManager.getPackageInfo(packageName, 0);
-                        styleHack = packageInfo.applicationInfo.theme;
-                        Log.d("AWAISKING_APP", "styleHack1: " + styleHack);
-                    } catch (final Exception e) {
-                        Log.e("AWAISKING_APP", "err1", e);
-                        styleHack = -1;
-                    }
-
-                    if (styleHack == 0 || styleHack == -1) {
-                        try {
-                            final Intent intent = packageManager.getLaunchIntentForPackage(packageName);
-                            //noinspection ConstantConditions
-                            final ActivityInfo activityInfo = packageManager.getActivityInfo(intent.getComponent(), 0);
-                            styleHack = activityInfo.getThemeResource();
-                            Log.d("AWAISKING_APP", "styleHack2: " + styleHack);
-                        } catch (final Exception e) {
-                            Log.e("AWAISKING_APP", "err2", e);
-                            styleHack = -1;
-                        }
-                    }
-
-                    //                    try {
-                    //                        final ActivityInfo activityInfo = packageManager.getActivityInfo(new ComponentName(appContext, Main.class), 0);
-                    //                        styleHack = activityInfo.getThemeResource();
-                    //                    } catch (final Throwable e) {
-                    //                        styleHack = -1;
-                    //                    }
-                    //                    if (styleHack == 0 || styleHack == -1) {
-                    //                        try {
-                    //                            final ActivityInfo activityInfo = packageManager.getActivityInfo(new ComponentName(context, Main.class), 0);
-                    //                            styleHack = activityInfo.getThemeResource();
-                    //                        } catch (final Throwable e) {
-                    //                            styleHack = -1;
-                    //                        }
-                    //                    }
-
-                    if (styleHack != 0 && styleHack != -1) style = styleHack;
-
-                }
-            }
-            return new ContextThemeWrapper(context, style);
         }
     }
 

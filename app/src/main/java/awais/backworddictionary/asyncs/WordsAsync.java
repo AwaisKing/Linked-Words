@@ -7,7 +7,6 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import awais.backworddictionary.BuildConfig;
@@ -15,6 +14,7 @@ import awais.backworddictionary.R;
 import awais.backworddictionary.adapters.holders.WordItem;
 import awais.backworddictionary.executor.LocalAsyncTask;
 import awais.backworddictionary.helpers.SettingsHelper;
+import awais.backworddictionary.helpers.URLEncoder;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.FragmentCallback;
 
@@ -64,20 +64,11 @@ public final class WordsAsync extends LocalAsyncTask<Void, ArrayList<WordItem>> 
     protected ArrayList<WordItem> doInBackground(final Void param) {
         ArrayList<WordItem> wordItemsList = null;
 
-        String query;
-        try {
-            query = URLEncoder.encode(word, Utils.CHARSET);
-        } catch (final Exception e) {
-            query = word.replaceAll("\\s", "+").replaceAll(" ", "+")
-                    .replaceAll("#", "%23").replaceAll("@", "%40")
-                    .replaceAll("&", "%26");
-        }
-
         try {
             final int wordsCount = SettingsHelper.getMaxWords();
             final String body = Utils.getResponse("https://api.data".concat("muse.com/words?md=pds&max=")
                     .concat(String.valueOf(wordsCount)).concat("&").concat(method)
-                    .concat("=").concat(query));
+                    .concat("=").concat( URLEncoder.encode(word)));
             if (body != null) {
                 final JSONArray jsonArray = new JSONArray(body);
                 wordItemsList = new ArrayList<>(jsonArray.length());

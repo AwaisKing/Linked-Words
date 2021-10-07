@@ -64,8 +64,9 @@
             android:clearTaskOnLaunch="true"
             android:excludeFromRecents="true"
             android:exported="true"
+            android:finishOnCloseSystemDialogs="true"
             android:finishOnTaskLaunch="true"
-            android:launchMode="singleTop"
+            android:launchMode="singleInstancePerTask"
             android:maxRecents="1"
             android:noHistory="true"
             android:theme="@style/AppTheme.CompletelyTransparent">

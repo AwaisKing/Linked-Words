@@ -28,7 +28,8 @@
     <string name="show_ads">Show Ads</string>
     <string name="show_dialog">Show Definition Dialog</string>
     <string name="show_definition_popup">Show Definition List Popup</string>
-    <string name="show_floating">Show Bubbles/Floating dialog when text is shared to the app</string>
+    <string name="show_floating">Show Bubbles/floating dialog when text is shared to the app</string>
+    <string name="show_floating_dialog">Force show floating dialog</string>
     <string name="app_theme">App Theme</string>
     <string name="theme_auto">Follow Device Mode</string>
     <string name="theme_dark">Always Dark</string>
