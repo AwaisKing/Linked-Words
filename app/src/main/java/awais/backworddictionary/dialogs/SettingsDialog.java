@@ -65,9 +65,10 @@ public final class SettingsDialog extends Dialog {
             dialogBinding.showFloatingDialog.setEnabled(false);
             dialogBinding.showFloatingDialog.setVisibility(View.GONE);
         } else {
-            dialogBinding.showFloatingDialog.setEnabled(true);
-            dialogBinding.showFloatingDialog.setVisibility(View.VISIBLE);
+            dialogBinding.showFloatingDialog.setEnabled(showFloating);
+            dialogBinding.showFloatingDialog.setAlpha(showFloating ? 1f : 0.6f);
             dialogBinding.showFloatingDialog.setChecked(showFloatingDialog);
+            dialogBinding.showFloatingDialog.setVisibility(View.VISIBLE);
         }
 
         final int darkMode = SettingsHelper.getNightMode();

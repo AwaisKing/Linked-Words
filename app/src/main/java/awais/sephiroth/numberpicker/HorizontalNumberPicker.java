@@ -3,7 +3,10 @@ package awais.sephiroth.numberpicker;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,6 +27,8 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -50,8 +55,13 @@ public final class HorizontalNumberPicker extends LinearLayoutCompat implements 
     private static final int DEFAULT_MIN_VALUE = 1;
     private static final long LONG_TAP_TIMEOUT = 300L;
 
+    private static final int[][] API_20_BELOW_STATE_DRAWABLES = {
+            new int[]{-android.R.attr.state_focused},
+            new int[]{android.R.attr.state_focused},
+            new int[]{-android.R.attr.state_enabled},
+    };
     private static final int[] FOCUSED_STATE_ARRAY = {android.R.attr.state_focused};
-    private static final int[] UNFOCUSED_STATE_ARRAY = {0, -android.R.attr.state_focused};
+    private static final int[] UNFOCUSED_STATE_ARRAY = {-android.R.attr.state_focused}; // todo was 0, -focused
 
     private final ExponentialTracker tracker;
     private final UIGestureRecognizerDelegate delegate = new UIGestureRecognizerDelegate();
@@ -85,7 +95,7 @@ public final class HorizontalNumberPicker extends LinearLayoutCompat implements 
         setGravity(Gravity.CENTER);
 
         if (isInEditMode()) setBackgroundResource(R.drawable.mtrl_background_outlined);
-        else setBackground(Utils.getNumberPickerBackground(context));
+        else setBackground(getNumberPickerBackground(context));
 
         final TypedValue outValue = new TypedValue();
         theme.resolveAttribute(R.attr.selectableItemBackgroundBorderless, outValue, true);
@@ -346,4 +356,81 @@ public final class HorizontalNumberPicker extends LinearLayoutCompat implements 
 
     @Override
     public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) { }
+
+    private static final Drawable getNumberPickerBackground(Context context) {
+        if (context == null) return null;
+
+        if (!(context instanceof ContextThemeWrapper))
+            context = new ContextThemeWrapper(context, R.style.DefinitionsDialogTheme);
+
+        final Resources.Theme theme = context.getTheme();
+        final Resources resources = context.getResources();
+        final TypedValue outValue = new TypedValue();
+
+        Drawable drawable;
+        try {
+            drawable = ResourcesCompat.getDrawable(resources, R.drawable.mtrl_background_outlined, theme);
+        } catch (final Exception ex) {
+            try {
+                drawable = ContextCompat.getDrawable(context, R.drawable.mtrl_background_outlined);
+            } catch (final Exception e) {
+                drawable = null;
+            }
+        }
+
+        if (drawable == null) {
+            theme.resolveAttribute(R.attr.colorControlNormal, outValue, true);
+            final int colorControlNormal = outValue.resourceId != 0 ?
+                    ResourcesCompat.getColor(resources, outValue.resourceId, theme) : outValue.data;
+
+            theme.resolveAttribute(R.attr.colorControlActivated, outValue, true);
+            final int colorControlActivated = outValue.resourceId != 0 ?
+                    ResourcesCompat.getColor(resources, outValue.resourceId, theme) : outValue.data;
+
+            theme.resolveAttribute(R.attr.colorControlHighlight, outValue, true);
+            final int colorControlHighlight = outValue.resourceId != 0 ?
+                    ResourcesCompat.getColor(resources, outValue.resourceId, theme) : outValue.data;
+
+            final float density = context.getResources().getDisplayMetrics().density;
+            final float cornerRadius = density * 4f;
+            final int strokeSize = Math.round(density * 0.99f);
+
+            final StateListDrawable stateListDrawable = new StateListDrawable();
+            GradientDrawable gradientDrawable;
+
+            // state_focused="false"
+            {
+                gradientDrawable = new GradientDrawable();
+                gradientDrawable.setColor(Color.TRANSPARENT);
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setCornerRadius(cornerRadius);
+                gradientDrawable.setStroke(strokeSize, colorControlNormal);
+                stateListDrawable.addState(API_20_BELOW_STATE_DRAWABLES[0], gradientDrawable);
+            }
+
+            // state_focused="true"
+            {
+                gradientDrawable = new GradientDrawable();
+                gradientDrawable.setColor(Color.TRANSPARENT);
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setCornerRadius(cornerRadius);
+                gradientDrawable.setStroke(strokeSize, colorControlActivated);
+                stateListDrawable.addState(API_20_BELOW_STATE_DRAWABLES[1], gradientDrawable);
+            }
+
+            // state_enabled="false"
+            {
+                gradientDrawable = new GradientDrawable();
+                gradientDrawable.setColor(Color.TRANSPARENT);
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setCornerRadius(cornerRadius);
+                gradientDrawable.setStroke(strokeSize, colorControlHighlight);
+                stateListDrawable.addState(API_20_BELOW_STATE_DRAWABLES[2], gradientDrawable);
+            }
+
+            drawable = stateListDrawable;
+        }
+
+        return drawable;
+    }
 }

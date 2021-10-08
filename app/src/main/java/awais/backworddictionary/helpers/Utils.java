@@ -15,20 +15,16 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Display;
 import android.view.Menu;
 import android.view.View;
@@ -42,8 +38,6 @@ import androidx.annotation.StyleRes;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.PopupMenu;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -55,6 +49,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.Locale;
 
 import awais.backworddictionary.BuildConfig;
@@ -70,11 +65,7 @@ public final class Utils {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
-    private static final int[][] API_20_BELOW_STATE_DRAWABLES = {
-            new int[]{-android.R.attr.state_focused},
-            new int[]{android.R.attr.state_focused},
-            new int[]{-android.R.attr.state_enabled},
-    };
+    private static final Intent SEARCH_QUERY_INTENT = new Intent(Intent.ACTION_WEB_SEARCH);
 
     public static final int[] CUSTOM_TAB_COLORS = new int[]{0xFF4888F2, 0xFF333333, 0xFF3B496B};
     public static final String CHARSET = "UTF-8";
@@ -348,6 +339,24 @@ public final class Utils {
         return new ContextThemeWrapper(context, style);
     }
 
+    public static boolean isAnySearchAppFound(@NonNull final Context context) {
+        final String appID = context.getApplicationContext().getPackageName();
+        final PackageManager packageManager = context.getPackageManager();
+
+        final List<ResolveInfo> pkgAppsList = packageManager.queryIntentActivities(SEARCH_QUERY_INTENT, 0);
+        int pkgsSize = pkgAppsList.size();
+        for (int i = pkgsSize - 1; i >= 0; i--) {
+            final ResolveInfo resolveInfo = pkgAppsList.get(i);
+            final String strResolveInfo = String.valueOf(resolveInfo);
+
+            if (strResolveInfo.contains(appID) && strResolveInfo.contains("TextProcessHelper") ||
+                    resolveInfo != null && resolveInfo.activityInfo != null && appID.equals(resolveInfo.activityInfo.packageName))
+                --pkgsSize;
+        }
+
+        return pkgsSize > 0;
+    }
+
     // extracted from String class
     public static int indexOfChar(@NonNull final CharSequence sequence, final int ch, final int startIndex) {
         final int max = sequence.length();
@@ -362,82 +371,5 @@ public final class Utils {
             }
         }
         return -1;
-    }
-
-    public static Drawable getNumberPickerBackground(Context context) {
-        if (context == null) return null;
-
-        if (!(context instanceof ContextThemeWrapper))
-            context = new ContextThemeWrapper(context, R.style.DefinitionsDialogTheme);
-
-        final Resources.Theme theme = context.getTheme();
-        final Resources resources = context.getResources();
-        final TypedValue outValue = new TypedValue();
-
-        Drawable drawable;
-        try {
-            drawable = ResourcesCompat.getDrawable(resources, R.drawable.mtrl_background_outlined, theme);
-        } catch (final Exception ex) {
-            try {
-                drawable = ContextCompat.getDrawable(context, R.drawable.mtrl_background_outlined);
-            } catch (final Exception e) {
-                drawable = null;
-            }
-        }
-
-        if (drawable == null) {
-            theme.resolveAttribute(R.attr.colorControlNormal, outValue, true);
-            final int colorControlNormal = outValue.resourceId != 0 ?
-                    ResourcesCompat.getColor(resources, outValue.resourceId, theme) : outValue.data;
-
-            theme.resolveAttribute(R.attr.colorControlActivated, outValue, true);
-            final int colorControlActivated = outValue.resourceId != 0 ?
-                    ResourcesCompat.getColor(resources, outValue.resourceId, theme) : outValue.data;
-
-            theme.resolveAttribute(R.attr.colorControlHighlight, outValue, true);
-            final int colorControlHighlight = outValue.resourceId != 0 ?
-                    ResourcesCompat.getColor(resources, outValue.resourceId, theme) : outValue.data;
-
-            final float density = context.getResources().getDisplayMetrics().density;
-            final float cornerRadius = density * 4f;
-            final int strokeSize = Math.round(density * 0.99f);
-
-            final StateListDrawable stateListDrawable = new StateListDrawable();
-            GradientDrawable gradientDrawable;
-
-            // state_focused="false"
-            {
-                gradientDrawable = new GradientDrawable();
-                gradientDrawable.setColor(Color.TRANSPARENT);
-                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setCornerRadius(cornerRadius);
-                gradientDrawable.setStroke(strokeSize, colorControlNormal);
-                stateListDrawable.addState(API_20_BELOW_STATE_DRAWABLES[0], gradientDrawable);
-            }
-
-            // state_focused="true"
-            {
-                gradientDrawable = new GradientDrawable();
-                gradientDrawable.setColor(Color.TRANSPARENT);
-                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setCornerRadius(cornerRadius);
-                gradientDrawable.setStroke(strokeSize, colorControlActivated);
-                stateListDrawable.addState(API_20_BELOW_STATE_DRAWABLES[1], gradientDrawable);
-            }
-
-            // state_enabled="false"
-            {
-                gradientDrawable = new GradientDrawable();
-                gradientDrawable.setColor(Color.TRANSPARENT);
-                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setCornerRadius(cornerRadius);
-                gradientDrawable.setStroke(strokeSize, colorControlHighlight);
-                stateListDrawable.addState(API_20_BELOW_STATE_DRAWABLES[2], gradientDrawable);
-            }
-
-            drawable = stateListDrawable;
-        }
-
-        return drawable;
     }
 }

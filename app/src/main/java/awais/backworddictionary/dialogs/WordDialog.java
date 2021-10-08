@@ -27,17 +27,20 @@ import awais.backworddictionary.interfaces.AdapterClickListener;
 
 public final class WordDialog extends Dialog implements android.view.View.OnClickListener {
     private static final int ALERT_DIALOG_THEME = R.style.DefinitionsDialogTheme;
+    private static final Exception EMPTY_EXCEPTION = new Exception();
 
     private final String word;
     private final Context context;
     private final List<?> defs;
     private final CustomTabsIntent.Builder customTabsIntent;
     private final AdapterClickListener itemClickListener;
+    private final boolean anySearchAppFound;
 
     private WordDialogBinding wordDialogBinding;
 
     public WordDialog(Context context, final String word, final List<?> defs, final AdapterClickListener itemClickListener) {
         super(new ContextThemeWrapper(context, ALERT_DIALOG_THEME), ALERT_DIALOG_THEME);
+        this.anySearchAppFound = Utils.isAnySearchAppFound(context);
         this.context = context;
         this.word = word;
         this.defs = defs;
@@ -101,6 +104,7 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
 
         if (v == wordDialogBinding.btnGoogle) {
             try {
+                if (!anySearchAppFound) throw EMPTY_EXCEPTION;
                 context.startActivity(new Intent(Intent.ACTION_WEB_SEARCH)
                         .putExtra(SearchManager.QUERY, word)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK));
