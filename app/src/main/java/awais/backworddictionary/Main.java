@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -145,8 +146,13 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
         setSupportActionBar(mainBinding.toolbar);
 
         // check for tts before initializing it
-        startActivityForResult(new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA),
-                TTS_DATA_CHECK_CODE);
+        try {
+            startActivityForResult(new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA),
+                    TTS_DATA_CHECK_CODE);
+        } catch (final Throwable e) {
+            // tts check activity not found
+            Toast.makeText(Main.this, R.string.tts_act_not_found, Toast.LENGTH_SHORT).show();
+        }
 
         final ViewGroup.LayoutParams fabParams = mainBinding.fabOptions.getLayoutParams();
         mainBinding.fabOptions.setLongClickListener(v -> {

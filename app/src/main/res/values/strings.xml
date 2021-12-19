@@ -59,6 +59,7 @@
     <string name="reset_tts">Reset TTS Settings</string>
 
     <string name="tts_not_initialized">Text-to-Speech is not initialized…</string>
+    <string name="tts_act_not_found">Text-to-Speech check activity not found.\nSkipping TTS check…</string>
     <string name="tts_data_not_found">Text-to-Speech voice data not found!\nDo you want to open settings to install voice data?</string>
 
     <string name="save_tts">Save TTS Settings</string>
