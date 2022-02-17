@@ -73,7 +73,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingEnd="@dimen/options_padding_horizontal"
-        android:paddingRight="@dimen/options_padding_horizontal"
         android:paddingBottom="@dimen/options_padding_bottom"
         android:scaleType="centerInside"
         android:tooltipText="@string/options"

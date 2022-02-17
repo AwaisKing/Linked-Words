@@ -64,8 +64,20 @@ public final class TTSItemsAdapter<T> extends RecyclerView.Adapter<TTSItemsAdapt
             final Object tag = holder.ivIcon.getTag();
             if (tag instanceof Drawable) drawable = (Drawable) tag;
             else if (engineInfo.icon != 0) {
-                final String resourceName = resources.getResourceName(engineInfo.icon);
-                final String resourcePackageName = resources.getResourcePackageName(engineInfo.icon);
+                String resourceName, resourcePackageName;
+
+                // getResourceName crash fix
+                try {
+                    resourceName = resources.getResourceName(engineInfo.icon);
+                } catch (final Exception e) {
+                    resourceName = null;
+                }
+                try {
+                    resourcePackageName = resources.getResourcePackageName(engineInfo.icon);
+                } catch (final Exception e) {
+                    resourcePackageName = null;
+                }
+
                 if (!BuildConfig.APPLICATION_ID.equalsIgnoreCase(resourcePackageName)
                         && (resourceName == null || !resourceName.contains("ic_launcher"))) {
                     try {

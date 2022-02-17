@@ -48,18 +48,15 @@ public final class CustomTabActivityHelper {
             defaultBrowser = defaultViewHandlerInfo.activityInfo.packageName;
 
         final ArrayList<String> customTabBrowsersList = new ArrayList<>(0);
+        final Intent serviceIntent = new Intent(ACTION_CUSTOM_TABS_CONNECTION)
+                .setAction(ACTION_CUSTOM_TABS_CONNECTION_ANDROID_X);
 
         final List<ResolveInfo> resolvedActivityList = pm.queryIntentActivities(activityIntent, 0);
         for (final ResolveInfo info : resolvedActivityList) {
             final String packageName = info.activityInfo.packageName;
-            final Intent serviceIntent = new Intent(ACTION_CUSTOM_TABS_CONNECTION).setPackage(packageName);
-
+            serviceIntent.setPackage(packageName);
             ResolveInfo resolveInfo = pm.resolveService(serviceIntent, 0);
-            if (resolveInfo == null) {
-                serviceIntent.setAction(ACTION_CUSTOM_TABS_CONNECTION_ANDROID_X);
-                resolveInfo = pm.resolveService(serviceIntent, 0);
-            }
-
+            if (resolveInfo == null) resolveInfo = pm.resolveService(serviceIntent, 0);
             if (resolveInfo != null) customTabBrowsersList.add(packageName);
         }
 

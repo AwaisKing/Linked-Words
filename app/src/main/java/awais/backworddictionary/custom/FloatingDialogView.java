@@ -130,7 +130,12 @@ public final class FloatingDialogView extends FrameLayout implements View.OnClic
         dialogBinding.btnClear.setVisibility(VISIBLE);
         dialogBinding.btnSearch.setVisibility(VISIBLE);
 
-        dialogBinding.etSearchView.setSelection(word.length());
+        try {
+            dialogBinding.etSearchView.setSelection(word.length());
+        } catch (final Exception e) {
+            final CharSequence str = dialogBinding.etSearchView.getText();
+            if (!Utils.isEmpty(str)) dialogBinding.etSearchView.setSelection(str.length());
+        }
 
         this.word = word;
 

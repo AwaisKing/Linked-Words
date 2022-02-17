@@ -192,7 +192,7 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
         setBackground(layerDrawable);
     }
 
-    protected Drawable getIconDrawable() {
+    private Drawable getIconDrawable() {
         return iconDrawable != null ? iconDrawable : new ColorDrawable(Color.TRANSPARENT);
     }
 

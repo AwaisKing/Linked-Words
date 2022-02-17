@@ -2,11 +2,12 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://maven.java.net/content/groups/public/' }
     }
 
     dependencies {
         classpath 'com.google.gms:google-services:4.3.10'
-        classpath 'com.android.tools.build:gradle:7.1.0-beta05'
+        classpath 'com.android.tools.build:gradle:7.1.1'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
     }
 }

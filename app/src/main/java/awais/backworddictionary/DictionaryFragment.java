@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -84,9 +85,17 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
         final Activity activity = getActivity();
         this.activity = activity != null ? activity : (Activity) context;
 
-        if (Main.tts == null) startActivityForResult(new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA),
-                Main.TTS_DATA_CHECK_CODE);
-        // Main.tts = new TextToSpeech(this.activity.getApplicationContext(), Main::onTTSInit);
+        // check for tts before initializing it
+        if (Main.tts == null) {
+            try {
+                startActivityForResult(new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA),
+                        Main.TTS_DATA_CHECK_CODE);
+            } catch (final Throwable e) {
+                // tts check activity not found
+                Toast.makeText(this.activity, R.string.tts_act_not_found, Toast.LENGTH_SHORT).show();
+            }
+            // Main.tts = new TextToSpeech(this.activity.getApplicationContext(), Main::onTTSInit);
+        }
     }
 
     @Override
@@ -108,14 +117,15 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
     public void onViewCreated(@NonNull final View magicRootView, @Nullable final Bundle savedInstanceState) {
         final Activity act = getActivity();
         activity = act == null ? (Activity) getContext() : act;
+        final boolean actNotNull = activity != null;
 
         dictionaryBinding.rvItems.addOnScrollListener(VIEWPAGER_SCROLL_HACK);
 
-        if (resources == null) resources = activity != null ? activity.getResources() : getResources();
-        final Resources.Theme theme = activity != null ? activity.getTheme() : null;
+        if (resources == null) resources = actNotNull ? activity.getResources() : getResources();
+        final Resources.Theme theme = actNotNull ? activity.getTheme() : null;
         cardBackColor = ResourcesCompat.getColor(resources, R.color.cards_back_color, theme);
 
-        if (Utils.inputMethodManager == null && activity != null)
+        if (Utils.inputMethodManager == null && actNotNull)
             Utils.inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 
         wordList.clear();

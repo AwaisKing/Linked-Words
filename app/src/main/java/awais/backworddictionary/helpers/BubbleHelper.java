@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -41,7 +42,6 @@ public final class BubbleHelper {
         categorySet.add("awais.linkedwords.bubbles.SEARCH");
     }
 
-    @RequiresApi(api = 14)
     public static final String INTENT_EXTRA_BUBBLING = "awais.intent.BUBBLING";
 
     public static final String LW_BUBBLES_CHANNEL_NAME = "Linked Words Bubbles";
@@ -91,11 +91,14 @@ public final class BubbleHelper {
         final Bundle extras = intent.getExtras();
         if (extras != null) extras.clear();
 
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT;
+        // fix for Android S+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) flags |= PendingIntent.FLAG_MUTABLE;
+
         this.pendingIntent = PendingIntent.getActivity(context, LW_REQUEST_BUBBLE,
                 intent.putExtra(INTENT_EXTRA_BUBBLING, true)
                         .putExtra(Intent.EXTRA_TEXT, text)
-                        .setData(Uri.parse(text)),
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+                        .setData(Uri.parse(text)), flags);
     }
 
     public void showBubble() {
