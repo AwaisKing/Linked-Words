@@ -8,12 +8,13 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.util.Log;
 
-import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import awais.backworddictionary.BuildConfig;
+import awais.backworddictionary.helpers.CustomTabsHelper;
 import awais.backworddictionary.helpers.Utils;
 
 public final class CustomTabActivityHelper {
@@ -25,14 +26,16 @@ public final class CustomTabActivityHelper {
     private static final String ACTION_CUSTOM_TABS_CONNECTION_ANDROID_X = "androidx.browser.customtabs.action.CustomTabsService";
     private static String packageNameToUse;
 
-    public static void openCustomTab(final Context context, final CustomTabsIntent customTabsIntent, final Uri uri) {
+    public static void openCustomTab(final Context context, @NonNull final CustomTabsHelper customTabsHelper, final Uri uri) {
         final String packageName = getPackageNameToUse(context);
 
-        if (packageName == null) context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
-        else {
-            customTabsIntent.intent.setPackage(packageName);
-            customTabsIntent.launchUrl(context, uri);
-        }
+        //if (packageName == null) context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
+        //else {
+        //    customTabsHelper.intent.setPackage(packageName);
+        //    customTabsHelper.launchUrl(context, uri);
+        //}
+        customTabsHelper.intent.setPackage(packageName);
+        customTabsHelper.launchUrl(context, uri);
     }
 
     private static String getPackageNameToUse(final Context context) {

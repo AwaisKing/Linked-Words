@@ -13,13 +13,13 @@ import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.view.ContextThemeWrapper;
-import androidx.browser.customtabs.CustomTabsIntent;
 
 import java.util.List;
 
 import awais.backworddictionary.R;
 import awais.backworddictionary.adapters.DefinitionsAdapter;
 import awais.backworddictionary.databinding.WordDialogBinding;
+import awais.backworddictionary.helpers.CustomTabsHelper;
 import awais.backworddictionary.helpers.URLEncoder;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
@@ -32,9 +32,10 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
     private final String word;
     private final Context context;
     private final List<?> defs;
-    private final CustomTabsIntent.Builder customTabsIntent;
     private final AdapterClickListener itemClickListener;
     private final boolean anySearchAppFound;
+
+    private final CustomTabsHelper customTabsHelper = new CustomTabsHelper();
 
     private WordDialogBinding wordDialogBinding;
 
@@ -45,7 +46,6 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
         this.word = word;
         this.defs = defs;
         this.itemClickListener = itemClickListener;
-        this.customTabsIntent = new CustomTabsIntent.Builder();
     }
 
     @Override
@@ -109,8 +109,7 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
                         .putExtra(SearchManager.QUERY, word)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK));
             } catch (final Exception e) {
-                customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[0]);
-                CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
+                CustomTabActivityHelper.openCustomTab(context, customTabsHelper.setToolbarColor(Utils.CUSTOM_TAB_COLORS[0]),
                         Uri.parse("https://google.com/search?q=define+".concat(URLEncoder.encode(word))));
             }
 
@@ -123,14 +122,12 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
             final List<ResolveInfo> resInfo = context.getPackageManager().queryIntentActivities(intent, 0);
             if (resInfo.size() > 0) context.startActivity(intent);
             else {
-                customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[1]);
-                CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
+                CustomTabActivityHelper.openCustomTab(context, customTabsHelper.setToolbarColor(Utils.CUSTOM_TAB_COLORS[1]),
                         wordWikiUri);
             }
 
         } else if (v == wordDialogBinding.btnUrban) {
-            customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[2]);
-            CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
+            CustomTabActivityHelper.openCustomTab(context, customTabsHelper.setToolbarColor(Utils.CUSTOM_TAB_COLORS[2]),
                     Uri.parse("https://www.urban".concat("dictionary.com/define.php?term=").concat(word)));
         }
         dismiss();

@@ -42,7 +42,6 @@ public final class SearchAsyncTask extends LocalAsyncTask<String, ArrayList<Word
             }
         } catch (final Exception e) {
             if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "SearchAsyncTask", e);
-            else Utils.firebaseCrashlytics.recordException(e);
         }
 
         return arrayList;

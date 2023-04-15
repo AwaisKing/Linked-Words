@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="awais.backworddictionary">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- for Text-to-Speech API on Android SDK 21+ or 22+ or 23+ probably -->
     <queries>
@@ -13,6 +12,14 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+
+    <!-- start app -->
+    <uses-permission android:name="android.permission.Ad_ID" />
+    <uses-permission android:name="android.permission.AD_ID" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
     <application
         android:name=".LinkedApp"
@@ -131,11 +138,16 @@
                 android:value=".Main" />
         </activity>
 
+        <!-- AppLovin -->
         <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="@string/appid" />
+            android:name="applovin.sdk.key"
+            android:value="@string/apl_SDK_KEY" />
+        <!-- StartApp -->
         <meta-data
-            android:name="com.google.android.gms.ads.awais.backworddictionary"
-            android:value="@string/appid" />
+            android:name="com.startapp.sdk.APPLICATION_ID"
+            android:value="@string/startio_APP_ID" />
+        <meta-data
+            android:name="com.startapp.sdk.RETURN_ADS_ENABLED"
+            android:value="false" />
     </application>
 </manifest>

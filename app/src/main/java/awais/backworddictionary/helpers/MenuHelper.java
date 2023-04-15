@@ -16,7 +16,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentManager;
 
@@ -29,7 +28,7 @@ import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
 
 public final class MenuHelper {
     private static SpannableStringBuilder examplesSpan, helpSpan, licensesSpan;
-    private static CustomTabsIntent.Builder customTabsIntent;
+    private static CustomTabsHelper customTabsHelper;
     private final MenuDialog menuDialog;
     private final String creditsString;
     private final FragmentManager fragmentManager;
@@ -39,7 +38,7 @@ public final class MenuHelper {
         creditsString = resources.getString(R.string._credits);
         fragmentManager = activity.getSupportFragmentManager();
         menuDialog = new MenuDialog();
-        customTabsIntent = new CustomTabsIntent.Builder();
+        customTabsHelper = new CustomTabsHelper();
 
         final boolean helpEmpty = helpSpan == null || helpSpan.length() < 1;
         final boolean examplesEmpty = examplesSpan == null || examplesSpan.length() < 1;
@@ -86,8 +85,8 @@ public final class MenuHelper {
                     helpBuilder.append("[" + activity.getString(R.string.wildcard_link_help).concat("]\n\n"), new BulletSpan(26, helpColor), new ClickableSpan() {
                         @Override
                         public void onClick(@NonNull final View view) {
-                            customTabsIntent.setToolbarColor(0xFFFFC400);
-                            CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://www.one".concat("look.com/?c=faq#patterns")));
+                            CustomTabActivityHelper.openCustomTab(activity, customTabsHelper.setToolbarColor(0xFFFFC400),
+                                    Uri.parse("https://www.one".concat("look.com/?c=faq#patterns")));
                         }
                     });
                     helpBuilder.append(activity.getString(R.string.synonyms).concat(":\n"), new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
@@ -114,8 +113,8 @@ public final class MenuHelper {
                     licensesBuilder.append("Android Asset Studio - Launcher icon generator\n\n", new BulletSpan(26, helpColor), new ClickableSpan() {
                         @Override
                         public void onClick(@NonNull final View view) {
-                            customTabsIntent.setToolbarColor(0xFF607D8B);
-                            CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://romannurik.github.io/AndroidAssetStudio/"));
+                            CustomTabActivityHelper.openCustomTab(activity, customTabsHelper.setToolbarColor(0xFF607D8B),
+                                    Uri.parse("https://romannurik.github.io/AndroidAssetStudio/"));
                         }
                     });
 
@@ -123,8 +122,8 @@ public final class MenuHelper {
                     licensesBuilder.append("Datamuse API\n\n", new BulletSpan(26, helpColor), new ClickableSpan() {
                         @Override
                         public void onClick(@NonNull final View view) {
-                            customTabsIntent.setToolbarColor(0xFF006FCC);
-                            CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://www.datamuse.com/api/"));
+                            CustomTabActivityHelper.openCustomTab(activity, customTabsHelper.setToolbarColor(0xFF006FCC),
+                                    Uri.parse("https://www.datamuse.com/api/"));
                         }
                     });
 
@@ -137,8 +136,8 @@ public final class MenuHelper {
                     licensesBuilder.append("Apache License 2.0", new BulletSpan(26, helpColor), new ClickableSpan() {
                         @Override
                         public void onClick(@NonNull final View view) {
-                            customTabsIntent.setToolbarColor(0xFFCB2533);
-                            CustomTabActivityHelper.openCustomTab(activity, customTabsIntent.build(), Uri.parse("https://www.apache.org/licenses/LICENSE-2.0"));
+                            CustomTabActivityHelper.openCustomTab(activity, customTabsHelper.setToolbarColor(0xFFCB2533),
+                                    Uri.parse("https://www.apache.org/licenses/LICENSE-2.0"));
                         }
                     });
 

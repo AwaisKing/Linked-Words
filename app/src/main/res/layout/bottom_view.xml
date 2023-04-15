@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -31,13 +30,12 @@
             android:layout_height="wrap_content"
             android:background="@android:color/white">
 
-            <com.google.android.gms.ads.AdView
+            <com.applovin.mediation.ads.MaxAdView xmlns:maxads="http://schemas.applovin.com/android/1.0"
                 android:id="@+id/adView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                ads:adSize="BANNER"
-                ads:adUnitId="@string/adviewid" />
+                android:layout_height="56dp"
+                android:layout_gravity="center_horizontal|bottom"
+                maxads:adUnitId="@string/apl_UNIT_ID" />
         </RelativeLayout>
     </androidx.appcompat.widget.LinearLayoutCompat>
 </merge>

@@ -26,6 +26,15 @@
     public <init>(android.content.Context, android.util.AttributeSet, int);
 }
 
+-keepclassmembernames public class * extends android.webkit.WebView {
+    public <init>(android.content.Context);
+    public <init>(android.content.Context, android.util.AttributeSet);
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+    public *;
+    private *;
+    *;
+}
+
 -keepclassmembers,allowshrinking class * extends android.webkit.WebViewClient {
     public void *(android.webkit.WebView, java.lang.String);
     public void *(android.webkit.WebView, java.lang.String, android.graphics.Bitmap);
@@ -40,3 +49,5 @@
 -dontwarn org.apache.**
 -dontwarn java.lang.invoke.*
 -dontwarn android.webkit.WebView
+-dontwarn org.conscrypt.Conscrypt
+-dontwarn org.conscrypt.OpenSSLProvider

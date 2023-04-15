@@ -118,6 +118,10 @@ public final class FloatingActionMenu extends ViewGroup {
 
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
+        if (isInEditMode()) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            return;
+        }
         int maxLabelWidth = 0, maxButtonHeight = 0, height = 0;
 
         measureChildWithMargins(imageToggle, widthMeasureSpec, 0, heightMeasureSpec, 0);
@@ -166,6 +170,7 @@ public final class FloatingActionMenu extends ViewGroup {
 
     @Override
     protected void onLayout(final boolean changed, final int left, final int top, final int right, final int bottom) {
+        if (isInEditMode()) return;
         final int buttonsHorizontalCenter = right - left - maxButtonWidth / 2 - getPaddingRight();
 
         final int imageToggleMeasuredHeight = imageToggle.getMeasuredHeight();

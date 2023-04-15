@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -88,8 +89,8 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
         // check for tts before initializing it
         if (Main.tts == null) {
             try {
-                startActivityForResult(new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA),
-                        Main.TTS_DATA_CHECK_CODE);
+                ActivityCompat.startActivityForResult(this.activity, new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA),
+                        Main.TTS_DATA_CHECK_CODE, null);
             } catch (final Throwable e) {
                 // tts check activity not found
                 Toast.makeText(this.activity, R.string.tts_act_not_found, Toast.LENGTH_SHORT).show();
@@ -190,17 +191,18 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
                 filterCheck[2] = SettingsHelper.isFilterContains();
 
                 new MaterialAlertDialogBuilder(activity, R.style.MaterialAlertDialogTheme)
-                        .setTitle(R.string.select_filters).setMultiChoiceItems(new String[]{getString(R.string.words), getString(R.string.defs), getString(R.string.contains)},
-                        filterCheck, (dialogInterface, i, checked) -> {
+                        .setTitle(R.string.select_filters)
+                        .setMultiChoiceItems(new String[]{getString(R.string.words), getString(R.string.defs), getString(R.string.contains)}, filterCheck, (dialogInterface, i, checked) -> {
                             filterCheck[i] = checked;
                             if (i == 0) SettingsHelper.setFilter("filterWord", checked);
                             else if (i == 1) SettingsHelper.setFilter("filterDefinition", checked);
                             else if (i == 2) SettingsHelper.setFilter("filterContain", checked);
-                        }).setNeutralButton(R.string.ok, (dialogInterface, i) -> {
-                    if (wordList.size() > 2)
-                        wordsAdapter.getFilter().filter(dictionaryBinding.filterSearchEditor.getText());
-                    dialogInterface.dismiss();
-                }).show();
+                        })
+                        .setNeutralButton(R.string.ok, (dialogInterface, i) -> {
+                            if (wordList.size() > 2)
+                                wordsAdapter.getFilter().filter(dictionaryBinding.filterSearchEditor.getText());
+                            dialogInterface.dismiss();
+                        }).show();
             } else {
                 dictionaryBinding.filterSearchEditor.setText("");
                 dictionaryBinding.filterSearchButton.setTag("filter");
@@ -215,7 +217,7 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
     }
 
     @Override
-    public void afterTextChanged(final Editable editable) {
+    public void afterTextChanged(@NonNull final Editable editable) {
         if (editable.length() > 0) {
             dictionaryBinding.filterSearchButton.setImageResource(R.drawable.ic_clear);
             dictionaryBinding.filterSearchButton.setTag("clear");

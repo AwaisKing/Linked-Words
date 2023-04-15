@@ -18,6 +18,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,8 +34,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.TooltipCompat;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.applovin.sdk.AppLovinSdk;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
@@ -104,10 +108,6 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
         if (nightMode != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
             AppCompatDelegate.setDefaultNightMode(nightMode);
 
-        final View contentView = View.inflate(this, R.layout.activity_main, null);
-        mainBinding = ActivityMainBinding.bind(contentView);
-        setContentView(contentView);
-
         final View decorView = window.getDecorView().findViewById(Window.ID_ANDROID_CONTENT);
         if (Build.VERSION.SDK_INT == 19 && Utils.statusBarHeight > 0 && decorView instanceof ViewGroup) {
             final ViewGroup viewGroup = (ViewGroup) decorView;
@@ -136,6 +136,10 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
             }
         }
 
+        mainBinding = ActivityMainBinding.inflate(LayoutInflater.from(this), null, false);
+        final CoordinatorLayout contentView = mainBinding.getRoot();
+        setContentView(contentView);
+
         menuHelper = new MenuHelper(this);
         Utils.adsBox(this);
 
@@ -147,8 +151,8 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
 
         // check for tts before initializing it
         try {
-            startActivityForResult(new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA),
-                    TTS_DATA_CHECK_CODE);
+            ActivityCompat.startActivityForResult(this, new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA),
+                    TTS_DATA_CHECK_CODE, null);
         } catch (final Throwable e) {
             // tts check activity not found
             Toast.makeText(Main.this, R.string.tts_act_not_found, Toast.LENGTH_SHORT).show();
@@ -243,7 +247,6 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                                         currentItem.title = prevItem.title;
                                     } catch (final Exception e) {
                                         if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "Main::loadFragments::onTabSelected", e);
-                                        else Utils.firebaseCrashlytics.recordException(e);
                                     }
                                 }
 
@@ -415,7 +418,6 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
             }
         } catch (final Exception e) {
             if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "Main::onSearch", e);
-            else Utils.firebaseCrashlytics.recordException(e);
         }
     }
 

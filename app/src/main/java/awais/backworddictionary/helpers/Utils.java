@@ -39,10 +39,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.PopupMenu;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.applovin.mediation.ads.MaxAdView;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -69,7 +66,6 @@ public final class Utils {
 
     public static final int[] CUSTOM_TAB_COLORS = new int[]{0xFF4888F2, 0xFF333333, 0xFF3B496B};
     public static final String CHARSET = "UTF-8";
-    public static FirebaseCrashlytics firebaseCrashlytics;
     public static InputMethodManager inputMethodManager;
     public static NotificationManager notificationManager;
     public static Locale defaultLocale;
@@ -107,7 +103,6 @@ public final class Utils {
             staticField.set(null, fontTypeface);
         } catch (final Exception e) {
             if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "Utils::setDefaultFont", e);
-            else firebaseCrashlytics.recordException(e);
         }
     }
 
@@ -142,13 +137,15 @@ public final class Utils {
 
     public static void adsBox(@NonNull final Activity activity) {
         final View adLayout = activity.findViewById(R.id.adLayout);
-        if (adLayout == null) return;
+        final MaxAdView adView = activity.findViewById(R.id.adView);
+        if (adLayout == null || adView == null) return;
         if (SettingsHelper.showAds()) {
-            MobileAds.initialize(activity, initializationStatus -> { });
-            final AdView adView = activity.findViewById(R.id.adView);
-            adView.setAdListener(new Listener(adLayout));
-            adView.loadAd(new AdRequest.Builder().build());
-        } else adLayout.setVisibility(View.GONE);
+            adView.setListener(new Listener(adLayout));
+            adView.loadAd();
+        } else {
+            adView.destroy();
+            adLayout.setVisibility(View.GONE);
+        }
     }
 
     public static int getStatusBarHeight(final Window window, final Resources resources) {

@@ -182,11 +182,11 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
 
         this.filter = new Filter() {
             private final FilterResults results = new FilterResults();
-            private ArrayList<WordItem> filteredList;
 
             @Override
             protected FilterResults performFiltering(final CharSequence charSequence) {
                 results.values = wordList;
+                results.count = wordList != null ? wordList.size() : 0;
                 if (wordList == null) return results;
                 if (Utils.isEmpty(charSequence)) return results;
 
@@ -233,16 +233,16 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
                 }
 
                 filteredList.trimToSize();
+                results.values = filteredList;
                 results.count = filteredList.size();
-
-                this.filteredList = filteredList;
 
                 return results;
             }
 
             @Override
             protected void publishResults(final CharSequence charSequence, FilterResults filterResults) {
-                updateList(filteredList);
+                //noinspection unchecked
+                updateList((ArrayList<WordItem>) filterResults.values);
             }
         };
     }

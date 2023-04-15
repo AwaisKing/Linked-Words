@@ -1,7 +1,5 @@
 package awais.backworddictionary.interfaces;
 
-import static awais.backworddictionary.helpers.Utils.firebaseCrashlytics;
-
 import android.app.Dialog;
 import android.content.Context;
 import android.util.Log;
@@ -40,7 +38,6 @@ public final class WordClickSearchListener implements PopupMenu.OnMenuItemClickL
                 actMain.onSearch(word);
             } catch (final Exception e) {
                 if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "WordClickSearchListener", e);
-                else firebaseCrashlytics.recordException(e);
             }
         } else {
             Context baseContext = null;

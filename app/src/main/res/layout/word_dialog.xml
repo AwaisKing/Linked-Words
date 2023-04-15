@@ -11,10 +11,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingStart="?dialogPreferredPadding"
-        android:paddingLeft="?dialogPreferredPadding"
         android:paddingTop="10dp"
-        android:paddingEnd="12dp"
-        android:paddingRight="12dp">
+        android:paddingEnd="12dp">
 
         <awais.backworddictionary.custom.AlertDialogTitle
             android:id="@+id/alertTitle"

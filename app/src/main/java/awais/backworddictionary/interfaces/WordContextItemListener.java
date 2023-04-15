@@ -9,17 +9,17 @@ import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
-import androidx.browser.customtabs.CustomTabsIntent;
 
 import java.util.List;
 
 import awais.backworddictionary.R;
+import awais.backworddictionary.helpers.CustomTabsHelper;
 import awais.backworddictionary.helpers.URLEncoder;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
 
 public final class WordContextItemListener implements PopupMenu.OnMenuItemClickListener {
-    private final CustomTabsIntent.Builder customTabsIntent = new CustomTabsIntent.Builder();
+    private final CustomTabsHelper customTabsHelper = new CustomTabsHelper();
     private final Context context;
     private String word;
 
@@ -48,8 +48,7 @@ public final class WordContextItemListener implements PopupMenu.OnMenuItemClickL
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         .addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK));
             } catch (final Exception e) {
-                customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[0]);
-                CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
+                CustomTabActivityHelper.openCustomTab(context, customTabsHelper.setToolbarColor(Utils.CUSTOM_TAB_COLORS[0]),
                         Uri.parse("https://google.com/search?q=define+" .concat(URLEncoder.encode(word))));
             }
 
@@ -64,14 +63,12 @@ public final class WordContextItemListener implements PopupMenu.OnMenuItemClickL
             final List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(intent, 0);
             if (resolveInfos.size() > 0) context.startActivity(intent);
             else {
-                customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[1]);
-                CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
+                CustomTabActivityHelper.openCustomTab(context, customTabsHelper.setToolbarColor(Utils.CUSTOM_TAB_COLORS[1]),
                         wordWikiUri);
             }
 
         } else if (itemId == R.id.action_urban) {
-            customTabsIntent.setToolbarColor(Utils.CUSTOM_TAB_COLORS[2]);
-            CustomTabActivityHelper.openCustomTab(context, customTabsIntent.build(),
+            CustomTabActivityHelper.openCustomTab(context, customTabsHelper.setToolbarColor(Utils.CUSTOM_TAB_COLORS[2]),
                     Uri.parse("https://www.urbandictionary.com/define.php?term=".concat(word)));
 
         } else
