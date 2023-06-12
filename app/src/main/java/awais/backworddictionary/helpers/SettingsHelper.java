@@ -25,6 +25,7 @@ public final class SettingsHelper {
     private static final String KEY_SHOW_FLOATING_DIALOG = "showFloatingDialog";
     private static final String KEY_SHOW_DEFS_POPUP = "showDefsPopup";
     ////////////////////////////////////////////////
+    private static final String KEY_TTS_ERROR_DLG_HIDDEN = "ttsErrorDialogHidden";
     private static final String KEY_TTS_DLG_SEEN = "ttsDialogShown";
     private static final String KEY_TTS_PITCH = "ttsPitch";
     private static final String KEY_TTS_RATE = "ttsRate";
@@ -39,14 +40,11 @@ public final class SettingsHelper {
     private static SharedPreferences preferences;
 
     public static void setPreferences(@NonNull final Context context) {
-        if (preferences == null)
-            preferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
+        if (preferences == null) preferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
 
         final ContentResolver contentResolver = context.getContentResolver();
-        defaultPitch = Settings.Secure.getInt(contentResolver, Settings.Secure.TTS_DEFAULT_PITCH,
-                FALLBACK_TTS_DEFAULT_PITCH);
-        defaultRate = Settings.Secure.getInt(contentResolver, Settings.Secure.TTS_DEFAULT_RATE,
-                FALLBACK_TTS_DEFAULT_RATE);
+        defaultPitch = Settings.Secure.getInt(contentResolver, Settings.Secure.TTS_DEFAULT_PITCH, FALLBACK_TTS_DEFAULT_PITCH);
+        defaultRate = Settings.Secure.getInt(contentResolver, Settings.Secure.TTS_DEFAULT_RATE, FALLBACK_TTS_DEFAULT_RATE);
     }
 
     public static int getNightMode() {
@@ -91,6 +89,10 @@ public final class SettingsHelper {
 
     public static boolean isTTSHelpDialogSeen() {
         return preferences != null && preferences.getBoolean(KEY_TTS_DLG_SEEN, false);
+    }
+
+    public static boolean isTTSErrorDialogHidden() {
+        return preferences != null && preferences.getBoolean(KEY_TTS_ERROR_DLG_HIDDEN, false);
     }
 
     public static int getTTSPitch() {
@@ -191,8 +193,11 @@ public final class SettingsHelper {
     }
 
     public static void setTTSHelpDialogSeen() {
-        if (preferences != null)
-            preferences.edit().putBoolean(KEY_TTS_DLG_SEEN, true).apply();
+        if (preferences != null) preferences.edit().putBoolean(KEY_TTS_DLG_SEEN, true).apply();
+    }
+
+    public static void setTTSErrorDialogHidden() {
+        if (preferences != null) preferences.edit().putBoolean(KEY_TTS_ERROR_DLG_HIDDEN, true).apply();
     }
 
     public static void resetTTS() {

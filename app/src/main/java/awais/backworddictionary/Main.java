@@ -1,5 +1,6 @@
 package awais.backworddictionary;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -38,7 +39,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.applovin.sdk.AppLovinSdk;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
@@ -75,7 +75,6 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
-
     public static final int TTS_DATA_CHECK_CODE = 775;
     static final TTSRefresher ttsRefresher = () -> onTTSInit(TextToSpeech.SUCCESS);
     private static final int[] tabs = {R.string.reverse, R.string.sounds_like, R.string.spelled_like, R.string.synonyms, R.string.antonyms,
@@ -126,8 +125,7 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                 final Context context = viewGroup.getContext();
                 final View view = new View(context, null, 0);
                 view.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimary));
-                view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        Utils.statusBarHeight));
+                view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Utils.statusBarHeight));
                 view.setFocusableInTouchMode(false);
                 view.setLongClickable(true);
                 view.setFocusable(false);
@@ -187,13 +185,15 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
             }
             mainBinding.fabOptions.toggle();
         }).setMenuToggleListener(opened -> {
-            if (!opened) {
-                fabParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-                fabParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
-                mainBinding.fabOptions.setLayoutParams(fabParams);
-            }
+            if (opened) return;
+            fabParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            fabParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            mainBinding.fabOptions.setLayoutParams(fabParams);
         });
         TooltipCompat.setTooltipText(mainBinding.fabOptions, getString(R.string.options));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 696969);
 
         loadFragments(true);
         setSearchView();
@@ -259,7 +259,7 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                     }
 
                     @Override
-                    public void onTabUnselected(final TabLayout.Tab tab) { prevTab = tab.getPosition(); }
+                    public void onTabUnselected(final TabLayout.Tab tab) {prevTab = tab.getPosition();}
 
                     @Override
                     public void onTabReselected(final TabLayout.Tab tab) {}
@@ -334,8 +334,12 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                 ttsErrorDialog = new MaterialAlertDialogBuilder(this, R.style.MaterialAlertDialogTheme).create();
                 ttsErrorDialog.setTitle(R.string.tts_not_initialized);
                 ttsErrorDialog.setMessage(getString(R.string.tts_data_not_found));
-                ttsErrorDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.no),
-                        (DialogInterface.OnClickListener) null);
+                ttsErrorDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.no), (DialogInterface.OnClickListener) null);
+                ttsErrorDialog.setButton(DialogInterface.BUTTON_NEUTRAL, getString(R.string.dont_show_again), (d, w) -> {
+                    SettingsHelper.setTTSErrorDialogHidden();
+                    ttsErrorDialog.cancel();
+                    ttsErrorDialog = null;
+                });
                 ttsErrorDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.ok), (d, w) -> {
                     ttsErrorDialog = null;
                     startActivity(new Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA));
@@ -358,7 +362,7 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
     }
 
     @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull final Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
@@ -612,7 +616,7 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
             isTTSAsyncRunning = true;
 
             final String defaultEngine = tts.getDefaultEngine();
-            final Locale defaultLanguage = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 ? tts.getDefaultLanguage() : null;
+            final Locale defaultLanguage = tts.getDefaultLanguage();
             Voice defaultVoice;
             try {
                 defaultVoice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? tts.getDefaultVoice() : null;
@@ -645,7 +649,7 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
 
             if (setEngine) engine = ttsEngine;
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && setLanguage) {
+            if (setLanguage) {
                 final List<Locale> languages = new ArrayList<>(0);
                 final List<Locale> locales = Arrays.asList(Locale.getAvailableLocales());
                 Collection<Locale> localeCollection;
@@ -674,9 +678,9 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                 }
             }
 
-            //noinspection deprecation
+            // noinspection deprecation
             tts.setEngineByPackageName(engine);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) tts.setLanguage(language);
+            tts.setLanguage(language);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && voice != null) tts.setVoice(voice);
 
             isTTSAsyncRunning = false;

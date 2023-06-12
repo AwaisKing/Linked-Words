@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
-    <include domain="sharedpref" path="settings.xml" />
-    <include domain="sharedpref" path="settings" />
-    <include domain="database" path="search_history_database.db" />
-    <include domain="database" path="search_history_database" />
+    <include
+        domain="sharedpref"
+        path="settings" />
+    <include
+        domain="sharedpref"
+        path="settings.xml" />
+    <include
+        domain="database"
+        path="search_history_database" />
+    <include
+        domain="database"
+        path="search_history_database.db" />
 </full-backup-content>

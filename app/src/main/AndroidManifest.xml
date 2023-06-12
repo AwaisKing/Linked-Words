@@ -10,8 +10,9 @@
     </queries>
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
 
@@ -24,6 +25,7 @@
     <application
         android:name=".LinkedApp"
         android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_descriptor"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -89,8 +91,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <action android:name="android.intent.action.WEB_SEARCH" />
                 <action android:name="android.intent.action.SEARCH" />
+                <action android:name="android.intent.action.WEB_SEARCH" />
                 <action android:name="com.google.android.gms.actions.SEARCH_ACTION" />
             </intent-filter>
 

@@ -18,10 +18,11 @@
     <string name="about">About Me</string>
 
     <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
-    <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
     <string name="close">Close</string>
+    <string name="dont_show_again">Don\'t show again</string>
 
     <string name="filter_settings">Filter Settings</string>
     <string name="max_words">Max Words</string>

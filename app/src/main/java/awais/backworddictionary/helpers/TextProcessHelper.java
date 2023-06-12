@@ -40,10 +40,10 @@ import awais.backworddictionary.dialogs.AwaisomeDialogBuilder.HiddenFlags;
 public final class TextProcessHelper extends Activity {
     private static BubbleHelper bubbleHelper;
     private boolean isFound = false, dataHandled = false;
-    private AwaisomeDialog awaisomeDialog = null;
+    private AwaisomeDialog awaisomeDialog;
     private NotificationChannel channel;
-    private Intent intent;
     private Context context;
+    private Intent intent;
 
     public FloatingDialogView floatingDialogView = null;
 
@@ -218,7 +218,7 @@ public final class TextProcessHelper extends Activity {
             final boolean showFloatingDialog = SettingsHelper.showFloatingDialog();
             final boolean showFloating = SettingsHelper.showFloating();
 
-            //Log.d("AWAISKING_APP", "isBubbles:" + isBubbles
+            // Log.d("AWAISKING_APP", "isBubbles:" + isBubbles
             //        + " -- showFloating:" + showFloating
             //        + " -- bubblesApiEnabled:" + bubblesApiEnabled
             //        + " -- canBubble: " + (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && channel != null && channel.canBubble())
@@ -238,7 +238,7 @@ public final class TextProcessHelper extends Activity {
                 isBubbles |= bubblesApiEnabledIntrl && Intent.ACTION_SEND.equals(action) || isProcessText;
                 handleFallback = bubbleHelper == null || channel == null || !channel.canBubble() || !isBubbles && !bubblesApiEnabledIntrl;
 
-                //Log.d("AWAISKING_APP", "isBubbles: " + isBubbles
+                // Log.d("AWAISKING_APP", "isBubbles: " + isBubbles
                 //        + " -- bubblesApiEnabledIntrl: " + bubblesApiEnabledIntrl
                 //        + " -- fallback: " + handleFallback);
             }

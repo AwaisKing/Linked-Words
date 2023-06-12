@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <local-backup>
+        <include
+            domain="sharedpref"
+            path="settings" />
+        <include
+            domain="sharedpref"
+            path="settings.xml" />
+        <include
+            domain="database"
+            path="search_history_database" />
+        <include
+            domain="database"
+            path="search_history_database.db" />
+    </local-backup>
+    <cloud-backup>
+        <include
+            domain="sharedpref"
+            path="settings" />
+        <include
+            domain="sharedpref"
+            path="settings.xml" />
+        <include
+            domain="database"
+            path="search_history_database" />
+        <include
+            domain="database"
+            path="search_history_database.db" />
+    </cloud-backup>
+</data-extraction-rules>
