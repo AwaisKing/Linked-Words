@@ -199,11 +199,11 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
                     return results;
                 }
 
+                final String searchVal = String.valueOf(charSequence);
                 final ArrayList<WordItem> filteredList = new ArrayList<>(wordList.size() >>> 1);
                 for (final WordItem mWord : wordList) {
                     final String word = mWord.getWord().toLowerCase(Utils.defaultLocale);
                     final String[][] defs = mWord.getDefs();
-                    final String searchVal = String.valueOf(charSequence);
 
                     final boolean wordBool = contains ? word.contains(searchVal) : word.startsWith(searchVal);
 

@@ -42,25 +42,30 @@ public final class MyApps {
 
     static {
         final Icons[] currList = new Icons[]{
-                new Icons("awais.addme", "AddMe", R.drawable.adm),
-                new Icons("awais.quodb", "QuoDB", R.drawable.qdb),
                 new Icons("awais.media.scanner", "mediaScanner", R.drawable.ms),
-                new Icons("awais.skyrimconsole", "Skyrim Cheats", R.drawable.tesv),
                 new Icons("awais.reversify", "Reversify", R.drawable.rev),
-                new Icons("awais.reversify.lite", "Reversify Lite", R.drawable.revl),
                 new Icons("awais.backworddictionary", "Linked Words", R.drawable.lw),
+                new Icons("awais.reversify.lite", "Reversify Lite", R.drawable.revl),
+                new Icons("awais.skyrimconsole", "Skyrim Cheats", R.drawable.tesv),
+                new Icons("awais.addme", "AddMe", R.drawable.adm),
+                new Icons("awais.memeheaven", "Meme Heaven", R.drawable.mmhv),
+                new Icons("awais.hostsmanager", "Hosts Manager Pro", R.drawable.hmp),
+                new Icons("awais.hostsmanager.lite", "Hosts Manager Lite", R.drawable.hml),
+                new Icons("awais.quodb", "QuoDB", R.drawable.qdb),
                 new Icons("awais.game.tictactoe", "Tic Tac Toe", R.drawable.ttt),
                 new Icons("awais.game.jigsaw", "JigSaw", R.drawable.jsw),
         };
         iconsList = new Icons[currList.length - 1];
         int i = 0;
-        for (final Icons value : currList) if (!value.pkg.equals(BuildConfig.APPLICATION_ID)) iconsList[i++] = value;
+        for (final Icons value : currList) if (!BuildConfig.APPLICATION_ID.equals(value.pkg)) iconsList[i++] = value;
     }
 
     public static void openAppStore(@NonNull final Context context, final int position) {
         try {
-            context.startActivity(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=" + MyApps.iconsList[position].pkg)));
+            final int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                    ? Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS | Intent.FLAG_ACTIVITY_NEW_DOCUMENT : 0;
+            context.getApplicationContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id="
+                    + MyApps.iconsList[position].pkg)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |flags ));
         } catch (final Exception e) {
             // activity not found? bruh
         }
@@ -132,16 +137,13 @@ public final class MyApps {
                 linearLayout.setOrientation(LinearLayout.VERTICAL);
                 final AppCompatImageView imageView = new AppCompatImageView(context);
                 final MaterialTextView textView = new MaterialTextView(context);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
-                    textView.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
+                textView.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
                 textView.setGravity(Gravity.CENTER_HORIZONTAL);
                 imageView.setAdjustViewBounds(true);
                 linearLayout.addView(imageView, LinearLayout.LayoutParams.MATCH_PARENT, size);
                 linearLayout.addView(textView);
                 final int padding = size / 4;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
-                    linearLayout.setPaddingRelative(padding, padding, padding, padding);
-                else linearLayout.setPadding(padding, padding, padding, padding);
+                linearLayout.setPaddingRelative(padding, padding, padding, padding);
                 convertView = linearLayout;
                 convertView.setTag(holder = new ViewHolder(textView, imageView));
             } else
