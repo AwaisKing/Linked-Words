@@ -4,7 +4,6 @@ import static awais.backworddictionary.Main.tts;
 import static awais.backworddictionary.helpers.BubbleHelper.LW_BUBBLES_CHANNEL_ID;
 import static awais.backworddictionary.helpers.BubbleHelper.LW_BUBBLES_CHANNEL_NAME;
 import static awais.backworddictionary.helpers.BubbleHelper.LW_BUBBLES_CONVO_ID;
-import static awais.backworddictionary.helpers.Utils.notificationManager;
 
 import android.app.Activity;
 import android.app.NotificationChannel;
@@ -106,10 +105,7 @@ public final class TextProcessHelper extends Activity {
 
         isFound = intent != null && context != null;
         if (isFound) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                notificationManager = context.getSystemService(NotificationManager.class);
-            if (notificationManager == null)
-                notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            AppHelper.getInstance(context).getInputMethodManager();
             SettingsHelper.setPreferences(context);
 
             if (!dataHandled) handleData();
@@ -119,6 +115,8 @@ public final class TextProcessHelper extends Activity {
     private synchronized void handleData() {
         if (intent == null) intent = getIntent();
         if (intent != null) {
+            final NotificationManager notificationManager = AppHelper.getInstance(context).getNotificationManager();
+
             dataHandled = true;
 
             final String action = intent.getAction();
@@ -145,8 +143,7 @@ public final class TextProcessHelper extends Activity {
                         channel.setDescription(context.getString(R.string.linked_words_notif_channel_descr));
                 }
 
-                bubblesApiEnabled = notificationManager != null && notificationManager.areBubblesAllowed()
-                        || channel != null && channel.canBubble();
+                bubblesApiEnabled = notificationManager.areBubblesAllowed() || channel != null && channel.canBubble();
                 isBubbles = bubblesApiEnabled && Intent.ACTION_SEND.equals(action) || isProcessText;
             }
 
@@ -159,25 +156,25 @@ public final class TextProcessHelper extends Activity {
                 if (context == null) context = this;
                 finishTask();
                 context.startActivity(new Intent(context, Main.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
-                        .addCategory(Intent.CATEGORY_LAUNCHER).setAction(Intent.ACTION_MAIN));
+                                              .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
+                                              .addCategory(Intent.CATEGORY_LAUNCHER).setAction(Intent.ACTION_MAIN));
                 return;
             }
 
 
             //// depth scan to find some text
             if (bundle != null && ("text/plain".equals(type) || Intent.ACTION_WEB_SEARCH.equals(action)
-                    || Intent.ACTION_SEARCH.equals(action))) {
+                                   || Intent.ACTION_SEARCH.equals(action))) {
                 final Object object = bundle.get(action);
                 if (object instanceof CharSequence) str[0] = object.toString();
                 else for (final String key : bundle.keySet()) {
                     if ((isBubbles |= Intent.EXTRA_PROCESS_TEXT.equalsIgnoreCase(key))
-                            || Intent.EXTRA_TEXT.equalsIgnoreCase(key)) {
+                        || Intent.EXTRA_TEXT.equalsIgnoreCase(key)) {
                         final Object o = bundle.get(key);
                         if (o instanceof CharSequence) str[0] = o.toString();
                         else if (o instanceof ClipData && (clipData = (ClipData) o).getItemCount() > 0
-                                && (clipDataItem = clipData.getItemAt(0)) != null
-                                && !Utils.isEmpty(clipDataItem.getText())) str[0] = clipDataItem.getText().toString();
+                                 && (clipDataItem = clipData.getItemAt(0)) != null
+                                 && !Utils.isEmpty(clipDataItem.getText())) str[0] = clipDataItem.getText().toString();
                     } else {
                         final String lcKey = key.toLowerCase();
                         if ("query".equals(lcKey) || "text".equals(lcKey)) {
@@ -196,7 +193,7 @@ public final class TextProcessHelper extends Activity {
             }
 
             if (Utils.isEmpty(str[0]) && (clipData = intent.getClipData()) != null && clipData.getItemCount() > 0
-                    && (clipDataItem = clipData.getItemAt(0)) != null) {
+                && (clipDataItem = clipData.getItemAt(0)) != null) {
                 str[0] = clipDataItem.getHtmlText();
                 if (Utils.isEmpty(str[0])) str[0] = clipDataItem.getText().toString();
                 if (Utils.isEmpty(str[0])) str[0] = null;
@@ -234,7 +231,7 @@ public final class TextProcessHelper extends Activity {
                 }
 
                 final boolean bubblesApiEnabledIntrl = bubblesApiEnabled || notificationManager != null
-                        && notificationManager.areBubblesAllowed() || channel != null && channel.canBubble();
+                                                                            && notificationManager.areBubblesAllowed() || channel != null && channel.canBubble();
                 isBubbles |= bubblesApiEnabledIntrl && Intent.ACTION_SEND.equals(action) || isProcessText;
                 handleFallback = bubbleHelper == null || channel == null || !channel.canBubble() || !isBubbles && !bubblesApiEnabledIntrl;
 
@@ -271,11 +268,11 @@ public final class TextProcessHelper extends Activity {
 
                     final ContextThemeWrapper styledContext = Utils.getStyledContext(this, R.style.MaterialAlertDialogTheme);
                     awaisomeDialog = new AwaisomeDialogBuilder(styledContext)
-                            .setLayoutView(floatingDialogView = new FloatingDialogView(styledContext).setWord(str[0]))
-                            .setDialogInsets(0, 0)
-                            .setLayoutPadding(0, 0)
-                            .setViewHideFlags(HiddenFlags.BUTTON_PANEL | HiddenFlags.TITLE_PANEL)
-                            .build();
+                                             .setLayoutView(floatingDialogView = new FloatingDialogView(styledContext).setWord(str[0]))
+                                             .setDialogInsets(0, 0)
+                                             .setLayoutPadding(0, 0)
+                                             .setViewHideFlags(HiddenFlags.BUTTON_PANEL | HiddenFlags.TITLE_PANEL)
+                                             .build();
                 }
 
                 handler.postDelayed(new Runnable() {
@@ -305,22 +302,23 @@ public final class TextProcessHelper extends Activity {
 
     private synchronized void createBubbleChannel() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return;
+        final NotificationManager notificationManager = AppHelper.getInstance(context).getNotificationManager();
+
         if (channel != null) {
             channel.setAllowBubbles(true);
             return;
         }
 
-        channel = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ?
-                notificationManager.getNotificationChannel(LW_BUBBLES_CHANNEL_ID, LW_BUBBLES_CONVO_ID) : null;
-        if (channel == null)
-            channel = notificationManager.getNotificationChannel(LW_BUBBLES_CHANNEL_ID);
+        channel = Build.VERSION.SDK_INT < Build.VERSION_CODES.R ? null :
+                  notificationManager.getNotificationChannel(LW_BUBBLES_CHANNEL_ID, LW_BUBBLES_CONVO_ID);
+        if (channel == null) channel = notificationManager.getNotificationChannel(LW_BUBBLES_CHANNEL_ID);
 
         final List<NotificationChannel> notificationChannels;
-        if (channel == null && (notificationChannels = notificationManager.getNotificationChannels()) != null && notificationChannels.size() >= 1) {
+        if (channel == null && (notificationChannels = notificationManager.getNotificationChannels()) != null && !notificationChannels.isEmpty()) {
             for (final NotificationChannel notificationChannel : notificationChannels) {
                 if (notificationChannel == null) continue;
                 if (LW_BUBBLES_CHANNEL_NAME.contentEquals(notificationChannel.getName()) &&
-                        LW_BUBBLES_CHANNEL_ID.equals(notificationChannel.getId())) {
+                    LW_BUBBLES_CHANNEL_ID.equals(notificationChannel.getId())) {
 
                     boolean setChannel = false;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -340,7 +338,7 @@ public final class TextProcessHelper extends Activity {
 
         if (channel == null)
             notificationManager.createNotificationChannel(new NotificationChannel(LW_BUBBLES_CHANNEL_ID,
-                    LW_BUBBLES_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
+                                                                                  LW_BUBBLES_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
 
         if (channel == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
             channel = notificationManager.getNotificationChannel(LW_BUBBLES_CHANNEL_ID, LW_BUBBLES_CONVO_ID);
@@ -354,16 +352,19 @@ public final class TextProcessHelper extends Activity {
         if (context == null) context = this.context;
         if (context == null) context = this;
 
+        AppHelper.getInstance(context);
+
         final boolean dataNotNull = !Utils.isEmpty(data);
         final Uri dataUri = dataNotNull ? Uri.parse(data) : null;
         final Intent intent = new Intent(Intent.ACTION_VIEW, dataUri, context, Main.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
-                .addCategory(Intent.CATEGORY_LAUNCHER);
+                                      .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
+                                      .addCategory(Intent.CATEGORY_LAUNCHER);
         if (dataNotNull) intent.putExtra(Intent.EXTRA_TEXT, data).setData(dataUri);
 
         if (!isFinishing()) finishTask();
 
-        context.startActivity(intent);
+        if (true) context.getApplicationContext().startActivity(intent);
+        else context.startActivity(intent);
     }
 
     private void finishTask() {

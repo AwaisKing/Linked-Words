@@ -44,12 +44,12 @@ import java.util.List;
 
 import awais.backworddictionary.R;
 import awais.backworddictionary.databinding.SearchViewBinding;
+import awais.backworddictionary.helpers.AppHelper;
 import awais.backworddictionary.helpers.Utils;
 
 public final class MaterialSearchView extends FrameLayout implements View.OnClickListener {
     public static final int SPEECH_REQUEST_CODE = 4000;
     public static int iconColor = Color.BLACK;
-    private final Context context;
     private SearchArrowDrawable searchArrow = null;
     private RecyclerView.Adapter<?> adapter = null;
     private OnQueryTextListener onQueryChangeListener = null;
@@ -72,22 +72,18 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
 
     public MaterialSearchView(final Context context, @Nullable final AttributeSet attrs, final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        this.context = context;
-        if (Utils.inputMethodManager == null)
-            Utils.inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         initView();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public MaterialSearchView(final Context context, @Nullable final AttributeSet attrs, final int defStyleAttr, final int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        this.context = context;
-        if (Utils.inputMethodManager == null)
-            Utils.inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         initView();
     }
 
     private void initView() {
+        final Context context = getContext();
+
         LayoutInflater.from(context).inflate(R.layout.search_view, this, true);
         searchViewBinding = SearchViewBinding.bind(this);
 
@@ -113,10 +109,10 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
         searchViewBinding.etSearchView.setSearchView(this);
         searchViewBinding.etSearchView.addTextChangedListener(new TextWatcher() {
             @Override
-            public void afterTextChanged(final Editable editable) { }
+            public void afterTextChanged(final Editable editable) {}
 
             @Override
-            public void beforeTextChanged(final CharSequence charSequence, final int start, final int count, final int after) { }
+            public void beforeTextChanged(final CharSequence charSequence, final int start, final int count, final int after) {}
 
             @Override
             public void onTextChanged(final CharSequence charSequence, final int start, final int before, final int count) {
@@ -215,8 +211,8 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
                     @Override
                     public void onGlobalLayout() {
                         searchViewBinding.cardView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        SearchAnimator.revealOpen(searchViewBinding.cardView, menuItemCx, context,
-                                searchViewBinding.etSearchView, onOpenCloseListener);
+                        SearchAnimator.revealOpen(searchViewBinding.cardView, menuItemCx, getContext(),
+                                                  searchViewBinding.etSearchView, onOpenCloseListener);
                     }
                 });
             } else
@@ -231,11 +227,11 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     public void close(final boolean animate) {
         if (animate) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                SearchAnimator.revealClose(searchViewBinding.cardView, menuItemCx, context,
-                        searchViewBinding.etSearchView, this, onOpenCloseListener);
+                SearchAnimator.revealClose(searchViewBinding.cardView, menuItemCx, getContext(),
+                                           searchViewBinding.etSearchView, this, onOpenCloseListener);
             else
                 SearchAnimator.fadeClose(searchViewBinding.cardView, searchViewBinding.etSearchView,
-                        this, onOpenCloseListener);
+                                         this, onOpenCloseListener);
         } else {
             searchViewBinding.etSearchView.clearFocus();
             searchViewBinding.cardView.setVisibility(View.GONE);
@@ -277,15 +273,16 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     }
 
     private void showKeyboard() {
-        if (!isInEditMode() && Utils.inputMethodManager != null) {
-            Utils.inputMethodManager.showSoftInput(searchViewBinding.etSearchView, 0);
-            Utils.inputMethodManager.showSoftInput(this, 0);
-        }
+        if (isInEditMode()) return;
+        final InputMethodManager inputMethodManager = AppHelper.getInstance(getContext()).getInputMethodManager();
+        inputMethodManager.showSoftInput(searchViewBinding.etSearchView, 0);
+        inputMethodManager.showSoftInput(this, 0);
     }
 
     private void hideKeyboard() {
-        if (!isInEditMode() && Utils.inputMethodManager != null)
-            Utils.inputMethodManager.hideSoftInputFromWindow(getWindowToken(), 0);
+        if (isInEditMode()) return;
+        final InputMethodManager inputMethodManager = AppHelper.getInstance(getContext()).getInputMethodManager();
+        inputMethodManager.hideSoftInputFromWindow(getWindowToken(), 0);
     }
 
     public void showProgress() {
@@ -339,31 +336,31 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     }
 
     private void onVoiceClicked() {
-        if (context instanceof Activity) {
-            try {
-                final Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now");
-                intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+        Context context = getContext();
+        if (!(context instanceof Activity)) return;
+        try {
+            final Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now");
+            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
 
-                ((Activity) context).startActivityForResult(intent, SPEECH_REQUEST_CODE);
-            } catch (final ActivityNotFoundException e) {
-                Toast.makeText(context, "No app or service found to perform voice search.", Toast.LENGTH_SHORT).show();
-            }
+            ((Activity) context).startActivityForResult(intent, SPEECH_REQUEST_CODE);
+        } catch (final ActivityNotFoundException e) {
+            Toast.makeText(context, "No app or service found to perform voice search.", Toast.LENGTH_SHORT).show();
         }
     }
 
     private boolean isVoiceAvailable() {
         if (isInEditMode()) return true;
-        final PackageManager pm = context.getPackageManager();
+        final PackageManager pm = getContext().getPackageManager();
         final List<ResolveInfo> activities = pm.queryIntentActivities(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
-        return activities.size() != 0;
+        return !activities.isEmpty();
     }
 
     private void onSubmitQuery() {
         final CharSequence query = searchViewBinding.etSearchView.getText();
         if (query != null && TextUtils.getTrimmedLength(query) > 0 &&
-                (onQueryChangeListener == null || !onQueryChangeListener.onQueryTextSubmit(query.toString())))
+            (onQueryChangeListener == null || !onQueryChangeListener.onQueryTextSubmit(query.toString())))
             searchViewBinding.etSearchView.setText(query);
     }
 
@@ -438,6 +435,7 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
 
     public interface OnOpenCloseListener {
         void onClose();
+
         void onOpen();
     }
 

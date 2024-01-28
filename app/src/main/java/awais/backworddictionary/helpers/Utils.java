@@ -5,9 +5,9 @@ import static java.lang.Math.sqrt;
 import static awais.backworddictionary.Main.tabBoolsArray;
 import static awais.backworddictionary.Main.tts;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.NotificationManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -29,7 +29,6 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -66,11 +65,8 @@ public final class Utils {
 
     public static final int[] CUSTOM_TAB_COLORS = new int[]{0xFF4888F2, 0xFF333333, 0xFF3B496B};
     public static final String CHARSET = "UTF-8";
-    public static InputMethodManager inputMethodManager;
-    public static NotificationManager notificationManager;
     public static Locale defaultLocale;
     public static int statusBarHeight = 0, navigationBarHeight = 0;
-    private static ClipboardManager clipboard;
 
     @Nullable
     public static String getResponse(final String url) throws Exception {
@@ -94,7 +90,7 @@ public final class Utils {
 
     /**
      * thanks to weston
-     * https://stackoverflow.com/questions/2711858/is-it-possible-to-set-a-custom-font-for-entire-of-application/16883281#16883281
+     * <a href="https://stackoverflow.com/questions/2711858/is-it-possible-to-set-a-custom-font-for-entire-of-application/16883281#16883281">https://stackoverflow.com/questions/2711858/is-it-possible-to-set-a-custom-font-for-entire-of-application/16883281#16883281</a>
      */
     public static void setDefaultFont(final String typefaceName, final Typeface fontTypeface) {
         try {
@@ -148,6 +144,7 @@ public final class Utils {
         }
     }
 
+    @SuppressLint({"InternalInsetResource", "DiscouragedApi"})
     public static int getStatusBarHeight(final Window window, final Resources resources) {
         if (Build.VERSION.SDK_INT == 19 && window != null && resources != null) {
             final Rect rectangle = new Rect();
@@ -160,11 +157,12 @@ public final class Utils {
             final int statusBarHeight2 = resId > 0 ? resources.getDimensionPixelSize(resId) : 0;
 
             return statusBarHeight1 == 0 && statusBarHeight2 == 0 ? 50 :
-                    statusBarHeight1 == 0 ? statusBarHeight2 : statusBarHeight1;
+                   statusBarHeight1 == 0 ? statusBarHeight2 : statusBarHeight1;
         }
         return 0;
     }
 
+    @SuppressLint({"InternalInsetResource", "DiscouragedApi"})
     public static int getNavigationBarHeight(final Window window, final Resources resources) {
         if (Build.VERSION.SDK_INT == 19 && window != null && resources != null) {
             final int appUsableSizeX, appUsableSizeY, realScreenSizeX, realScreenSizeY;
@@ -181,7 +179,7 @@ public final class Utils {
 
             final int navBarHeight1;
             if (!(appUsableSizeX < realScreenSizeX) // !(navigation bar on the right)
-                    && appUsableSizeY < realScreenSizeY) // navigation bar at the bottom
+                && appUsableSizeY < realScreenSizeY) // navigation bar at the bottom
                 navBarHeight1 = realScreenSizeY - appUsableSizeY;
             else navBarHeight1 = 0;
 
@@ -189,18 +187,17 @@ public final class Utils {
             final int navBarHeight2 = resId > 0 ? resources.getDimensionPixelSize(resId) : 0;
 
             return navBarHeight1 == 0 && navBarHeight2 == 0 ? 0 :
-                    navBarHeight1 == 0 ? navBarHeight2 : navBarHeight1;
+                   navBarHeight1 == 0 ? navBarHeight2 : navBarHeight1;
         }
         return 0;
     }
 
     public static void copyText(final Context context, final String stringToCopy) {
-        if (clipboard == null)
-            clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        final ClipboardManager clipboardManager = AppHelper.getInstance(context).getClipboardManager();
 
         int toastMessage = R.string.error_copying_clipboard;
-        if (clipboard != null) {
-            clipboard.setPrimaryClip(ClipData.newPlainText("word", stringToCopy));
+        if (clipboardManager != null) {
+            clipboardManager.setPrimaryClip(ClipData.newPlainText("word", stringToCopy));
             toastMessage = R.string.copied_clipboard;
         }
 
@@ -236,10 +233,6 @@ public final class Utils {
         return popup;
     }
 
-    public static void showPopupMenu(@NonNull final View view, @NonNull final WordItem wordItem) {
-        setPopupMenuSlider(view, wordItem).show();
-    }
-
     @NonNull
     public static PopupMenu setPopupMenuSlider(final Dialog dialog, final Context context, @NonNull final View view, final String word) {
         final PopupMenu popup = new PopupMenu(context, view);
@@ -257,22 +250,25 @@ public final class Utils {
         return popup;
     }
 
+    public static void showPopupMenu(@NonNull final View view, @NonNull final WordItem wordItem) {
+        setPopupMenuSlider(view, wordItem).show();
+    }
+
     public static void showPopupMenu(final Dialog dialog, final Context context, final View view, final String word) {
         if (context != null && view != null && !isEmpty(word)) {
             final Object tag = view.getTag(R.id.key_popup);
             final PopupMenu popup = tag instanceof PopupMenu ? (PopupMenu) tag :
-                    setPopupMenuSlider(dialog, context, view, word);
+                                    setPopupMenuSlider(dialog, context, view, word);
             popup.show();
         }
     }
 
     public static void speakText(final CharSequence text) {
-        if (tts != null && !isEmpty(text)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
-            else
-                tts.speak(String.valueOf(text), TextToSpeech.QUEUE_FLUSH, null); // todo change deprecated
-        }
+        if (tts == null || isEmpty(text)) return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+        else
+            tts.speak(String.valueOf(text), TextToSpeech.QUEUE_FLUSH, null); // todo change deprecated
     }
 
     public static float distance(@NonNull final PointF pointF, @NonNull final PointF other) {
@@ -305,7 +301,7 @@ public final class Utils {
                 if (styleHack == 0 || styleHack == -1) {
                     try {
                         final Intent intent = packageManager.getLaunchIntentForPackage(packageName);
-                        //noinspection ConstantConditions
+                        // noinspection ConstantConditions
                         final ActivityInfo activityInfo = packageManager.getActivityInfo(intent.getComponent(), 0);
                         styleHack = activityInfo.getThemeResource();
                         Log.d("AWAISKING_APP", "styleHack2: " + styleHack);
@@ -315,13 +311,13 @@ public final class Utils {
                     }
                 }
 
-                //try {
+                // try {
                 //    final ActivityInfo activityInfo = packageManager.getActivityInfo(new ComponentName(appContext, Main.class), 0);
                 //    styleHack = activityInfo.getThemeResource();
                 //} catch (final Throwable e) {
                 //    styleHack = -1;
                 //}
-                //if (styleHack == 0 || styleHack == -1) {
+                // if (styleHack == 0 || styleHack == -1) {
                 //    try {
                 //        final ActivityInfo activityInfo = packageManager.getActivityInfo(new ComponentName(context, Main.class), 0);
                 //        styleHack = activityInfo.getThemeResource();
@@ -347,7 +343,7 @@ public final class Utils {
             final String strResolveInfo = String.valueOf(resolveInfo);
 
             if (strResolveInfo.contains(appID) && strResolveInfo.contains("TextProcessHelper") ||
-                    resolveInfo != null && resolveInfo.activityInfo != null && appID.equals(resolveInfo.activityInfo.packageName))
+                resolveInfo != null && resolveInfo.activityInfo != null && appID.equals(resolveInfo.activityInfo.packageName))
                 --pkgsSize;
         }
 

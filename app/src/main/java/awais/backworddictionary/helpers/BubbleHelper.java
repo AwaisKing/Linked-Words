@@ -1,11 +1,9 @@
 package awais.backworddictionary.helpers;
 
-import static awais.backworddictionary.helpers.Utils.notificationManager;
-
 import android.annotation.SuppressLint;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -15,7 +13,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.BubbleMetadata;
 import androidx.core.app.Person;
@@ -32,7 +29,6 @@ import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.Main;
 import awais.backworddictionary.R;
 
-@RequiresApi(api = 29)
 public final class BubbleHelper {
     private final static HashSet<String> categorySet;
 
@@ -56,7 +52,6 @@ public final class BubbleHelper {
     public static final int LW_SHORTCUT_ICON = R.drawable.ic_shortcut_search;   // icon for quick actions (shortcuts)
 
     private final WeakReference<Context> context;
-    private final ComponentName componentName;
     private final LocusIdCompat locusIdCompat;
     private final IconCompat bubbleIcon, defaultShortcutIcon;
     private final float screenHeight;
@@ -68,15 +63,14 @@ public final class BubbleHelper {
     public BubbleHelper(final Context context, final String text) {
         this.context = new WeakReference<>(context);
 
+        this.screenHeight = getScreenHeight(context);
+
         this.locusIdCompat = new LocusIdCompat(LW_BUBBLES_CONVO_ID);
         this.bubbleIcon = IconCompat.createWithResource(context, LW_BUBBLE_ICON);
         this.defaultShortcutIcon = IconCompat.createWithResource(context, LW_SHORTCUT_ICON);
 
-        this.componentName = (this.intent = new Intent(context, Main.class)
-                .setAction(Intent.ACTION_VIEW)).getComponent();
+        this.intent = new Intent(context, Main.class).setAction(Intent.ACTION_VIEW);
         setText(text);
-
-        this.screenHeight = getScreenHeight(context);
     }
 
     @SuppressLint("UnspecifiedImmutableFlag")
@@ -85,8 +79,7 @@ public final class BubbleHelper {
 
         final Context context = this.context.get();
 
-        if (intent == null)
-            intent = new Intent(context, Main.class).setAction(Intent.ACTION_VIEW);
+        if (intent == null) intent = new Intent(context, Main.class).setAction(Intent.ACTION_VIEW);
 
         final Bundle extras = intent.getExtras();
         if (extras != null) extras.clear();
@@ -95,71 +88,73 @@ public final class BubbleHelper {
         // fix for Android S+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) flags |= PendingIntent.FLAG_MUTABLE;
 
-        this.pendingIntent = PendingIntent.getActivity(context, LW_REQUEST_BUBBLE,
-                intent.putExtra(INTENT_EXTRA_BUBBLING, true)
-                        .putExtra(Intent.EXTRA_TEXT, text)
-                        .setData(Uri.parse(text)), flags);
+        this.pendingIntent = PendingIntent.getActivity(context, LW_REQUEST_BUBBLE, intent.putExtra(INTENT_EXTRA_BUBBLING, true)
+                                                                                         .putExtra(Intent.EXTRA_TEXT, text)
+                                                                                         .setData(Uri.parse(text)), flags);
     }
 
     public void showBubble() {
         final Context context = this.context.get();
-        if (notificationManager != null && context != null) {
-            /*
-             cancels the notification, not used atm
-                try {
-                    notificationManager.cancel(LW_NOTIFICATION_ID);
-                } catch (final Exception e) {
-                    // ignore
-                }
-            */
+        if (context == null) return;
 
-            final Person bubblePerson = new Person.Builder().setName(LW_BUBBLES_CHANNEL_NAME).build();
+        final NotificationManager notificationManager = AppHelper.getInstance(context).getNotificationManager();
 
-            final ShortcutInfoCompat.Builder shortcutBuilder = new ShortcutInfoCompat.Builder(context, LW_BUBBLES_CONVO_ID)
-                    .setIcon(bubbleIcon).setShortLabel(context.getString(R.string.search)).setIntent(intent).setLongLived(true)
-                    .setLocusId(locusIdCompat).setCategories(categorySet).setActivity(componentName);
-            ShortcutManagerCompat.setDynamicShortcuts(context, Collections.singletonList(shortcutBuilder.build()));
+        /*
+         cancels the notification, not used atm
+            try {
+                notificationManager.cancel(LW_NOTIFICATION_ID);
+            } catch (final Exception e) {
+                // ignore
+            }
+        */
 
-            final BubbleMetadata bubbleMetadata = new BubbleMetadata.Builder(pendingIntent, bubbleIcon)
-                    .setDesiredHeight(Math.round(screenHeight)).setSuppressNotification(true).setAutoExpandBubble(true).build();
+        final Person bubblePerson = new Person.Builder().setName(LW_BUBBLES_CHANNEL_NAME).build();
 
-            final Notification notification = new NotificationCompat.Builder(context, LW_BUBBLES_CHANNEL_ID)
-                    .setSmallIcon(LW_SMALL_ICON).setOnlyAlertOnce(true).setAutoCancel(true).setColorized(true)
-                    .setVibrate(null).setDefaults(0)
-                    // bubbles api stuff
-                    .setBubbleMetadata(bubbleMetadata).setShortcutId(LW_BUBBLES_CONVO_ID).setLocusId(locusIdCompat)
-                    // category and style stuff
-                    .setCategory(NotificationCompat.CATEGORY_MESSAGE).setBadgeIconType(NotificationCompat.BADGE_ICON_NONE)
-                    .setStyle(new NotificationCompat.MessagingStyle(bubblePerson)
-                            .addMessage(this.text, System.currentTimeMillis(), bubblePerson)
-                    ).build();
+        final ShortcutInfoCompat.Builder shortcutBuilder = new ShortcutInfoCompat.Builder(context, LW_BUBBLES_CONVO_ID)
+                                                                   .setIcon(bubbleIcon).setShortLabel(context.getString(R.string.search))
+                                                                   .setIntent(intent).setLongLived(true).setLocusId(locusIdCompat)
+                                                                   .setCategories(categorySet);
+        if (intent.getComponent() != null) shortcutBuilder.setActivity(intent.getComponent());
+        ShortcutManagerCompat.setDynamicShortcuts(context, Collections.singletonList(shortcutBuilder.build()));
 
-            notification.flags |= Notification.FLAG_BUBBLE | Notification.FLAG_LOCAL_ONLY | Notification.FLAG_AUTO_CANCEL
-                    | Notification.FLAG_ONLY_ALERT_ONCE;
+        final BubbleMetadata bubbleMetadata = new BubbleMetadata.Builder(pendingIntent, bubbleIcon)
+                                                      .setDesiredHeight(Math.round(screenHeight)).setSuppressNotification(true)
+                                                      .setAutoExpandBubble(true).build();
 
-            if (notificationManager.canNotifyAsPackage(BuildConfig.APPLICATION_ID))
-                notificationManager.notifyAsPackage(BuildConfig.APPLICATION_ID, LW_BUBBLES_CONVO_ID,
-                        LW_NOTIFICATION_ID, notification);
-            else
-                notificationManager.notify(LW_NOTIFICATION_ID, notification);
+        final NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(bubblePerson)
+                                                                         .addMessage(this.text, System.currentTimeMillis(), bubblePerson);
 
-            final Handler handler = new Handler(Looper.getMainLooper());
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    // this is for setting search icon back to shortcut
-                    shortcutBuilder.setIcon(defaultShortcutIcon);
-                    final ShortcutInfoCompat shortcutInfoCompat = shortcutBuilder.build();
-                    ShortcutManagerCompat.setDynamicShortcuts(context,
-                            Collections.singletonList(shortcutInfoCompat));
-                    handler.removeCallbacks(this);
-                }
-            }, 400);
-        }
+        final Notification notification = new NotificationCompat.Builder(context, LW_BUBBLES_CHANNEL_ID)
+                                                  .setDefaults(0).setOnlyAlertOnce(true).setAutoCancel(true).setColorized(true).setVibrate(null)
+                                                  .setSmallIcon(LW_SMALL_ICON)
+                                                  // bubbles api stuff
+                                                  .setBubbleMetadata(bubbleMetadata).setShortcutId(LW_BUBBLES_CONVO_ID).setLocusId(locusIdCompat)
+                                                  // category and style stuff
+                                                  .setCategory(NotificationCompat.CATEGORY_MESSAGE).setBadgeIconType(NotificationCompat.BADGE_ICON_NONE)
+                                                  .setStyle(messagingStyle).build();
+
+        notification.flags |= Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONLY_ALERT_ONCE;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) notification.flags |= Notification.FLAG_LOCAL_ONLY;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) notification.flags |= Notification.FLAG_BUBBLE;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && notificationManager.canNotifyAsPackage(BuildConfig.APPLICATION_ID))
+            notificationManager.notifyAsPackage(BuildConfig.APPLICATION_ID, LW_BUBBLES_CONVO_ID, LW_NOTIFICATION_ID, notification);
+        else notificationManager.notify(LW_NOTIFICATION_ID, notification);
+
+        final Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // this is for setting search icon back to shortcut
+                shortcutBuilder.setIcon(defaultShortcutIcon);
+                final ShortcutInfoCompat shortcutInfoCompat = shortcutBuilder.build();
+                ShortcutManagerCompat.setDynamicShortcuts(context, Collections.singletonList(shortcutInfoCompat));
+                handler.removeCallbacks(this);
+            }
+        }, 400);
     }
 
     private static float getScreenHeight(final Context context) {
-        return (context != null ? context.getResources() : Resources.getSystem())
-                .getDisplayMetrics().heightPixels;
+        return (context != null ? context.getResources() : Resources.getSystem()).getDisplayMetrics().heightPixels;
     }
 }

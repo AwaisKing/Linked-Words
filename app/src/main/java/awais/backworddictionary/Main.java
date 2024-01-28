@@ -25,7 +25,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -75,10 +74,11 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
+
     public static final int TTS_DATA_CHECK_CODE = 775;
     static final TTSRefresher ttsRefresher = () -> onTTSInit(TextToSpeech.SUCCESS);
     private static final int[] tabs = {R.string.reverse, R.string.sounds_like, R.string.spelled_like, R.string.synonyms, R.string.antonyms,
-            R.string.triggers, R.string.part_of, R.string.comprises, R.string.rhymes, R.string.homophones};
+                                       R.string.triggers, R.string.part_of, R.string.comprises, R.string.rhymes, R.string.homophones};
     public static boolean[] tabBoolsArray = {true, true, true, true, false, false, false, false, false, false};
     public static boolean isTTSAsyncRunning;
     public static TextToSpeech tts;
@@ -101,7 +101,6 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
 
         Utils.statusBarHeight = Utils.getStatusBarHeight(window, resources);
         Utils.navigationBarHeight = Utils.getNavigationBarHeight(window, resources);
-        Utils.inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         Utils.defaultLocale = Locale.getDefault();
         final int nightMode = SettingsHelper.getNightMode();
         if (nightMode != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
@@ -150,7 +149,7 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
         // check for tts before initializing it
         try {
             ActivityCompat.startActivityForResult(this, new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA),
-                    TTS_DATA_CHECK_CODE, null);
+                                                  TTS_DATA_CHECK_CODE, null);
         } catch (final Throwable e) {
             // tts check activity not found
             Toast.makeText(Main.this, R.string.tts_act_not_found, Toast.LENGTH_SHORT).show();
@@ -206,9 +205,9 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
             final int[] currentItem = {0};
             final DictionaryFragment item;
             final String prevTitle = mainBinding != null && fragmentsAdapter != null && (currentItem[0] = mainBinding.viewPager.getCurrentItem()) >= 0
-                    && fragmentsAdapter.getItemCount() > 0 && currentItem[0] < fragmentsAdapter.getItemCount()
-                    && (item = fragmentsAdapter.getItem(currentItem[0])) != null && item.isAdded()
-                    && !Utils.isEmpty(item.title) ? item.title : null;
+                                     && fragmentsAdapter.getItemCount() > 0 && currentItem[0] < fragmentsAdapter.getItemCount()
+                                     && (item = fragmentsAdapter.getItem(currentItem[0])) != null && item.isAdded()
+                                     && !Utils.isEmpty(item.title) ? item.title : null;
 
             tabBoolsArray = SettingsHelper.getTabs();
             fragmentsAdapter = new DictionaryFragmentsAdapter(this, tabBoolsArray.length);
@@ -219,14 +218,13 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
             if (fragmentsAdapter.isEmpty())
                 fragmentsAdapter.setFragments(getString(tabs[0]), getString(tabs[1]), getString(tabs[2]), getString(tabs[3]));
 
-            mainBinding.viewPager.setOffscreenPageLimit(5);
-            mainBinding.viewPager.setAdapter(fragmentsAdapter);
-
             if (mainBinding != null) {
+                mainBinding.viewPager.setOffscreenPageLimit(5);
+                mainBinding.viewPager.setAdapter(fragmentsAdapter);
+
                 mainBinding.tabLayout.clearOnTabSelectedListeners();
                 new TabLayoutMediator(mainBinding.tabLayout, mainBinding.viewPager, true, true,
-                        (tab, position) -> tab.setText(fragmentsAdapter.getPageTitle(position)))
-                        .attach();
+                                      (tab, position) -> tab.setText(fragmentsAdapter.getPageTitle(position))).attach();
                 mainBinding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                     private int prevTab = 0;
 
@@ -253,7 +251,7 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                                 if (prevItem.isAdded())
                                     prevItem.showFilter(prevItem.isFilterOpen(), FilterMethod.RECYCLER_NO_PADDING);
                                 currentItem.showFilter(currentItem.isFilterOpen(),
-                                        currentItem.isFilterOpen() ? FilterMethod.RECYCLER_NO_PADDING : FilterMethod.RECYCLER_PADDING);
+                                                       currentItem.isFilterOpen() ? FilterMethod.RECYCLER_NO_PADDING : FilterMethod.RECYCLER_PADDING);
                             }
                         }
                     }
@@ -266,54 +264,54 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
                 });
             }
 
-            if (!Utils.isEmpty(prevTitle)) {
-                final Handler handler = new Handler(getMainLooper());
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        currentItem[0] = Math.max(0, Math.min(fragmentsAdapter.getItemCount() - 1, currentItem[0]));
-                        mainBinding.viewPager.setCurrentItem(currentItem[0], false);
-                        final DictionaryFragment fragment = fragmentsAdapter.getItem(currentItem[0]);
+            if (Utils.isEmpty(prevTitle)) return;
 
-                        if (fragment != null && fragment.isAdded())
-                            onSearch(prevTitle);
-                        handler.removeCallbacks(this);
-                    }
-                }, 800);
-            }
+            final Handler handler = new Handler(getMainLooper());
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    currentItem[0] = Math.max(0, Math.min(fragmentsAdapter.getItemCount() - 1, currentItem[0]));
+                    mainBinding.viewPager.setCurrentItem(currentItem[0], false);
+                    final DictionaryFragment fragment = fragmentsAdapter.getItem(currentItem[0]);
 
-        } else if (!isBubbling) {
+                    if (fragment != null && fragment.isAdded())
+                        onSearch(prevTitle);
+                    handler.removeCallbacks(this);
+                }
+            }, 800);
+
+            return;
+        }
+
+        if (isBubbling) loadFragments(true);
+        else {
             finish();
             startActivity(new Intent(getBaseContext().getApplicationContext(), Main.class));
-        } else
-            loadFragments(true);
+        }
     }
 
     private void handleData() {
         final Intent intent = getIntent();
+        if (intent == null || !Intent.ACTION_VIEW.equals(intent.getAction())) return;
+
         final String data;
+        if (Utils.isEmpty(data = intent.hasExtra(Intent.EXTRA_TEXT) ? intent.getStringExtra(Intent.EXTRA_TEXT) : intent.getDataString())) return;
 
-        if (intent != null && Intent.ACTION_VIEW.equals(intent.getAction()) &&
-                !Utils.isEmpty(data = intent.hasExtra(Intent.EXTRA_TEXT) ?
-                        intent.getStringExtra(Intent.EXTRA_TEXT) : intent.getDataString())) {
+        if (!isBubbling) isBubbling = intent.hasExtra(BubbleHelper.INTENT_EXTRA_BUBBLING)
+                                      && intent.getBooleanExtra(BubbleHelper.INTENT_EXTRA_BUBBLING, false);
 
-            if (!isBubbling)
-                isBubbling = intent.hasExtra(BubbleHelper.INTENT_EXTRA_BUBBLING) &&
-                        intent.getBooleanExtra(BubbleHelper.INTENT_EXTRA_BUBBLING, false);
-
-            final Handler handler = new Handler(Looper.getMainLooper());
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    handler.removeCallbacks(this);
-                    if (mainBinding != null) {
-                        mainBinding.searchView.setHandlingIntentData(true);
-                        mainBinding.searchView.setQuery(data, true);
-                        mainBinding.searchView.setHandlingIntentData(false);
-                    }
+        final Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                handler.removeCallbacks(this);
+                if (mainBinding != null) {
+                    mainBinding.searchView.setHandlingIntentData(true);
+                    mainBinding.searchView.setQuery(data, true);
+                    mainBinding.searchView.setHandlingIntentData(false);
                 }
-            }, 300);
-        }
+            }
+        }, 300);
     }
 
     @Override
@@ -354,7 +352,7 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
 
             } else if (requestCode == MaterialSearchView.SPEECH_REQUEST_CODE && data != null) {
                 final ArrayList<String> text = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                if (mainBinding != null && text != null && text.size() > 0)
+                if (mainBinding != null && text != null && !text.isEmpty())
                     mainBinding.searchView.setQuery(text.get(0), true);
             }
         } else
@@ -417,7 +415,7 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
             if (mainBinding != null && mainBinding.searchView.isSearchOpen()) {
                 mainBinding.searchView.close(false);
                 toolbarParams.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL |
-                        AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
+                                             AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS);
                 mainBinding.toolbar.setLayoutParams(toolbarParams);
             }
         } catch (final Exception e) {
@@ -438,12 +436,10 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
     public void onBackPressed() {
         final DictionaryFragment fragment;
         if (fragmentsAdapter != null && mainBinding != null && fragmentsAdapter.getItemCount() > 0
-                && (fragment = fragmentsAdapter.getItem(mainBinding.viewPager.getCurrentItem())) != null
-                && fragment.isAdded() && fragment.isFilterOpen() && fragment.hideFilter())
-            return;
+            && (fragment = fragmentsAdapter.getItem(mainBinding.viewPager.getCurrentItem())) != null
+            && fragment.isAdded() && fragment.isFilterOpen() && fragment.hideFilter()) return;
 
-        if (isBubbling)
-            super.onBackPressed();
+        if (isBubbling) super.onBackPressed();
         else MyApps.showAlertDialog(this, (parent, view, position, id) -> {
             if (id == -1 && position == -1 && parent == null) super.onBackPressed();
             else MyApps.openAppStore(this, position);
@@ -455,9 +451,8 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
         super.onResume();
         historyDatabase.open();
         final Intent intent;
-        if (!isBubbling && (intent = getIntent()) != null)
-            isBubbling = intent.hasExtra(BubbleHelper.INTENT_EXTRA_BUBBLING) &&
-                    intent.getBooleanExtra(BubbleHelper.INTENT_EXTRA_BUBBLING, false);
+        if (!isBubbling && (intent = getIntent()) != null) isBubbling = intent.hasExtra(BubbleHelper.INTENT_EXTRA_BUBBLING) &&
+                                                                        intent.getBooleanExtra(BubbleHelper.INTENT_EXTRA_BUBBLING, false);
     }
 
     @Override
@@ -473,217 +468,213 @@ public final class Main extends AppCompatActivity implements FragmentLoader, Mai
     }
 
     private void setSearchView() {
-        if (mainBinding != null) {
-            mainBinding.searchView.bringToFront();
+        if (mainBinding == null) return;
+        mainBinding.searchView.bringToFront();
 
-            historyDatabase = new SearchHistoryTable(this);
-            mainBinding.searchView.setAdapter(searchAdapter = new SearchAdapter(historyDatabase, new AdapterClickListener() {
-                private AlertDialog alertDialog;
+        historyDatabase = new SearchHistoryTable(this);
+        mainBinding.searchView.setAdapter(searchAdapter = new SearchAdapter(historyDatabase, new AdapterClickListener() {
+            private AlertDialog alertDialog;
 
-                @Override
-                public void onClick(final View view) {
-                    final Object tag = view.getTag();
-                    if (tag instanceof SearchItem) {
-                        final String word = ((SearchItem) tag).getText();
-                        onSearch(word);
-                        historyItemAction(false, word);
+            @Override
+            public void onClick(final View view) {
+                final Object tag = view.getTag();
+                if (tag instanceof SearchItem) {
+                    final String word = ((SearchItem) tag).getText();
+                    onSearch(word);
+                    historyItemAction(false, word);
+                }
+            }
+
+            @Override
+            public boolean onLongClick(final View view) {
+                if (view == null) return super.onLongClick(null);
+
+                final Object tag = view.getTag();
+                if (tag instanceof SearchItem) {
+                    final SearchItem searchItem = (SearchItem) tag;
+                    if (searchItem.isSearchable()) return true;
+
+                    final String word = searchItem.getText();
+
+                    if (alertDialog == null) {
+                        final DialogInterface.OnClickListener btnListener = (dialog, which) -> {
+                            if (which == DialogInterface.BUTTON_POSITIVE) historyItemAction(true, word);
+                            dialog.dismiss();
+                        };
+
+                        alertDialog = new MaterialAlertDialogBuilder(Main.this, R.style.MaterialAlertDialogTheme)
+                                              .setTitle(R.string.remove_recent)
+                                              .setPositiveButton(R.string.yes, btnListener)
+                                              .setNegativeButton(R.string.no, btnListener).create();
+                    }
+
+                    alertDialog.setMessage(getString(R.string.confirm_remove, word));
+                    alertDialog.show();
+
+                    final TextView tvMessage = alertDialog.findViewById(android.R.id.message);
+                    if (tvMessage != null) {
+                        if (tvMessage.getTypeface() != LinkedApp.fontRegular)
+                            tvMessage.setTypeface(LinkedApp.fontRegular);
+
+                        final CharSequence tvMessageText = tvMessage.getText();
+                        if (!Utils.isEmpty(tvMessageText)) {
+                            final SpannableStringBuilder messageSpan = new SpannableStringBuilder(tvMessageText);
+                            final int spanStart = Utils.indexOfChar(tvMessageText, '"', 0);
+                            final int spanEnd = spanStart + word.length() + 1;
+                            messageSpan.setSpan(new StyleSpan(Typeface.BOLD), spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            messageSpan.delete(spanStart, spanStart + 1);
+                            messageSpan.delete(spanEnd - 1, spanEnd);
+                            tvMessage.setText(messageSpan);
+                        }
                     }
                 }
 
-                @Override
-                public boolean onLongClick(final View view) {
-                    if (view == null) return super.onLongClick(null);
+                return true;
+            }
+        }));
+        mainBinding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            private String text = "";
+            private SearchAsyncTask prevAsync;
+            private final Handler handler = new Handler(Looper.getMainLooper());
+            private final Runnable textWatch = () -> {
+                final SearchAsyncTask async = new SearchAsyncTask(Main.this);
+                Utils.stopAsyncSilent(prevAsync);
+                if (Utils.isEmpty(text)) Utils.stopAsyncSilent(async);
+                else async.execute(text);
+                prevAsync = async;
+            };
 
-                    final Object tag = view.getTag();
-                    if (tag instanceof SearchItem) {
-                        final SearchItem searchItem = (SearchItem) tag;
-                        if (searchItem.isSearchable()) return true;
+            @Override
+            public boolean onQueryTextSubmit(final String query) {
+                Utils.removeHandlerCallbacksSilent(handler, textWatch);
+                if (historyDatabase != null && !Utils.isEmpty(query)) historyItemAction(false, query);
+                onSearch(query);
+                return query != null;
+            }
 
-                        final String word = searchItem.getText();
-
-                        if (alertDialog == null) {
-                            final DialogInterface.OnClickListener btnListener = (dialog, which) -> {
-                                if (which == DialogInterface.BUTTON_POSITIVE) historyItemAction(true, word);
-                                dialog.dismiss();
-                            };
-
-                            alertDialog = new MaterialAlertDialogBuilder(Main.this, R.style.MaterialAlertDialogTheme)
-                                    .setTitle(R.string.remove_recent)
-                                    .setPositiveButton(R.string.yes, btnListener)
-                                    .setNegativeButton(R.string.no, btnListener).create();
-                        }
-
-                        alertDialog.setMessage(getString(R.string.confirm_remove, word));
-                        alertDialog.show();
-
-                        final TextView tvMessage = alertDialog.findViewById(android.R.id.message);
-                        if (tvMessage != null) {
-                            if (tvMessage.getTypeface() != LinkedApp.fontRegular)
-                                tvMessage.setTypeface(LinkedApp.fontRegular);
-
-                            final CharSequence tvMessageText = tvMessage.getText();
-                            if (!Utils.isEmpty(tvMessageText)) {
-                                final SpannableStringBuilder messageSpan = new SpannableStringBuilder(tvMessageText);
-                                final int spanStart = Utils.indexOfChar(tvMessageText, '"', 0);
-                                final int spanEnd = spanStart + word.length() + 1;
-                                messageSpan.setSpan(new StyleSpan(Typeface.BOLD), spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                messageSpan.delete(spanStart, spanStart + 1);
-                                messageSpan.delete(spanEnd - 1, spanEnd);
-                                tvMessage.setText(messageSpan);
-                            }
-                        }
-                    }
-
-                    return true;
-                }
-            }));
-            mainBinding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                private String text = "";
-                private SearchAsyncTask prevAsync;
-                private final Handler handler = new Handler(Looper.getMainLooper());
-                private final Runnable textWatch = () -> {
-                    final SearchAsyncTask async = new SearchAsyncTask(Main.this);
-                    Utils.stopAsyncSilent(prevAsync);
-                    if (Utils.isEmpty(text)) Utils.stopAsyncSilent(async);
-                    else async.execute(text);
-                    prevAsync = async;
-                };
-
-                @Override
-                public boolean onQueryTextSubmit(final String query) {
+            @Override
+            public boolean onQueryTextChange(final String newText) {
+                text = newText;
+                if (!Utils.isEmpty(newText)) {
                     Utils.removeHandlerCallbacksSilent(handler, textWatch);
-                    if (historyDatabase != null && !Utils.isEmpty(query)) historyItemAction(false, query);
-                    onSearch(query);
-                    return query != null;
+                    handler.postDelayed(textWatch, 800);
+                    mainBinding.searchView.showProgress();
+                } else mainBinding.searchView.hideProgress();
+                return true;
+            }
+        });
+
+        mainBinding.searchView.setOnOpenCloseListener(new MaterialSearchView.OnOpenCloseListener() {
+            private DictionaryFragment fragment;
+            private int oldScrollFlag = toolbarParams.getScrollFlags();
+
+            @Override
+            public void onClose() {
+                if (mainBinding != null && fragmentsAdapter != null) {
+                    fragment = fragmentsAdapter.getItem(mainBinding.viewPager.getCurrentItem());
+
+                    if (fragment.isAdded() && !fragment.isFilterOpen())
+                        fragment.showFilter(false, FilterMethod.DO_NOTHING);
+                    toolbarParams.setScrollFlags(oldScrollFlag);
+                    mainBinding.toolbar.setLayoutParams(toolbarParams);
                 }
+            }
 
-                @Override
-                public boolean onQueryTextChange(final String newText) {
-                    text = newText;
-                    if (!Utils.isEmpty(newText)) {
-                        Utils.removeHandlerCallbacksSilent(handler, textWatch);
-                        handler.postDelayed(textWatch, 800);
-                        mainBinding.searchView.showProgress();
-                    } else mainBinding.searchView.hideProgress();
-                    return true;
+            @Override
+            public void onOpen() {
+                if (mainBinding != null && fragmentsAdapter != null) {
+                    fragment = fragmentsAdapter.getItem(mainBinding.viewPager.getCurrentItem());
+
+                    if (fragment.isAdded())
+                        fragment.showFilter(true, FilterMethod.DO_NOTHING);
+                    mainBinding.appbarLayout.setExpanded(true, true);
+                    oldScrollFlag = toolbarParams.getScrollFlags();
+                    toolbarParams.setScrollFlags(0);
+                    mainBinding.toolbar.setLayoutParams(toolbarParams);
                 }
-            });
-
-            mainBinding.searchView.setOnOpenCloseListener(new MaterialSearchView.OnOpenCloseListener() {
-                private DictionaryFragment fragment;
-                private int oldScrollFlag = toolbarParams.getScrollFlags();
-
-                @Override
-                public void onClose() {
-                    if (mainBinding != null && fragmentsAdapter != null) {
-                        fragment = fragmentsAdapter.getItem(mainBinding.viewPager.getCurrentItem());
-
-                        if (fragment.isAdded() && !fragment.isFilterOpen())
-                            fragment.showFilter(false, FilterMethod.DO_NOTHING);
-                        toolbarParams.setScrollFlags(oldScrollFlag);
-                        mainBinding.toolbar.setLayoutParams(toolbarParams);
-                    }
-                }
-
-                @Override
-                public void onOpen() {
-                    if (mainBinding != null && fragmentsAdapter != null) {
-                        fragment = fragmentsAdapter.getItem(mainBinding.viewPager.getCurrentItem());
-
-                        if (fragment.isAdded())
-                            fragment.showFilter(true, FilterMethod.DO_NOTHING);
-                        mainBinding.appbarLayout.setExpanded(true, true);
-                        oldScrollFlag = toolbarParams.getScrollFlags();
-                        toolbarParams.setScrollFlags(0);
-                        mainBinding.toolbar.setLayoutParams(toolbarParams);
-                    }
-                }
-            });
-        }
+            }
+        });
     }
 
     public static synchronized void onTTSInit(final int initStatus) {
-        if (tts != null && initStatus == TextToSpeech.SUCCESS) {
-            // set speech rate and pitch
-            {
-                tts.setSpeechRate(SettingsHelper.getTTSSpeechRate() / 100f);
-                tts.setPitch(SettingsHelper.getTTSPitch() / 100f);
-            }
+        if (tts == null || initStatus != TextToSpeech.SUCCESS) return;
 
-            // set engine and voice
-            if (isTTSAsyncRunning) return;
-
-            isTTSAsyncRunning = true;
-
-            final String defaultEngine = tts.getDefaultEngine();
-            final Locale defaultLanguage = tts.getDefaultLanguage();
-            Voice defaultVoice;
-            try {
-                defaultVoice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? tts.getDefaultVoice() : null;
-            } catch (final Exception e) {
-                defaultVoice = null;
-            }
-
-            String engine = defaultEngine;
-            Locale language = tts.getLanguage();
-            Voice voice;
-            try {
-                voice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? tts.getVoice() : null;
-            } catch (final Exception e) {
-                voice = null;
-            }
-
-            final String ttsEngine = SettingsHelper.getTTSEngine();
-            final String ttsVoice = SettingsHelper.getTTSVoice();
-            final String ttsLanguage = SettingsHelper.getTTSLanguage();
-
-            String tempStr;
-
-            final boolean setEngine = !Utils.isEmpty(ttsEngine) && !ttsEngine.equals(defaultEngine);
-            final boolean setLanguage = !Utils.isEmpty(ttsLanguage) && !Utils.isEmpty(tempStr = language != null
-                    ? language.getDisplayLanguage() : defaultLanguage != null ? defaultLanguage.getDisplayLanguage() : null)
-                    && !ttsLanguage.equals(tempStr);
-            final boolean setVoice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                    !Utils.isEmpty(ttsVoice) && !Utils.isEmpty(tempStr = voice != null
-                    ? voice.getName() : defaultVoice != null ? defaultVoice.getName() : null) && !tempStr.equals(ttsVoice);
-
-            if (setEngine) engine = ttsEngine;
-
-            if (setLanguage) {
-                final List<Locale> languages = new ArrayList<>(0);
-                final List<Locale> locales = Arrays.asList(Locale.getAvailableLocales());
-                Collection<Locale> localeCollection;
-                try {
-                    localeCollection = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? tts.getAvailableLanguages() :
-                            locales;
-                } catch (final Exception e) {
-                    localeCollection = locales;
-                }
-                languages.addAll(localeCollection);
-
-                for (final Locale intLanguage : languages) {
-                    if (intLanguage != null && intLanguage.getDisplayLanguage().equals(ttsLanguage)) {
-                        language = intLanguage;
-                        break;
-                    }
-                }
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && setVoice) {
-                for (final Voice intVoice : tts.getVoices()) {
-                    if (intVoice != null && TextUtils.equals(intVoice.getName(), ttsVoice)) {
-                        voice = intVoice;
-                        break;
-                    }
-                }
-            }
-
-            // noinspection deprecation
-            tts.setEngineByPackageName(engine);
-            tts.setLanguage(language);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && voice != null) tts.setVoice(voice);
-
-            isTTSAsyncRunning = false;
+        // set speech rate and pitch
+        {
+            tts.setSpeechRate(SettingsHelper.getTTSSpeechRate() / 100f);
+            tts.setPitch(SettingsHelper.getTTSPitch() / 100f);
         }
+
+        // set engine and voice
+        if (isTTSAsyncRunning) return;
+
+        isTTSAsyncRunning = true;
+
+        final String defaultEngine = tts.getDefaultEngine();
+        final Locale defaultLanguage = tts.getDefaultLanguage();
+        Voice defaultVoice;
+        try {
+            defaultVoice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? tts.getDefaultVoice() : null;
+        } catch (final Exception e) {
+            defaultVoice = null;
+        }
+
+        String engine = defaultEngine;
+        Locale language = tts.getLanguage();
+        Voice voice;
+        try {
+            voice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? tts.getVoice() : null;
+        } catch (final Exception e) {
+            voice = null;
+        }
+
+        final String ttsEngine = SettingsHelper.getTTSEngine();
+        final String ttsVoice = SettingsHelper.getTTSVoice();
+        final String ttsLanguage = SettingsHelper.getTTSLanguage();
+
+        String tempStr;
+
+        final boolean setEngine = !Utils.isEmpty(ttsEngine) && !ttsEngine.equals(defaultEngine);
+        final boolean setLanguage = !Utils.isEmpty(ttsLanguage) && !Utils.isEmpty(
+                tempStr = language != null ? language.getDisplayLanguage() : defaultLanguage != null ? defaultLanguage.getDisplayLanguage() : null)
+                                    && !ttsLanguage.equals(tempStr);
+        final boolean setVoice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !Utils.isEmpty(ttsVoice)
+                                 && !Utils.isEmpty(tempStr = voice != null ? voice.getName() : defaultVoice != null ? defaultVoice.getName() : null)
+                                 && !tempStr.equals(ttsVoice);
+
+        if (setEngine) engine = ttsEngine;
+
+        if (setLanguage) {
+            final List<Locale> languages = new ArrayList<>(0);
+            final List<Locale> locales = Arrays.asList(Locale.getAvailableLocales());
+            Collection<Locale> localeCollection;
+            try {
+                localeCollection = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? tts.getAvailableLanguages() : locales;
+            } catch (final Exception e) {
+                localeCollection = locales;
+            }
+            languages.addAll(localeCollection);
+
+            for (final Locale intLanguage : languages) {
+                if (intLanguage == null || !intLanguage.getDisplayLanguage().equals(ttsLanguage)) continue;
+                language = intLanguage;
+                break;
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && setVoice) {
+            for (final Voice intVoice : tts.getVoices()) {
+                if (intVoice == null || !TextUtils.equals(intVoice.getName(), ttsVoice)) continue;
+                voice = intVoice;
+                break;
+            }
+        }
+
+        // noinspection deprecation
+        tts.setEngineByPackageName(engine);
+        tts.setLanguage(language);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && voice != null) tts.setVoice(voice);
+
+        isTTSAsyncRunning = false;
     }
 }

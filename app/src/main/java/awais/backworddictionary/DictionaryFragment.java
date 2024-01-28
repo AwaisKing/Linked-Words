@@ -34,13 +34,14 @@ import awais.backworddictionary.adapters.holders.WordItem;
 import awais.backworddictionary.adapters.holders.WordItemViewHolder;
 import awais.backworddictionary.asyncs.WordsAsync;
 import awais.backworddictionary.databinding.DictionaryViewBinding;
+import awais.backworddictionary.helpers.AppHelper;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.SmoothScroller;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.FragmentCallback;
 
 public final class DictionaryFragment extends Fragment implements FragmentCallback, SwipeRefreshLayout.OnRefreshListener,
-        View.OnClickListener, TextWatcher {
+                                                                          View.OnClickListener, TextWatcher {
     private static final RecyclerView.OnScrollListener VIEWPAGER_SCROLL_HACK = new RecyclerView.OnScrollListener() {
         private boolean isVertical = false, isHorizontal = false;
 
@@ -90,7 +91,7 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
         if (Main.tts == null) {
             try {
                 ActivityCompat.startActivityForResult(this.activity, new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA),
-                        Main.TTS_DATA_CHECK_CODE, null);
+                                                      Main.TTS_DATA_CHECK_CODE, null);
             } catch (final Throwable e) {
                 // tts check activity not found
                 Toast.makeText(this.activity, R.string.tts_act_not_found, Toast.LENGTH_SHORT).show();
@@ -126,15 +127,12 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
         final Resources.Theme theme = actNotNull ? activity.getTheme() : null;
         cardBackColor = ResourcesCompat.getColor(resources, R.color.cards_back_color, theme);
 
-        if (Utils.inputMethodManager == null && actNotNull)
-            Utils.inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-
         wordList.clear();
         wordsAdapter = new DictionaryWordsAdapter(activity, wordList);
 
         dictionaryBinding.swipeRefreshLayout.setEnabled(false);
         dictionaryBinding.swipeRefreshLayout.setColorSchemeResources(R.color.progress1, R.color.progress2,
-                R.color.progress3, R.color.progress4);
+                                                                     R.color.progress3, R.color.progress4);
         dictionaryBinding.swipeRefreshLayout.setOnRefreshListener(this);
 
         startOffset = dictionaryBinding.swipeRefreshLayout.getProgressViewStartOffset();
@@ -143,7 +141,7 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
 
         if (BuildConfig.DEBUG) {
             // todo add animator in next release build
-            //recyclerView.setItemAnimator(new MagicAnimator());
+            // recyclerView.setItemAnimator(new MagicAnimator());
             dictionaryBinding.rvItems.setItemAnimator(null);
         }
         dictionaryBinding.rvItems.setHasFixedSize(true);
@@ -305,7 +303,7 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
 
             if (method != FilterMethod.DO_NOTHING) {
                 dictionaryBinding.swipeRefreshLayout.setProgressViewOffset(false, startOffset,
-                        showFilter ? expandedEndOffset : endOffset);
+                                                                           showFilter ? expandedEndOffset : endOffset);
                 if (isRefrehing) dictionaryBinding.swipeRefreshLayout.setRefreshing(true);
             }
         }
@@ -322,10 +320,9 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
     }
 
     private void toggleKeyboard(final boolean show) {
-        if (Utils.inputMethodManager != null) {
-            if (show) Utils.inputMethodManager.showSoftInput(dictionaryBinding.filterSearchEditor, 1);
-            else Utils.inputMethodManager.hideSoftInputFromWindow(dictionaryBinding.filterSearchEditor.getWindowToken(), 1);
-        }
+        final InputMethodManager imm = AppHelper.getInstance(getContext()).getInputMethodManager();
+        if (show) imm.showSoftInput(dictionaryBinding.filterSearchEditor, 1);
+        else imm.hideSoftInputFromWindow(dictionaryBinding.filterSearchEditor.getWindowToken(), 1);
     }
 
     void scrollRecyclerView(final boolean directionUp) {
@@ -385,7 +382,7 @@ public final class DictionaryFragment extends Fragment implements FragmentCallba
     }
 
     @Override
-    public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) { }
+    public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {}
 
     public enum FilterMethod {
         DO_NOTHING, RECYCLER_PADDING, RECYCLER_NO_PADDING,

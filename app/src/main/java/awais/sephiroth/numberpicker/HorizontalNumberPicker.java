@@ -19,6 +19,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -33,6 +34,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import awais.backworddictionary.R;
+import awais.backworddictionary.helpers.AppHelper;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.NumberPickerProgressListener;
 import awais.sephiroth.uigestures.UIGestureRecognizer.State;
@@ -44,7 +46,7 @@ import awais.sephiroth.xtooltip.TooltipFunctions;
 
 /**
  * Thanks to sephiroth74 for his NumberPicker library written in Kotlin
- * https://github.com/sephiroth74/NumberSlidingPicker
+ * <a href="https://github.com/sephiroth74/NumberSlidingPicker">https://github.com/sephiroth74/NumberSlidingPicker</a>
  */
 public final class HorizontalNumberPicker extends LinearLayoutCompat implements TextWatcher {
     static {
@@ -59,7 +61,7 @@ public final class HorizontalNumberPicker extends LinearLayoutCompat implements 
             new int[]{-android.R.attr.state_focused},
             new int[]{android.R.attr.state_focused},
             new int[]{-android.R.attr.state_enabled},
-    };
+            };
     private static final int[] FOCUSED_STATE_ARRAY = {android.R.attr.state_focused};
     private static final int[] UNFOCUSED_STATE_ARRAY = {-android.R.attr.state_focused}; // todo was 0, -focused
 
@@ -83,7 +85,7 @@ public final class HorizontalNumberPicker extends LinearLayoutCompat implements 
     @SuppressLint("ClickableViewAccessibility")
     public HorizontalNumberPicker(Context context, final AttributeSet attrs, final int defStyleAttr) {
         super(context = new ContextThemeWrapper(context, R.style.AppTheme),
-                attrs, defStyleAttr);
+              attrs, defStyleAttr);
 
         final Resources.Theme theme = context.getTheme();
 
@@ -106,7 +108,7 @@ public final class HorizontalNumberPicker extends LinearLayoutCompat implements 
         btnRight.setBackgroundResource(resource);
 
         editText = new EditText(new ContextThemeWrapper(context, isEnabled() ? R.style.NumberPicker_EditTextStyle
-                : R.style.NumberPicker_EditTextStyle_Disabled), null, 0);
+                                                                             : R.style.NumberPicker_EditTextStyle_Disabled), null, 0);
         editText.setLines(1);
         editText.setEms(4);
         editText.setFocusableInTouchMode(true);
@@ -296,8 +298,8 @@ public final class HorizontalNumberPicker extends LinearLayoutCompat implements 
     }
 
     private void hideKeyboard() {
-        if (Utils.inputMethodManager != null)
-            Utils.inputMethodManager.hideSoftInputFromWindow(getWindowToken(), 0);
+        final InputMethodManager inputMethodManager = AppHelper.getInstance(getContext()).getInputMethodManager();
+        inputMethodManager.hideSoftInputFromWindow(getWindowToken(), 0);
     }
 
     private void startInteraction() {
@@ -352,12 +354,12 @@ public final class HorizontalNumberPicker extends LinearLayoutCompat implements 
     }
 
     @Override
-    public void afterTextChanged(final Editable s) { }
+    public void afterTextChanged(final Editable s) {}
 
     @Override
-    public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) { }
+    public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {}
 
-    private static final Drawable getNumberPickerBackground(Context context) {
+    private static Drawable getNumberPickerBackground(Context context) {
         if (context == null) return null;
 
         if (!(context instanceof ContextThemeWrapper))
@@ -381,15 +383,15 @@ public final class HorizontalNumberPicker extends LinearLayoutCompat implements 
         if (drawable == null) {
             theme.resolveAttribute(R.attr.colorControlNormal, outValue, true);
             final int colorControlNormal = outValue.resourceId != 0 ?
-                    ResourcesCompat.getColor(resources, outValue.resourceId, theme) : outValue.data;
+                                           ResourcesCompat.getColor(resources, outValue.resourceId, theme) : outValue.data;
 
             theme.resolveAttribute(R.attr.colorControlActivated, outValue, true);
             final int colorControlActivated = outValue.resourceId != 0 ?
-                    ResourcesCompat.getColor(resources, outValue.resourceId, theme) : outValue.data;
+                                              ResourcesCompat.getColor(resources, outValue.resourceId, theme) : outValue.data;
 
             theme.resolveAttribute(R.attr.colorControlHighlight, outValue, true);
             final int colorControlHighlight = outValue.resourceId != 0 ?
-                    ResourcesCompat.getColor(resources, outValue.resourceId, theme) : outValue.data;
+                                              ResourcesCompat.getColor(resources, outValue.resourceId, theme) : outValue.data;
 
             final float density = context.getResources().getDisplayMetrics().density;
             final float cornerRadius = density * 4f;
