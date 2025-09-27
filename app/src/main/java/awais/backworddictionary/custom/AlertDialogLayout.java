@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
 
 import awais.backworddictionary.R;
 
@@ -93,7 +92,7 @@ public final class AlertDialogLayout extends LinearLayoutCompat {
 
         if (middlePanel != null) {
             final int childHeightSpec = heightMode == MeasureSpec.UNSPECIFIED ? MeasureSpec.UNSPECIFIED :
-                    MeasureSpec.makeMeasureSpec(Math.max(0, heightSize - usedHeight), heightMode);
+                                        MeasureSpec.makeMeasureSpec(Math.max(0, heightSize - usedHeight), heightMode);
 
             middlePanel.measure(widthMeasureSpec, childHeightSpec);
             middleHeight = middlePanel.getMeasuredHeight();
@@ -166,17 +165,15 @@ public final class AlertDialogLayout extends LinearLayoutCompat {
 
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
-            if (child.getVisibility() != View.GONE) {
-                final LinearLayoutCompat.LayoutParams lp = (LayoutParams) child.getLayoutParams();
-                if (lp.width == LayoutParams.MATCH_PARENT) {
-                    // Temporarily force children to reuse their old measured height.
-                    final int oldHeight = lp.height;
-                    lp.height = child.getMeasuredHeight();
-                    // Remeasure with new dimensions.
-                    measureChildWithMargins(child, uniformMeasureSpec, 0, heightMeasureSpec, 0);
-                    lp.height = oldHeight;
-                }
-            }
+            final ViewGroup.LayoutParams lp = child == null || child.getVisibility() == View.GONE ? null : child.getLayoutParams();
+            if (lp == null || lp.width != LayoutParams.MATCH_PARENT) continue;
+
+            // Temporarily force children to reuse their old measured height.
+            final int oldHeight = lp.height;
+            lp.height = child.getMeasuredHeight();
+            // Remeasure with new dimensions.
+            measureChildWithMargins(child, uniformMeasureSpec, 0, heightMeasureSpec, 0);
+            lp.height = oldHeight;
         }
     }
 
@@ -189,17 +186,10 @@ public final class AlertDialogLayout extends LinearLayoutCompat {
      * @param v the view whose minimum height to resolve
      * @return the minimum height
      */
-    private static int resolveMinimumHeight(final View v) {
-        final int minHeight = ViewCompat.getMinimumHeight(v);
-
+    private static int resolveMinimumHeight(@NonNull final View v) {
+        final int minHeight = v.getMinimumHeight();
         if (minHeight > 0) return minHeight;
-
-        if (v instanceof ViewGroup) {
-            final ViewGroup vg = (ViewGroup) v;
-            if (vg.getChildCount() == 1)
-                return resolveMinimumHeight(vg.getChildAt(0));
-        }
-
+        if (v instanceof final ViewGroup vg && vg.getChildCount() == 1) return resolveMinimumHeight(vg.getChildAt(0));
         return 0;
     }
 
@@ -216,60 +206,49 @@ public final class AlertDialogLayout extends LinearLayoutCompat {
         final int childSpace = width - paddingLeft - getPaddingRight();
 
         final int totalLength = getMeasuredHeight();
-        final int count = getChildCount();
+        final int childCount = getChildCount();
+        final int layoutDirection = getLayoutDirection();
         final int gravity = getGravity();
         final int majorGravity = gravity & Gravity.VERTICAL_GRAVITY_MASK;
         final int minorGravity = gravity & GravityCompat.RELATIVE_HORIZONTAL_GRAVITY_MASK;
 
-        int childTop;
-        switch (majorGravity) {
-            case Gravity.BOTTOM:
-                // totalLength contains the padding already
-                childTop = getPaddingTop() + bottom - top - totalLength;
-                break;
+        final int paddingTop = getPaddingTop();
+        int childTop = switch (majorGravity) {
+            // totalLength contains the padding already
+            case Gravity.BOTTOM -> paddingTop + bottom - top - totalLength;
 
             // totalLength contains the padding already
-            case Gravity.CENTER_VERTICAL:
-                childTop = getPaddingTop() + (bottom - top - totalLength) / 2;
-                break;
+            case Gravity.CENTER_VERTICAL -> paddingTop + (bottom - top - totalLength) / 2;
 
-            case Gravity.TOP:
-            default:
-                childTop = getPaddingTop();
-                break;
-        }
+            default -> paddingTop;
+        };
 
         final Drawable dividerDrawable = getDividerDrawable();
         final int dividerHeight = dividerDrawable == null ? 0 : dividerDrawable.getIntrinsicHeight();
 
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
-            if (child != null && child.getVisibility() != GONE) {
-                final int childWidth = child.getMeasuredWidth();
-                final int childHeight = child.getMeasuredHeight();
+            if (child == null || child.getVisibility() == GONE) continue;
 
-                final LinearLayoutCompat.LayoutParams lp = (LinearLayoutCompat.LayoutParams) child.getLayoutParams();
+            final int childWidth = child.getMeasuredWidth();
+            final int childHeight = child.getMeasuredHeight();
+            final MarginLayoutParams childLayoutParams = (ViewGroup.MarginLayoutParams) child.getLayoutParams();
 
-                int layoutGravity = lp.gravity;
-                if (layoutGravity < 0) layoutGravity = minorGravity;
+            int layoutGravity = childLayoutParams instanceof LayoutParams lp ? lp.gravity : -1;
+            if (layoutGravity < 0) layoutGravity = minorGravity;
 
-                final int layoutDirection = ViewCompat.getLayoutDirection(this);
-                final int absoluteGravity = GravityCompat.getAbsoluteGravity(layoutGravity, layoutDirection);
+            final int absoluteGravity = GravityCompat.getAbsoluteGravity(layoutGravity, layoutDirection);
+            final int childLeft = switch (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
+                case Gravity.CENTER_HORIZONTAL -> paddingLeft + (childSpace - childWidth) / 2 + childLayoutParams.leftMargin - childLayoutParams.rightMargin;
+                case Gravity.RIGHT -> childRight - childWidth - childLayoutParams.rightMargin;
+                default -> paddingLeft + childLayoutParams.leftMargin;
+            };
 
-                final int childLeft;
-                if ((absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL)
-                    childLeft = paddingLeft + (childSpace - childWidth) / 2 + lp.leftMargin - lp.rightMargin;
-                else if ((absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.RIGHT)
-                    childLeft = childRight - childWidth - lp.rightMargin;
-                else
-                    childLeft = paddingLeft + lp.leftMargin;
+            if (hasDividerBeforeChildAt(i)) childTop += dividerHeight;
 
-                if (hasDividerBeforeChildAt(i)) childTop += dividerHeight;
-
-                childTop += lp.topMargin;
-                child.layout(childLeft, childTop, childLeft + childWidth, childTop + childHeight);
-                childTop += childHeight + lp.bottomMargin;
-            }
+            childTop += childLayoutParams.topMargin;
+            child.layout(childLeft, childTop, childLeft + childWidth, childTop + childHeight);
+            childTop += childHeight + childLayoutParams.bottomMargin;
         }
     }
 }

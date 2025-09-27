@@ -1,10 +1,7 @@
 package awais.backworddictionary.helpers;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -13,17 +10,8 @@ public final class URLEncoder {
     private static final int caseDiff = 'a' - 'A';
     private static final BitSet dontNeedEncoding;
     private static final CharacterWriter characterWriter = new CharacterWriter();
-    private static Charset charset;
-
 
     static {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) charset = StandardCharsets.UTF_8;
-        else try {
-            charset = Charset.forName(Utils.CHARSET);
-        } catch (final Exception ignored) {
-            charset = Charset.defaultCharset();
-        }
-
         dontNeedEncoding = new BitSet(256);
         int i;
         for (i = 'a'; i <= 'z'; i++) dontNeedEncoding.set(i);
@@ -69,7 +57,7 @@ public final class URLEncoder {
                 } while (i < strLength && !dontNeedEncoding.get(c = (int) s.charAt(i)));
 
                 final String str = new String(characterWriter.toCharArray());
-                final byte[] ba = str.getBytes(charset);
+                final byte[] ba = str.getBytes(StandardCharsets.UTF_8);
                 for (final byte b : ba) {
                     out.append('%');
                     char ch = Character.forDigit(b >> 4 & 0xF, 16);

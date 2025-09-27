@@ -12,7 +12,7 @@ import awais.backworddictionary.R;
 
 /**
  * thanks to dominicthomas
- * https://gist.github.com/dominicthomas/1a268f3a113b490f751d9fb30cdb5875
+ * <a href="https://gist.github.com/dominicthomas/1a268f3a113b490f751d9fb30cdb5875">https://gist.github.com/dominicthomas/1a268f3a113b490f751d9fb30cdb5875</a>
  **/
 public final class MaxHeightRecyclerView extends RecyclerView {
     private final int maxHeightDp;
@@ -38,7 +38,6 @@ public final class MaxHeightRecyclerView extends RecyclerView {
 
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec,
-                MeasureSpec.makeMeasureSpec(maxHeightDp, MeasureSpec.AT_MOST));
+        super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(maxHeightDp, MeasureSpec.AT_MOST));
     }
 }

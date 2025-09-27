@@ -1,5 +1,6 @@
 package awais.backworddictionary.helpers;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -19,16 +20,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentManager;
 
+import com.applovin.sdk.AppLovinSdk;
+
 import java.util.ArrayList;
 
+import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.R;
 import awais.backworddictionary.dialogs.MenuDialog;
-import awais.backworddictionary.executor.LocalAsyncTask;
+import awais.backworddictionary.executors.LocalAsyncTask;
 import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
 
 public final class MenuHelper {
     private static SpannableStringBuilder examplesSpan, helpSpan, licensesSpan;
     private static CustomTabsHelper customTabsHelper;
+    private final Context context;
     private final MenuDialog menuDialog;
     private final String creditsString;
     private final FragmentManager fragmentManager;
@@ -39,6 +44,7 @@ public final class MenuHelper {
         fragmentManager = activity.getSupportFragmentManager();
         menuDialog = new MenuDialog();
         customTabsHelper = new CustomTabsHelper();
+        context = activity;
 
         final boolean helpEmpty = helpSpan == null || helpSpan.length() < 1;
         final boolean examplesEmpty = examplesSpan == null || examplesSpan.length() < 1;
@@ -86,7 +92,7 @@ public final class MenuHelper {
                         @Override
                         public void onClick(@NonNull final View view) {
                             CustomTabActivityHelper.openCustomTab(activity, customTabsHelper.setToolbarColor(0xFFFFC400),
-                                    Uri.parse("https://www.one".concat("look.com/?c=faq#patterns")));
+                                                                  Uri.parse("https://www.one".concat("look.com/?c=faq#patterns")));
                         }
                     });
                     helpBuilder.append(activity.getString(R.string.synonyms).concat(":\n"), new RelativeSizeSpan(1.2f), new StyleSpan(Typeface.BOLD), new ForegroundColorSpan(helpColor));
@@ -114,7 +120,7 @@ public final class MenuHelper {
                         @Override
                         public void onClick(@NonNull final View view) {
                             CustomTabActivityHelper.openCustomTab(activity, customTabsHelper.setToolbarColor(0xFF607D8B),
-                                    Uri.parse("https://romannurik.github.io/AndroidAssetStudio/"));
+                                                                  Uri.parse("https://romannurik.github.io/AndroidAssetStudio/"));
                         }
                     });
 
@@ -123,7 +129,7 @@ public final class MenuHelper {
                         @Override
                         public void onClick(@NonNull final View view) {
                             CustomTabActivityHelper.openCustomTab(activity, customTabsHelper.setToolbarColor(0xFF006FCC),
-                                    Uri.parse("https://www.datamuse.com/api/"));
+                                                                  Uri.parse("https://www.datamuse.com/api/"));
                         }
                     });
 
@@ -137,7 +143,7 @@ public final class MenuHelper {
                         @Override
                         public void onClick(@NonNull final View view) {
                             CustomTabActivityHelper.openCustomTab(activity, customTabsHelper.setToolbarColor(0xFFCB2533),
-                                    Uri.parse("https://www.apache.org/licenses/LICENSE-2.0"));
+                                                                  Uri.parse("https://www.apache.org/licenses/LICENSE-2.0"));
                         }
                     });
 
@@ -155,12 +161,15 @@ public final class MenuHelper {
         if (itemId == R.id.mExamples) menuDialog.setMessage(examplesSpan);
         else if (itemId == R.id.mHelp) menuDialog.setMessage(helpSpan);
         else if (itemId == R.id.mLicenses) menuDialog.setMessage(licensesSpan);
-        else if (itemId == R.id.mAbout) menuDialog.setMessage("aboutHere");
+        else if (itemId == R.id.mAbout) {
+            if (BuildConfig.DEBUG && context != null) AppLovinSdk.getInstance(context).showMediationDebugger();
+            else menuDialog.setMessage("aboutHere");
+        }
         menuDialog.show(fragmentManager, null);
     }
 
     private final static class SpanBuilder {
-        private final ArrayList<SpanSection> spanSections = new ArrayList<>(0);
+        private final ArrayList<SpanSection> spanSections = new ArrayList<>();
         private final StringBuilder stringBuilder = new StringBuilder();
 
         void append(final String text, final Object... styles) {
@@ -182,22 +191,11 @@ public final class MenuHelper {
             return String.valueOf(build());
         }
 
-        private final static class SpanSection {
-            private final String text;
-            private final int startIndex;
-            private final Object[] styles;
-
-            private SpanSection(final String text, final int startIndex, final Object... styles) {
-                this.styles = styles;
-                this.text = text;
-                this.startIndex = startIndex;
-            }
-
+        private record SpanSection(String text, int startIndex, Object... styles) {
             private void apply(final SpannableStringBuilder spanStringBuilder) {
-                if (spanStringBuilder != null) {
-                    for (final Object style : styles)
-                        spanStringBuilder.setSpan(style, startIndex, startIndex + text.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-                }
+                if (spanStringBuilder == null) return;
+                for (final Object style : styles)
+                    spanStringBuilder.setSpan(style, startIndex, startIndex + text.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             }
         }
     }

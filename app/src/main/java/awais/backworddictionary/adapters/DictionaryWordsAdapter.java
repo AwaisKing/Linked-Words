@@ -1,7 +1,6 @@
 package awais.backworddictionary.adapters;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,105 +20,101 @@ import java.util.HashSet;
 import java.util.List;
 
 import awais.backworddictionary.R;
-import awais.backworddictionary.adapters.holders.WordItem;
 import awais.backworddictionary.adapters.holders.WordItemViewHolder;
 import awais.backworddictionary.databinding.WordItemBinding;
 import awais.backworddictionary.dialogs.WordDialog;
 import awais.backworddictionary.helpers.MenuBuilderHelper;
 import awais.backworddictionary.helpers.MenuBuilderHelper.PopupHelper;
 import awais.backworddictionary.helpers.SettingsHelper;
+import awais.backworddictionary.helpers.TTSHelper;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.AdapterClickListener;
+import awais.backworddictionary.models.WordItem;
 
 public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemViewHolder> implements Filterable {
     private final LayoutInflater layoutInflater;
     private final AdapterClickListener wordItemClickListener;
     private final AdapterClickListener definitionItemClickListener;
 
-    private final String[] noItemFound;
-    private final Filter filter;
-    private boolean isShowDialogEnabled;
-    private boolean showExpandedSearchIcon = true;
-    private ArrayList<WordItem> filterList;
     public final HashSet<WordItem> expandedHashSet = new HashSet<>();
     public final HashSet<WordItemViewHolder> holdersHashSet = new HashSet<>();
 
-    // recycling variables for definition PopupMenu tag
-    private String def, strToCopy, word;
+    private final String[] noItemFound;
+    private final Filter filter;
+    private boolean isShowDialogEnabled;
+    private ArrayList<WordItem> filterList;
+
+    /// recycling variables for definition PopupMenu tag
+    private String word, definition, strToCopy;
 
     public DictionaryWordsAdapter(@NonNull final Context context, final ArrayList<WordItem> wordList) {
         setHasStableIds(true);
-        final String strNoItemFound = context.getString(R.string.no_definition_found);
 
         this.layoutInflater = LayoutInflater.from(context);
-        this.noItemFound = new String[]{"", strNoItemFound};
+        this.noItemFound = new String[]{"", context.getString(R.string.no_definition_found)};
         this.filterList = wordList;
 
-        refreshShowDialogEnabled();
+        final SettingsHelper settingsHelper = SettingsHelper.getInstance(context);
+        refreshShowDialogEnabled(settingsHelper);
 
-        final Resources resources = context.getResources();
         this.definitionItemClickListener = new AdapterClickListener() {
             @Override
             public void onClick(final View view) {
-                if (view != null) {
-                    Object tag = view.getTag(R.id.word);
-                    word = tag instanceof CharSequence ? tag.toString() : null;
+                if (view == null) return;
 
-                    if (!Utils.isEmpty(word) && (tag = view.getTag(R.id.word_key)) instanceof CharSequence
-                            && !Utils.isEmpty(def = tag.toString()) && !def.equals(strNoItemFound)) {
-                        strToCopy = word.concat(": ").concat(def.replaceAll("^(.*)\\t", ""));
+                word = view.getTag(R.id.word) instanceof final CharSequence cs ? cs.toString() : null;
+                if (Utils.isEmpty(word)) return;
 
-                        if (SettingsHelper.showDefsPopup()) {
-                            final MenuItem.OnMenuItemClickListener menuItemClickListener = menuItem -> {
-                                final int itemId = menuItem.getItemId();
-                                final boolean isActionCopy = itemId == R.id.action_copy;
-                                if (isActionCopy || itemId == R.id.action_speak) {
-                                    if (isActionCopy) Utils.copyText(context, strToCopy);
-                                    else Utils.speakText(def);
-                                    return true;
-                                }
-                                return false;
-                            };
+                definition = view.getTag(R.id.word_key) instanceof final CharSequence cs ? cs.toString() : null;
+                if (Utils.isEmpty(definition) || definition.equals(noItemFound[1])) return;
 
-                            tag = view.getTag(R.id.key_popup_builder);
-                            final MenuBuilderHelper menuBuilder;
-                            if (tag instanceof MenuBuilderHelper) menuBuilder = (MenuBuilderHelper) tag;
-                            else {
-                                menuBuilder = new MenuBuilderHelper(context)
-                                        .setDefaultShowAsAction(MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+                strToCopy = word.concat(": ").concat(definition.replaceAll("^(.*)\\t", ""));
 
-                                menuBuilder.add(0, R.id.action_copy, 0, resources.getString(R.string.copy))
-                                        .setOnMenuItemClickListener(menuItemClickListener);
-                                menuBuilder.add(0, R.id.action_speak, 0, resources.getString(R.string.speak))
-                                        .setOnMenuItemClickListener(menuItemClickListener);
-
-                                view.setTag(R.id.key_popup_builder, menuBuilder);
-                            }
-
-                            MenuItem menuItem = menuBuilder.findItem(R.id.action_copy);
-                            if (menuItem == null) menuItem = menuBuilder.add(0, R.id.action_copy, 0,
-                                    resources.getString(R.string.copy));
-                            menuItem.setOnMenuItemClickListener(menuItemClickListener);
-
-                            menuItem = menuBuilder.findItem(R.id.action_speak);
-                            if (menuItem == null) menuItem = menuBuilder.add(0, R.id.action_speak, 0,
-                                    resources.getString(R.string.speak));
-                            menuItem.setOnMenuItemClickListener(menuItemClickListener);
-
-                            tag = view.getTag(R.id.key_popup);
-                            final PopupHelper popupHelper;
-                            if (tag instanceof PopupHelper) popupHelper = (PopupHelper) tag;
-                            else {
-                                popupHelper = new PopupHelper(context, menuBuilder, view);
-                                view.setTag(R.id.key_popup, popupHelper);
-                            }
-                            if (!popupHelper.tryShow())
-                                popupHelper.show();
-
-                        } else {
+                if (!settingsHelper.showDefsPopup()) Utils.copyText(context, strToCopy);
+                else {
+                    final MenuItem.OnMenuItemClickListener menuItemClickListener = menuItem -> {
+                        final int itemId = menuItem.getItemId();
+                        if (itemId == R.id.action_copy) {
                             Utils.copyText(context, strToCopy);
+                            return true;
+                        } else if (itemId == R.id.action_speak) {
+                            TTSHelper.speakText(definition);
+                            return true;
                         }
+                        return false;
+                    };
+
+                    Object tag = view.getTag(R.id.key_popup_builder);
+                    final MenuBuilderHelper menuBuilder;
+                    if (tag instanceof MenuBuilderHelper) menuBuilder = (MenuBuilderHelper) tag;
+                    else {
+                        menuBuilder = new MenuBuilderHelper(context).setDefaultShowAsAction(MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+
+                        menuBuilder.add(0, R.id.action_copy, 0, R.string.copy)
+                                   .setOnMenuItemClickListener(menuItemClickListener);
+                        menuBuilder.add(0, R.id.action_speak, 0, R.string.speak)
+                                   .setOnMenuItemClickListener(menuItemClickListener);
+
+                        view.setTag(R.id.key_popup_builder, menuBuilder);
                     }
+
+                    MenuItem menuItem = menuBuilder.findItem(R.id.action_copy);
+                    if (menuItem == null) menuItem = menuBuilder.add(0, R.id.action_copy, 0, R.string.copy);
+                    menuItem.setOnMenuItemClickListener(menuItemClickListener);
+
+                    menuItem = menuBuilder.findItem(R.id.action_speak);
+                    if (menuItem == null) menuItem = menuBuilder.add(0, R.id.action_speak, 0, R.string.speak);
+                    menuItem.setOnMenuItemClickListener(menuItemClickListener);
+
+                    tag = view.getTag(R.id.key_popup);
+                    final PopupHelper popupHelper;
+                    if (tag instanceof PopupHelper) popupHelper = (PopupHelper) tag;
+                    else {
+                        popupHelper = new PopupHelper(context, menuBuilder, view);
+                        view.setTag(R.id.key_popup, popupHelper);
+                    }
+
+                    if (!popupHelper.tryShow()) popupHelper.show();
                 }
             }
 
@@ -131,34 +126,28 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
         this.wordItemClickListener = new AdapterClickListener() {
             @Override
             public void onClick(final View view) {
-                Object tag;
-
                 if (view instanceof CardView) {
-                    final WordItem wordItem = (tag = view.getTag(R.id.word)) instanceof WordItem ? (WordItem) tag : null;
-                    final List<?> defsList = (tag = view.getTag(R.id.lvDefs)) instanceof List ? (List<?>) tag : null;
+                    final WordItem wordItem = view.getTag(R.id.word) instanceof final WordItem wi ? wi : null;
+                    final List<?> defsList = view.getTag(R.id.lvDefs) instanceof final List<?> dl ? dl : null;
 
                     if (wordItem == null || defsList == null) return;
 
-                    if (!isShowDialogEnabled && defsList.size() <= 5) {
+                    if (isShowDialogEnabled || defsList.size() > 5)
+                        new WordDialog(context, wordItem.getWord(), defsList, definitionItemClickListener).show();
+                    else {
                         final boolean itemExpanded = wordItem.isExpanded();
                         if (itemExpanded) expandedHashSet.remove(wordItem);
                         else expandedHashSet.add(wordItem);
                         wordItem.setExpanded(!itemExpanded);
 
                         final int position;
-                        if ((position = wordItem.getPosition()) > -1)
-                            notifyItemChanged(position);
-
-                    } else new WordDialog(context, wordItem.getWord(), defsList,
-                            definitionItemClickListener).show();
-
+                        if ((position = wordItem.getPosition()) > -1) notifyItemChanged(position);
+                    }
                 } else if (view instanceof ImageView) {
-                    tag = view.getTag(R.id.overflow);
-
-                    if (tag instanceof WordItem)
-                        Utils.showPopupMenu(view, (WordItem) tag);
-                    else if (view.getId() == R.id.ivExpandedSearch && (tag = view.getTag()) instanceof CharSequence)
-                        Utils.showPopupMenu(null, context, view, tag.toString());
+                    if (view.getTag(R.id.overflow) instanceof final WordItem wordItem)
+                        Utils.showPopupMenu(view, wordItem);
+                    else if (view.getId() == R.id.ivExpandedSearch && view.getTag() instanceof final CharSequence cs)
+                        Utils.showPopupMenu(null, context, view, cs.toString());
                 }
             }
 
@@ -187,12 +176,11 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
             protected FilterResults performFiltering(final CharSequence charSequence) {
                 results.values = wordList;
                 results.count = wordList != null ? wordList.size() : 0;
-                if (wordList == null) return results;
-                if (Utils.isEmpty(charSequence)) return results;
+                if (wordList == null || Utils.isEmpty(charSequence)) return results;
 
-                final boolean showWords = SettingsHelper.isFilterWords();
-                final boolean showDefs = SettingsHelper.isFilterDefinition();
-                final boolean contains = SettingsHelper.isFilterContains();
+                final boolean showWords = settingsHelper.isFilterWords();
+                final boolean showDefs = settingsHelper.isFilterDefinition();
+                final boolean contains = settingsHelper.isFilterContains();
 
                 if (!showDefs && !showWords) {
                     Toast.makeText(context, context.getString(R.string.select_filter_first), Toast.LENGTH_SHORT).show();
@@ -240,8 +228,8 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
             }
 
             @Override
-            protected void publishResults(final CharSequence charSequence, FilterResults filterResults) {
-                //noinspection unchecked
+            protected void publishResults(final CharSequence charSequence, final FilterResults filterResults) {
+                // noinspection unchecked
                 updateList((ArrayList<WordItem>) filterResults.values);
             }
         };
@@ -251,8 +239,7 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
     @Override
     public WordItemViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
         return new WordItemViewHolder(WordItemBinding.inflate(layoutInflater, parent, false),
-                wordItemClickListener, definitionItemClickListener, noItemFound,
-                showExpandedSearchIcon);
+                                      wordItemClickListener, definitionItemClickListener, noItemFound);
     }
 
     @Override
@@ -268,7 +255,8 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
 
     @Override
     public long getItemId(final int position) {
-        return position;
+        final WordItem wordItem = filterList == null || filterList.isEmpty() ? null : filterList.get(position);
+        return wordItem == null ? position : wordItem.hashCode();
     }
 
     @Override
@@ -277,27 +265,25 @@ public final class DictionaryWordsAdapter extends RecyclerView.Adapter<WordItemV
     }
 
     public void updateList(final ArrayList<WordItem> list) {
-        final int previousSize = getItemCount();
+        final int oldSize = getItemCount();
         filterList = list;
-        final int nextSize = getItemCount();
+        final int newSize = getItemCount();
 
-        if (previousSize == nextSize)
-            notifyItemRangeChanged(0, previousSize);
-        else if (previousSize <= nextSize) {
-            notifyItemRangeChanged(0, previousSize);
-            notifyItemRangeInserted(previousSize, nextSize - previousSize);
-        } else if (nextSize != 0) {
-            notifyItemRangeChanged(0, nextSize);
-            notifyItemRangeRemoved(nextSize - 1, previousSize);
-        } else
-            notifyItemRangeRemoved(0, previousSize);
+        if (oldSize == newSize) {
+            notifyItemRangeChanged(0, oldSize);
+        } else if (oldSize <= newSize) {
+            notifyItemRangeChanged(0, oldSize);
+            notifyItemRangeInserted(oldSize, newSize - oldSize);
+        } else if (newSize != 0) {
+            notifyItemRangeChanged(0, newSize);
+            notifyItemRangeRemoved(newSize - 1, oldSize);
+        } else {
+            notifyItemRangeRemoved(0, oldSize);
+        }
     }
 
-    public void refreshShowDialogEnabled() {
-        this.isShowDialogEnabled = SettingsHelper.showDialog();
-    }
-
-    public void setShowExpandedSearchIcon(final boolean showExpandedSearchIcon) {
-        this.showExpandedSearchIcon = showExpandedSearchIcon;
+    public void refreshShowDialogEnabled(SettingsHelper settingsHelper) {
+        if (settingsHelper == null) settingsHelper = SettingsHelper.getInstance(layoutInflater.getContext());
+        this.isShowDialogEnabled = settingsHelper.showDialog();
     }
 }

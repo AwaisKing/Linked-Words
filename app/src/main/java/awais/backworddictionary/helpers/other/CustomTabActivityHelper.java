@@ -50,7 +50,7 @@ public final class CustomTabActivityHelper {
         if (defaultViewHandlerInfo != null)
             defaultBrowser = defaultViewHandlerInfo.activityInfo.packageName;
 
-        final ArrayList<String> customTabBrowsersList = new ArrayList<>(0);
+        final ArrayList<String> customTabBrowsersList = new ArrayList<>();
         final Intent serviceIntent = new Intent(ACTION_CUSTOM_TABS_CONNECTION)
                 .setAction(ACTION_CUSTOM_TABS_CONNECTION_ANDROID_X);
 

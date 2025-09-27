@@ -14,6 +14,7 @@ import java.util.List;
 
 import awais.backworddictionary.R;
 import awais.backworddictionary.helpers.CustomTabsHelper;
+import awais.backworddictionary.helpers.TTSHelper;
 import awais.backworddictionary.helpers.URLEncoder;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
@@ -39,7 +40,7 @@ public final class WordContextItemListener implements PopupMenu.OnMenuItemClickL
             Utils.copyText(context, word);
 
         } else if (itemId == R.id.action_speak) {
-            Utils.speakText(word);
+            TTSHelper.speakText(word);
 
         } else if (itemId == R.id.action_google) {
             try {
@@ -61,11 +62,8 @@ public final class WordContextItemListener implements PopupMenu.OnMenuItemClickL
                     .setData(wordWikiUri);
 
             final List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(intent, 0);
-            if (resolveInfos.size() > 0) context.startActivity(intent);
-            else {
-                CustomTabActivityHelper.openCustomTab(context, customTabsHelper.setToolbarColor(Utils.CUSTOM_TAB_COLORS[1]),
-                        wordWikiUri);
-            }
+            if (!resolveInfos.isEmpty()) context.startActivity(intent);
+            else CustomTabActivityHelper.openCustomTab(context, customTabsHelper.setToolbarColor(Utils.CUSTOM_TAB_COLORS[1]), wordWikiUri);
 
         } else if (itemId == R.id.action_urban) {
             CustomTabActivityHelper.openCustomTab(context, customTabsHelper.setToolbarColor(Utils.CUSTOM_TAB_COLORS[2]),

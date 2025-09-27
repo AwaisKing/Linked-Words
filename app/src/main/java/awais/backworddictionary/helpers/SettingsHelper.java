@@ -1,5 +1,6 @@
 package awais.backworddictionary.helpers;
 
+import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -12,7 +13,6 @@ import androidx.appcompat.app.AppCompatDelegate;
 public final class SettingsHelper {
     private static final int FALLBACK_TTS_DEFAULT_PITCH = 100;
     private static final int FALLBACK_TTS_DEFAULT_RATE = 100;
-    private static int defaultPitch = FALLBACK_TTS_DEFAULT_PITCH, defaultRate = FALLBACK_TTS_DEFAULT_RATE;
 
     private static final String DEFAULT_TABS = "[true, true, true, true, false, false, false, false, false, false]";
     ////////////////////////////////////////////////
@@ -37,92 +37,101 @@ public final class SettingsHelper {
     private static final String KEY_FILTER_DEFINITION = "filterDefinition";
     private static final String KEY_FILTER_CONTAINS = "filterContain";
     ////////////////////////////////////////////////
-    private static SharedPreferences preferences;
+    private static SettingsHelper _instance;
+    private final SharedPreferences prefs;
+    private final int defaultPitch, defaultRate;
 
-    public static void setPreferences(@NonNull final Context context) {
-        if (preferences == null) preferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
-
-        final ContentResolver contentResolver = context.getContentResolver();
-        defaultPitch = Settings.Secure.getInt(contentResolver, Settings.Secure.TTS_DEFAULT_PITCH, FALLBACK_TTS_DEFAULT_PITCH);
-        defaultRate = Settings.Secure.getInt(contentResolver, Settings.Secure.TTS_DEFAULT_RATE, FALLBACK_TTS_DEFAULT_RATE);
+    public static synchronized SettingsHelper getInstance(@NonNull final Context context) {
+        if (_instance == null || _instance.prefs == null) synchronized (SettingsHelper.class) {
+            _instance = new SettingsHelper(context instanceof Application ? context : context.getApplicationContext());
+        }
+        return _instance;
     }
 
-    public static int getNightMode() {
-        return preferences != null ? preferences.getInt(KEY_DARK_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) : AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+    private SettingsHelper(@NonNull final Context context) {
+        final Context appContext = context instanceof Application ? context : context.getApplicationContext();
+        final ContentResolver contentResolver = appContext.getContentResolver();
+        this.prefs = appContext.getSharedPreferences("settings", Context.MODE_PRIVATE);
+        this.defaultPitch = Settings.Secure.getInt(contentResolver, Settings.Secure.TTS_DEFAULT_PITCH, FALLBACK_TTS_DEFAULT_PITCH);
+        this.defaultRate = Settings.Secure.getInt(contentResolver, Settings.Secure.TTS_DEFAULT_RATE, FALLBACK_TTS_DEFAULT_RATE);
     }
 
-    public static int getMaxWords() {
-        return preferences != null ? preferences.getInt(KEY_MAX_WORDS, 80) : 80;
+    public int getNightMode() {
+        return prefs != null ? prefs.getInt(KEY_DARK_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) : AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
     }
 
-    public static boolean showDefsPopup() {
-        return preferences == null || preferences.getBoolean(KEY_SHOW_DEFS_POPUP, true);
+    public int getMaxWords() {
+        return prefs != null ? prefs.getInt(KEY_MAX_WORDS, 80) : 80;
     }
 
-    public static boolean showFloating() {
-        return preferences == null || preferences.getBoolean(KEY_SHOW_FLOATING, true);
+    public boolean showDefsPopup() {
+        return prefs == null || prefs.getBoolean(KEY_SHOW_DEFS_POPUP, true);
     }
 
-    public static boolean showFloatingDialog() {
-        return preferences == null || preferences.getBoolean(KEY_SHOW_FLOATING_DIALOG, false);
+    public boolean showFloating() {
+        return prefs == null || prefs.getBoolean(KEY_SHOW_FLOATING, true);
     }
 
-    public static boolean showDialog() {
-        return preferences != null && preferences.getBoolean(KEY_SHOW_DIALOG, false);
+    public boolean showFloatingDialog() {
+        return prefs == null || prefs.getBoolean(KEY_SHOW_FLOATING_DIALOG, false);
     }
 
-    public static boolean showAds() {
-        return preferences == null || preferences.getBoolean(KEY_SHOW_ADS, true);
+    public boolean showDialog() {
+        return prefs != null && prefs.getBoolean(KEY_SHOW_DIALOG, false);
     }
 
-    public static boolean isFilterWords() {
-        return preferences == null || preferences.getBoolean(KEY_FILTER_WORD, true);
+    public boolean showAds() {
+        return prefs == null || prefs.getBoolean(KEY_SHOW_ADS, true);
     }
 
-    public static boolean isFilterDefinition() {
-        return preferences != null && preferences.getBoolean(KEY_FILTER_DEFINITION, false);
+    public boolean isFilterWords() {
+        return prefs == null || prefs.getBoolean(KEY_FILTER_WORD, true);
     }
 
-    public static boolean isFilterContains() {
-        return preferences != null && preferences.getBoolean(KEY_FILTER_CONTAINS, false);
+    public boolean isFilterDefinition() {
+        return prefs != null && prefs.getBoolean(KEY_FILTER_DEFINITION, false);
     }
 
-    public static boolean isTTSHelpDialogSeen() {
-        return preferences != null && preferences.getBoolean(KEY_TTS_DLG_SEEN, false);
+    public boolean isFilterContains() {
+        return prefs != null && prefs.getBoolean(KEY_FILTER_CONTAINS, false);
     }
 
-    public static boolean isTTSErrorDialogHidden() {
-        return preferences != null && preferences.getBoolean(KEY_TTS_ERROR_DLG_HIDDEN, false);
+    public boolean isTTSHelpDialogSeen() {
+        return prefs != null && prefs.getBoolean(KEY_TTS_DLG_SEEN, false);
     }
 
-    public static int getTTSPitch() {
-        return preferences != null ? preferences.getInt(KEY_TTS_PITCH, defaultPitch) : defaultPitch;
+    public boolean isTTSErrorDialogHidden() {
+        return prefs != null && prefs.getBoolean(KEY_TTS_ERROR_DLG_HIDDEN, false);
+    }
+
+    public int getTTSPitch() {
+        return prefs != null ? prefs.getInt(KEY_TTS_PITCH, defaultPitch) : defaultPitch;
     }
 
     @Nullable
-    public static String getTTSEngine() {
-        return preferences != null ? preferences.getString(KEY_TTS_ENGINE, null) : null;
+    public String getTTSEngine() {
+        return prefs != null ? prefs.getString(KEY_TTS_ENGINE, null) : null;
     }
 
     @Nullable
-    public static String getTTSVoice() {
-        return preferences != null ? preferences.getString(KEY_TTS_VOICE, null) : null;
+    public String getTTSVoice() {
+        return prefs != null ? prefs.getString(KEY_TTS_VOICE, null) : null;
     }
 
     @Nullable
-    public static String getTTSLanguage() {
-        return preferences != null ? preferences.getString(KEY_TTS_LANGUAGE, null) : null;
+    public String getTTSLanguage() {
+        return prefs != null ? prefs.getString(KEY_TTS_LANGUAGE, null) : null;
     }
 
-    public static int getTTSSpeechRate() {
-        return preferences != null ? preferences.getInt(KEY_TTS_RATE, defaultRate) : defaultRate;
+    public int getTTSSpeechRate() {
+        return prefs != null ? prefs.getInt(KEY_TTS_RATE, defaultRate) : defaultRate;
     }
 
     @NonNull
-    public static boolean[] getTabs() {
+    public boolean[] getTabs() {
         String bools = DEFAULT_TABS;
-        if (preferences != null) {
-            bools = preferences.getString("tabs", DEFAULT_TABS);
+        if (prefs != null) {
+            bools = prefs.getString("tabs", DEFAULT_TABS);
             if (Utils.isEmpty(bools)) bools = DEFAULT_TABS;
         }
         bools = bools.substring(1, bools.length() - 1);
@@ -149,80 +158,80 @@ public final class SettingsHelper {
         return tabBoolsArray;
     }
 
-    public static void setTabs(@NonNull final String tabs) {
-        if (preferences != null)
-            preferences.edit().putString(KEY_TABS, !Utils.isEmpty(tabs) ? tabs : DEFAULT_TABS).apply();
+    public void setTabs(@NonNull final String tabs) {
+        if (prefs != null)
+            prefs.edit().putString(KEY_TABS, !Utils.isEmpty(tabs) ? tabs : DEFAULT_TABS).apply();
     }
 
-    public static void setFilter(@NonNull final String filterName, final boolean filtered) {
-        if (preferences != null)
-            preferences.edit().putBoolean(filterName, filtered).apply();
+    public void setFilter(@NonNull final String filterName, final boolean filtered) {
+        if (prefs != null)
+            prefs.edit().putBoolean(filterName, filtered).apply();
     }
 
-    public static void setTTSPitch(final Integer pitch) {
-        if (preferences != null) {
-            final SharedPreferences.Editor edit = preferences.edit();
+    public void setTTSPitch(final Integer pitch) {
+        if (prefs != null) {
+            final SharedPreferences.Editor edit = prefs.edit();
             if (pitch == null) edit.remove(KEY_TTS_PITCH);
             else edit.putInt(KEY_TTS_PITCH, pitch);
             edit.apply();
         }
     }
 
-    public static void setTTSSpeechRate(final Integer speechRate) {
-        if (preferences != null) {
-            final SharedPreferences.Editor edit = preferences.edit();
+    public void setTTSSpeechRate(final Integer speechRate) {
+        if (prefs != null) {
+            final SharedPreferences.Editor edit = prefs.edit();
             if (speechRate == null) edit.remove(KEY_TTS_RATE);
             else edit.putInt(KEY_TTS_RATE, speechRate);
             edit.apply();
         }
     }
 
-    public static void setTTSLanguage(final String ttsLanguage) {
-        if (!Utils.isEmpty(ttsLanguage) && preferences != null)
-            preferences.edit().putString(KEY_TTS_LANGUAGE, ttsLanguage).apply();
+    public void setTTSLanguage(final String ttsLanguage) {
+        if (!Utils.isEmpty(ttsLanguage) && prefs != null)
+            prefs.edit().putString(KEY_TTS_LANGUAGE, ttsLanguage).apply();
     }
 
-    public static void setTTSVoice(final String ttsVoice) {
-        if (!Utils.isEmpty(ttsVoice) && preferences != null)
-            preferences.edit().putString(KEY_TTS_VOICE, ttsVoice).apply();
+    public void setTTSVoice(final String ttsVoice) {
+        if (!Utils.isEmpty(ttsVoice) && prefs != null)
+            prefs.edit().putString(KEY_TTS_VOICE, ttsVoice).apply();
     }
 
-    public static void setTTSEngine(final String ttsEngine) {
-        if (!Utils.isEmpty(ttsEngine) && preferences != null)
-            preferences.edit().putString(KEY_TTS_ENGINE, ttsEngine).apply();
+    public void setTTSEngine(final String ttsEngine) {
+        if (!Utils.isEmpty(ttsEngine) && prefs != null)
+            prefs.edit().putString(KEY_TTS_ENGINE, ttsEngine).apply();
     }
 
-    public static void setTTSHelpDialogSeen() {
-        if (preferences != null) preferences.edit().putBoolean(KEY_TTS_DLG_SEEN, true).apply();
+    public void setTTSHelpDialogSeen() {
+        if (prefs != null) prefs.edit().putBoolean(KEY_TTS_DLG_SEEN, true).apply();
     }
 
-    public static void setTTSErrorDialogHidden() {
-        if (preferences != null) preferences.edit().putBoolean(KEY_TTS_ERROR_DLG_HIDDEN, true).apply();
+    public void setTTSErrorDialogHidden() {
+        if (prefs != null) prefs.edit().putBoolean(KEY_TTS_ERROR_DLG_HIDDEN, true).apply();
     }
 
-    public static void resetTTS() {
-        if (preferences != null)
-            preferences.edit().remove(KEY_TTS_DLG_SEEN)
-                    .remove(KEY_TTS_PITCH)
-                    .remove(KEY_TTS_RATE)
-                    .remove(KEY_TTS_ENGINE)
-                    .remove(KEY_TTS_LANGUAGE)
-                    .remove(KEY_TTS_VOICE)
-                    .apply();
+    public void resetTTS() {
+        if (prefs != null)
+            prefs.edit().remove(KEY_TTS_DLG_SEEN)
+                 .remove(KEY_TTS_PITCH)
+                 .remove(KEY_TTS_RATE)
+                 .remove(KEY_TTS_ENGINE)
+                 .remove(KEY_TTS_LANGUAGE)
+                 .remove(KEY_TTS_VOICE)
+                 .apply();
     }
 
-    public static void setValues(final int maxWords, final int darkMode, final boolean showAds, final boolean showDialog,
-                                 final boolean isFloating, final boolean isFloatingDialog, final boolean showDefsPopup) {
-        if (preferences != null) {
-            preferences.edit()
-                    .putInt(KEY_MAX_WORDS, maxWords)
-                    .putInt(KEY_DARK_MODE, darkMode)
-                    .putBoolean(KEY_SHOW_ADS, showAds)
-                    .putBoolean(KEY_SHOW_DIALOG, showDialog)
-                    .putBoolean(KEY_SHOW_FLOATING, isFloating)
-                    .putBoolean(KEY_SHOW_FLOATING_DIALOG, isFloatingDialog)
-                    .putBoolean(KEY_SHOW_DEFS_POPUP, showDefsPopup)
-                    .apply();
+    public void setValues(final int maxWords, final int darkMode, final boolean showAds, final boolean showDialog,
+                          final boolean isFloating, final boolean isFloatingDialog, final boolean showDefsPopup) {
+        if (prefs != null) {
+            prefs.edit()
+                 .putInt(KEY_MAX_WORDS, maxWords)
+                 .putInt(KEY_DARK_MODE, darkMode)
+                 .putBoolean(KEY_SHOW_ADS, showAds)
+                 .putBoolean(KEY_SHOW_DIALOG, showDialog)
+                 .putBoolean(KEY_SHOW_FLOATING, isFloating)
+                 .putBoolean(KEY_SHOW_FLOATING_DIALOG, isFloatingDialog)
+                 .putBoolean(KEY_SHOW_DEFS_POPUP, showDefsPopup)
+                 .apply();
         }
     }
 }

@@ -79,8 +79,9 @@ public final class FloatingActionMenu extends ViewGroup {
         backgroundShowAnimator = ValueAnimator.ofInt(0, maxAlpha);
         backgroundHideAnimator = ValueAnimator.ofInt(maxAlpha, 0);
 
-        final ValueAnimator.AnimatorUpdateListener updateListener = animation ->
-                setBackgroundColor(Color.argb((Integer) animation.getAnimatedValue(), 0, 0, 0));
+        final ValueAnimator.AnimatorUpdateListener updateListener = animation -> setBackgroundColor(
+                Color.argb((Integer) animation.getAnimatedValue(), 0, 0, 0)
+                                                                                                   );
         backgroundShowAnimator.setDuration(ANIMATION_DURATION).addUpdateListener(updateListener);
         backgroundHideAnimator.setDuration(ANIMATION_DURATION).addUpdateListener(updateListener);
 
@@ -90,7 +91,7 @@ public final class FloatingActionMenu extends ViewGroup {
         menuButton = new FloatingActionButton(context);
         menuButton.fabSize = SIZE_NORMAL;
         menuButton.setColors(ResourcesCompat.getColor(resources, R.color.colorAccent, null),
-                ResourcesCompat.getColor(resources, R.color.colorPrimary, null));
+                             ResourcesCompat.getColor(resources, R.color.colorPrimary, null));
         menuButton.updateBackground();
         menuButton.setLabelText(resources.getString(R.string.options));
 
@@ -127,31 +128,30 @@ public final class FloatingActionMenu extends ViewGroup {
         measureChildWithMargins(imageToggle, widthMeasureSpec, 0, heightMeasureSpec, 0);
         for (int i = 0; i < btnCount; i++) {
             final View child = getChildAt(i);
-            if (child != imageToggle && child.getVisibility() != GONE) {
-                measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
-                maxButtonWidth = Math.max(maxButtonWidth, child.getMeasuredWidth());
-                maxButtonHeight = Math.max(maxButtonHeight, child.getMeasuredHeight());
-            }
+            if (child == imageToggle || child.getVisibility() == GONE) continue;
+            measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
+            maxButtonWidth = Math.max(maxButtonWidth, child.getMeasuredWidth());
+            maxButtonHeight = Math.max(maxButtonHeight, child.getMeasuredHeight());
         }
 
         for (int i = 0; i < btnCount; i++) {
-            int usedWidth = 0;
             final View child = getChildAt(i);
+            if (child == imageToggle || child.getVisibility() == GONE) continue;
 
-            if (child != imageToggle && child.getVisibility() != GONE) {
-                final int measuredWidth = child.getMeasuredWidth();
-                usedWidth += measuredWidth;
-                height += child.getMeasuredHeight();
+            final int measuredWidth = child.getMeasuredWidth();
+            int usedWidth = measuredWidth;
 
-                final Label label = (Label) child.getTag(R.id.fab_label);
-                if (label != null) {
-                    final int labelOffset = maxButtonWidth - measuredWidth;
-                    final int labelUsedWidth = measuredWidth + shadowRadius + labelOffset;
-                    measureChildWithMargins(label, widthMeasureSpec, labelUsedWidth, heightMeasureSpec, 0);
-                    usedWidth += label.getMeasuredWidth();
-                    maxLabelWidth = Math.max(maxLabelWidth, usedWidth + labelOffset);
-                }
-            }
+            height += child.getMeasuredHeight();
+
+            final Object tag = child.getTag(R.id.fab_label);
+            if (true && !(tag instanceof Label)) continue;
+
+            final Label label = (Label) tag;
+            final int labelOffset = maxButtonWidth - measuredWidth;
+            final int labelUsedWidth = measuredWidth + shadowRadius + labelOffset;
+            measureChildWithMargins(label, widthMeasureSpec, labelUsedWidth, heightMeasureSpec, 0);
+            usedWidth += label.getMeasuredWidth();
+            maxLabelWidth = Math.max(maxLabelWidth, usedWidth + labelOffset);
         }
 
         final LayoutParams layoutParams = getLayoutParams();
@@ -191,46 +191,35 @@ public final class FloatingActionMenu extends ViewGroup {
         for (int i = btnCount - 1; i >= 0; i--) {
             final View child = getChildAt(i);
 
-            if (child != imageToggle) {
-                final FloatingActionButton fab = (FloatingActionButton) child;
+            if (child == imageToggle || child.getVisibility() == GONE) continue;
 
-                if (fab.getVisibility() != GONE) {
-                    final int fabMeasuredWidth = fab.getMeasuredWidth();
-                    final int fabMeasuredHeight = fab.getMeasuredHeight();
+            final int fabMeasuredWidth = child.getMeasuredWidth();
+            final int fabMeasuredHeight = child.getMeasuredHeight();
 
-                    final int childY = nextY - fabMeasuredHeight - buttonSpacing;
+            final int childY = nextY - fabMeasuredHeight - buttonSpacing;
 
-                    if (fab != menuButton) {
-                        final int childX = buttonsHorizontalCenter - fabMeasuredWidth / 2;
-                        fab.layout(childX, childY, childX + fabMeasuredWidth, childY + fabMeasuredHeight);
-                        if (!isMenuOpening) fab.hide(false);
-                    }
-
-                    final View label = (View) fab.getTag(R.id.fab_label);
-                    if (label != null) {
-                        final int labelMeasuredWidth = label.getMeasuredWidth();
-                        final int labelMeasuredHeight = label.getMeasuredHeight();
-
-                        final int labelsOffset = maxButtonWidth / 2;
-                        final int labelXNearButton = buttonsHorizontalCenter - labelsOffset - labelMarginFix;
-                        final int labelTop = childY + (fabMeasuredHeight - labelMeasuredHeight) / 2;
-
-                        label.layout(labelXNearButton - labelMeasuredWidth,
-                                labelTop,
-                                labelXNearButton,
-                                labelTop + labelMeasuredHeight);
-
-                        if (!isMenuOpening) label.setVisibility(INVISIBLE);
-                    }
-
-                    nextY = childY - buttonSpacing;
-                }
+            if (child != menuButton) {
+                final int childX = buttonsHorizontalCenter - fabMeasuredWidth / 2;
+                child.layout(childX, childY, childX + fabMeasuredWidth, childY + fabMeasuredHeight);
+                if (!isMenuOpening) ((FloatingActionButton) child).hide(false);
             }
-        }
-    }
 
-    private int adjustForOvershoot(final int dimension) {
-        return (int) (dimension * 0.03 + dimension);
+            final View label = (View) child.getTag(R.id.fab_label);
+            if (label != null) {
+                final int labelMeasuredWidth = label.getMeasuredWidth();
+                final int labelMeasuredHeight = label.getMeasuredHeight();
+
+                final int labelsOffset = maxButtonWidth / 2;
+                final int labelXNearButton = buttonsHorizontalCenter - labelsOffset - labelMarginFix;
+                final int labelTop = childY + (fabMeasuredHeight - labelMeasuredHeight) / 2;
+
+                label.layout(labelXNearButton - labelMeasuredWidth, labelTop, labelXNearButton, labelTop + labelMeasuredHeight);
+
+                if (!isMenuOpening) label.setVisibility(INVISIBLE);
+            }
+
+            nextY = childY - buttonSpacing;
+        }
     }
 
     @Override
@@ -242,54 +231,51 @@ public final class FloatingActionMenu extends ViewGroup {
 
         for (int i = 0; i < btnCount; i++) {
             final View child = getChildAt(i);
-            if (child != imageToggle) {
-                final FloatingActionButton fab = (FloatingActionButton) child;
-                if (fab.getTag(R.id.fab_label) == null) {
-                    if (fab == menuButton) {
-                        menuButton.setOnClickListener(v -> toggle());
-                    } else {
-                        addLabel(fab);
-                        fab.setOnClickListener(onClickListener);
-                    }
-                }
+            if (child == null || child == imageToggle || child.getTag(R.id.fab_label) != null) continue;
+            if (child == menuButton) menuButton.setOnClickListener(v -> toggle());
+            else {
+                addLabel((FloatingActionButton) child);
+                child.setOnClickListener(onClickListener);
             }
         }
     }
 
     private void addLabel(@NonNull final FloatingActionButton fab) {
         final String labelText = fab.getLabelText();
+        if (Utils.isEmpty(labelText)) return;
 
-        if (!Utils.isEmpty(labelText)) {
-            final Label label = new Label(context, fab, AnimationUtils.loadAnimation(context, R.anim.fab_slide_in_from_right),
-                    AnimationUtils.loadAnimation(context, R.anim.fab_slide_out_to_right));
-            label.setClickable(true);
-            label.setTextSize(TypedValue.COMPLEX_UNIT_PX, labelsTextSize);
-            label.setTextColor(labelsTextColor);
-            label.setMaxLines(-1);
-            label.setEllipsize(TextUtils.TruncateAt.END);
-            label.setSingleLine(true);
-            label.updateBackground();
+        final Label label = new Label(context, fab, AnimationUtils.loadAnimation(context, R.anim.fab_slide_in_from_right),
+                                      AnimationUtils.loadAnimation(context, R.anim.fab_slide_out_to_right));
+        label.setClickable(true);
+        label.setTextSize(TypedValue.COMPLEX_UNIT_PX, labelsTextSize);
+        label.setTextColor(labelsTextColor);
+        label.setMaxLines(-1);
+        label.setEllipsize(TextUtils.TruncateAt.END);
+        label.setSingleLine(true);
+        label.updateBackground();
 
-            label.setText(labelText);
-            label.setPadding(labelsPaddingLeft + shadowRadius, labelsPaddingTop + shadowRadius + shadowYOffset,
-                    labelsPaddingLeft, labelsPaddingTop);
+        label.setText(labelText);
+        label.setPadding(labelsPaddingLeft + shadowRadius, labelsPaddingTop + shadowRadius + shadowYOffset,
+                         labelsPaddingLeft, labelsPaddingTop);
 
-            addView(label);
-            fab.setTag(R.id.fab_index, fabIdx++);
-            fab.setTag(R.id.fab_label, label);
-        }
+        addView(label);
+        fab.setTag(R.id.fab_index, fabIdx++);
+        fab.setTag(R.id.fab_label, label);
     }
 
+    @NonNull
     @Override
     public LayoutParams generateLayoutParams(final AttributeSet attrs) {
         return new MarginLayoutParams(context, attrs);
     }
 
+    @NonNull
     @Override
     protected LayoutParams generateLayoutParams(final LayoutParams p) {
         return new MarginLayoutParams(p);
     }
 
+    @NonNull
     @Override
     protected MarginLayoutParams generateDefaultLayoutParams() {
         return new MarginLayoutParams(MarginLayoutParams.WRAP_CONTENT, MarginLayoutParams.WRAP_CONTENT);
@@ -318,10 +304,9 @@ public final class FloatingActionMenu extends ViewGroup {
     }
 
     public void setOpened(final boolean menuOpened) {
-        if (menuOpened != this.menuOpened) {
-            this.menuOpened = menuOpened;
-            if (iconToggleSet != null) iconToggleSet.start();
-        }
+        if (menuOpened == this.menuOpened) return;
+        this.menuOpened = menuOpened;
+        if (iconToggleSet != null) iconToggleSet.start();
     }
 
     public void toggle() {
@@ -330,50 +315,45 @@ public final class FloatingActionMenu extends ViewGroup {
     }
 
     public void open() {
-        if (!menuOpened) {
-            backgroundShowAnimator.start();
+        if (menuOpened) return;
+        backgroundShowAnimator.start();
 
-            isMenuOpening = true;
-            isMenuClosing = false;
+        isMenuOpening = true;
+        isMenuClosing = false;
 
-            for (int i = getChildCount() - 1; i >= 0; i--) {
-                final View child = getChildAt(i);
-                if (child instanceof FloatingActionButton && child.getVisibility() != GONE) {
-                    final FloatingActionButton fab = (FloatingActionButton) child;
-                    uiHandler.post(() -> {
-                        if (!menuOpened) {
-                            if (fab != menuButton) fab.show(true);
+        for (int i = getChildCount() - 1; i >= 0; i--) {
+            final View child = getChildAt(i);
+            if (child instanceof FloatingActionButton && child.getVisibility() != GONE) {
+                final FloatingActionButton fab = (FloatingActionButton) child;
+                uiHandler.post(() -> {
+                    if (!menuOpened) {
+                        if (fab != menuButton) fab.show(true);
 
-                            final Label label = (Label) fab.getTag(R.id.fab_label);
-                            if (label != null) label.show();
-                        }
-                    });
-                }
+                        final Label label = (Label) fab.getTag(R.id.fab_label);
+                        if (label != null) label.show();
+                    }
+                });
             }
         }
     }
 
     public void close() {
-        if (menuOpened) {
-            backgroundHideAnimator.start();
+        if (!menuOpened) return;
+        backgroundHideAnimator.start();
 
-            isMenuClosing = true;
-            isMenuOpening = false;
+        isMenuClosing = true;
+        isMenuOpening = false;
 
-            for (int i = 0; i < getChildCount(); i++) {
-                final View child = getChildAt(i);
-                if (child instanceof FloatingActionButton && child.getVisibility() != GONE) {
-
-                    final FloatingActionButton fab = (FloatingActionButton) child;
-                    uiHandler.post(() -> {
-                        if (menuOpened) {
-                            if (fab != menuButton) fab.hide(true);
-                            final Label label = (Label) fab.getTag(R.id.fab_label);
-                            if (label != null) label.hide();
-                        }
-                    });
-                }
-            }
+        for (int i = 0; i < getChildCount(); i++) {
+            final View child = getChildAt(i);
+            if (!(child instanceof FloatingActionButton) || child.getVisibility() == GONE) continue;
+            uiHandler.post(() -> {
+                final FloatingActionButton fab = (FloatingActionButton) child;
+                if (!menuOpened) return;
+                if (fab != menuButton) fab.hide(true);
+                final Label label = (Label) fab.getTag(R.id.fab_label);
+                if (label != null) label.hide();
+            });
         }
     }
 
@@ -394,5 +374,9 @@ public final class FloatingActionMenu extends ViewGroup {
 
     public void setMenuToggleListener(final FloatingActionButton.OnMenuToggleListener toggleListener) {
         if (menuButton != null) menuButton.setMenuToggleListener(toggleListener, this);
+    }
+
+    private static int adjustForOvershoot(final int dimension) {
+        return (int) (dimension * 0.03 + dimension);
     }
 }

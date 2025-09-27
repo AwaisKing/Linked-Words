@@ -19,23 +19,32 @@ import awais.backworddictionary.TTSActivity;
 import awais.backworddictionary.custom.MaterialCheckedTextView;
 import awais.backworddictionary.databinding.SettingsDialogBinding;
 import awais.backworddictionary.helpers.SettingsHelper;
+import awais.backworddictionary.helpers.TTSHelper;
 import awais.backworddictionary.helpers.Utils;
 
 public final class SettingsDialog extends Dialog {
-    public final static int TTS_SETTINGS_REQUEST_CODE = 5320;
-    private final int maxWords = SettingsHelper.getMaxWords();
-    private final boolean showAds = SettingsHelper.showAds();
-    private final boolean showPopup = SettingsHelper.showDefsPopup();
-    private final boolean showDialog = SettingsHelper.showDialog();
-    private final boolean showFloating = SettingsHelper.showFloating();
-    private final boolean showFloatingDialog = SettingsHelper.showFloatingDialog();
+    private final int maxWords;
+    private final boolean showAds;
+    private final boolean showPopup;
+    private final boolean showDialog;
+    private final boolean showFloating;
+    private final boolean showFloatingDialog;
     private final boolean wasTTSErrorShown;
     private final Activity activity;
 
-    public SettingsDialog(final Activity act, final DialogInterface dialog) {
-        super(act, R.style.DefinitionsDialogTheme);
-        activity = act;
-        wasTTSErrorShown = dialog != null;
+    public SettingsDialog(final Activity activity, final DialogInterface dialog) {
+        super(activity, R.style.DefinitionsDialogTheme);
+
+        final SettingsHelper settingsHelper = SettingsHelper.getInstance(activity);
+        this.maxWords = settingsHelper.getMaxWords();
+        this.showAds = settingsHelper.showAds();
+        this.showPopup = settingsHelper.showDefsPopup();
+        this.showDialog = settingsHelper.showDialog();
+        this.showFloating = settingsHelper.showFloating();
+        this.showFloatingDialog = settingsHelper.showFloatingDialog();
+
+        this.wasTTSErrorShown = dialog != null;
+        this.activity = activity;
     }
 
     @Override
@@ -71,7 +80,9 @@ public final class SettingsDialog extends Dialog {
             dialogBinding.showFloatingDialog.setVisibility(View.VISIBLE);
         }
 
-        final int darkMode = SettingsHelper.getNightMode();
+        final SettingsHelper settingsHelper = SettingsHelper.getInstance(getContext());
+
+        final int darkMode = settingsHelper.getNightMode();
         final int checkedTheme;
         if (darkMode == AppCompatDelegate.MODE_NIGHT_YES) checkedTheme = R.id.rbThemeDark;
         else if (darkMode == AppCompatDelegate.MODE_NIGHT_NO) checkedTheme = R.id.rbThemeLight;
@@ -81,8 +92,7 @@ public final class SettingsDialog extends Dialog {
         ((View) dialogBinding.btnTTS.getParent()).setVisibility(wasTTSErrorShown ? View.GONE : View.VISIBLE);
 
         final View.OnClickListener onClickListener = v -> {
-            if (v instanceof MaterialCheckedTextView) {
-                final MaterialCheckedTextView tvCheck = (MaterialCheckedTextView) v;
+            if (v instanceof final MaterialCheckedTextView tvCheck) {
                 final boolean checked = tvCheck.isChecked();
                 tvCheck.setChecked(!checked);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && v == dialogBinding.showFloating) {
@@ -98,10 +108,10 @@ public final class SettingsDialog extends Dialog {
                 if (selectedTheme == R.id.rbThemeDark) theme = AppCompatDelegate.MODE_NIGHT_YES;
                 else if (selectedTheme == R.id.rbThemeLight) theme = AppCompatDelegate.MODE_NIGHT_NO;
 
-                SettingsHelper.setValues(Math.max(Math.min(1000, dialogBinding.numberPicker.getProgress()), 1),
-                        theme, dialogBinding.showAds.isChecked(), dialogBinding.showWordDialog.isChecked(),
-                        dialogBinding.showFloating.isChecked(), dialogBinding.showFloatingDialog.isChecked(),
-                        dialogBinding.showDefsPopup.isChecked());
+                settingsHelper.setValues(Math.max(Math.min(1000, dialogBinding.numberPicker.getProgress()), 1),
+                                         theme, dialogBinding.showAds.isChecked(), dialogBinding.showWordDialog.isChecked(),
+                                         dialogBinding.showFloating.isChecked(), dialogBinding.showFloatingDialog.isChecked(),
+                                         dialogBinding.showDefsPopup.isChecked());
 
                 if (activity instanceof Main) {
                     ((Main) activity).closeExpanded();
@@ -115,8 +125,7 @@ public final class SettingsDialog extends Dialog {
                 }
             } else if (v == dialogBinding.btnTTS) {
                 if (activity != null)
-                    activity.startActivityForResult(new Intent(activity, TTSActivity.class),
-                            TTS_SETTINGS_REQUEST_CODE);
+                    activity.startActivityForResult(new Intent(activity, TTSActivity.class), TTSHelper.TTS_SETTINGS_REQUEST_CODE);
                 return;
             } else if (activity instanceof Main) Utils.adsBox(activity);
 

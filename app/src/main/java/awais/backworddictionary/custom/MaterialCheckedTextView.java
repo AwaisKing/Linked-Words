@@ -1,7 +1,5 @@
 package awais.backworddictionary.custom;
 
-import static com.google.android.material.theme.overlay.MaterialThemeOverlay.wrap;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -21,6 +19,7 @@ import androidx.core.widget.CheckedTextViewCompat;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.internal.ThemeEnforcement;
 import com.google.android.material.resources.MaterialResources;
+import com.google.android.material.theme.overlay.MaterialThemeOverlay;
 
 import awais.backworddictionary.R;
 
@@ -28,13 +27,12 @@ import awais.backworddictionary.R;
 public final class MaterialCheckedTextView extends AppCompatCheckedTextView {
     private static final int DEF_STYLE_RES = R.style.Widget_MaterialComponents_CheckedTextView;
     private static final int[][] ENABLED_CHECKED_STATES = new int[][]{
-            new int[]{android.R.attr.state_enabled, android.R.attr.state_checked}, // [0]
-            new int[]{android.R.attr.state_enabled, -android.R.attr.state_checked}, // [1]
-            new int[]{-android.R.attr.state_enabled, android.R.attr.state_checked}, // [2]
-            new int[]{-android.R.attr.state_enabled, -android.R.attr.state_checked} // [3]
+            new int[]{android.R.attr.state_enabled, android.R.attr.state_checked},   // [0]
+            new int[]{android.R.attr.state_enabled, -android.R.attr.state_checked},  // [1]
+            new int[]{-android.R.attr.state_enabled, android.R.attr.state_checked},  // [2]
+            new int[]{-android.R.attr.state_enabled, -android.R.attr.state_checked}, // [3]
     };
-    @Nullable
-    private ColorStateList materialThemeColorsTintList;
+    @Nullable private ColorStateList materialThemeColorsTintList;
     private boolean useMaterialThemeColors;
 
     public MaterialCheckedTextView(@NonNull final Context context) {
@@ -46,14 +44,11 @@ public final class MaterialCheckedTextView extends AppCompatCheckedTextView {
     }
 
     public MaterialCheckedTextView(@NonNull Context context, @Nullable final AttributeSet attrs, final int defStyleAttr) {
-        super(wrap(context, attrs, defStyleAttr, DEF_STYLE_RES),
-                attrs, defStyleAttr);
+        super(MaterialThemeOverlay.wrap(context, attrs, defStyleAttr, DEF_STYLE_RES), attrs, defStyleAttr);
         // Ensure we are using the correctly themed context rather than the context that was passed in.
         context = getContext();
 
-        final TypedArray attributes = ThemeEnforcement.obtainStyledAttributes(context, attrs,
-                R.styleable.MaterialCheckBox, defStyleAttr, DEF_STYLE_RES);
-
+        final TypedArray attributes = ThemeEnforcement.obtainStyledAttributes(context, attrs, R.styleable.MaterialCheckBox, defStyleAttr, DEF_STYLE_RES);
 
         final Resources.Theme theme = context.getTheme();
         final TypedValue outValue = new TypedValue();
@@ -69,11 +64,10 @@ public final class MaterialCheckedTextView extends AppCompatCheckedTextView {
             setBackgroundResource(resourceId);
         }
 
-        // If buttonTint is specified, read it using MaterialResources to allow themeable attributes in
-        // all API levels.
+        /// If buttonTint is specified, read it using MaterialResources to allow themeable attributes in all API levels.
         if (attributes.hasValue(R.styleable.MaterialCheckBox_buttonTint)) {
-            CheckedTextViewCompat.setCheckMarkTintList(this, MaterialResources.getColorStateList(context,
-                    attributes, R.styleable.MaterialCheckBox_buttonTint));
+            final ColorStateList cslBtnTint = MaterialResources.getColorStateList(context, attributes, R.styleable.MaterialCheckBox_buttonTint);
+            CheckedTextViewCompat.setCheckMarkTintList(this, cslBtnTint);
         }
 
         useMaterialThemeColors = attributes.getBoolean(R.styleable.MaterialCheckBox_useMaterialThemeColors, true);
@@ -94,8 +88,8 @@ public final class MaterialCheckedTextView extends AppCompatCheckedTextView {
      * Use {@link MaterialCheckedTextView#setSupportCheckMarkTintList(ColorStateList)} to change button tints.
      */
     public void setUseMaterialThemeColors(final boolean useMaterialThemeColors) {
-        CheckedTextViewCompat.setCheckMarkTintList(this,
-                (this.useMaterialThemeColors = useMaterialThemeColors) ? getMaterialThemeColorsTintList() : null);
+        this.useMaterialThemeColors = useMaterialThemeColors;
+        CheckedTextViewCompat.setCheckMarkTintList(this, useMaterialThemeColors ? getMaterialThemeColorsTintList() : null);
     }
 
     private ColorStateList getMaterialThemeColorsTintList() {
@@ -105,14 +99,10 @@ public final class MaterialCheckedTextView extends AppCompatCheckedTextView {
             final int colorSurface = MaterialColors.getColor(this, R.attr.colorSurface);
             final int colorOnSurface = MaterialColors.getColor(this, R.attr.colorOnSurface);
 
-            checkBoxColorsList[0] = MaterialColors.layer(colorSurface, colorControlActivated,
-                    MaterialColors.ALPHA_FULL);
-            checkBoxColorsList[1] = MaterialColors.layer(colorSurface, colorOnSurface,
-                    MaterialColors.ALPHA_MEDIUM);
-            checkBoxColorsList[2] = MaterialColors.layer(colorSurface, colorOnSurface,
-                    MaterialColors.ALPHA_DISABLED);
-            checkBoxColorsList[3] = MaterialColors.layer(colorSurface, colorOnSurface,
-                    MaterialColors.ALPHA_DISABLED);
+            checkBoxColorsList[0] = MaterialColors.layer(colorSurface, colorControlActivated, MaterialColors.ALPHA_FULL);
+            checkBoxColorsList[1] = MaterialColors.layer(colorSurface, colorOnSurface, MaterialColors.ALPHA_MEDIUM);
+            checkBoxColorsList[2] = MaterialColors.layer(colorSurface, colorOnSurface, MaterialColors.ALPHA_DISABLED);
+            checkBoxColorsList[3] = MaterialColors.layer(colorSurface, colorOnSurface, MaterialColors.ALPHA_DISABLED);
 
             materialThemeColorsTintList = new ColorStateList(ENABLED_CHECKED_STATES, checkBoxColorsList);
         }

@@ -1,4 +1,4 @@
-package awais.backworddictionary.executor;
+package awais.backworddictionary.executors;
 
 import android.os.Binder;
 import android.os.Handler;

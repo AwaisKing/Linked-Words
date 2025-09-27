@@ -21,21 +21,26 @@ import java.util.ArrayList;
 
 import awais.backworddictionary.R;
 import awais.backworddictionary.adapters.DictionaryWordsAdapter;
-import awais.backworddictionary.adapters.holders.WordItem;
-import awais.backworddictionary.asyncs.WordsAsync;
 import awais.backworddictionary.databinding.LayoutFloatingDialogBinding;
+import awais.backworddictionary.executors.WordsAsync;
 import awais.backworddictionary.helpers.SettingsHelper;
+import awais.backworddictionary.helpers.TTSHelper;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.FragmentCallback;
+import awais.backworddictionary.models.Tab;
+import awais.backworddictionary.models.WordItem;
 
 public final class FloatingDialogView extends FrameLayout implements View.OnClickListener, TextWatcher, FragmentCallback,
-        TextView.OnEditorActionListener, PopupMenu.OnMenuItemClickListener {
-    private final ArrayList<WordItem> wordList = new ArrayList<>(0);
+                                                                             TextView.OnEditorActionListener, PopupMenu.OnMenuItemClickListener {
+    private final ArrayList<WordItem> wordList = new ArrayList<>();
     private final LayoutFloatingDialogBinding dialogBinding;
     private final DictionaryWordsAdapter wordsAdapter;
     private final PopupMenu popup;
 
-    private String word, method;
+    private final Tab[] tabs = Tab.values();
+
+    private String word;
+    private int method;
 
     public FloatingDialogView(final Context context) {
         this(context, null);
@@ -49,28 +54,29 @@ public final class FloatingDialogView extends FrameLayout implements View.OnClic
         super(context, attrs, defStyleAttr);
         final LayoutInflater layoutInflater = LayoutInflater.from(context);
 
-        dialogBinding = LayoutFloatingDialogBinding.inflate(layoutInflater, this, true);
+        final LayoutFloatingDialogBinding dialogBinding = LayoutFloatingDialogBinding.inflate(layoutInflater, this, true);
+        this.dialogBinding = dialogBinding;
 
-        // setup search popup
+        /// setup search popup
         {
-            final boolean[] tabBoolsArray = SettingsHelper.getTabs();
-
             popup = new PopupMenu(getContext(), dialogBinding.btnSearch);
             final Menu menu = popup.getMenu();
-            popup.getMenuInflater().inflate(R.menu.menu_search, menu);
-            for (int i = tabBoolsArray.length - 1; i >= 0; i--)
-                menu.getItem(i).setVisible(tabBoolsArray[i]);
+
+            final boolean[] tabBools = SettingsHelper.getInstance(context).getTabs();
+            for (int i = 0; i < Math.min(tabBools.length, tabs.length); i++) {
+                tabs[i] = tabs[i].setEnabled(tabBools[i]);
+                menu.add(0, i, i, tabs[i].getTabName()).setVisible(tabs[i].isEnabled());
+            }
 
             popup.setOnMenuItemClickListener(this);
 
             dialogBinding.btnSearch.setTag(R.id.key_popup, popup);
         }
 
-        // setup recycler view and adapter
+        /// setup recycler view and adapter
         {
             wordList.clear();
             wordsAdapter = new DictionaryWordsAdapter(context, wordList);
-            wordsAdapter.setShowExpandedSearchIcon(false);
             dialogBinding.rvItems.setAdapter(wordsAdapter);
         }
 
@@ -111,6 +117,7 @@ public final class FloatingDialogView extends FrameLayout implements View.OnClic
 
     @Override
     public void wordStarted() {
+        final LayoutFloatingDialogBinding dialogBinding = this.dialogBinding;
         dialogBinding.etSearchView.post(new Runnable() {
             @Override
             public void run() {
@@ -125,6 +132,8 @@ public final class FloatingDialogView extends FrameLayout implements View.OnClic
 
     @Override
     public void done(final ArrayList<WordItem> items, @NonNull final String word) {
+        final LayoutFloatingDialogBinding dialogBinding = this.dialogBinding;
+
         dialogBinding.progressBar.setVisibility(GONE);
         dialogBinding.etSearchView.setEnabled(true);
         dialogBinding.btnClear.setVisibility(VISIBLE);
@@ -148,33 +157,32 @@ public final class FloatingDialogView extends FrameLayout implements View.OnClic
 
     @Override
     public void onClick(final View v) {
+        final LayoutFloatingDialogBinding dialogBinding = this.dialogBinding;
         if (v == dialogBinding.btnClear) dialogBinding.etSearchView.setText(null);
         else if (v == dialogBinding.btnSearch) popup.show();
         else if (v == dialogBinding.btnCopy) Utils.copyText(getContext(), word);
-        else if (v == dialogBinding.btnSpeak) Utils.speakText(word);
+        else if (v == dialogBinding.btnSpeak) TTSHelper.speakText(word);
     }
 
-    public boolean searchWord(final String word) {
+    public boolean searchWord(final int method, final String word) {
         dialogBinding.etSearchView.setText(word);
-
-        if (!Utils.isEmpty(word)) {
-            new WordsAsync(this, this.word = word, this.method, getContext()).execute();
-            return true;
-        }
-
-        return false;
-    }
-
-    public boolean searchWord() {
-        return searchWord(String.valueOf(dialogBinding.etSearchView.getText()));
+        final boolean hasWord = !Utils.isEmpty(word);
+        if (hasWord) new WordsAsync(this, this.word = word, this.method = method, getContext()).execute();
+        return hasWord;
     }
 
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
-        final String defMethod = popup.getMenu().getItem(0).getTitle().toString();
-        if (item == null && Utils.isEmpty(method)) method = defMethod;
-        if (Utils.isEmpty(method)) method = defMethod;
-        return searchWord();
+        if (item == null && (method == 0 || method == -1)) method = tabs[0].getTabName();
+        if (method == 0 || method == -1) {
+            final int itemIdx = item == null || item.getItemId() < 0 || item.getItemId() >= tabs.length ? 0 : item.getItemId();
+            try {
+                method = tabs[itemIdx].getTabName();
+            } catch (Exception e) {
+                method = tabs[0].getTabName();
+            }
+        }
+        return searchWord(method, String.valueOf(dialogBinding.etSearchView.getText()));
     }
 
     @Override
@@ -189,10 +197,10 @@ public final class FloatingDialogView extends FrameLayout implements View.OnClic
         dialogBinding.btnSearch.setVisibility(hasText ? VISIBLE : INVISIBLE);
         dialogBinding.btnClear.setVisibility(hasText ? VISIBLE : INVISIBLE);
 
-        //floatingDialogBinding.btnSpeak.setVisibility(hasText ? VISIBLE : GONE);
+        // floatingDialogBinding.btnSpeak.setVisibility(hasText ? VISIBLE : GONE);
         dialogBinding.btnSpeak.setEnabled(hasText);
         dialogBinding.btnSpeak.setAlpha(hasText ? 1f : 0.7f);
-        //floatingDialogBinding.btnCopy.setVisibility(hasText ? VISIBLE : GONE);
+        // floatingDialogBinding.btnCopy.setVisibility(hasText ? VISIBLE : GONE);
         dialogBinding.btnCopy.setEnabled(hasText);
         dialogBinding.btnCopy.setAlpha(hasText ? 1f : 0.7f);
 
@@ -200,8 +208,8 @@ public final class FloatingDialogView extends FrameLayout implements View.OnClic
     }
 
     @Override
-    public void afterTextChanged(final Editable editable) { }
+    public void afterTextChanged(final Editable editable) {}
 
     @Override
-    public void beforeTextChanged(final CharSequence charSequence, final int i, final int i1, final int i2) { }
+    public void beforeTextChanged(final CharSequence charSequence, final int i, final int i1, final int i2) {}
 }

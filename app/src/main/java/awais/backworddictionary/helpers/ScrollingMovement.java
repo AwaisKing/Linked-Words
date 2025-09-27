@@ -76,7 +76,7 @@ public final class ScrollingMovement extends BaseMovementMethod implements Movem
         return right;
     }
 
-    protected static boolean scrollLeft(final TextView widget) {
+    private static boolean scrollLeft(final TextView widget) {
         final int minScrollX = getScrollBoundsLeft(widget);
         int scrollX = widget.getScrollX();
         if (scrollX > minScrollX) {
@@ -87,7 +87,7 @@ public final class ScrollingMovement extends BaseMovementMethod implements Movem
         return false;
     }
 
-    protected static boolean scrollRight(final TextView widget) {
+    private static boolean scrollRight(final TextView widget) {
         final int maxScrollX = getScrollBoundsRight(widget) - getInnerWidth(widget);
         int scrollX = widget.getScrollX();
         if (scrollX < maxScrollX) {
@@ -98,7 +98,7 @@ public final class ScrollingMovement extends BaseMovementMethod implements Movem
         return false;
     }
 
-    protected static boolean scrollUp(@NonNull final TextView widget) {
+    private static boolean scrollUp(@NonNull final TextView widget) {
         final Layout layout = widget.getLayout();
         final int top = widget.getScrollY();
         int topLine = layout.getLineForVertical(top);
@@ -114,7 +114,7 @@ public final class ScrollingMovement extends BaseMovementMethod implements Movem
         return false;
     }
 
-    protected static boolean scrollDown(@NonNull final TextView widget) {
+    private static boolean scrollDown(@NonNull final TextView widget) {
         final Layout layout = widget.getLayout();
         final int innerHeight = getInnerHeight(widget);
         final int bottom = widget.getScrollY() + innerHeight;
@@ -134,7 +134,7 @@ public final class ScrollingMovement extends BaseMovementMethod implements Movem
         return false;
     }
 
-    protected static boolean scrollPageUp(@NonNull final TextView widget) {
+    private static boolean scrollPageUp(@NonNull final TextView widget) {
         final Layout layout = widget.getLayout();
         final int top = widget.getScrollY() - getInnerHeight(widget);
         final int topLine = layout.getLineForVertical(top);
@@ -145,7 +145,7 @@ public final class ScrollingMovement extends BaseMovementMethod implements Movem
         return false;
     }
 
-    protected static boolean scrollPageDown(@NonNull final TextView widget) {
+    private static boolean scrollPageDown(@NonNull final TextView widget) {
         final Layout layout = widget.getLayout();
         final int innerHeight = getInnerHeight(widget);
         final int bottom = widget.getScrollY() + innerHeight + innerHeight;
@@ -158,7 +158,7 @@ public final class ScrollingMovement extends BaseMovementMethod implements Movem
         return false;
     }
 
-    protected static boolean scrollTop(@NonNull final TextView widget) {
+    private static boolean scrollTop(@NonNull final TextView widget) {
         final Layout layout = widget.getLayout();
         if (getTopLine(widget) >= 0) {
             Touch.scrollTo(widget, layout, widget.getScrollX(), layout.getLineTop(0));
@@ -167,7 +167,7 @@ public final class ScrollingMovement extends BaseMovementMethod implements Movem
         return false;
     }
 
-    protected static boolean scrollBottom(@NonNull final TextView widget) {
+    private static boolean scrollBottom(@NonNull final TextView widget) {
         final Layout layout = widget.getLayout();
         final int lineCount = layout.getLineCount();
         if (getBottomLine(widget) <= lineCount - 1) {
@@ -178,7 +178,7 @@ public final class ScrollingMovement extends BaseMovementMethod implements Movem
         return false;
     }
 
-    protected static boolean scrollLineStart(final TextView widget) {
+    private static boolean scrollLineStart(final TextView widget) {
         final int minScrollX = getScrollBoundsLeft(widget);
         final int scrollX = widget.getScrollX();
         if (scrollX > minScrollX) {
@@ -188,7 +188,7 @@ public final class ScrollingMovement extends BaseMovementMethod implements Movem
         return false;
     }
 
-    protected static boolean scrollLineEnd(final TextView widget) {
+    private static boolean scrollLineEnd(final TextView widget) {
         final int maxScrollX = getScrollBoundsRight(widget) - getInnerWidth(widget);
         final int scrollX = widget.getScrollX();
         if (scrollX < maxScrollX) {

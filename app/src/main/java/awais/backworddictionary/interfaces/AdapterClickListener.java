@@ -6,7 +6,7 @@ import awais.backworddictionary.BuildConfig;
 
 public class AdapterClickListener implements View.OnClickListener, View.OnLongClickListener {
     @Override
-    public void onClick(final View view) { }
+    public void onClick(final View view) {}
 
     @Override
     public boolean onLongClick(final View view) {

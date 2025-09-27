@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
@@ -31,18 +32,13 @@ import awais.backworddictionary.helpers.Utils;
 
 public final class AwaisomeDialogBuilder {
     private final Context context;
-    @StyleRes
-    private final int dialogStyle;
+    @StyleRes private final int dialogStyle;
     private final CharSequence[] buttonTexts = new CharSequence[3];
-    @Px
-    private final int[] layoutPadding = {-1, -1, -1, -1};
-    @Px
-    private final int[] dialogInsets = {-1, -1, -1, -1};
-    @LayoutRes
-    private int layoutRes = 0;
-    @LinearLayoutCompat.OrientationMode
-    private int orientation = LinearLayoutCompat.HORIZONTAL;
-    private int hideFlags = 0;
+    @Px private final int[] layoutPadding = {-1, -1, -1, -1};
+    @Px private final int[] dialogInsets = {-1, -1, -1, -1};
+    @LayoutRes private int layoutRes = 0;
+    @LinearLayoutCompat.OrientationMode private int orientation = LinearLayoutCompat.HORIZONTAL;
+    @HiddenFlags private int hideFlags = 0;
     private boolean cancelable = true;
     private View layoutView;
     private AwaisomeClickListener clickListener = null;
@@ -133,9 +129,9 @@ public final class AwaisomeDialogBuilder {
     public AwaisomeDialogBuilder setButtonTexts(@StringRes final Integer textOK, @StringRes final Integer textCancel,
                                                 @StringRes final Integer textNeutral, @Nullable final AwaisomeClickListener clickListener) {
         return setButtonTexts(textOK == null || textOK == 0 || textOK == -1 ? null : context.getString(textOK),
-                textCancel == null || textCancel == 0 || textCancel == -1 ? null : context.getString(textCancel),
-                textNeutral == null || textNeutral == 0 || textNeutral == -1 ? null : context.getString(textNeutral),
-                clickListener);
+                              textCancel == null || textCancel == 0 || textCancel == -1 ? null : context.getString(textCancel),
+                              textNeutral == null || textNeutral == 0 || textNeutral == -1 ? null : context.getString(textNeutral),
+                              clickListener);
     }
 
     public AwaisomeDialogBuilder setViewHideFlags(final int flags) {
@@ -187,15 +183,11 @@ public final class AwaisomeDialogBuilder {
         private AwaisomeClickListener clickListener;
         private CharSequence[] buttonTexts;
         private View layoutView;
-        @Px
-        private int[] layoutPadding = {-1, -1, -1, -1};
-        @Px
-        private int[] dialogInsets = {-1, -1, -1, -1};
-        @LayoutRes
-        private int layoutId = 0;
-        private int hideFlags = 0;
-        @LinearLayoutCompat.OrientationMode
-        private int orientation = LinearLayoutCompat.HORIZONTAL;
+        @HiddenFlags private int hideFlags = 0;
+        @Px private int[] layoutPadding = {-1, -1, -1, -1};
+        @Px private int[] dialogInsets = {-1, -1, -1, -1};
+        @LayoutRes private int layoutId = 0;
+        @LinearLayoutCompat.OrientationMode private int orientation = LinearLayoutCompat.HORIZONTAL;
 
         private ViewGroup contentParent;
         private ColorStateList backColor = null;
@@ -264,7 +256,8 @@ public final class AwaisomeDialogBuilder {
         @Override
         public void show() {
             super.show();
-            getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            final Window window = getWindow();
+            if (window != null) window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
             final LayoutInflater layoutInflater = getLayoutInflater();
             final DialogLayoutBinding binding = DialogLayoutBinding.inflate(layoutInflater);
@@ -380,5 +373,4 @@ public final class AwaisomeDialogBuilder {
     public @interface HiddenFlags {
         int BUTTON_PANEL = 1, TITLE_PANEL = 2;
     }
-
 }

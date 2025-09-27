@@ -1,5 +1,7 @@
 package awais.sephiroth.uigestures;
 
+import static java.lang.Math.sqrt;
+
 import android.graphics.PointF;
 import android.os.Handler;
 import android.os.Looper;
@@ -103,7 +105,7 @@ public abstract class UIGestureRecognizer {
     }
 
     @Override
-    protected void finalize() { }
+    protected void finalize() {}
 
     static int computeFocusPoint(@NonNull final MotionEvent event, final PointF out) {
         final int actionMasked = event.getActionMasked();
@@ -123,6 +125,10 @@ public abstract class UIGestureRecognizer {
         out.x = sumX / div;
         out.y = sumY / div;
         return pointerUp ? count - 1 : count;
+    }
+
+    static float distance(@NonNull final PointF pointF, @NonNull final PointF other) {
+        return (float) sqrt((other.y - pointF.y) * (other.y - pointF.y) + (other.x - pointF.x) * (other.x - pointF.x));
     }
 
     public enum State {

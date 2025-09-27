@@ -31,7 +31,7 @@ public final class SmoothScroller extends RecyclerView.SmoothScroller {
     }
 
     @Override
-    protected void onStart() { }
+    protected void onStart() {}
 
     @Override
     protected void onTargetFound(@NonNull final View targetView, @NonNull final RecyclerView.State state, @NonNull final Action action) {
@@ -40,9 +40,9 @@ public final class SmoothScroller extends RecyclerView.SmoothScroller {
         if (layoutManager != null) {
             final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) targetView.getLayoutParams();
             result = calculateDtToFit(layoutManager.getDecoratedTop(targetView) - params.topMargin,
-                    layoutManager.getDecoratedBottom(targetView) + params.bottomMargin, layoutManager.getPaddingTop(),
-                    layoutManager.getHeight() - layoutManager.getPaddingBottom(),
-                    targetVector == null || targetVector.y == 0 ? SNAP_TO_ANY : targetVector.y > 0 ? SNAP_TO_END : SNAP_TO_START);
+                                      layoutManager.getDecoratedBottom(targetView) + params.bottomMargin, layoutManager.getPaddingTop(),
+                                      layoutManager.getHeight() - layoutManager.getPaddingBottom(),
+                                      targetVector == null || targetVector.y == 0 ? SNAP_TO_ANY : targetVector.y > 0 ? SNAP_TO_END : SNAP_TO_START);
         }
         displayMetrics = targetView.getResources().getDisplayMetrics();
         final double time = Math.ceil(calculateTimeForScrolling(Math.sqrt(result * result)) / .3356);
@@ -56,25 +56,24 @@ public final class SmoothScroller extends RecyclerView.SmoothScroller {
             interimTargetDx = clampApplyScroll(interimTargetDx, dx);
             interimTargetDy = clampApplyScroll(interimTargetDy, dy);
 
-            if (interimTargetDx == 0 && interimTargetDy == 0) {
-                final int targetPosition = getTargetPosition();
+            if (interimTargetDx != 0 || interimTargetDy != 0) return;
+            final int targetPosition = getTargetPosition();
 
-                final PointF scrollVector = computeScrollVectorForPosition(targetPosition);
-                if (scrollVector != null && (scrollVector.x != 0 || scrollVector.y != 0)) {
-                    normalize(scrollVector);
-                    targetVector = scrollVector;
+            final PointF scrollVector = computeScrollVectorForPosition(targetPosition);
+            if (scrollVector == null || (scrollVector.x == 0 && scrollVector.y == 0)) {
+                action.jumpTo(targetPosition);
+                stop();
+            } else {
+                normalize(scrollVector);
+                targetVector = scrollVector;
 
-                    interimTargetDx = TARGET_SEEK_SCROLL_DISTANCE_PX * scrollVector.x;
-                    interimTargetDy = TARGET_SEEK_SCROLL_DISTANCE_PX * scrollVector.y;
+                interimTargetDx = TARGET_SEEK_SCROLL_DISTANCE_PX * scrollVector.x;
+                interimTargetDy = TARGET_SEEK_SCROLL_DISTANCE_PX * scrollVector.y;
 
-                    action.update((int) (interimTargetDx * TARGET_SEEK_EXTRA_SCROLL_RATIO),
-                            (int) (interimTargetDy * TARGET_SEEK_EXTRA_SCROLL_RATIO),
-                            (int) (calculateTimeForScrolling(TARGET_SEEK_SCROLL_DISTANCE_PX) * TARGET_SEEK_EXTRA_SCROLL_RATIO),
-                            linearInterpolator);
-                } else {
-                    action.jumpTo(targetPosition);
-                    stop();
-                }
+                action.update((int) (interimTargetDx * TARGET_SEEK_EXTRA_SCROLL_RATIO),
+                              (int) (interimTargetDy * TARGET_SEEK_EXTRA_SCROLL_RATIO),
+                              (int) (calculateTimeForScrolling(TARGET_SEEK_SCROLL_DISTANCE_PX) * TARGET_SEEK_EXTRA_SCROLL_RATIO),
+                              linearInterpolator);
             }
         }
     }
@@ -107,17 +106,16 @@ public final class SmoothScroller extends RecyclerView.SmoothScroller {
     }
 
     private int calculateDtToFit(final int viewStart, final int viewEnd, final int boxStart, final int boxEnd, final int snapPreference) {
-        if (snapPreference == SNAP_TO_START)
-            return boxStart - viewStart;
-        else if (snapPreference == SNAP_TO_END)
-            return boxEnd - viewEnd;
-        else if (snapPreference == SNAP_TO_ANY) {
+        if (snapPreference == SNAP_TO_START) return boxStart - viewStart;
+        if (snapPreference == SNAP_TO_END) return boxEnd - viewEnd;
+        if (snapPreference != SNAP_TO_ANY)
+            throw new IllegalArgumentException("snap preference should be one of the constants defined in SmoothScroller, starting with SNAP_");
+        else {
             final int dtStart = boxStart - viewStart;
             if (dtStart > 0) return dtStart;
             final int dtEnd = boxEnd - viewEnd;
             if (dtEnd < 0) return dtEnd;
-        } else
-            throw new IllegalArgumentException("snap preference should be one of the constants defined in SmoothScroller, starting with SNAP_");
+        }
         return 0;
     }
 }

@@ -1,8 +1,8 @@
-package awais.backworddictionary.asyncs;
+package awais.backworddictionary.executors;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -10,29 +10,26 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import awais.backworddictionary.BuildConfig;
-import awais.backworddictionary.adapters.holders.WordItem;
-import awais.backworddictionary.executor.LocalAsyncTask;
+import awais.backworddictionary.Main;
 import awais.backworddictionary.helpers.URLEncoder;
 import awais.backworddictionary.helpers.Utils;
-import awais.backworddictionary.interfaces.MainCheck;
+import awais.backworddictionary.models.WordItem;
 
 public final class SearchAsyncTask extends LocalAsyncTask<String, ArrayList<WordItem>> {
-    private MainCheck mainCheck;
+    private Main main;
 
-    public SearchAsyncTask(final MainCheck mainCheck) {
-        this.mainCheck = mainCheck;
+    public SearchAsyncTask(final Main main) {
+        this.main = main;
     }
 
-    @NonNull
+    @Nullable
     @Override
     protected ArrayList<WordItem> doInBackground(final String param) {
-        final ArrayList<WordItem> arrayList = new ArrayList<>(0);
-
         try {
-            final String response = Utils.getResponse("https://api.data".concat("muse.com/sug?s=")
-                    .concat(URLEncoder.encode(param)));
+            final ArrayList<WordItem> arrayList = new ArrayList<>();
+            final String response = Utils.getResponse("https://api.datamuse.com/sug?s=" + URLEncoder.encode(param));
 
-            if (response != null) {
+            if (!Utils.isEmpty(response)) {
                 final JSONArray jsonArray = new JSONArray(response);
 
                 for (int i = 0; i < jsonArray.length(); ++i) {
@@ -40,21 +37,21 @@ public final class SearchAsyncTask extends LocalAsyncTask<String, ArrayList<Word
                     arrayList.add(new WordItem(jsonObject.getString("word"), 0, null, null));
                 }
             }
+            return arrayList;
         } catch (final Exception e) {
             if (BuildConfig.DEBUG) Log.e("AWAISKING_APP", "SearchAsyncTask", e);
+            return null;
         }
-
-        return arrayList;
     }
 
     @Override
-    protected void onCancelled(@NonNull final ArrayList<WordItem> wordItems) {
-        if (mainCheck != null) mainCheck.afterSearch(null);
-        mainCheck = null;
+    protected void onCancelled(final ArrayList<WordItem> wordItems) {
+        if (main != null) main.afterSearch(null);
+        main = null;
     }
 
     @Override
     protected void onPostExecute(final ArrayList<WordItem> result) {
-        if (mainCheck != null) mainCheck.afterSearch(result);
+        if (main != null) main.afterSearch(result);
     }
 }

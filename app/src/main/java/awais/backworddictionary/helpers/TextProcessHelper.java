@@ -1,6 +1,5 @@
 package awais.backworddictionary.helpers;
 
-import static awais.backworddictionary.Main.tts;
 import static awais.backworddictionary.helpers.BubbleHelper.LW_BUBBLES_CHANNEL_ID;
 import static awais.backworddictionary.helpers.BubbleHelper.LW_BUBBLES_CHANNEL_NAME;
 import static awais.backworddictionary.helpers.BubbleHelper.LW_BUBBLES_CONVO_ID;
@@ -37,6 +36,7 @@ import awais.backworddictionary.dialogs.AwaisomeDialogBuilder.AwaisomeDialog;
 import awais.backworddictionary.dialogs.AwaisomeDialogBuilder.HiddenFlags;
 
 public final class TextProcessHelper extends Activity {
+    private static final Exception EMPTY_EXCEPTION = new RuntimeException();
     private static BubbleHelper bubbleHelper;
     private boolean isFound = false, dataHandled = false;
     private AwaisomeDialog awaisomeDialog;
@@ -66,13 +66,6 @@ public final class TextProcessHelper extends Activity {
     }
 
     @Override
-    public Context getBaseContext() {
-        final Context baseContext = super.getBaseContext();
-        findIntent();
-        return baseContext;
-    }
-
-    @Override
     protected void onNewIntent(final Intent intent) {
         super.onNewIntent(intent);
         setIntent(this.intent = intent);
@@ -92,21 +85,30 @@ public final class TextProcessHelper extends Activity {
 
         if (intent == null) intent = getIntent();
         if (context == null) {
+            Context context;
             try {
                 context = getApplicationContext();
+                if (context == null) throw EMPTY_EXCEPTION;
             } catch (final Exception e) {
                 try {
-                    context = getBaseContext();
+                    context = super.getBaseContext();
+                    if (context == null) throw EMPTY_EXCEPTION;
                 } catch (final Exception e1) {
-                    context = this;
+                    try {
+                        context = getBaseContext();
+                        if (context == null) throw EMPTY_EXCEPTION;
+                    } catch (Exception ex) {
+                        context = this;
+                    }
                 }
             }
+            this.context = context;
         }
 
         isFound = intent != null && context != null;
         if (isFound) {
             AppHelper.getInstance(context).getInputMethodManager();
-            SettingsHelper.setPreferences(context);
+            SettingsHelper.getInstance(context);
 
             if (!dataHandled) handleData();
         }
@@ -130,7 +132,7 @@ public final class TextProcessHelper extends Activity {
             //// these are to check if bubbles can be shown
             boolean isBubbles;
             final boolean bubblesApiEnabled;
-            final boolean isProcessText = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Intent.ACTION_PROCESS_TEXT.equals(action);
+            final boolean isProcessText = Intent.ACTION_PROCESS_TEXT.equals(action);
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                 bubblesApiEnabled = false;
                 isBubbles = isProcessText;
@@ -163,24 +165,21 @@ public final class TextProcessHelper extends Activity {
 
 
             //// depth scan to find some text
-            if (bundle != null && ("text/plain".equals(type) || Intent.ACTION_WEB_SEARCH.equals(action)
-                                   || Intent.ACTION_SEARCH.equals(action))) {
+            if (bundle != null && ("text/plain".equals(type) || Intent.ACTION_WEB_SEARCH.equals(action) || Intent.ACTION_SEARCH.equals(action))) {
                 final Object object = bundle.get(action);
                 if (object instanceof CharSequence) str[0] = object.toString();
                 else for (final String key : bundle.keySet()) {
-                    if ((isBubbles |= Intent.EXTRA_PROCESS_TEXT.equalsIgnoreCase(key))
-                        || Intent.EXTRA_TEXT.equalsIgnoreCase(key)) {
+                    if ((isBubbles |= Intent.EXTRA_PROCESS_TEXT.equalsIgnoreCase(key)) || Intent.EXTRA_TEXT.equalsIgnoreCase(key)) {
                         final Object o = bundle.get(key);
                         if (o instanceof CharSequence) str[0] = o.toString();
                         else if (o instanceof ClipData && (clipData = (ClipData) o).getItemCount() > 0
                                  && (clipDataItem = clipData.getItemAt(0)) != null
                                  && !Utils.isEmpty(clipDataItem.getText())) str[0] = clipDataItem.getText().toString();
                     } else {
+                        final Object o;
                         final String lcKey = key.toLowerCase();
-                        if ("query".equals(lcKey) || "text".equals(lcKey)) {
-                            final Object o = bundle.get(key);
-                            if (o != null) str[0] = o.toString();
-                        }
+                        if (("query".equals(lcKey) || "text".equals(lcKey)) && (o = bundle.get(key)) != null)
+                            str[0] = o.toString();
                     }
 
                     if (!Utils.isEmpty(str[0])) break;
@@ -212,8 +211,8 @@ public final class TextProcessHelper extends Activity {
                 bubbleHelper = new BubbleHelper(context, str[0]);
 
 
-            final boolean showFloatingDialog = SettingsHelper.showFloatingDialog();
-            final boolean showFloating = SettingsHelper.showFloating();
+            final boolean showFloatingDialog = SettingsHelper.getInstance(context).showFloatingDialog();
+            final boolean showFloating = SettingsHelper.getInstance(context).showFloating();
 
             // Log.d("AWAISKING_APP", "isBubbles:" + isBubbles
             //        + " -- showFloating:" + showFloating
@@ -230,8 +229,8 @@ public final class TextProcessHelper extends Activity {
                     bubbleHelper.showBubble();
                 }
 
-                final boolean bubblesApiEnabledIntrl = bubblesApiEnabled || notificationManager != null
-                                                                            && notificationManager.areBubblesAllowed() || channel != null && channel.canBubble();
+                final boolean bubblesApiEnabledIntrl = bubblesApiEnabled || notificationManager != null && notificationManager.areBubblesAllowed()
+                                                       || !(channel == null) && channel.canBubble();
                 isBubbles |= bubblesApiEnabledIntrl && Intent.ACTION_SEND.equals(action) || isProcessText;
                 handleFallback = bubbleHelper == null || channel == null || !channel.canBubble() || !isBubbles && !bubblesApiEnabledIntrl;
 
@@ -244,10 +243,10 @@ public final class TextProcessHelper extends Activity {
                 final Handler handler = new Handler(Looper.getMainLooper());
 
                 if (showFloating || showFloatingDialog) {
-                    if (tts == null)
-                        tts = new TextToSpeech(getApplicationContext(), Main::onTTSInit);
+                    final Context appContext = context == null ? getApplicationContext() : context.getApplicationContext();
+                    if (TTSHelper.tts == null) TTSHelper.tts = new TextToSpeech(appContext, TTSHelper::onTTSInit);
 
-                    final int nightMode = SettingsHelper.getNightMode();
+                    final int nightMode = SettingsHelper.getInstance(appContext).getNightMode();
                     if (nightMode != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
                         final Configuration configOverlay = getResources().getConfiguration();
 
@@ -278,16 +277,12 @@ public final class TextProcessHelper extends Activity {
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if ((showFloating || showFloatingDialog) && awaisomeDialog != null) {
-                            final DialogInterface.OnDismissListener onDismissListener = dialogInterface -> {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) finishAndRemoveTask();
-                                else finish();
-                            };
+                        if (!(showFloating || showFloatingDialog) || awaisomeDialog == null) startMain(str[0]);
+                        else {
+                            final DialogInterface.OnDismissListener onDismissListener = dialogInterface -> finishAndRemoveTask();
                             awaisomeDialog.setOnCancelListener(onDismissListener::onDismiss);
                             awaisomeDialog.setOnDismissListener(onDismissListener);
                             awaisomeDialog.show();
-                        } else {
-                            startMain(str[0]);
                         }
 
                         handler.removeCallbacks(this);
@@ -304,6 +299,8 @@ public final class TextProcessHelper extends Activity {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return;
         final NotificationManager notificationManager = AppHelper.getInstance(context).getNotificationManager();
 
+        NotificationChannel channel = this.channel;
+
         if (channel != null) {
             channel.setAllowBubbles(true);
             return;
@@ -316,34 +313,33 @@ public final class TextProcessHelper extends Activity {
         final List<NotificationChannel> notificationChannels;
         if (channel == null && (notificationChannels = notificationManager.getNotificationChannels()) != null && !notificationChannels.isEmpty()) {
             for (final NotificationChannel notificationChannel : notificationChannels) {
-                if (notificationChannel == null) continue;
-                if (LW_BUBBLES_CHANNEL_NAME.contentEquals(notificationChannel.getName()) &&
-                    LW_BUBBLES_CHANNEL_ID.equals(notificationChannel.getId())) {
+                if (notificationChannel == null || !(LW_BUBBLES_CHANNEL_NAME.contentEquals(notificationChannel.getName()) &&
+                                                     LW_BUBBLES_CHANNEL_ID.equals(notificationChannel.getId()))) continue;
 
-                    boolean setChannel = false;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        final String conversationId = notificationChannel.getConversationId();
-                        if (LW_BUBBLES_CHANNEL_ID.equals(conversationId) || LW_BUBBLES_CONVO_ID.equals(conversationId))
-                            setChannel = true;
-                    }
-                    setChannel = setChannel | notificationChannel.canBubble();
+                boolean setChannel = false;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    final String conversationId = notificationChannel.getConversationId();
+                    if (LW_BUBBLES_CHANNEL_ID.equals(conversationId) || LW_BUBBLES_CONVO_ID.equals(conversationId))
+                        setChannel = true;
+                }
+                setChannel = setChannel | notificationChannel.canBubble();
 
-                    if (setChannel) {
-                        channel = notificationChannel;
-                        break;
-                    }
+                if (setChannel) {
+                    channel = notificationChannel;
+                    break;
                 }
             }
         }
 
-        if (channel == null)
-            notificationManager.createNotificationChannel(new NotificationChannel(LW_BUBBLES_CHANNEL_ID,
-                                                                                  LW_BUBBLES_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
+        if (channel == null) notificationManager.createNotificationChannel(new NotificationChannel(LW_BUBBLES_CHANNEL_ID, LW_BUBBLES_CHANNEL_NAME,
+                                                                                                   NotificationManager.IMPORTANCE_HIGH));
 
         if (channel == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
             channel = notificationManager.getNotificationChannel(LW_BUBBLES_CHANNEL_ID, LW_BUBBLES_CONVO_ID);
         if (channel == null)
             channel = notificationManager.getNotificationChannel(LW_BUBBLES_CHANNEL_ID);
+
+        this.channel = channel;
     }
 
     private synchronized void startMain(final String data) {
@@ -368,8 +364,6 @@ public final class TextProcessHelper extends Activity {
     }
 
     private void finishTask() {
-        if (awaisomeDialog != null) return;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) finishAndRemoveTask();
-        else finish();
+        if (awaisomeDialog == null) finishAndRemoveTask();
     }
 }

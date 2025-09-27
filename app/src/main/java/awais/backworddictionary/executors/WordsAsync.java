@@ -1,7 +1,6 @@
-package awais.backworddictionary.asyncs;
+package awais.backworddictionary.executors;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -11,48 +10,33 @@ import java.util.ArrayList;
 
 import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.R;
-import awais.backworddictionary.adapters.holders.WordItem;
-import awais.backworddictionary.executor.LocalAsyncTask;
 import awais.backworddictionary.helpers.SettingsHelper;
 import awais.backworddictionary.helpers.URLEncoder;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.interfaces.FragmentCallback;
+import awais.backworddictionary.models.WordItem;
 
 public final class WordsAsync extends LocalAsyncTask<Void, ArrayList<WordItem>> {
     private final String word;
     private final String method;
+    private final SettingsHelper settingsHelper;
     private final FragmentCallback fragmentCallback;
 
-    public WordsAsync(final FragmentCallback fragmentCallback, final String word, final String method, final Context context) {
-        this.fragmentCallback = fragmentCallback;
+    public WordsAsync(final FragmentCallback fragmentCallback, final String word, final int method, final Context context) {
         this.word = word;
-        if (context != null) {
-            final Resources resources = context.getResources();
-            final String[] methodsList = new String[]{
-                    resources.getString(R.string.reverse),
-                    resources.getString(R.string.sounds_like),
-                    resources.getString(R.string.spelled_like),
-                    resources.getString(R.string.synonyms),
-                    resources.getString(R.string.antonyms),
-                    resources.getString(R.string.triggers),
-                    resources.getString(R.string.part_of),
-                    resources.getString(R.string.comprises),
-                    resources.getString(R.string.homophones),
-                    resources.getString(R.string.rhymes)
-            };
-            if (methodsList[0].equals(method)) this.method = "ml";
-            else if (methodsList[1].equals(method)) this.method = "sl";
-            else if (methodsList[2].equals(method)) this.method = "sp";
-            else if (methodsList[3].equals(method)) this.method = "rel_syn";
-            else if (methodsList[4].equals(method)) this.method = "rel_ant";
-            else if (methodsList[5].equals(method)) this.method = "rel_trg";
-            else if (methodsList[6].equals(method)) this.method = "rel_par";
-            else if (methodsList[7].equals(method)) this.method = "rel_com";
-            else if (methodsList[8].equals(method)) this.method = "rel_hom";
-            else if (methodsList[9].equals(method)) this.method = "rel_rhy";
-            else this.method = "ml";
-        } else
-            this.method = "ml";
+        this.fragmentCallback = fragmentCallback;
+        this.settingsHelper = SettingsHelper.getInstance(context);
+        if (method == R.string.reverse) this.method = "ml";
+        else if (method == R.string.sounds_like) this.method = "sl";
+        else if (method == R.string.spelled_like) this.method = "sp";
+        else if (method == R.string.synonyms) this.method = "rel_syn";
+        else if (method == R.string.antonyms) this.method = "rel_ant";
+        else if (method == R.string.triggers) this.method = "rel_trg";
+        else if (method == R.string.part_of) this.method = "rel_par";
+        else if (method == R.string.comprises) this.method = "rel_com";
+        else if (method == R.string.homophones) this.method = "rel_hom";
+        else if (method == R.string.rhymes) this.method = "rel_rhy";
+        else this.method = "ml";
     }
 
     @Override
@@ -65,10 +49,10 @@ public final class WordsAsync extends LocalAsyncTask<Void, ArrayList<WordItem>> 
         ArrayList<WordItem> wordItemsList = null;
 
         try {
-            final int wordsCount = SettingsHelper.getMaxWords();
+            final int wordsCount = settingsHelper.getMaxWords();
             final String body = Utils.getResponse("https://api.data".concat("muse.com/words?md=pds&max=")
-                    .concat(String.valueOf(wordsCount)).concat("&").concat(method)
-                    .concat("=").concat( URLEncoder.encode(word)));
+                                                                    .concat(String.valueOf(wordsCount)).concat("&").concat(method)
+                                                                    .concat("=").concat(URLEncoder.encode(word)));
             if (body != null) {
                 final JSONArray jsonArray = new JSONArray(body);
                 wordItemsList = new ArrayList<>(jsonArray.length());
@@ -105,7 +89,6 @@ public final class WordsAsync extends LocalAsyncTask<Void, ArrayList<WordItem>> 
 
     @Override
     protected void onPostExecute(final ArrayList<WordItem> wordItems) {
-        if (fragmentCallback != null)
-            fragmentCallback.done(wordItems, word);
+        if (fragmentCallback != null) fragmentCallback.done(wordItems, word);
     }
 }

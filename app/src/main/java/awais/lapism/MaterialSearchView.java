@@ -204,19 +204,17 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     public void open(final boolean animate, final MenuItem menuItem) {
         setVisibility(View.VISIBLE);
 
+        final SearchViewBinding searchViewBinding = this.searchViewBinding;
         if (animate) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                if (menuItem != null) getMenuItemPosition(menuItem.getItemId());
-                searchViewBinding.cardView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        searchViewBinding.cardView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        SearchAnimator.revealOpen(searchViewBinding.cardView, menuItemCx, getContext(),
-                                                  searchViewBinding.etSearchView, onOpenCloseListener);
-                    }
-                });
-            } else
-                SearchAnimator.fadeOpen(searchViewBinding.cardView, searchViewBinding.etSearchView, onOpenCloseListener);
+            if (menuItem != null) getMenuItemPosition(menuItem.getItemId());
+            searchViewBinding.cardView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    searchViewBinding.cardView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    SearchAnimator.revealOpen(searchViewBinding.cardView, menuItemCx, getContext(),
+                                              searchViewBinding.etSearchView, onOpenCloseListener);
+                }
+            });
         } else {
             searchViewBinding.cardView.setVisibility(View.VISIBLE);
             if (onOpenCloseListener != null) onOpenCloseListener.onOpen();
@@ -225,13 +223,10 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     }
 
     public void close(final boolean animate) {
+        final SearchViewBinding searchViewBinding = this.searchViewBinding;
         if (animate) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                SearchAnimator.revealClose(searchViewBinding.cardView, menuItemCx, getContext(),
-                                           searchViewBinding.etSearchView, this, onOpenCloseListener);
-            else
-                SearchAnimator.fadeClose(searchViewBinding.cardView, searchViewBinding.etSearchView,
-                                         this, onOpenCloseListener);
+            SearchAnimator.revealClose(searchViewBinding.cardView, menuItemCx, getContext(),
+                                       searchViewBinding.etSearchView, this, onOpenCloseListener);
         } else {
             searchViewBinding.etSearchView.clearFocus();
             searchViewBinding.cardView.setVisibility(View.GONE);
@@ -269,7 +264,7 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     }
 
     public boolean isSearchOpen() {
-        return isSearchOpen; // getVisibility();
+        return isSearchOpen; /// getVisibility();
     }
 
     private void showKeyboard() {
@@ -298,19 +293,20 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     }
 
     private void setQueryWithoutSubmitting(final CharSequence query) {
+        final SearchViewBinding searchViewBinding = this.searchViewBinding;
         searchViewBinding.etSearchView.setText(query);
         if (query != null) {
             searchViewBinding.etSearchView.setSelection(searchViewBinding.etSearchView.length());
             userQuery = query;
-        } else if (searchViewBinding.etSearchView.getText() != null)
+        } else if (searchViewBinding.etSearchView.getText() != null) {
             searchViewBinding.etSearchView.getText().clear();
+        }
     }
 
     private void setArrow() {
-        if (searchArrow != null) {
-            searchArrow.setVerticalMirror(false);
-            searchArrow.animate(SearchArrowDrawable.STATE_ARROW);
-        }
+        if (searchArrow == null) return;
+        searchArrow.setVerticalMirror(false);
+        searchArrow.animate(SearchArrowDrawable.STATE_ARROW);
     }
 
     private void setHamburger() {
@@ -323,8 +319,7 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
     private void getMenuItemPosition(final int menuItemId) {
         if (menuItemView != null) menuItemCx = getCenterX(menuItemView);
         ViewParent viewParent = getParent();
-        while (viewParent instanceof View) {
-            final View parent = (View) viewParent;
+        while (viewParent instanceof final View parent) {
             final View view = parent.findViewById(menuItemId);
             if (view != null) {
                 menuItemView = view;
@@ -410,8 +405,8 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
 
     @Override
     protected void onRestoreInstanceState(final Parcelable state) {
-        if (state instanceof SavedState) {
-            final SavedState ss = (SavedState) state;
+        if (!(state instanceof final SavedState ss)) super.onRestoreInstanceState(state);
+        else {
             if (ss.isSearchOpen) {
                 open(true, null);
                 setQueryWithoutSubmitting(ss.query);
@@ -420,8 +415,6 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
 
             super.onRestoreInstanceState(ss.getSuperState());
             requestLayout();
-        } else {
-            super.onRestoreInstanceState(state);
         }
     }
 
@@ -433,14 +426,8 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
         onOpenCloseListener = listener;
     }
 
-    public interface OnOpenCloseListener {
-        void onClose();
-
-        void onOpen();
-    }
-
     private static class SavedState extends BaseSavedState {
-        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
+        public static final Creator<SavedState> CREATOR = new Creator<>() {
             @NonNull
             @Override
             public SavedState createFromParcel(final Parcel in) {
@@ -472,5 +459,11 @@ public final class MaterialSearchView extends FrameLayout implements View.OnClic
             out.writeString(query);
             out.writeInt(isSearchOpen ? 1 : 0);
         }
+    }
+
+    public interface OnOpenCloseListener {
+        void onClose();
+
+        void onOpen();
     }
 }

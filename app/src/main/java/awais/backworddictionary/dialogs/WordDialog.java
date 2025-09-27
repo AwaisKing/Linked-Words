@@ -20,6 +20,7 @@ import awais.backworddictionary.R;
 import awais.backworddictionary.adapters.DefinitionsAdapter;
 import awais.backworddictionary.databinding.WordDialogBinding;
 import awais.backworddictionary.helpers.CustomTabsHelper;
+import awais.backworddictionary.helpers.TTSHelper;
 import awais.backworddictionary.helpers.URLEncoder;
 import awais.backworddictionary.helpers.Utils;
 import awais.backworddictionary.helpers.other.CustomTabActivityHelper;
@@ -73,8 +74,7 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
 
         wordDialogBinding.alertTitle.setText(word);
 
-        wordDialogBinding.lvDefs.setAdapter(new DefinitionsAdapter<>(context, word,
-                false, defs, itemClickListener));
+        wordDialogBinding.lvDefs.setAdapter(new DefinitionsAdapter<>(context, word, false, defs, itemClickListener));
 
         wordDialogBinding.btnCopy.setOnClickListener(this);
         wordDialogBinding.btnSpeak.setOnClickListener(this);
@@ -93,7 +93,7 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
         }
 
         if (v == wordDialogBinding.btnSpeak) {
-            Utils.speakText(word);
+            TTSHelper.speakText(word);
             return;
         }
 
@@ -120,7 +120,7 @@ public final class WordDialog extends Dialog implements android.view.View.OnClic
                     .setPackage("org.wikipedia").setData(wordWikiUri);
 
             final List<ResolveInfo> resInfo = context.getPackageManager().queryIntentActivities(intent, 0);
-            if (resInfo.size() > 0) context.startActivity(intent);
+            if (!resInfo.isEmpty()) context.startActivity(intent);
             else {
                 CustomTabActivityHelper.openCustomTab(context, customTabsHelper.setToolbarColor(Utils.CUSTOM_TAB_COLORS[1]),
                         wordWikiUri);

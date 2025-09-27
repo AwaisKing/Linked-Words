@@ -7,7 +7,6 @@ import android.os.Bundle;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
-import androidx.core.app.BundleCompat;
 import androidx.core.content.ContextCompat;
 
 import awais.backworddictionary.BuildConfig;
@@ -25,28 +24,24 @@ public final class CustomTabsHelper {
     private static final int NO_TITLE = 0;
     private static final int SHOW_PAGE_TITLE = 1;
 
-    public final Intent intent;
+    public final Intent intent = new Intent(Intent.ACTION_VIEW)
+                                         .putExtra(EXTRA_ENABLE_INSTANT_APPS, true)
+                                         //.putExtra(EXTRA_ENABLE_URLBAR_HIDING, true)
+                                         .putExtra(EXTRA_TITLE_VISIBILITY_STATE, !BuildConfig.DEBUG ? SHOW_PAGE_TITLE : NO_TITLE)
+                                         .putExtra(EXTRA_DEFAULT_SHARE_MENU_ITEM, true);
 
     public CustomTabsHelper() {
         final Bundle bundle = new Bundle();
-        BundleCompat.putBinder(bundle, EXTRA_SESSION, null);
-
-        boolean showTitle = !BuildConfig.DEBUG;
-
-        this.intent = new Intent(Intent.ACTION_VIEW)
-                .putExtra(EXTRA_ENABLE_INSTANT_APPS, true)
-                .putExtra(EXTRA_TITLE_VISIBILITY_STATE, showTitle ? SHOW_PAGE_TITLE : NO_TITLE)
-                .putExtra(EXTRA_DEFAULT_SHARE_MENU_ITEM, true)
-                //.putExtra(EXTRA_ENABLE_URLBAR_HIDING, true)
-                .putExtras(bundle);
+        bundle.putBinder(EXTRA_SESSION, null);
+        this.intent.putExtras(bundle);
     }
 
-    public CustomTabsHelper setToolbarColor(@ColorInt int color) {
+    public CustomTabsHelper setToolbarColor(@ColorInt final int color) {
         intent.putExtra(EXTRA_TOOLBAR_COLOR, color);
         return this;
     }
 
-    public CustomTabsHelper setSecondaryToolbarColor(@ColorInt int color) {
+    public CustomTabsHelper setSecondaryToolbarColor(@ColorInt final int color) {
         intent.putExtra(EXTRA_SECONDARY_TOOLBAR_COLOR, color);
         return this;
     }
@@ -69,8 +64,8 @@ public final class CustomTabsHelper {
         return intent;
     }
 
-    public static boolean shouldAlwaysUseBrowserUI(@NonNull Intent intent) {
+    public static boolean shouldAlwaysUseBrowserUI(@NonNull final Intent intent) {
         return intent.getBooleanExtra(EXTRA_USER_OPT_OUT_FROM_CUSTOM_TABS, false)
-                && (intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0;
+               && (intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0;
     }
 }

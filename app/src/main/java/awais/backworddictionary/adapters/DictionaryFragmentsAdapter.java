@@ -8,34 +8,29 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import java.util.ArrayList;
 
 import awais.backworddictionary.DictionaryFragment;
+import awais.backworddictionary.models.Tab;
 
 public final class DictionaryFragmentsAdapter extends FragmentStateAdapter {
-    private final ArrayList<DictionaryFragment> fragmentList;
-    private final ArrayList<String> titlesList;
+    private final ArrayList<DictionaryFragment> fragmentList = new ArrayList<>();
 
-    public DictionaryFragmentsAdapter(@NonNull final FragmentActivity fragmentActivity, final int tabsSize) {
+    public DictionaryFragmentsAdapter(@NonNull final FragmentActivity fragmentActivity) {
         super(fragmentActivity);
-        fragmentList = new ArrayList<>(tabsSize);
-        titlesList = new ArrayList<>(tabsSize);
     }
 
-    public void addFragment(final String title) {
-        fragmentList.add(new DictionaryFragment());
-        titlesList.add(title);
+    public void addFragment(final Tab tab) {
+        fragmentList.add(new DictionaryFragment().setTab(tab));
+        fragmentList.trimToSize();
     }
 
-    public void setFragments(@NonNull final String... titles) {
+    public void setFragments(@NonNull final Tab... tabs) {
         fragmentList.clear();
-        titlesList.clear();
-
-        for (final String title : titles) {
-            fragmentList.add(new DictionaryFragment());
-            titlesList.add(title);
-        }
+        for (final Tab tab : tabs) fragmentList.add(new DictionaryFragment().setTab(tab));
+        fragmentList.trimToSize();
     }
 
-    public boolean isEmpty() {
-        return titlesList.isEmpty() || fragmentList.isEmpty();
+    @Override
+    public int getItemCount() {
+        return fragmentList == null ? 0 : fragmentList.size();
     }
 
     @NonNull
@@ -48,18 +43,12 @@ public final class DictionaryFragmentsAdapter extends FragmentStateAdapter {
         return fragmentList.get(position);
     }
 
-    @Override
-    public int getItemCount() {
-        return fragmentList.size();
+    public int getPageTitle(final int position) {
+        return getItem(position).getTab().getTabName();
     }
 
-    public String getPageTitle(final int position) {
-        return titlesList.get(position);
-    }
-
-    public int fragmentIndex(@NonNull final CharSequence title) {
-        for (int i = 0; i < titlesList.size(); i++)
-            if (title.equals(titlesList.get(i))) return i;
+    public int fragmentIndex(final int title) {
+        for (int i = 0; i < fragmentList.size(); i++) if (title == fragmentList.get(i).getTab().getTabName()) return i;
         return -1;
     }
 }

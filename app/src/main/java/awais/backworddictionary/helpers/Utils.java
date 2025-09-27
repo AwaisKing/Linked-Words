@@ -1,11 +1,7 @@
 package awais.backworddictionary.helpers;
 
 import static java.lang.Character.MIN_LOW_SURROGATE;
-import static java.lang.Math.sqrt;
-import static awais.backworddictionary.Main.tabBoolsArray;
-import static awais.backworddictionary.Main.tts;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ClipData;
@@ -17,18 +13,11 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
-import android.graphics.Point;
-import android.graphics.PointF;
-import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Handler;
-import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.View;
-import android.view.Window;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -40,21 +29,22 @@ import androidx.appcompat.widget.PopupMenu;
 
 import com.applovin.mediation.ads.MaxAdView;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 
 import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.R;
-import awais.backworddictionary.adapters.holders.WordItem;
-import awais.backworddictionary.executor.LocalAsyncTask;
+import awais.backworddictionary.executors.LocalAsyncTask;
 import awais.backworddictionary.helpers.other.Listener;
 import awais.backworddictionary.interfaces.WordClickSearchListener;
 import awais.backworddictionary.interfaces.WordContextItemListener;
+import awais.backworddictionary.models.Tab;
+import awais.backworddictionary.models.WordItem;
 
 public final class Utils {
     static {
@@ -64,25 +54,23 @@ public final class Utils {
     private static final Intent SEARCH_QUERY_INTENT = new Intent(Intent.ACTION_WEB_SEARCH);
 
     public static final int[] CUSTOM_TAB_COLORS = new int[]{0xFF4888F2, 0xFF333333, 0xFF3B496B};
-    public static final String CHARSET = "UTF-8";
     public static Locale defaultLocale;
-    public static int statusBarHeight = 0, navigationBarHeight = 0;
 
     @Nullable
     public static String getResponse(final String url) throws Exception {
         final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-
-        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                final StringBuilder response = new StringBuilder();
-
-                String currentLine;
-                while ((currentLine = reader.readLine()) != null)
-                    response.append(currentLine);
-
-                return response.toString();
-            }
+        if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+            connection.disconnect();
             return null;
+        }
+        try (InputStream inputStream = connection.getInputStream()) {
+            final byte[] buffer = new byte[0x1000];
+            final StringBuilder content = new StringBuilder();
+
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) content.append(new String(buffer, 0, bytesRead, StandardCharsets.UTF_8));
+
+            return content.toString();
         } finally {
             connection.disconnect();
         }
@@ -135,7 +123,7 @@ public final class Utils {
         final View adLayout = activity.findViewById(R.id.adLayout);
         final MaxAdView adView = activity.findViewById(R.id.adView);
         if (adLayout == null || adView == null) return;
-        if (SettingsHelper.showAds()) {
+        if (SettingsHelper.getInstance(activity).showAds()) {
             adView.setListener(new Listener(adLayout));
             adView.loadAd();
         } else {
@@ -144,54 +132,54 @@ public final class Utils {
         }
     }
 
-    @SuppressLint({"InternalInsetResource", "DiscouragedApi"})
-    public static int getStatusBarHeight(final Window window, final Resources resources) {
-        if (Build.VERSION.SDK_INT == 19 && window != null && resources != null) {
-            final Rect rectangle = new Rect();
-            window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
-
-            final View contentView = window.findViewById(Window.ID_ANDROID_CONTENT);
-
-            final int resId = resources.getIdentifier("status_bar_height", "dimen", "android");
-            final int statusBarHeight1 = contentView.getTop() - rectangle.top;
-            final int statusBarHeight2 = resId > 0 ? resources.getDimensionPixelSize(resId) : 0;
-
-            return statusBarHeight1 == 0 && statusBarHeight2 == 0 ? 50 :
-                   statusBarHeight1 == 0 ? statusBarHeight2 : statusBarHeight1;
-        }
-        return 0;
-    }
-
-    @SuppressLint({"InternalInsetResource", "DiscouragedApi"})
-    public static int getNavigationBarHeight(final Window window, final Resources resources) {
-        if (Build.VERSION.SDK_INT == 19 && window != null && resources != null) {
-            final int appUsableSizeX, appUsableSizeY, realScreenSizeX, realScreenSizeY;
-
-            final Display display = window.getWindowManager().getDefaultDisplay();
-            final Point size = new Point();
-            display.getSize(size);
-            appUsableSizeX = size.x;
-            appUsableSizeY = size.y;
-
-            display.getRealSize(size);
-            realScreenSizeX = size.x;
-            realScreenSizeY = size.y;
-
-            final int navBarHeight1;
-            if (!(appUsableSizeX < realScreenSizeX) // !(navigation bar on the right)
-                && appUsableSizeY < realScreenSizeY) // navigation bar at the bottom
-                navBarHeight1 = realScreenSizeY - appUsableSizeY;
-            else navBarHeight1 = 0;
-
-            final int resId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
-            final int navBarHeight2 = resId > 0 ? resources.getDimensionPixelSize(resId) : 0;
-
-            return navBarHeight1 == 0 && navBarHeight2 == 0 ? 0 :
-                   navBarHeight1 == 0 ? navBarHeight2 : navBarHeight1;
-        }
-        return 0;
-    }
-
+    /// removed due to minSdk
+    // @SuppressLint({"InternalInsetResource", "DiscouragedApi"})
+    // public static int getStatusBarHeight(final Window window, final Resources resources) {
+    //     if (Build.VERSION.SDK_INT == 19 && window != null && resources != null) {
+    //         final Rect rectangle = new Rect();
+    //         window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
+    //
+    //         final View contentView = window.findViewById(Window.ID_ANDROID_CONTENT);
+    //
+    //         final int resId = resources.getIdentifier("status_bar_height", "dimen", "android");
+    //         final int statusBarHeight1 = contentView.getTop() - rectangle.top;
+    //         final int statusBarHeight2 = resId > 0 ? resources.getDimensionPixelSize(resId) : 0;
+    //
+    //         return statusBarHeight1 == 0 && statusBarHeight2 == 0 ? 50 :
+    //                statusBarHeight1 == 0 ? statusBarHeight2 : statusBarHeight1;
+    //     }
+    //     return 0;
+    // }
+    //
+    // @SuppressLint({"InternalInsetResource", "DiscouragedApi"})
+    // public static int getNavigationBarHeight(final Window window, final Resources resources) {
+    //     if (Build.VERSION.SDK_INT == 19 && window != null && resources != null) {
+    //         final int appUsableSizeX, appUsableSizeY, realScreenSizeX, realScreenSizeY;
+    //
+    //         final Display display = window.getWindowManager().getDefaultDisplay();
+    //         final Point size = new Point();
+    //         display.getSize(size);
+    //         appUsableSizeX = size.x;
+    //         appUsableSizeY = size.y;
+    //
+    //         display.getRealSize(size);
+    //         realScreenSizeX = size.x;
+    //         realScreenSizeY = size.y;
+    //
+    //         final int navBarHeight1;
+    //         if (!(appUsableSizeX < realScreenSizeX) // !(navigation bar on the right)
+    //             && appUsableSizeY < realScreenSizeY) // navigation bar at the bottom
+    //             navBarHeight1 = realScreenSizeY - appUsableSizeY;
+    //         else navBarHeight1 = 0;
+    //
+    //         final int resId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+    //         final int navBarHeight2 = resId > 0 ? resources.getDimensionPixelSize(resId) : 0;
+    //
+    //         return navBarHeight1 == 0 && navBarHeight2 == 0 ? 0 :
+    //                navBarHeight1 == 0 ? navBarHeight2 : navBarHeight1;
+    //     }
+    //     return 0;
+    // }
     public static void copyText(final Context context, final String stringToCopy) {
         final ClipboardManager clipboardManager = AppHelper.getInstance(context).getClipboardManager();
 
@@ -237,10 +225,13 @@ public final class Utils {
     public static PopupMenu setPopupMenuSlider(final Dialog dialog, final Context context, @NonNull final View view, final String word) {
         final PopupMenu popup = new PopupMenu(context, view);
         final Menu menu = popup.getMenu();
-        popup.getMenuInflater().inflate(R.menu.menu_search, menu);
 
-        for (int i = tabBoolsArray.length - 1; i >= 0; i--)
-            menu.getItem(i).setVisible(tabBoolsArray[i]);
+        final Tab[] tabs = Tab.values();
+        final boolean[] tabBools = SettingsHelper.getInstance(context).getTabs();
+        for (int i = 0; i < Math.min(tabBools.length, tabs.length); i++) {
+            tabs[i] = tabs[i].setEnabled(tabBools[i]);
+            menu.add(0, i, i, tabs[i].getTabName()).setVisible(tabs[i].isEnabled());
+        }
 
         popup.setOnMenuItemClickListener(new WordClickSearchListener(context, dialog, word));
 
@@ -255,79 +246,63 @@ public final class Utils {
     }
 
     public static void showPopupMenu(final Dialog dialog, final Context context, final View view, final String word) {
-        if (context != null && view != null && !isEmpty(word)) {
-            final Object tag = view.getTag(R.id.key_popup);
-            final PopupMenu popup = tag instanceof PopupMenu ? (PopupMenu) tag :
-                                    setPopupMenuSlider(dialog, context, view, word);
-            popup.show();
-        }
-    }
-
-    public static void speakText(final CharSequence text) {
-        if (tts == null || isEmpty(text)) return;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
-        else
-            tts.speak(String.valueOf(text), TextToSpeech.QUEUE_FLUSH, null); // todo change deprecated
-    }
-
-    public static float distance(@NonNull final PointF pointF, @NonNull final PointF other) {
-        return (float) sqrt((other.y - pointF.y) * (other.y - pointF.y) + (other.x - pointF.x) * (other.x - pointF.x));
+        if (context == null || view == null || isEmpty(word)) return;
+        final Object tag = view.getTag(R.id.key_popup);
+        final PopupMenu popup = tag instanceof PopupMenu ? (PopupMenu) tag : setPopupMenuSlider(dialog, context, view, word);
+        popup.show();
     }
 
     @NonNull
     public static ContextThemeWrapper getStyledContext(final Context context, @StyleRes int style) {
         if (context instanceof ContextThemeWrapper) return (ContextThemeWrapper) context;
         if (style == 0 || style == -1) {
-            final Resources.Theme theme;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && (theme = context.getTheme()) != null)
-                return new ContextThemeWrapper(context, theme);
-            else {
-                final Context appContext = context.getApplicationContext();
+            final Resources.Theme theme = context.getTheme();
+            if (theme != null) return new ContextThemeWrapper(context, theme);
 
-                final PackageManager packageManager = appContext.getPackageManager();
-                final String packageName = appContext.getPackageName();
+            final Context appContext = context.getApplicationContext();
 
-                int styleHack;
+            final PackageManager packageManager = appContext.getPackageManager();
+            final String packageName = appContext.getPackageName();
+
+            int styleHack;
+            try {
+                final PackageInfo packageInfo = packageManager.getPackageInfo(packageName, 0);
+                styleHack = packageInfo.applicationInfo == null ? -1 : packageInfo.applicationInfo.theme;
+                Log.d("AWAISKING_APP", "styleHack1: " + styleHack);
+            } catch (final Exception e) {
+                Log.e("AWAISKING_APP", "err1", e);
+                styleHack = -1;
+            }
+
+            if (styleHack == 0 || styleHack == -1) {
                 try {
-                    final PackageInfo packageInfo = packageManager.getPackageInfo(packageName, 0);
-                    styleHack = packageInfo.applicationInfo.theme;
-                    Log.d("AWAISKING_APP", "styleHack1: " + styleHack);
+                    final Intent intent = packageManager.getLaunchIntentForPackage(packageName);
+                    // noinspection ConstantConditions
+                    final ActivityInfo activityInfo = packageManager.getActivityInfo(intent.getComponent(), 0);
+                    styleHack = activityInfo.getThemeResource();
+                    Log.d("AWAISKING_APP", "styleHack2: " + styleHack);
                 } catch (final Exception e) {
-                    Log.e("AWAISKING_APP", "err1", e);
+                    Log.e("AWAISKING_APP", "err2", e);
                     styleHack = -1;
                 }
-
-                if (styleHack == 0 || styleHack == -1) {
-                    try {
-                        final Intent intent = packageManager.getLaunchIntentForPackage(packageName);
-                        // noinspection ConstantConditions
-                        final ActivityInfo activityInfo = packageManager.getActivityInfo(intent.getComponent(), 0);
-                        styleHack = activityInfo.getThemeResource();
-                        Log.d("AWAISKING_APP", "styleHack2: " + styleHack);
-                    } catch (final Exception e) {
-                        Log.e("AWAISKING_APP", "err2", e);
-                        styleHack = -1;
-                    }
-                }
-
-                // try {
-                //    final ActivityInfo activityInfo = packageManager.getActivityInfo(new ComponentName(appContext, Main.class), 0);
-                //    styleHack = activityInfo.getThemeResource();
-                //} catch (final Throwable e) {
-                //    styleHack = -1;
-                //}
-                // if (styleHack == 0 || styleHack == -1) {
-                //    try {
-                //        final ActivityInfo activityInfo = packageManager.getActivityInfo(new ComponentName(context, Main.class), 0);
-                //        styleHack = activityInfo.getThemeResource();
-                //    } catch (final Throwable e) {
-                //        styleHack = -1;
-                //    }
-                //}
-
-                if (styleHack != 0 && styleHack != -1) style = styleHack;
             }
+
+            // try {
+            //    final ActivityInfo activityInfo = packageManager.getActivityInfo(new ComponentName(appContext, Main.class), 0);
+            //    styleHack = activityInfo.getThemeResource();
+            //} catch (final Throwable e) {
+            //    styleHack = -1;
+            //}
+            // if (styleHack == 0 || styleHack == -1) {
+            //    try {
+            //        final ActivityInfo activityInfo = packageManager.getActivityInfo(new ComponentName(context, Main.class), 0);
+            //        styleHack = activityInfo.getThemeResource();
+            //    } catch (final Throwable e) {
+            //        styleHack = -1;
+            //    }
+            //}
+
+            if (styleHack != 0 && styleHack != -1) style = styleHack;
         }
         return new ContextThemeWrapper(context, style);
     }

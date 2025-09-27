@@ -6,8 +6,6 @@ import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
 
-import awais.backworddictionary.helpers.Utils;
-
 public final class UILongPressGestureRecognizer extends UIGestureRecognizer {
     // request to change the current state to Failed
     private static final int MESSAGE_FAILED = 1;
@@ -141,7 +139,7 @@ public final class UILongPressGestureRecognizer extends UIGestureRecognizer {
             case MotionEvent.ACTION_MOVE: {
                 if (state == State.POSSIBLE && mStarted) {
                     if (mAlwaysInTapRegion) {
-                        final float distance = Utils.distance(mCurrentLocation, mDownFocusLocation);
+                        final float distance = UIGestureRecognizer.distance(mCurrentLocation, mDownFocusLocation);
 
                         if (distance > allowableMovement) {
                             mAlwaysInTapRegion = false;
@@ -151,7 +149,7 @@ public final class UILongPressGestureRecognizer extends UIGestureRecognizer {
                     }
                 } else if (state == State.BEGAN) {
                     if (!mBegan) {
-                        final float distance = Utils.distance(mCurrentLocation, mDownFocusLocation);
+                        final float distance = UIGestureRecognizer.distance(mCurrentLocation, mDownFocusLocation);
 
                         if (distance > scaledTouchSlop) {
                             mBegan = true;

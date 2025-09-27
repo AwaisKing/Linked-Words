@@ -6,8 +6,6 @@ import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
 
-import awais.backworddictionary.helpers.Utils;
-
 public final class UITapGestureRecognizer extends UIGestureRecognizer {
     // request to change the current state to Failed
     private static final int MESSAGE_FAILED = 1;
@@ -77,7 +75,7 @@ public final class UITapGestureRecognizer extends UIGestureRecognizer {
             }
         } else if (action == MotionEvent.ACTION_MOVE) {
             // if taps and touches > 1 then we need to be less strict
-            if (state == State.POSSIBLE && mStarted && mAlwaysInTapRegion && Utils.distance(mDownFocus, mCurrentLocation) > scaledTouchSlop) {
+            if (state == State.POSSIBLE && mStarted && mAlwaysInTapRegion && UIGestureRecognizer.distance(mDownFocus, mCurrentLocation) > scaledTouchSlop) {
                 mDownCurrentLocation.set(mCurrentLocation);
                 mAlwaysInTapRegion = false;
                 removeMessages();

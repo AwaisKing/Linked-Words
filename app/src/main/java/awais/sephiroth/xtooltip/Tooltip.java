@@ -271,7 +271,7 @@ public final class Tooltip {
             }
         });
 
-        final ArrayList<Gravity> gravities = new ArrayList<>(0);
+        final ArrayList<Gravity> gravities = new ArrayList<>();
         Collections.addAll(gravities, this.gravities);
         gravities.remove(gravity);
         gravities.add(0, gravity);

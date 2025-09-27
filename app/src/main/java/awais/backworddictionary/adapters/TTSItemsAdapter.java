@@ -3,14 +3,11 @@ package awais.backworddictionary.adapters;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.EngineInfo;
 import android.speech.tts.Voice;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -22,9 +19,10 @@ import java.util.Locale;
 
 import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.R;
-import awais.backworddictionary.helpers.ScrollingMovement;
+import awais.backworddictionary.adapters.holders.TTSItemHolder;
+import awais.backworddictionary.adapters.holders.TTSViewHolder;
 
-public final class TTSItemsAdapter<T> extends RecyclerView.Adapter<TTSItemsAdapter.TTSViewHolder> {
+public final class TTSItemsAdapter<T> extends RecyclerView.Adapter<TTSViewHolder> {
     private final List<TTSItemHolder<T>> list;
     private final View.OnClickListener onClickListener;
     private final Context context;
@@ -42,8 +40,7 @@ public final class TTSItemsAdapter<T> extends RecyclerView.Adapter<TTSItemsAdapt
     @NonNull
     @Override
     public TTSViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
-        return new TTSViewHolder(inflater.inflate(R.layout.layout_tts_item, parent, false),
-                onClickListener);
+        return new TTSViewHolder(inflater.inflate(R.layout.layout_tts_item, parent, false), onClickListener);
     }
 
     @Override
@@ -54,8 +51,7 @@ public final class TTSItemsAdapter<T> extends RecyclerView.Adapter<TTSItemsAdapt
         holder.ivIcon.setImageDrawable(null);
         holder.ivSelected.setImageResource(obj.selected ? R.drawable.ic_checked : 0);
 
-        if (obj.object instanceof TextToSpeech.EngineInfo) {
-            final TextToSpeech.EngineInfo engineInfo = (TextToSpeech.EngineInfo) obj.object;
+        if (obj.object instanceof final EngineInfo engineInfo) {
             holder.textView1.setText(engineInfo.label);
             holder.textView2.setText(engineInfo.name);
 
@@ -79,7 +75,7 @@ public final class TTSItemsAdapter<T> extends RecyclerView.Adapter<TTSItemsAdapt
                 }
 
                 if (!BuildConfig.APPLICATION_ID.equalsIgnoreCase(resourcePackageName)
-                        && (resourceName == null || !resourceName.contains("ic_launcher"))) {
+                    && (resourceName == null || !resourceName.contains("ic_launcher"))) {
                     try {
                         drawable = ContextCompat.getDrawable(context, engineInfo.icon);
                     } catch (final Exception e) {
@@ -100,27 +96,28 @@ public final class TTSItemsAdapter<T> extends RecyclerView.Adapter<TTSItemsAdapt
             holder.ivIcon.setImageDrawable(drawable);
             holder.ivIcon.setVisibility(drawable != null ? View.VISIBLE : View.GONE);
 
+            return;
+        }
 
-        } else if (obj.object instanceof Locale) {
-            final Locale locale = (Locale) obj.object;
+        if (obj.object instanceof final Locale locale) {
             holder.textView1.setText(locale.getDisplayName());
             holder.ivIcon.setVisibility(View.GONE);
 
+            return;
+        }
 
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && obj.object instanceof Voice) {
-            final Voice voice = (Voice) obj.object;
-
+        if (obj.object instanceof final Voice voice) {
             final String name = voice.getName();
             final boolean isNetworkLang = (name.endsWith("-internet") || name.endsWith("-network"))
-                    || (name.contains("-internet") || name.contains("-network"));
+                                          || (name.contains("-internet") || name.contains("-network"));
 
             holder.ivIcon.setImageResource(isNetworkLang ? R.drawable.ic_wifi : 0);
             holder.ivIcon.setVisibility(isNetworkLang ? View.VISIBLE : View.INVISIBLE);
 
             final String info = "[n:" + name + ',' +
-                    " q:" + voice.getQuality() + ',' +
-                    " l:" + voice.getLatency() + ',' +
-                    " f:" + voice.getFeatures() + ']';
+                                " q:" + voice.getQuality() + ',' +
+                                " l:" + voice.getLatency() + ',' +
+                                " f:" + voice.getFeatures() + ']';
             holder.textView2.setText(info);
             holder.textView2.setVisibility(View.VISIBLE);
             holder.textView1.setText(voice.getLocale().getDisplayName());
@@ -130,31 +127,5 @@ public final class TTSItemsAdapter<T> extends RecyclerView.Adapter<TTSItemsAdapt
     @Override
     public int getItemCount() {
         return list == null ? 0 : list.size();
-    }
-
-    static class TTSViewHolder extends RecyclerView.ViewHolder {
-        private final TextView textView1, textView2;
-        private final ImageView ivIcon, ivSelected;
-
-        public TTSViewHolder(@NonNull final View itemView, final View.OnClickListener onClickListener) {
-            super(itemView);
-            itemView.setOnClickListener(onClickListener);
-            this.ivIcon = itemView.findViewById(android.R.id.icon);
-            this.textView1 = itemView.findViewById(android.R.id.text1);
-            this.textView2 = itemView.findViewById(android.R.id.text2);
-            this.ivSelected = itemView.findViewById(android.R.id.button1);
-            this.textView2.setMovementMethod(ScrollingMovement.getInstance());
-            this.textView2.setSelected(true);
-        }
-    }
-
-    public static class TTSItemHolder<T> {
-        public final T object;
-        public boolean selected;
-
-        public TTSItemHolder(final T object, final boolean selected) {
-            this.object = object;
-            this.selected = selected;
-        }
     }
 }

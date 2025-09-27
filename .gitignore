@@ -59,3 +59,5 @@ captures/
 app/google-services.json
 app/src/main/res/values/ads.xml
 app/proguardMapping.txt
+.idea/appInsightsSettings.xml
+.idea/deploymentTargetSelector.xml

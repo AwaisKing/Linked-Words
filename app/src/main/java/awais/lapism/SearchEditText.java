@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.material.textfield.TextInputEditText;
 
 public final class SearchEditText extends TextInputEditText {
@@ -26,12 +28,11 @@ public final class SearchEditText extends TextInputEditText {
     }
 
     @Override
-    public boolean onKeyPreIme(final int keyCode, final KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP
-                && searchView != null && searchView.isSearchOpen()) {
+    public boolean dispatchKeyEventPreIme(@NonNull final KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP && searchView != null && searchView.isSearchOpen()) {
             searchView.close(true);
             return true;
         }
-        return super.onKeyPreIme(keyCode, event);
+        return super.dispatchKeyEventPreIme(event);
     }
 }

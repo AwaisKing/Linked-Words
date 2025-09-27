@@ -1,6 +1,5 @@
 package awais.backworddictionary.custom;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.Layout;
@@ -16,7 +15,7 @@ import awais.backworddictionary.R;
 
 /**
  * Taken from Google AppCompat library
- *
+ * <p>
  * Used by dialogs to change the font size and number of lines to try to fit
  * the text to the available space.
  */
@@ -38,24 +37,19 @@ public final class AlertDialogTitle extends MaterialTextView {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         final Layout layout = getLayout();
-        if (layout != null) {
-            final int lineCount = layout.getLineCount();
-            if (lineCount > 0) {
-                final int ellipsisCount = layout.getEllipsisCount(lineCount - 1);
-                if (ellipsisCount > 0) {
-                    setSingleLine(false);
-                    setMaxLines(2);
+        final int lineCount = layout == null ? 0 : layout.getLineCount();
+        final int ellipsisCount = lineCount <= 0 ? 0 : layout.getEllipsisCount(lineCount - 1);
+        if (ellipsisCount <= 0) return;
 
-                    @SuppressLint("CustomViewStyleable") final TypedArray a = getContext().obtainStyledAttributes(null,
-                            R.styleable.TextAppearance, android.R.attr.textAppearanceMedium,
-                            android.R.style.TextAppearance_Medium);
-                    final int textSize = a.getDimensionPixelSize(R.styleable.TextAppearance_android_textSize, 0);
-                    if (textSize != 0) setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
-                    a.recycle();
+        setSingleLine(false);
+        setMaxLines(2);
 
-                    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-                }
-            }
-        }
+        final TypedArray a = getContext().obtainStyledAttributes(null, R.styleable.TextAppearance, android.R.attr.textAppearanceMedium,
+                                                                 R.style.TextAppearance_AppCompat_Medium);
+        final int textSize = a.getDimensionPixelSize(R.styleable.TextAppearance_android_textSize, 0);
+        if (textSize != 0) setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        a.recycle();
+
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }

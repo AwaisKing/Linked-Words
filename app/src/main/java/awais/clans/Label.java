@@ -19,7 +19,6 @@ import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -38,14 +37,14 @@ public final class Label extends MaterialTextView {
     private static final Xfermode PORTER_DUFF_CLEAR = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
     private final GestureDetector gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
         @Override
-        public boolean onDown(final MotionEvent e) {
+        public boolean onDown(@NonNull final MotionEvent e) {
             onActionDown(true);
             if (fab != null) fab.onActionDown();
             return super.onDown(e);
         }
 
         @Override
-        public boolean onSingleTapUp(final MotionEvent e) {
+        public boolean onSingleTapUp(@NonNull final MotionEvent e) {
             onActionUp();
             if (fab != null) fab.onActionUp();
             return super.onSingleTapUp(e);
@@ -53,23 +52,21 @@ public final class Label extends MaterialTextView {
     });
     private final FloatingActionButton fab;
     private final Animation showAnimation, hideAnimation;
-    private final int cornerRadius,shadowRadius , shadowYOffset;
+    private final int cornerRadius, shadowRadius, shadowYOffset;
 
     private Drawable backgroundDrawable;
     private int rawWidth, rawHeight;
-
 
     public Label(@NonNull final Context context, @Nullable final AttributeSet attrs) {
         this(context, attrs, null, null, null);
     }
 
-    public Label(@NonNull final Context context, @NonNull final FloatingActionButton fab, final Animation showAnimation,
-                 final Animation hideAnimation) {
+    public Label(@NonNull final Context context, @NonNull final FloatingActionButton fab, final Animation showAnimation, final Animation hideAnimation) {
         this(context, null, fab, showAnimation, hideAnimation);
     }
 
     public Label(@NonNull final Context context, @Nullable final AttributeSet attrs, @Nullable final FloatingActionButton fab,
-                 final Animation showAnimation, final Animation hideAnimation){
+                 final Animation showAnimation, final Animation hideAnimation) {
         super(context, attrs);
 
         final Resources resources = context.getResources();
@@ -99,18 +96,16 @@ public final class Label extends MaterialTextView {
         drawable.addState(new int[]{android.R.attr.state_pressed}, createRectDrawable(0xffffffff));
         drawable.addState(new int[]{}, createRectDrawable(0xfffafafa));
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            final RippleDrawable ripple = new RippleDrawable(new ColorStateList(new int[][]{{}}, new int[]{0x33000000}), drawable, null);
-            setOutlineProvider(new ViewOutlineProvider() {
-                @Override
-                public void getOutline(final View view, final Outline outline) {
-                    outline.setOval(0, 0, view.getWidth(), view.getHeight());
-                }
-            });
-            setClipToOutline(true);
-            backgroundDrawable = ripple;
-        } else
-            backgroundDrawable = drawable;
+        final RippleDrawable ripple = new RippleDrawable(new ColorStateList(new int[][]{{}}, new int[]{0x33000000}), drawable, null);
+        setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(final View view, final Outline outline) {
+                // outline.setOval(0, 0, view.getWidth(), view.getHeight());
+                outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), cornerRadius);
+            }
+        });
+        setClipToOutline(true);
+        backgroundDrawable = ripple;
 
         final LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{new Shadow(), backgroundDrawable});
         layerDrawable.setLayerInset(1, shadowRadius, shadowRadius + shadowYOffset, shadowRadius, shadowRadius + shadowYOffset);
@@ -121,7 +116,7 @@ public final class Label extends MaterialTextView {
     @NonNull
     private Drawable createRectDrawable(final int color) {
         final RoundRectShape shape = new RoundRectShape(new float[]{cornerRadius, cornerRadius, cornerRadius, cornerRadius, cornerRadius, cornerRadius,
-                cornerRadius, cornerRadius}, null, null);
+                                                                    cornerRadius, cornerRadius}, null, null);
         final ShapeDrawable shapeDrawable = new ShapeDrawable(shape);
         shapeDrawable.getPaint().setColor(color);
         return shapeDrawable;
@@ -131,7 +126,7 @@ public final class Label extends MaterialTextView {
         if (backgroundDrawable instanceof StateListDrawable) {
             final StateListDrawable drawable = (StateListDrawable) backgroundDrawable;
             drawable.setState(new int[]{android.R.attr.state_pressed});
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && backgroundDrawable instanceof RippleDrawable) {
+        } else if (backgroundDrawable instanceof RippleDrawable) {
             final int measuredWidth = getMeasuredWidth();
             final RippleDrawable ripple = (RippleDrawable) backgroundDrawable;
             ripple.setState(new int[]{android.R.attr.state_enabled, android.R.attr.state_pressed});
@@ -141,7 +136,7 @@ public final class Label extends MaterialTextView {
     }
 
     void onActionUp() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && backgroundDrawable instanceof RippleDrawable) {
+        if (backgroundDrawable instanceof RippleDrawable) {
             final RippleDrawable ripple = (RippleDrawable) backgroundDrawable;
             ripple.setHotspot(getMeasuredWidth() >> 1, getMeasuredHeight() >> 1);
             ripple.setVisible(true, true);
@@ -203,10 +198,10 @@ public final class Label extends MaterialTextView {
         }
 
         @Override
-        public void setAlpha(final int alpha) { }
+        public void setAlpha(final int alpha) {}
 
         @Override
-        public void setColorFilter(@Nullable final ColorFilter colorFilter) { }
+        public void setColorFilter(@Nullable final ColorFilter colorFilter) {}
 
         @Override
         public int getOpacity() {

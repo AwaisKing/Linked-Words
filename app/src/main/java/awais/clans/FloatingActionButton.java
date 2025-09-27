@@ -46,7 +46,7 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
 
     private final GestureDetector gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
         @Override
-        public boolean onDown(final MotionEvent e) {
+        public boolean onDown(@NonNull final MotionEvent e) {
             final Label label = (Label) getTag(R.id.fab_label);
             if (label != null) label.onActionDown(false);
             onActionDown();
@@ -54,7 +54,7 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
         }
 
         @Override
-        public boolean onSingleTapUp(final MotionEvent e) {
+        public boolean onSingleTapUp(@NonNull final MotionEvent e) {
             final Label label = (Label) getTag(R.id.fab_label);
             if (label != null) label.onActionUp();
             onActionUp();
@@ -118,10 +118,10 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
             }
 
             @Override
-            public void onAnimationStart(final Animation animation) { }
+            public void onAnimationStart(final Animation animation) {}
 
             @Override
-            public void onAnimationRepeat(final Animation animation) { }
+            public void onAnimationRepeat(final Animation animation) {}
         };
         showAnimation.setAnimationListener(animationListener);
         hideAnimation.setAnimationListener(animationListener);
@@ -187,7 +187,7 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
         final int circleInsetVertical = shadowRadius + shadowYOffset;
 
         layerDrawable.setLayerInset(2, shadowRadius + iconOffset, circleInsetVertical + iconOffset,
-                shadowRadius + iconOffset, circleInsetVertical + iconOffset);
+                                    shadowRadius + iconOffset, circleInsetVertical + iconOffset);
 
         setBackground(layerDrawable);
     }
@@ -214,11 +214,10 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
     }
 
     private void saveButtonOriginalPosition() {
-        if (!buttonPositionSaved) {
-            if (originalX == -1) originalX = getX();
-            if (originalY == -1) originalY = getY();
-            buttonPositionSaved = true;
-        }
+        if (buttonPositionSaved) return;
+        if (originalX == -1) originalX = getX();
+        if (originalY == -1) originalY = getY();
+        buttonPositionSaved = true;
     }
 
     void playShowAnimation() {
@@ -256,35 +255,31 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
-        if (clickListener != null && isEnabled()) {
-            final Label label = (Label) getTag(R.id.fab_label);
-            if (label != null) {
-                final int action = event.getAction();
-                if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-                    label.onActionUp();
-                    onActionUp();
-                }
-                gestureDetector.onTouchEvent(event);
+        final Label label = (clickListener != null && isEnabled()) ? (Label) getTag(R.id.fab_label) : null;
+        if (label != null) {
+            final int action = event.getAction();
+            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                label.onActionUp();
+                onActionUp();
             }
+            gestureDetector.onTouchEvent(event);
         }
         return super.onTouchEvent(event);
     }
 
     @Override
     public void setImageDrawable(final Drawable drawable) {
-        if (iconDrawable != drawable) {
-            iconDrawable = drawable;
-            updateBackground();
-        }
+        if (iconDrawable == drawable) return;
+        iconDrawable = drawable;
+        updateBackground();
     }
 
     @Override
     public void setImageResource(final int resId) {
         final Drawable drawable = ResourcesCompat.getDrawable(resources, resId, null);
-        if (iconDrawable != drawable) {
-            iconDrawable = drawable;
-            updateBackground();
-        }
+        if (iconDrawable == drawable) return;
+        iconDrawable = drawable;
+        updateBackground();
     }
 
     @Override
@@ -310,17 +305,15 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
     }
 
     public void show(final boolean animate) {
-        if (isHidden()) {
-            if (animate) playShowAnimation();
-            super.setVisibility(VISIBLE);
-        }
+        if (!isHidden()) return;
+        if (animate) playShowAnimation();
+        super.setVisibility(VISIBLE);
     }
 
     public void hide(final boolean animate) {
-        if (!isHidden()) {
-            if (animate) playHideAnimation();
-            super.setVisibility(INVISIBLE);
-        }
+        if (isHidden()) return;
+        if (animate) playHideAnimation();
+        super.setVisibility(INVISIBLE);
     }
 
     public void setLabelText(final String text) {
@@ -361,6 +354,11 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
         if (label != null) label.setVisibility(visibility);
     }
 
+    public void setMenuToggleListener(final OnMenuToggleListener listener, final FloatingActionMenu actionMenu) {
+        floatingActionMenu = new WeakReference<>(actionMenu);
+        if (listener != null && menuToggleListener == null) menuToggleListener = listener;
+    }
+
     private final class Shadow extends Drawable {
         private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint erase = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -372,7 +370,6 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
             paint.setColor(colorNormal);
             erase.setXfermode(PORTER_DUFF_CLEAR);
             if (!isInEditMode()) paint.setShadowLayer(shadowRadius, 0, shadowYOffset, 0x66000000);
-
         }
 
         @Override
@@ -389,11 +386,10 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
         }
 
         @Override
-        public void setAlpha(final int alpha) { }
+        public void setAlpha(final int alpha) {}
 
         @Override
-        public void setColorFilter(@Nullable final ColorFilter colorFilter) { }
-
+        public void setColorFilter(@Nullable final ColorFilter colorFilter) {}
     }
 
     private final class CircleDrawable extends ShapeDrawable {
@@ -406,14 +402,9 @@ public final class FloatingActionButton extends AppCompatImageButton implements 
         @Override
         public void draw(final Canvas canvas) {
             setBounds(shadowRadius, circleInsetVertical, calculateMeasuredWidth()
-                    - shadowRadius, calculateMeasuredHeight() - circleInsetVertical);
+                                                         - shadowRadius, calculateMeasuredHeight() - circleInsetVertical);
             super.draw(canvas);
         }
-    }
-
-    public void setMenuToggleListener(final OnMenuToggleListener listener, final FloatingActionMenu actionMenu) {
-        floatingActionMenu = new WeakReference<>(actionMenu);
-        if (listener != null && menuToggleListener == null) menuToggleListener = listener;
     }
 
     public interface OnMenuToggleListener {

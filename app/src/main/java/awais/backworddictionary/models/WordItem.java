@@ -1,6 +1,9 @@
-package awais.backworddictionary.adapters.holders;
+package awais.backworddictionary.models;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 public final class WordItem {
     private int position = RecyclerView.NO_POSITION;
@@ -17,12 +20,15 @@ public final class WordItem {
         if (tags != null && tags.length > 0) {
             tagsBuilder.insert(0, "tags:");
             for (final String tag : tags) {
-                if (tag.equals("syn")) tagsBuilder.insert(5, " [synonym]");
-                if (tag.equals("prop")) tagsBuilder.insert(5, " [proper]");
-                if (tag.equals("n")) tagsBuilder.append(" noun,");
-                if (tag.equals("adj")) tagsBuilder.append(" adjective,");
-                if (tag.equals("v")) tagsBuilder.append(" verb,");
-                if (tag.equals("adv")) tagsBuilder.append(" adverb,");
+                if (tag == null) continue;
+                switch (tag) {
+                    case "syn" -> tagsBuilder.insert(5, " [synonym]");
+                    case "prop" -> tagsBuilder.insert(5, " [proper]");
+                    case "n" -> tagsBuilder.append(" noun,");
+                    case "adj" -> tagsBuilder.append(" adjective,");
+                    case "v" -> tagsBuilder.append(" verb,");
+                    case "adv" -> tagsBuilder.append(" adverb,");
+                }
             }
         }
 
@@ -31,7 +37,7 @@ public final class WordItem {
             tagsBuilder.deleteCharAt(lastCharIndex);
 
         tagsBuilder.append(tags != null && tags.length > 0 && numSyllables > 0 ? '\n' : '\0')
-                .append("syllables: ").append(numSyllables);
+                   .append("syllables: ").append(numSyllables);
 
         this.parsedTags = tagsBuilder.toString();
     }
@@ -62,5 +68,22 @@ public final class WordItem {
 
     public int getPosition() {
         return position;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        return o instanceof final WordItem that && this.position == that.position && this.expanded == that.expanded
+               && Objects.equals(this.word, that.word) && Objects.deepEquals(this.defs, that.defs);
+    }
+
+    @Override
+    public int hashCode() {
+        // return Objects.hash(position, word, Arrays.deepHashCode(defs), expanded);
+        int result = 1;
+        result = (31 * result) + Objects.hashCode(word);
+        result = (31 * result) + Objects.hashCode(position);
+        result = (31 * result) + Objects.hashCode(expanded);
+        result = (31 * result) + Arrays.deepHashCode(defs);
+        return result;
     }
 }

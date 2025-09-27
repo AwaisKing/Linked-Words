@@ -13,8 +13,10 @@ import awais.backworddictionary.BuildConfig;
 import awais.backworddictionary.Main;
 import awais.backworddictionary.custom.FloatingDialogView;
 import awais.backworddictionary.helpers.TextProcessHelper;
+import awais.backworddictionary.models.Tab;
 
 public final class WordClickSearchListener implements PopupMenu.OnMenuItemClickListener {
+    private final Tab[] tabs = Tab.values();
     private final Context context;
     private final Dialog dialog;
     private final String word;
@@ -27,13 +29,14 @@ public final class WordClickSearchListener implements PopupMenu.OnMenuItemClickL
 
     @Override
     public boolean onMenuItemClick(final MenuItem item) {
-        if (context instanceof Main) {
+        final int itemIndex = item == null || item.getItemId() < 0 || item.getItemId() >= tabs.length ? 0 : item.getItemId();
+
+        if (context instanceof final Main actMain) {
             try {
-                final Main actMain = (Main) context;
-                final int index = actMain.fragmentsAdapter.fragmentIndex(item.getTitle());
-                if (index != -1) {
-                    actMain.fragmentsAdapter.getItem(index).title = word;
-                    actMain.mainBinding.viewPager.setCurrentItem(index, true);
+                final int tabIndex = actMain.fragmentsAdapter.fragmentIndex(tabs[itemIndex].getTabName());
+                if (tabIndex != -1) {
+                    actMain.fragmentsAdapter.getItem(tabIndex).title = word;
+                    actMain.mainBinding.viewPager.setCurrentItem(tabIndex, true);
                 }
                 actMain.onSearch(word);
             } catch (final Exception e) {
@@ -41,16 +44,12 @@ public final class WordClickSearchListener implements PopupMenu.OnMenuItemClickL
             }
         } else {
             Context baseContext = null;
-            final FloatingDialogView floatingDialogView;
 
-            if (context instanceof ContextThemeWrapper)
-                baseContext = ((ContextThemeWrapper) context).getBaseContext();
-            else if (context instanceof android.view.ContextThemeWrapper)
-                baseContext = ((android.view.ContextThemeWrapper) context).getBaseContext();
+            if (context instanceof final ContextThemeWrapper ctx) baseContext = ctx.getBaseContext();
+            else if (context instanceof final android.view.ContextThemeWrapper ctx) baseContext = ctx.getBaseContext();
 
-            if (baseContext instanceof TextProcessHelper
-                    && (floatingDialogView = ((TextProcessHelper) baseContext).floatingDialogView) != null)
-                floatingDialogView.searchWord(word);
+            final FloatingDialogView floatingDialogView = baseContext instanceof final TextProcessHelper helper ? helper.floatingDialogView : null;
+            if (floatingDialogView != null) floatingDialogView.searchWord(tabs[itemIndex].getTabName(), word);
         }
 
         if (dialog != null) dialog.dismiss();

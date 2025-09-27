@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 import androidx.annotation.NonNull;
-import androidx.core.view.ViewCompat;
 
 import java.util.List;
 
@@ -19,6 +18,7 @@ import awais.backworddictionary.databinding.WordDialogItemBinding;
 import awais.backworddictionary.interfaces.AdapterClickListener;
 
 public final class DefinitionsAdapter<T> implements ListAdapter {
+    private final DataSetObservable dataSetObservable = new DataSetObservable();
     private final boolean isExpanded;
     private final List<T> items;
     private final LayoutInflater layoutInflater;
@@ -39,24 +39,24 @@ public final class DefinitionsAdapter<T> implements ListAdapter {
     @Override
     public View getView(final int position, final View convertView, @NonNull final ViewGroup parent) {
         View row = convertView;
-        final WordDialogItemBinding dialogItemBinding;
 
-        if (row == null) {
-            dialogItemBinding = WordDialogItemBinding.inflate(layoutInflater);
+        WordDialogItemBinding dialogItemBinding = row != null && row.getTag() instanceof WordDialogItemBinding itemBinding ? itemBinding : null;
+
+        if (dialogItemBinding == null) {
+            dialogItemBinding = WordDialogItemBinding.inflate(layoutInflater, parent, false);
             row = dialogItemBinding.getRoot();
 
             dialogItemBinding.tvSub.measure(0, 0);
             topMargin = ((ViewGroup.MarginLayoutParams) dialogItemBinding.tvSub.getLayoutParams()).topMargin;
-            subSize = dialogItemBinding.tvSub.getMeasuredHeight() / 2;
+            subSize = dialogItemBinding.tvSub.getMeasuredHeight() >>> 1;
 
             dialogItemBinding.tvWord.setTypeface(LinkedApp.fontRegular);
             dialogItemBinding.tvSub.setTypeface(LinkedApp.fontMedium);
 
             row.setTag(dialogItemBinding);
-        } else dialogItemBinding = (WordDialogItemBinding) row.getTag();
+        }
 
-        if (!(row.getTag(R.id.word) instanceof CharSequence))
-            row.setTag(R.id.word, currentWord);
+        if (!(row.getTag(R.id.word) instanceof CharSequence)) row.setTag(R.id.word, currentWord);
 
         final String[] wordItem = (String[]) items.get(position);
 
@@ -66,19 +66,17 @@ public final class DefinitionsAdapter<T> implements ListAdapter {
         row.setTag(R.id.word_key, definition);
         row.setOnClickListener(onClickListener);
 
-        if (dialogItemBinding != null) {
-            dialogItemBinding.tvWord.setText(definition);
+        dialogItemBinding.tvWord.setText(definition);
 
-            if (!isExpanded && tags != null && !tags.isEmpty()) {
-                final String itemSub = '[' + tags + ']';
-                dialogItemBinding.tvSub.setText(itemSub);
-                dialogItemBinding.tvSub.setVisibility(View.VISIBLE);
-            } else {
-                if (isExpanded)
-                    dialogItemBinding.tvWord.setPadding(ViewCompat.getPaddingStart(dialogItemBinding.tvWord), subSize,
-                            ViewCompat.getPaddingEnd(dialogItemBinding.tvWord), subSize + topMargin);
-                dialogItemBinding.tvSub.setVisibility(View.GONE);
-            }
+        if (!isExpanded && tags != null && !tags.isEmpty()) {
+            final String itemSub = '[' + tags + ']';
+            dialogItemBinding.tvSub.setText(itemSub);
+            dialogItemBinding.tvSub.setVisibility(View.VISIBLE);
+        } else {
+            if (isExpanded)
+                dialogItemBinding.tvWord.setPadding(dialogItemBinding.tvWord.getPaddingStart(), subSize,
+                                                    dialogItemBinding.tvWord.getPaddingEnd(), subSize + topMargin);
+            dialogItemBinding.tvSub.setVisibility(View.GONE);
         }
 
         return row;
@@ -108,6 +106,7 @@ public final class DefinitionsAdapter<T> implements ListAdapter {
     public boolean isEmpty() {
         return getCount() <= 0;
     }
+
     @Override
     public int getCount() {
         return items == null ? 0 : items.size();
@@ -137,6 +136,4 @@ public final class DefinitionsAdapter<T> implements ListAdapter {
     public boolean areAllItemsEnabled() {
         return true;
     }
-
-    private final DataSetObservable dataSetObservable = new DataSetObservable();
 }

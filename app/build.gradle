@@ -3,36 +3,40 @@ plugins {
 }
 
 android {
-    namespace 'awais.backworddictionary'
-    compileSdk 34
+    namespace = 'awais.backworddictionary'
+    compileSdk = 36
 
     defaultConfig {
         applicationId 'awais.backworddictionary'
 
-        minSdk 19
-        targetSdk 34
+        minSdk = 23
+        targetSdk = 36
 
-        versionCode 128
-        versionName '12.8'
+        versionCode 130
+        versionName '13.0'
 
-        multiDexEnabled true
+        multiDexEnabled = true
 
         vectorDrawables {
-            useSupportLibrary true
             // generatedDensities = []
+            useSupportLibrary = true
         }
     }
 
-    aaptOptions { additionalParameters.add('--no-version-vectors') }
+    androidResources {
+        namespaced false
+        additionalParameters.add('--no-version-vectors')
+    }
 
     buildFeatures {
-        buildConfig true
-        viewBinding true
+        buildConfig = true
+        viewBinding = true
     }
 
     compileOptions {
-        targetCompatibility JavaVersion.VERSION_11
-        sourceCompatibility JavaVersion.VERSION_11
+        coreLibraryDesugaringEnabled = true
+        sourceCompatibility JavaVersion.VERSION_16
+        targetCompatibility JavaVersion.VERSION_16
     }
 
     buildTypes {
@@ -42,7 +46,7 @@ android {
 
         release {
             minifyEnabled true
-            shrinkResources false
+            shrinkResources = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'awaisome-rules.pro'
         }
     }
@@ -59,8 +63,8 @@ android {
     }
 
     dependenciesInfo {
-        includeInApk false
-        includeInBundle false
+        includeInApk = false
+        includeInBundle = false
     }
 }
 
@@ -76,20 +80,19 @@ allprojects {
 }
 
 dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs_nio:2.1.5'
     implementation fileTree(dir: 'libs', include: ['.jar', '.so', '*.jar', '*.so'])
 
-    implementation('androidx.multidex:multidex:2.0.1@aar') { transitive true }
-    implementation('androidx.recyclerview:recyclerview:1.3.2@aar') { transitive true }
-    implementation('androidx.swiperefreshlayout:swiperefreshlayout:1.1.0@aar') { transitive true }
-    implementation('com.google.android.material:material:1.11.0@aar') { transitive true }
+    implementation('androidx.multidex:multidex:2.0.1@aar') { transitive = true }
+    implementation('androidx.recyclerview:recyclerview:1.4.0@aar') { transitive = true }
+    implementation('androidx.swiperefreshlayout:swiperefreshlayout:1.1.0@aar') { transitive = true }
+    implementation('com.google.android.material:material:1.13.0@aar') { transitive = true }
 
-    implementation('com.applovin:applovin-sdk:12.1.0@aar') { transitive true }
-    implementation('com.applovin.mediation:adcolony-adapter:4.8.0.4@aar') { transitive true }
-    implementation('com.applovin.mediation:facebook-adapter:6.16.0.2@aar') { transitive true }
+    implementation('com.applovin:applovin-sdk:13.4.0@aar') { transitive = true }
+    implementation('com.applovin.mediation:inmobi-adapter:10.8.7.0@aar') { transitive = true }
+    implementation('com.applovin.mediation:facebook-adapter:6.20.0.0@aar') { transitive = true }
+    implementation('com.applovin.mediation:chartboost-adapter:9.10.0.0@aar') { transitive = true }
 
-    implementation('com.applovin.mediation:chartboost-adapter:9.6.1.0@aar') { transitive true }
-    implementation('com.google.android.gms:play-services-base:18.3.0@aar') { transitive true }
-
-    implementation('com.applovin.mediation:inmobi-adapter:10.6.3.0@aar') { transitive true }
-    implementation('com.squareup.picasso:picasso:2.71828@aar') { transitive true }
+    implementation('com.squareup.picasso:picasso:2.71828@aar') { transitive = true }
+    implementation('com.google.android.gms:play-services-base:18.9.0@aar') { transitive = true }
 }

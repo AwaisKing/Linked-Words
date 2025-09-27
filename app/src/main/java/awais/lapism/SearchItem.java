@@ -1,18 +1,16 @@
 package awais.lapism;
 
-import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 import awais.backworddictionary.R;
 
 public final class SearchItem implements Parcelable {
-    public static final Creator<SearchItem> CREATOR = new Creator<SearchItem>() {
+    public static final Creator<SearchItem> CREATOR = new Creator<>() {
         @Override
         @NonNull
         public SearchItem createFromParcel(final Parcel source) {
@@ -66,15 +64,12 @@ public final class SearchItem implements Parcelable {
 
     @Override
     public boolean equals(final Object o) {
-        if (o == this) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final SearchItem item = (SearchItem) o;
-        return icon == item.icon && searchable == item.searchable && text.equals(item.text);
+        return o == this || o instanceof final SearchItem item && icon == item.icon && searchable == item.searchable && text.equals(item.text);
     }
 
     @Override
     public int hashCode() {
-        return getHashCode(icon, searchable, text);
+        return Objects.hash(icon, searchable, text);
     }
 
     @NonNull
@@ -86,9 +81,5 @@ public final class SearchItem implements Parcelable {
     @Override
     public int describeContents() {
         return 0;
-    }
-
-    private static int getHashCode(final Object... values) {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? Objects.hash(values) : Arrays.hashCode(values);
     }
 }
