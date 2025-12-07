@@ -69,7 +69,7 @@
             android:documentLaunchMode="intoExisting"
             android:exported="true"
             android:imeOptions="flagNoExtractUi|actionSearch"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTask"
             android:maxRecents="1"
             android:resizeableActivity="true"
             android:theme="@style/AppTheme">
@@ -141,6 +141,15 @@
                 <data android:mimeType="text/*" />
                 <data android:mimeType="text/html" />
                 <data android:mimeType="text/plain" />
+            </intent-filter>
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
             </intent-filter>
 
             <intent-filter>

@@ -12,13 +12,13 @@ android {
         minSdk = 23
         targetSdk = 36
 
-        versionCode 130
-        versionName '13.0'
+        versionCode 131
+        versionName '13.1'
 
         multiDexEnabled = true
 
         vectorDrawables {
-            // generatedDensities = []
+            generatedDensities = []
             useSupportLibrary = true
         }
     }
@@ -80,19 +80,20 @@ allprojects {
 }
 
 dependencies {
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs_nio:2.1.5'
+    coreLibraryDesugaring libs.desugarJDK
     implementation fileTree(dir: 'libs', include: ['.jar', '.so', '*.jar', '*.so'])
 
-    implementation('androidx.multidex:multidex:2.0.1@aar') { transitive = true }
-    implementation('androidx.recyclerview:recyclerview:1.4.0@aar') { transitive = true }
-    implementation('androidx.swiperefreshlayout:swiperefreshlayout:1.1.0@aar') { transitive = true }
-    implementation('com.google.android.material:material:1.13.0@aar') { transitive = true }
+    implementation(libs.material) { transitive = true }
+    implementation(libs.androidx.multidex) { transitive = true }
+    implementation(libs.androidx.recyclerview) { transitive = true }
+    implementation(libs.androidx.swiperefreshlayout) { transitive = true }
 
-    implementation('com.applovin:applovin-sdk:13.4.0@aar') { transitive = true }
-    implementation('com.applovin.mediation:inmobi-adapter:10.8.7.0@aar') { transitive = true }
-    implementation('com.applovin.mediation:facebook-adapter:6.20.0.0@aar') { transitive = true }
-    implementation('com.applovin.mediation:chartboost-adapter:9.10.0.0@aar') { transitive = true }
+    implementation(libs.applovin.sdk) { transitive = true }
+    implementation(libs.applovin.adapter.inmobi) { transitive = true }
+    implementation(libs.applovin.adapter.facebook) { transitive = true }
+    implementation(libs.applovin.adapter.chartboost) { transitive = true }
 
-    implementation('com.squareup.picasso:picasso:2.71828@aar') { transitive = true }
-    implementation('com.google.android.gms:play-services-base:18.9.0@aar') { transitive = true }
+    implementation(libs.picasso) { transitive = true }
+    implementation(libs.okhttp3) { transitive = true }
+    implementation(libs.google.gms.playServicesBase) { transitive = true }
 }

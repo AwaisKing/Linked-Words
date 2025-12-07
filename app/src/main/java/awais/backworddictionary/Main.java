@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -31,6 +32,9 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.app.ActivityCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -60,7 +64,7 @@ import awais.backworddictionary.models.WordItem;
 import awais.lapism.MaterialSearchView;
 import awais.lapism.SearchItem;
 
-public final class Main extends AppCompatActivity {
+public final class Main extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener {
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
@@ -79,17 +83,27 @@ public final class Main extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        EdgeToEdge.enable(this);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
         Utils.defaultLocale = Locale.getDefault();
 
         menuHelper = new MenuHelper(this);
         mainBinding = ActivityMainBinding.inflate(LayoutInflater.from(this), null, false);
-        setContentView(mainBinding.getRoot());
+
+        final var bindingRoot = mainBinding.getRoot();
+        final var appBarLayout = mainBinding.appbarLayout;
+        final var toolbar = mainBinding.toolbar;
+        final var fabOptions = mainBinding.fabOptions;
+        final var searchView = mainBinding.searchView;
+
+        setContentView(bindingRoot);
 
         Utils.adsBox(this);
 
-        toolbarParams = (AppBarLayout.LayoutParams) mainBinding.toolbar.getLayoutParams();
+        toolbarParams = (AppBarLayout.LayoutParams) toolbar.getLayoutParams();
 
-        setSupportActionBar(mainBinding.toolbar);
+        setSupportActionBar(toolbar);
 
         // check for tts before initializing it
         try {
@@ -100,8 +114,8 @@ public final class Main extends AppCompatActivity {
             Toast.makeText(Main.this, R.string.tts_act_not_found, Toast.LENGTH_SHORT).show();
         }
 
-        final ViewGroup.LayoutParams fabParams = mainBinding.fabOptions.getLayoutParams();
-        mainBinding.fabOptions.setLongClickListener(v -> {
+        final ViewGroup.LayoutParams fabParams = fabOptions.getLayoutParams();
+        fabOptions.setLongClickListener(v -> {
             if (fragmentsAdapter == null || mainBinding == null) return true;
             final DictionaryFragment fragment = fragmentsAdapter.getItem(mainBinding.viewPager.getCurrentItem());
             if (fragment.isAdded()) {
@@ -121,21 +135,21 @@ public final class Main extends AppCompatActivity {
                 if (fragment.isFilterOpen()) fragment.hideFilter();
                 else fragment.showFilter(true, FilterMethod.RECYCLER_PADDING);
             }
-            mainBinding.fabOptions.close();
+            fabOptions.close();
         }).setMenuButtonClickListener(v -> {
-            if (!mainBinding.fabOptions.isOpened()) {
+            if (!fabOptions.isOpened()) {
                 fabParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
                 fabParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
-                mainBinding.fabOptions.setLayoutParams(fabParams);
+                fabOptions.setLayoutParams(fabParams);
             }
-            mainBinding.fabOptions.toggle();
+            fabOptions.toggle();
         }).setMenuToggleListener(opened -> {
             if (opened) return;
             fabParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             fabParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
-            mainBinding.fabOptions.setLayoutParams(fabParams);
+            fabOptions.setLayoutParams(fabParams);
         });
-        TooltipCompat.setTooltipText(mainBinding.fabOptions, getString(R.string.options));
+        TooltipCompat.setTooltipText(fabOptions, getString(R.string.options));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 696969);
@@ -143,6 +157,28 @@ public final class Main extends AppCompatActivity {
         loadFragments(true);
         setSearchView();
         handleData();
+
+        ViewCompat.setOnApplyWindowInsetsListener(bindingRoot, (v, insets) -> {
+            var sysInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
+            var gestureInsets = insets.getInsets(WindowInsetsCompat.Type.mandatorySystemGestures() | WindowInsetsCompat.Type.systemGestures());
+
+            final int insetTop = Math.max(sysInsets.top, gestureInsets.top);
+            final int insetLeft = Math.min(sysInsets.left, gestureInsets.left);
+            final int insetRight = Math.min(sysInsets.right, gestureInsets.right);
+
+            appBarLayout.setPadding(insetLeft, insetTop, insetRight, 0);
+
+            final ViewGroup.LayoutParams layoutParams = searchView.getLayoutParams();
+            if (layoutParams instanceof ViewGroup.MarginLayoutParams marginLayoutParams) {
+                marginLayoutParams.setMargins(insetLeft, insetTop, insetRight, 0);
+                searchView.setLayoutParams(layoutParams);
+            }
+
+            return insets;
+        });
+
+        appBarLayout.removeOnOffsetChangedListener(this);
+        appBarLayout.addOnOffsetChangedListener(this);
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             private final Runnable backPressRunnable = () -> {
@@ -382,6 +418,14 @@ public final class Main extends AppCompatActivity {
             menuHelper.show(item);
         }
         return true;
+    }
+
+    @Override
+    public void onOffsetChanged(final AppBarLayout appBarLayout, final int verticalOffset) {
+        if (mainBinding == null) return;
+        float percentage = (float) Math.abs(verticalOffset) / appBarLayout.getTotalScrollRange();
+        percentage = 1.0f - (Float.isNaN(percentage) ? 0.0f : Math.abs(percentage));
+        mainBinding.toolbar.setAlpha(percentage);
     }
 
     public void afterSearch(final ArrayList<WordItem> result) {

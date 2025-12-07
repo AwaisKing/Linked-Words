@@ -55,14 +55,16 @@ public final class TextProcessHelper extends Activity {
     @Override
     public Resources getResources() {
         final Resources resources = super.getResources();
-        findIntent();
+        // todo check where WindowManager initializes
+        if (true && Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) findIntent();
         return resources;
     }
 
     @Override
     protected void attachBaseContext(final Context newBase) {
         super.attachBaseContext(newBase);
-        findIntent();
+        // todo check where WindowManager initializes
+        if (true && Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) findIntent();
     }
 
     @Override
@@ -145,7 +147,9 @@ public final class TextProcessHelper extends Activity {
                         channel.setDescription(context.getString(R.string.linked_words_notif_channel_descr));
                 }
 
-                bubblesApiEnabled = notificationManager.areBubblesAllowed() || channel != null && channel.canBubble();
+                boolean areBubblesEnabled = notificationManager.areBubblesAllowed();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) areBubblesEnabled &= notificationManager.areBubblesEnabled();
+                bubblesApiEnabled = areBubblesEnabled || channel != null && channel.canBubble();
                 isBubbles = bubblesApiEnabled && Intent.ACTION_SEND.equals(action) || isProcessText;
             }
 

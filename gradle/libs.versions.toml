@@ -1,0 +1,20 @@
+[plugins]
+android-application = { id = 'com.android.application', version = '8.13.1' }
+
+[libraries]
+desugarJDK = { module = 'com.android.tools:desugar_jdk_libs_nio', version = '2.1.5' }
+material = { module = 'com.google.android.material:material', version = '1.13.0' }
+
+androidx-multidex = { module = 'androidx.multidex:multidex', version = '2.0.1' }
+androidx-swiperefreshlayout = { module = 'androidx.swiperefreshlayout:swiperefreshlayout', version = '1.2.0' }
+androidx-recyclerview = { module = 'androidx.recyclerview:recyclerview', version = '1.4.0' }
+
+applovin-sdk = { module = 'com.applovin:applovin-sdk', version = '13.5.1' }
+applovin-adapter-inmobi = { module = 'com.applovin.mediation:inmobi-adapter', version = '11.1.0.0' }
+applovin-adapter-facebook = { module = 'com.applovin.mediation:facebook-adapter', version = '6.21.0.0' }
+applovin-adapter-chartboost = { module = 'com.applovin.mediation:chartboost-adapter', version = '9.10.2.0' }
+
+google-gms-playServicesBase = { module = 'com.google.android.gms:play-services-base', version = '18.9.0' }
+
+picasso = { module = 'com.squareup.picasso:picasso', version = '2.71828' }
+okhttp3 = { module = 'com.squareup.okhttp3:okhttp', version = '5.3.2' }
